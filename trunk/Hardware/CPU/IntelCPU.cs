@@ -141,7 +141,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public string GetReport() {
-      return null;
+      StringBuilder r = new StringBuilder();
+
+      r.AppendLine("Intel CPU");
+      r.AppendLine();
+      r.AppendFormat("Name: {0}{1}", name, Environment.NewLine);
+      r.AppendFormat("Number of cores: {0}{1}", coreTemperatures.Length, 
+        Environment.NewLine);
+      r.AppendFormat("TjMax: {0}{1}", tjMax, Environment.NewLine);
+      r.AppendLine();
+
+      return r.ToString();
     }
 
     public void Update() {
