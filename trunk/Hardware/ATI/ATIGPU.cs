@@ -46,16 +46,22 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private string name;
     private Image icon;
     private int adapterIndex;
+    private int busNumber;
+    private int deviceNumber;
     private Sensor temperature;
     private Sensor fan;
     private Sensor coreClock;
     private Sensor memoryClock;
     private Sensor coreVoltage;
 
-    public ATIGPU(string name, int adapterIndex) {
+    public ATIGPU(string name, int adapterIndex, int busNumber, 
+      int deviceNumber) 
+    {
       this.name = name;
       this.icon = Utilities.EmbeddedResources.GetImage("ati.png");
       this.adapterIndex = adapterIndex;
+      this.busNumber = busNumber;
+      this.deviceNumber = deviceNumber;
 
       ADLFanSpeedInfo speedInfo = new ADLFanSpeedInfo();
       ADL.ADL_Overdrive5_FanSpeedInfo_Get(adapterIndex, 0, ref speedInfo);
@@ -68,6 +74,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);
       Update();                   
     }
+
+    public int BusNumber { get { return busNumber; } }
+
+    public int DeviceNumber { get { return deviceNumber; } }
 
     public string Name {
       get { return name; }
