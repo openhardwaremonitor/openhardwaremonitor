@@ -122,9 +122,9 @@ namespace OpenHardwareMonitor.GUI {
       this.label3.Location = new System.Drawing.Point(86, 36);
       this.label3.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
       this.label3.Name = "label3";
-      this.label3.Size = new System.Drawing.Size(90, 15);
+      this.label3.Size = new System.Drawing.Size(99, 15);
       this.label3.TabIndex = 4;
-      this.label3.Text = "Version 0.1 Beta";
+      this.label3.Text = "Version 0.1.1 Beta";
       // 
       // label4
       // 
