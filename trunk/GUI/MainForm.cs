@@ -126,7 +126,7 @@ namespace OpenHardwareMonitor.GUI {
       minMenuItem.Checked = Utilities.Config.Get(minMenuItem.Name, false);
       maxMenuItem.Checked = Utilities.Config.Get(maxMenuItem.Name, true);
       limitMenuItem.Checked = Utilities.Config.Get(limitMenuItem.Name, false);
-      hddMenuItem.Checked = Utilities.Config.Get(hddMenuItem.Name, false);
+      hddMenuItem.Checked = Utilities.Config.Get(hddMenuItem.Name, true);
 
       voltMenuItem.Checked = Utilities.Config.Get(voltMenuItem.Name, true);
       clocksMenuItem.Checked = Utilities.Config.Get(clocksMenuItem.Name, true);

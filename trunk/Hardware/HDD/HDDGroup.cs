@@ -60,8 +60,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             string name = SMART.ReadName(handle, drive);
             if (name != null) {
 
-              SMART.DriveAttribute[] attributes =
+              SMART.DriveAttribute[] attributes = 
                 SMART.ReadSmart(handle, drive);
+
+              if (attributes == null)
+                continue;
 
               int attribute = -1;
               for (int i = 0; i < attributes.Length; i++) {
