@@ -48,7 +48,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ADL.ADL_MAX_PATH)]
     public string UDID;
     public int BusNumber;
-    public int DriverNumber;
+    public int DeviceNumber;
     public int FunctionNumber;
     public int VendorID;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ADL.ADL_MAX_PATH)]
@@ -123,6 +123,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public const int ADL_DL_FANCTRL_SUPPORTS_PERCENT_WRITE = 2;
     public const int ADL_DL_FANCTRL_SUPPORTS_RPM_READ = 4;
     public const int ADL_DL_FANCTRL_SUPPORTS_RPM_WRITE = 8;
+
+    public const int ATI_VENDOR_ID1 = 1002;
+    public const int ATI_VENDOR_ID2 = 0x1002;
 
     private delegate int ADL_Main_Control_CreateDelegate(
       ADL_Main_Memory_AllocDelegate callback, int enumConnectedAdapters);

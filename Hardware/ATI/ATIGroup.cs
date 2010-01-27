@@ -73,6 +73,16 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.AppendLine(adapterInfo[i].AdapterName);     
                 report.Append("UDID: ");
                 report.AppendLine(adapterInfo[i].UDID);
+                report.Append("Present: ");
+                report.AppendLine(adapterInfo[i].Present.ToString());
+                report.Append("VendorID: ");
+                report.AppendLine(adapterInfo[i].VendorID.ToString());
+                report.Append("BusNumber: ");
+                report.AppendLine(adapterInfo[i].BusNumber.ToString());
+                report.Append("DeviceNumber: ");
+                report.AppendLine(adapterInfo[i].DeviceNumber.ToString());
+                report.Append("FunctionNumber: ");
+                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());
                 report.AppendLine();
 
                 if (isActive == 1) {
@@ -80,10 +90,25 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                   ADL.ADL_Adapter_ID_Get(adapterInfo[i].AdapterIndex,
                     out adapterID);
 
-                  if (adapterID > 0 && adapterInfo[i].UDID != "") {
-                    hardware.Add(new ATIGPU(
-                      adapterInfo[i].AdapterName,
-                      adapterInfo[i].AdapterIndex));
+                  if (adapterID > 0 && 
+                    adapterInfo[i].UDID != "" && 
+                    adapterInfo[i].Present > 0 &&
+                    (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
+                     adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) 
+                  {
+                    bool found = false;
+                    foreach (ATIGPU gpu in hardware)
+                      if (gpu.BusNumber == adapterInfo[i].BusNumber &&
+                        gpu.DeviceNumber == adapterInfo[i].DeviceNumber) {
+                        found = true;
+                        break;
+                      }
+                    if (!found)
+                      hardware.Add(new ATIGPU(
+                        adapterInfo[i].AdapterName,
+                        adapterInfo[i].AdapterIndex,
+                        adapterInfo[i].BusNumber, 
+                        adapterInfo[i].DeviceNumber));
                   }
                 }
               }
