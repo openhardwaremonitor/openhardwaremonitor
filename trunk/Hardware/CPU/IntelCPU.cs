@@ -52,6 +52,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private float tjMax = 0;   
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
+    private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
 
     public IntelCPU(string name, uint family, uint model, uint stepping, 
       uint[,] cpuidData, uint[,] cpuidExtData) {
@@ -59,9 +60,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       this.name = name;
       this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
       
-      uint coreCount = 1;
-      if (cpuidData.GetLength(0) > 4)
-        coreCount = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
+      uint logicalProcessors = 1;
+      if (cpuidData.GetLength(0) > 0x04)
+        logicalProcessors = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
+
+      uint logicalProcessorsPerCore = 1;
+      if (cpuidData.GetLength(0) > 0x0B)
+        logicalProcessorsPerCore = cpuidData[0x0B, 1] & 0xFF;
+      if (logicalProcessorsPerCore == 0)
+        logicalProcessorsPerCore = 1;
+
+      uint coreCount = logicalProcessors / logicalProcessorsPerCore;
 
       switch (family) {
         case 0x06: {
@@ -84,11 +93,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   tjMax = 85; break;
                 default:
                   tjMax = 85; break;
-              } break;
-            case 0x1c: // Intel Atom 
-              tjMax = 90; break;
+              } break;            
             case 0x17: // Intel Core 45nm
               tjMax = 100; break;
+            case 0x1C: // Intel Atom 
+              tjMax = 90; break;
+            case 0x1A:
+              uint eax = 0, edx = 0;
+              if (WinRing0.RdmsrPx(
+                  IA32_TEMPERATURE_TARGET, ref eax, ref edx, (UIntPtr)1)) {
+                tjMax = (eax >> 16) & 0xFF;
+              } else
+                tjMax = 100;
+              break;
             default:
               tjMax = 100; break;
           }
