@@ -47,19 +47,28 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public ATIGroup() {
       try {
-        if (ADL.ADL_Main_Control_Create(1) == ADL.ADL_SUCCESS) {
+        int status = ADL.ADL_Main_Control_Create(1);
+
+        report.AppendLine("AMD Display Library");
+        report.AppendLine();
+        report.Append("Status: ");
+        if (status == ADL.ADL_OK)
+          report.AppendLine("OK");
+        else
+          report.AppendLine(status.ToString());
+        report.AppendLine();
+
+        if (status == ADL.ADL_OK) {
           int numberOfAdapters = 0;
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);
-
-          report.AppendLine("AMD Display Library");
-          report.AppendLine();
+          
           report.Append("Numer of adapters: "); 
           report.AppendLine(numberOfAdapters.ToString());
           report.AppendLine();
 
           if (numberOfAdapters > 0) {
             ADLAdapterInfo[] adapterInfo = new ADLAdapterInfo[numberOfAdapters];
-            if (ADL.ADL_Adapter_AdapterInfo_Get(adapterInfo) == ADL.ADL_SUCCESS)
+            if (ADL.ADL_Adapter_AdapterInfo_Get(adapterInfo) == ADL.ADL_OK)
               for (int i = 0; i < numberOfAdapters; i++) {
                 int isActive;
                 ADL.ADL_Adapter_Active_Get(adapterInfo[i].AdapterIndex,
