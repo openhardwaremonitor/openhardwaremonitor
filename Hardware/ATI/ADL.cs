@@ -109,7 +109,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public const int ADL_MAX_ADAPTERS = 40;
     public const int ADL_MAX_DISPLAYS = 40;
     public const int ADL_MAX_DEVICENAME = 32;
-    public const int ADL_SUCCESS = 0;
+    public const int ADL_OK = 0;
     public const int ADL_FAIL = -1;
     public const int ADL_DRIVER_OK = 0;
     public const int ADL_MAX_GLSYNC_PORTS = 8;

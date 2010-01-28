@@ -109,7 +109,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         temperatures[i] = new Sensor("Temperature #" + (i + 1), i,
           SensorType.Temperature, this);
 
-      fans = new Sensor[4];
+      fans = new Sensor[5];
       for (int i = 0; i < fans.Length; i++)
         fans[i] = new Sensor("Fan #" + (i + 1), i, SensorType.Fan, this);
 
