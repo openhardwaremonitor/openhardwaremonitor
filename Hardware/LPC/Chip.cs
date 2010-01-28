@@ -11,7 +11,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     IT8718F = 0x8718,
     IT8720F = 0x8720,
     IT8726F = 0x8726,
-    W83627DHG = 0xA020
+    W83627DHG = 0xA020,
+    F71882FG = 0x0541
   }
 
 }

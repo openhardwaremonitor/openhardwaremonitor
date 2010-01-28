@@ -47,32 +47,32 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private Chip chip = Chip.Unknown;
 
     // I/O Ports
-    private const ushort REGISTER_PORT = 0x2e;
-    private const ushort VALUE_PORT = 0x2f;
+    private ushort[] REGISTER_PORTS = new ushort[] { 0x2e, 0x4e };
+    private ushort[] VALUE_PORTS = new ushort[] { 0x2f, 0x4f };
+
+    private ushort registerPort;
+    private ushort valuePort;
 
     // Registers
     private const byte CONFIGURATION_CONTROL_REGISTER = 0x02;
     private const byte DEVCIE_SELECT_REGISTER = 0x07;
     private const byte CHIP_ID_REGISTER = 0x20;
     private const byte CHIP_REVISION_REGISTER = 0x21;
+    private const byte BASE_ADDRESS_REGISTER = 0x60;
 
-    private static byte ReadByte(byte register) {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, register);
-      return WinRing0.ReadIoPortByte(VALUE_PORT);
+    private byte ReadByte(byte register) {
+      WinRing0.WriteIoPortByte(registerPort, register);
+      return WinRing0.ReadIoPortByte(valuePort);
     }
 
-    private static ushort ReadWord(byte register) {
-      ushort value;
-      WinRing0.WriteIoPortByte(REGISTER_PORT, register);
-      value = (ushort)(((ushort)WinRing0.ReadIoPortByte(VALUE_PORT)) << 8);
-      WinRing0.WriteIoPortByte(REGISTER_PORT, (byte)(register + 1));
-      value |= (ushort)WinRing0.ReadIoPortByte(VALUE_PORT);
-      return value;
+    private ushort ReadWord(byte register) {
+      return (ushort)((ReadByte(register) << 8) | 
+        ReadByte((byte)(register + 1)));
     }
 
-    private static void Select(byte logicalDeviceNumber) {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, DEVCIE_SELECT_REGISTER);
-      WinRing0.WriteIoPortByte(VALUE_PORT, logicalDeviceNumber);
+    private void Select(byte logicalDeviceNumber) {
+      WinRing0.WriteIoPortByte(registerPort, DEVCIE_SELECT_REGISTER);
+      WinRing0.WriteIoPortByte(valuePort, logicalDeviceNumber);
     }
 
     // IT87
@@ -81,84 +81,137 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort IT8720F_CHIP_ID = 0x8720;
     private const ushort IT8726F_CHIP_ID = 0x8726;
 
-    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
-    private const byte IT87_ENVIRONMENT_CONTROLLER_BASE_ADDR_REG = 0x60;
+    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;    
 
-    private static void IT87Enter() {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x87);
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x01);
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x55);
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x55);
+    private void IT87Enter() {
+      WinRing0.WriteIoPortByte(registerPort, 0x87);
+      WinRing0.WriteIoPortByte(registerPort, 0x01);
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
     }
 
-    internal static void IT87Exit() {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, CONFIGURATION_CONTROL_REGISTER);
-      WinRing0.WriteIoPortByte(VALUE_PORT, 0x02);
+    internal void IT87Exit() {
+      WinRing0.WriteIoPortByte(registerPort, CONFIGURATION_CONTROL_REGISTER);
+      WinRing0.WriteIoPortByte(valuePort, 0x02);
     }
 
-    // Winbond
-    private static void WinbondEnter() {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x87);
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0x87);
+    // Winbond, Fintek
+    private const byte FINTEK_VENDOR_ID_REGISTER = 0x23;
+    private const ushort FINTEK_VENDOR_ID = 0x1934;
+
+    private const byte W83627DHG_HARDWARE_MONITOR_LDN = 0x0B;
+    private const byte F71882FG_HARDWARE_MONITOR_LDN = 0x04;
+
+    private void WinbondFintekEnter() {
+      WinRing0.WriteIoPortByte(registerPort, 0x87);
+      WinRing0.WriteIoPortByte(registerPort, 0x87);
     }
 
-    private static void WinbondExit() {
-      WinRing0.WriteIoPortByte(REGISTER_PORT, 0xAA);      
+    private void WinbondFintekExit() {
+      WinRing0.WriteIoPortByte(registerPort, 0xAA);      
     }
 
     public LPCGroup() {
       if (!WinRing0.IsAvailable)
         return;
 
-      WinbondEnter();
+      for (int i = 0; i < REGISTER_PORTS.Length; i++) {
+        registerPort = REGISTER_PORTS[i];
+        valuePort = VALUE_PORTS[i];
 
-      byte id = ReadByte(CHIP_ID_REGISTER);
-      byte revision = ReadByte(CHIP_REVISION_REGISTER);
-      switch (id) {
-        case 0xA0:
-          switch (revision & 0xF0) {
-            case 0x20: chip = Chip.W83627DHG; break;
-            default: chip = Chip.Unknown; break;
-          } break;
-        default: chip = Chip.Unknown; break;
-      }
-      if (chip != Chip.Unknown) {
+        WinbondFintekEnter();
 
-        WinbondExit();
+        byte hardwareMonitorLDN;
+        byte id = ReadByte(CHIP_ID_REGISTER);
+        byte revision = ReadByte(CHIP_REVISION_REGISTER);
+        switch (id) {
+          case 0xA0:
+            switch (revision & 0xF0) {
+              case 0x20: 
+                chip = Chip.W83627DHG;
+                hardwareMonitorLDN = W83627DHG_HARDWARE_MONITOR_LDN;  
+                break;
+              default: 
+                chip = Chip.Unknown;
+                hardwareMonitorLDN = 0;
+                break;
+            } break;
+          case 0x05:
+            switch (revision) {
+              case 0x41: 
+                chip = Chip.F71882FG;
+                hardwareMonitorLDN = F71882FG_HARDWARE_MONITOR_LDN; 
+                break;
+              default: 
+                chip = Chip.Unknown; 
+                hardwareMonitorLDN = 0;
+                break;
+            } break;
+          default:
+            chip = Chip.Unknown; 
+            hardwareMonitorLDN = 0;
+            break;
+        }
+        if (chip != Chip.Unknown) {
 
-        W83627DHG w83627dhg = new W83627DHG(revision);
-        if (w83627dhg.IsAvailable)
-          hardware.Add(w83627dhg);
-        return;
-      }
+          Select(hardwareMonitorLDN);
+          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+          Thread.Sleep(1);
+          ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
 
-      IT87Enter();
+          ushort vendorID = 0;
+          if (chip == Chip.F71882FG)
+            vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
-      switch (ReadWord(CHIP_ID_REGISTER)) {
-        case 0x8716: chip = Chip.IT8716F; break;
-        case 0x8718: chip = Chip.IT8718F; break;
-        case 0x8720: chip = Chip.IT8720F; break;
-        case 0x8726: chip = Chip.IT8726F; break;
-        default: chip = Chip.Unknown; break;
-      }
+          WinbondFintekExit();
 
-      if (chip != Chip.Unknown) {        
-        Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
-        ushort address = ReadWord(IT87_ENVIRONMENT_CONTROLLER_BASE_ADDR_REG);
-        Thread.Sleep(1);
-        ushort verify = ReadWord(IT87_ENVIRONMENT_CONTROLLER_BASE_ADDR_REG);
-
-        IT87Exit();
-
-        if (address != verify || address == 0 || (address & 0xF007) != 0)
+          if (address != verify || address == 0 || (address & 0xF007) != 0)
+            return;
+          
+          switch (chip) {
+            case Chip.W83627DHG:
+              W83627DHG w83627dhg = new W83627DHG(revision, address);
+              if (w83627dhg.IsAvailable)
+                hardware.Add(w83627dhg);
+              break;
+            case Chip.F71882FG:  
+              if (vendorID == FINTEK_VENDOR_ID)
+                hardware.Add(new F71882FG(address));
+              break;
+            default: break;
+          }
+          
           return;
+        }
 
-        IT87 it87 = new IT87(chip, address);
-        if (it87.IsAvailable)
-          hardware.Add(it87);
-        
-        return;
-      }                
+        IT87Enter();
+
+        switch (ReadWord(CHIP_ID_REGISTER)) {
+          case 0x8716: chip = Chip.IT8716F; break;
+          case 0x8718: chip = Chip.IT8718F; break;
+          case 0x8720: chip = Chip.IT8720F; break;
+          case 0x8726: chip = Chip.IT8726F; break;
+          default: chip = Chip.Unknown; break;
+        }
+
+        if (chip != Chip.Unknown) {
+          Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
+          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+          Thread.Sleep(1);
+          ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+
+          IT87Exit();
+
+          if (address != verify || address == 0 || (address & 0xF007) != 0)
+            return;
+
+          IT87 it87 = new IT87(chip, address);
+          if (it87.IsAvailable)
+            hardware.Add(it87);
+
+          return;
+        }
+      }   
     }
 
     public IHardware[] Hardware {

@@ -49,7 +49,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private Sensor[] coreTemperatures;
 
-    private float tjMax = 0;   
+    private float tjMax = 0;
+    private uint logicalProcessorsPerCore;
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -64,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (cpuidData.GetLength(0) > 0x04)
         logicalProcessors = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
 
-      uint logicalProcessorsPerCore = 1;
+      logicalProcessorsPerCore = 1;
       if (cpuidData.GetLength(0) > 0x0B)
         logicalProcessorsPerCore = cpuidData[0x0B, 1] & 0xFF;
       if (logicalProcessorsPerCore == 0)
@@ -159,7 +160,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint eax = 0, edx = 0;      
       for (int i = 0; i < coreTemperatures.Length; i++) {
         if (WinRing0.RdmsrPx(
-          IA32_THERM_STATUS_MSR, ref eax, ref edx, (UIntPtr)(1 << i))) 
+          IA32_THERM_STATUS_MSR, ref eax, ref edx, 
+            (UIntPtr)(logicalProcessorsPerCore << i))) 
         {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {

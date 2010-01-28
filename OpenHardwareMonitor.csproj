@@ -62,6 +62,7 @@
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
+    <Compile Include="Hardware\LPC\F71882FG.cs" />
     <Compile Include="Hardware\SMBIOS\SMBIOSGroup.cs" />
     <Compile Include="Hardware\LPC\W83627DHG.cs" />
     <Compile Include="Hardware\ReportWriter.cs" />
