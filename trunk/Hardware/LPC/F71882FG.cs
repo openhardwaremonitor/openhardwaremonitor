@@ -1,4 +1,4 @@
-/*
+﻿/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -41,38 +41,28 @@ using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class IT87 : IHardware {
+  public class F71882FG  : IHardware {
 
     private string name;
     private Image icon;
-        
-    private bool available = false;
-    private Chip chip;
+
     private ushort address;
+
+    private List<ISensor> active = new List<ISensor>();
 
     private Sensor[] temperatures;
     private Sensor[] fans;
     private Sensor[] voltages;
-    private List<ISensor> active = new List<ISensor>();
     private float[] voltageGains;
-   
-    // Consts
-    private const byte ITE_VENDOR_ID = 0x90;
-       
-    // Environment Controller
+
+    // Hardware Monitor
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
     private const byte DATA_REGISTER_OFFSET = 0x06;
 
-    // Environment Controller Registers    
-    private const byte CONFIGURATION_REGISTER = 0x00;
-    private const byte TEMPERATURE_BASE_REG = 0x29;
-    private const byte VENDOR_ID_REGISTER = 0x58;
-    private const byte FAN_TACHOMETER_16_BIT_ENABLE_REGISTER = 0x0c;
-    private byte[] FAN_TACHOMETER_REG = 
-      new byte[] { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
-    private byte[] FAN_TACHOMETER_EXT_REG =
-      new byte[] { 0x18, 0x19, 0x1a, 0x81, 0x83 };
-    private const byte VOLTAGE_BASE_REG = 0x20;  
+    // Hardware Monitor Registers
+    private const byte VOLTAGE_BASE_REG = 0x20;
+    private const byte TEMPERATURE_BASE_REG = 0x72;
+    private byte[] FAN_TACHOMETER_REG = new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
     
     private byte ReadByte(byte register) {
       WinRing0.WriteIoPortByte(
@@ -80,50 +70,28 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
     }
 
-    public IT87(Chip chip, ushort address) {
-      
-      this.chip = chip;
+    public F71882FG(ushort address) {
       this.address = address;
 
-      switch (chip) {
-        case Chip.IT8716F: name = "ITE IT8716F"; break;
-        case Chip.IT8718F: name = "ITE IT8718F"; break;
-        case Chip.IT8720F: name = "ITE IT8720F"; break;
-        case Chip.IT8726F: name = "ITE IT8726F"; break;
-        default: return;
-      }
-      
-      // Check vendor id
-      byte vendorId = ReadByte(VENDOR_ID_REGISTER);      
-      if (vendorId != ITE_VENDOR_ID)
-        return;
-
-      // Bit 0x10 of the configuration register should always be 1
-      if ((ReadByte(CONFIGURATION_REGISTER) & 0x10) == 0)
-        return;
+      this.name = "Fintek F71882FG";
 
       temperatures = new Sensor[3];
-      for (int i = 0; i < temperatures.Length; i++) 
+      for (int i = 0; i < temperatures.Length; i++)
         temperatures[i] = new Sensor("Temperature #" + (i + 1), i,
           SensorType.Temperature, this);
 
-      fans = new Sensor[5];
+      fans = new Sensor[4];
       for (int i = 0; i < fans.Length; i++)
         fans[i] = new Sensor("Fan #" + (i + 1), i, SensorType.Fan, this);
 
-      voltageGains = new float[] { 
-        1, 1, 1, (6.8f / 10 + 1), 1, 1, 1, 1, 1 };
+      voltageGains = new float[] { 1, 0.5f, 1, 1, 1, 1, 1, 1, 1 };
+      voltages = new Sensor[4];
+      voltages[0] = new Sensor("VCC3V", 0, SensorType.Voltage, this);
+      voltages[1] = new Sensor("CPU VCore", 1, SensorType.Voltage, this);      
+      voltages[2] = new Sensor("VSB3V", 7, SensorType.Voltage, this);
+      voltages[3] = new Sensor("Battery", 8, SensorType.Voltage, this);
 
-      voltages = new Sensor[2];
-      voltages[0] = new Sensor("CPU VCore", 0, SensorType.Voltage, this);
-      voltages[1] = new Sensor("Battery", 8, SensorType.Voltage, this);           
-
-      available = true;
-      icon = Utilities.EmbeddedResources.GetImage("chip.png");
-    }
-
-    public bool IsAvailable {
-      get { return available; } 
+      this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
     }
 
     public string Name {
@@ -131,7 +99,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public string Identifier {
-      get { return "/lpc/it87"; }
+      get { return "/lpc/f71882fg"; }
     }
 
     public Image Icon {
@@ -145,18 +113,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public string GetReport() {
       StringBuilder r = new StringBuilder();
 
-      r.AppendLine("LPC IT87");
+      r.AppendLine("LPC F71882FG");
       r.AppendLine();
-      r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
-      r.Append("Chip Name: "); r.AppendLine(name);
-      r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
+      r.Append("Base Adress: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
-      r.AppendLine("Environment Controller Registers");
+      r.AppendLine("Hardware Monitor Registers");
       r.AppendLine();
 
       r.AppendLine("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
-      for (int i = 0; i <= 0xA; i++) {
+      for (int i = 0; i <= 0xF; i++) {
         r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           r.Append(" ");
@@ -165,7 +131,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         r.AppendLine();
       }
       r.AppendLine();
-
       return r.ToString();
     }
 
@@ -181,7 +146,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in temperatures) {
-        int value = ReadByte((byte)(TEMPERATURE_BASE_REG + sensor.Index));
+        int value = ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * sensor.Index));
         sensor.Value = value;
         if (value < 254)
           ActivateSensor(sensor);
@@ -190,11 +155,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in fans) {
-        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index]);
-        value |= ReadByte(FAN_TACHOMETER_EXT_REG[sensor.Index]) << 8;
+        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index]) << 8;
+        value |= ReadByte((byte)(FAN_TACHOMETER_REG[sensor.Index] + 1));
 
         if (value > 0) {
-          sensor.Value = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
+          sensor.Value = (value < 0x0fff) ? 1.5e6f / value : 0;
           ActivateSensor(sensor);
         } else {
           DeactivateSensor(sensor);

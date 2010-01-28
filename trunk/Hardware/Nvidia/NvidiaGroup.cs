@@ -54,8 +54,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       if (NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count) != NvStatus.OK)
         return;
 
-      for (int i = 0; i < count; i++)         
-        hardware.Add(new NvidiaGPU(i, handles[i]));   
+      for (int i = 0; i < count; i++) {
+        string gpuName;
+        NVAPI.NvAPI_GPU_GetFullName(handles[i], out gpuName);
+        if (gpuName != null && gpuName.Trim() != "")
+          hardware.Add(new NvidiaGPU(i, handles[i]));
+      }
     }
 
     public IHardware[] Hardware {

@@ -12,9 +12,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private Image icon;
 
     private bool available = false;
+    private ushort address;
 
-    public W83627DHG(byte revision) {      
+    public W83627DHG(byte revision, ushort address) {      
       this.revision = revision;
+      this.address = address;
 
       this.name = "Winbond W83627DHG";
       this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
@@ -45,7 +47,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       r.AppendLine("LPC W83627DHG");
       r.AppendLine();
-      r.Append("Chip revision: 0x"); r.AppendLine(revision.ToString("X"));     
+      r.Append("Chip revision: 0x"); r.AppendLine(revision.ToString("X"));
+      r.Append("Base Adress: 0x"); r.AppendLine(address.ToString("X4"));
+      r.AppendLine();
 
       return r.ToString();
     }
