@@ -176,7 +176,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               break;
             case Chip.F71882FG:  
               if (vendorID == FINTEK_VENDOR_ID)
-                hardware.Add(new F71882FG(address));
+                hardware.Add(new F71882(address));
               break;
             default: break;
           }

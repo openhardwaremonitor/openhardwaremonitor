@@ -144,6 +144,14 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
       private byte[] data;
       private string[] strings;
 
+      protected string GetString(int offset) {
+        if (offset < data.Length && data[offset] > 0 &&
+         data[offset] <= strings.Length)
+          return strings[data[offset] - 1];
+        else
+          return "";
+      }
+
       public Structure(byte type, ushort handle, byte[] data, string[] strings) 
       {
         this.type = type;
@@ -159,18 +167,15 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
 
     public class BIOSInformation : Structure {
 
-      private string vendor = "";
-      private string version = "";
+      private string vendor;
+      private string version;
 
       public BIOSInformation(byte type, ushort handle, byte[] data,
         string[] strings)
         : base(type, handle, data, strings) {
 
-        if (data[0x04] > 0 && data[0x04] <= strings.Length)
-          vendor = strings[data[0x04] - 1];
-
-        if (data[0x05] > 0 && data[0x05] <= strings.Length)
-          version = strings[data[0x05] - 1];
+        this.vendor = GetString(0x04);
+        this.version = GetString(0x05);
       }
 
       public string Vendor { get { return vendor; } }
@@ -180,18 +185,15 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
 
     public class BaseBoardInformation : Structure {
 
-      private string manufacturer  = "";
-      private string productName = "";
+      private string manufacturer;
+      private string productName;
 
       public BaseBoardInformation(byte type, ushort handle, byte[] data,
         string[] strings)
         : base(type, handle, data, strings) {
 
-        if (data[0x04] > 0 && data[0x04] <= strings.Length)
-          manufacturer = strings[data[0x04] - 1];
-
-        if (data[0x05] > 0 && data[0x05] <= strings.Length)
-          productName = strings[data[0x05] - 1];
+        this.manufacturer = GetString(0x04);
+        this.productName = GetString(0x05);
       }
 
       public string Manufacturer { get { return manufacturer; } }

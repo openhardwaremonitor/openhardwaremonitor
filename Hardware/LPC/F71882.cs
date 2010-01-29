@@ -41,7 +41,7 @@ using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class F71882FG  : IHardware {
+  public class F71882  : IHardware {
 
     private string name;
     private Image icon;
@@ -70,10 +70,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
     }
 
-    public F71882FG(ushort address) {
+    public F71882(ushort address) {
       this.address = address;
 
-      this.name = "Fintek F71882FG";
+      this.name = "Fintek F71882";
 
       temperatures = new Sensor[3];
       for (int i = 0; i < temperatures.Length; i++)
