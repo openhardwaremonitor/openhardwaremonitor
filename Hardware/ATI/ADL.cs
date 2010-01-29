@@ -171,60 +171,62 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public static ADL_Overdrive5_FanSpeedInfo_GetDelegate
       ADL_Overdrive5_FanSpeedInfo_Get;
 
-    private static string GetDllName() {
-      int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
-        if (IntPtr.Size == 4) {
-          return "atiadlxy.so";
-        } else {
-          return "atiadlxx.so";
-        }
-      } else {
-        if (IntPtr.Size == 4) {
-          return "atiadlxy.dll";
-        } else {
-          return "atiadlxx.dll";
-        }
-      }
-    }
+    private static string dllName;
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate)
       where T : class 
     {
-      DllImportAttribute attribute = new DllImportAttribute(GetDllName());
+      DllImportAttribute attribute = new DllImportAttribute(dllName);
       attribute.CallingConvention = CallingConvention.StdCall;
       attribute.PreserveSig = true;
       attribute.EntryPoint = entryPoint;
       PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
     }
 
+    private static void CreateDelegates(string name) {
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128))
+        dllName = name + ".so";
+      else
+        dllName = name + ".dll";
+
+      GetDelegate("ADL_Main_Control_Create",
+        out _ADL_Main_Control_Create);
+      GetDelegate("ADL_Adapter_AdapterInfo_Get",
+        out _ADL_Adapter_AdapterInfo_Get);
+      GetDelegate("ADL_Main_Control_Destroy",
+        out ADL_Main_Control_Destroy);
+      GetDelegate("ADL_Adapter_NumberOfAdapters_Get",
+        out ADL_Adapter_NumberOfAdapters_Get);
+      GetDelegate("ADL_Adapter_ID_Get",
+        out ADL_Adapter_ID_Get);
+      GetDelegate("ADL_Adapter_Active_Get",
+        out ADL_Adapter_Active_Get);
+      GetDelegate("ADL_Overdrive5_CurrentActivity_Get",
+        out ADL_Overdrive5_CurrentActivity_Get);
+      GetDelegate("ADL_Overdrive5_Temperature_Get",
+        out ADL_Overdrive5_Temperature_Get);
+      GetDelegate("ADL_Overdrive5_FanSpeed_Get",
+        out ADL_Overdrive5_FanSpeed_Get);
+      GetDelegate("ADL_Overdrive5_FanSpeedInfo_Get",
+        out ADL_Overdrive5_FanSpeedInfo_Get);
+    }
+
     static ADL() {
-       GetDelegate("ADL_Main_Control_Create", 
-         out _ADL_Main_Control_Create);
-       GetDelegate("ADL_Adapter_AdapterInfo_Get", 
-         out _ADL_Adapter_AdapterInfo_Get);
-       GetDelegate("ADL_Main_Control_Destroy", 
-         out ADL_Main_Control_Destroy);
-       GetDelegate("ADL_Adapter_NumberOfAdapters_Get", 
-         out ADL_Adapter_NumberOfAdapters_Get);
-       GetDelegate("ADL_Adapter_ID_Get", 
-         out ADL_Adapter_ID_Get);
-       GetDelegate("ADL_Adapter_Active_Get", 
-         out ADL_Adapter_Active_Get);
-       GetDelegate("ADL_Overdrive5_CurrentActivity_Get", 
-         out ADL_Overdrive5_CurrentActivity_Get);
-       GetDelegate("ADL_Overdrive5_Temperature_Get", 
-         out ADL_Overdrive5_Temperature_Get);
-       GetDelegate("ADL_Overdrive5_FanSpeed_Get", 
-         out ADL_Overdrive5_FanSpeed_Get);
-       GetDelegate("ADL_Overdrive5_FanSpeedInfo_Get",
-          out ADL_Overdrive5_FanSpeedInfo_Get);
+      CreateDelegates("atiadlxx");
     }
 
     private ADL() { }
 
     public static int ADL_Main_Control_Create(int enumConnectedAdapters) {
-      return _ADL_Main_Control_Create(Main_Memory_Alloc, enumConnectedAdapters);
+      try {
+        return _ADL_Main_Control_Create(Main_Memory_Alloc,
+          enumConnectedAdapters);
+      } catch (DllNotFoundException) {
+        CreateDelegates("atiadlxy");
+        return _ADL_Main_Control_Create(Main_Memory_Alloc,
+          enumConnectedAdapters);
+      }
     }
 
     public static int ADL_Adapter_AdapterInfo_Get(ADLAdapterInfo[] info) {
