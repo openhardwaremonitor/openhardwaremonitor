@@ -137,6 +137,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ref int numAdapters);    
     public delegate int ADL_Adapter_ID_GetDelegate(int adapterIndex,
       out int adapterID);
+    public delegate int ADL_Display_AdapterID_GetDelegate(int adapterIndex,
+      out int adapterID);      	
     public delegate int ADL_Adapter_Active_GetDelegate(int adapterIndex,
       out int status);
     public delegate int ADL_Overdrive5_CurrentActivity_GetDelegate(
@@ -154,13 +156,15 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private static ADL_Adapter_AdapterInfo_GetDelegate
       _ADL_Adapter_AdapterInfo_Get;
 
-    public static ADL_Main_Control_DestroyDelegate
+    public static ADL_Main_Control_DestroyDelegate 
       ADL_Main_Control_Destroy;
     public static ADL_Adapter_NumberOfAdapters_GetDelegate
       ADL_Adapter_NumberOfAdapters_Get;
-    public static ADL_Adapter_ID_GetDelegate
-      ADL_Adapter_ID_Get;
-    public static ADL_Adapter_Active_GetDelegate
+    public static ADL_Adapter_ID_GetDelegate 
+      _ADL_Adapter_ID_Get;
+    public static ADL_Display_AdapterID_GetDelegate 
+      _ADL_Display_AdapterID_Get;
+    public static ADL_Adapter_Active_GetDelegate 
       ADL_Adapter_Active_Get;
     public static ADL_Overdrive5_CurrentActivity_GetDelegate
       ADL_Overdrive5_CurrentActivity_Get;
@@ -199,7 +203,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       GetDelegate("ADL_Adapter_NumberOfAdapters_Get",
         out ADL_Adapter_NumberOfAdapters_Get);
       GetDelegate("ADL_Adapter_ID_Get",
-        out ADL_Adapter_ID_Get);
+        out _ADL_Adapter_ID_Get);
+      GetDelegate("ADL_Display_AdapterID_Get", 
+        out _ADL_Display_AdapterID_Get);
       GetDelegate("ADL_Adapter_Active_Get",
         out ADL_Adapter_Active_Get);
       GetDelegate("ADL_Overdrive5_CurrentActivity_Get",
@@ -240,6 +246,20 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           typeof(ADLAdapterInfo));
       Marshal.FreeHGlobal(ptr);
       return result;
+    }
+
+    public static int ADL_Adapter_ID_Get(int adapterIndex,
+      out int adapterID) {
+      try {
+        return _ADL_Adapter_ID_Get(adapterIndex, out adapterID);
+      } catch (EntryPointNotFoundException) {
+        try {
+          return _ADL_Display_AdapterID_Get(adapterIndex, out adapterID);
+        } catch (EntryPointNotFoundException) {
+          adapterID = 1;
+          return ADL_OK;
+        }
+      }
     }
 
     private delegate IntPtr ADL_Main_Memory_AllocDelegate(int size);
