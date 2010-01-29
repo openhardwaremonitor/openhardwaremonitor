@@ -91,13 +91,15 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.Append("DeviceNumber: ");
                 report.AppendLine(adapterInfo[i].DeviceNumber.ToString());
                 report.Append("FunctionNumber: ");
-                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());
-                report.AppendLine();
+                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());                
 
                 if (isActive == 1) {
                   int adapterID;
                   ADL.ADL_Adapter_ID_Get(adapterInfo[i].AdapterIndex,
                     out adapterID);
+
+                  report.Append("AdapterID: 0x");
+                  report.AppendLine(adapterID.ToString("X"));
 
                   if (adapterID > 0 && 
                     adapterInfo[i].UDID != "" && 
@@ -120,10 +122,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                         adapterInfo[i].DeviceNumber));
                   }
                 }
+
+                report.AppendLine();
               }
           }
         }
-      } catch (DllNotFoundException) { } catch (EntryPointNotFoundException) { }
+      } catch (DllNotFoundException) { } 
+        catch (EntryPointNotFoundException e) {
+          report.AppendLine();
+          report.AppendLine(e.ToString());
+          report.AppendLine();        
+        }
     }
 
     public IHardware[] Hardware {
