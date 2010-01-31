@@ -81,7 +81,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       deactivating.Remove(sensor);
       if (!active.Contains(sensor)) {
         active.Add(sensor);
-        SensorAdded(sensor);
+        if (SensorAdded != null)
+          SensorAdded(sensor);
       }      
     }
 
@@ -89,7 +90,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       if (deactivating.Contains(sensor)) {
         active.Remove(sensor);
         deactivating.Remove(sensor);
-        SensorRemoved(sensor);
+        if (SensorRemoved != null)
+          SensorRemoved(sensor);
       } else if (active.Contains(sensor)) {
         deactivating.Add(sensor);
       }     

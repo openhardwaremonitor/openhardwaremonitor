@@ -54,6 +54,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private Sensor memoryClock;
     private Sensor coreVoltage;
 
+    private List<ISensor> active = new List<ISensor>();
+
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber) 
     {
@@ -92,10 +94,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     public ISensor[] Sensors {
-      get {
-        return new ISensor[] { coreVoltage, coreClock, memoryClock, temperature, 
-          fan };
-      }
+      get { return active.ToArray(); }
     }
 
     public string GetReport() {
@@ -104,24 +103,60 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public void Update() {
       ADLTemperature adlt = new ADLTemperature();
-      ADL.ADL_Overdrive5_Temperature_Get(adapterIndex, 0, ref adlt);
-      temperature.Value = 0.001f * adlt.Temperature;
+      if (ADL.ADL_Overdrive5_Temperature_Get(adapterIndex, 0, ref adlt)
+        == ADL.ADL_OK) 
+      {
+        temperature.Value = 0.001f * adlt.Temperature;
+        ActivateSensor(temperature);
+      } else {
+        DeactivateSensor(temperature);
+      }
 
       ADLFanSpeedValue adlf = new ADLFanSpeedValue();
       adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_RPM;
-      ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf);
-      fan.Value = adlf.FanSpeed;
+      if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
+        == ADL.ADL_OK) 
+      {
+        fan.Value = adlf.FanSpeed;
+        ActivateSensor(fan);
+      } else {
+        DeactivateSensor(fan);
+      }
 
       ADLPMActivity adlp = new ADLPMActivity();
-      ADL.ADL_Overdrive5_CurrentActivity_Get(adapterIndex, ref adlp);
-      coreClock.Value = 0.01f * adlp.EngineClock;
-      memoryClock.Value = 0.01f * adlp.MemoryClock;
-      coreVoltage.Value = 0.001f * adlp.Vddc;
+      if (ADL.ADL_Overdrive5_CurrentActivity_Get(adapterIndex, ref adlp)
+        == ADL.ADL_OK) 
+      {
+        coreClock.Value = 0.01f * adlp.EngineClock;
+        memoryClock.Value = 0.01f * adlp.MemoryClock;
+        coreVoltage.Value = 0.001f * adlp.Vddc;
+        ActivateSensor(coreClock);
+        ActivateSensor(memoryClock);
+        ActivateSensor(coreVoltage);
+      } else {
+        DeactivateSensor(coreClock);
+        DeactivateSensor(memoryClock);
+        DeactivateSensor(coreVoltage);
+      }
     }
 
-    #pragma warning disable 67
+    private void ActivateSensor(Sensor sensor) {
+      if (!active.Contains(sensor)) {
+        active.Add(sensor);
+        if (SensorAdded != null) 
+          SensorAdded(sensor);
+      }
+    }
+
+    private void DeactivateSensor(Sensor sensor) {
+      if (active.Contains(sensor)) {
+        active.Remove(sensor);
+        if (SensorRemoved != null)
+          SensorRemoved(sensor);
+      }
+    }
+
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
   }
 }
