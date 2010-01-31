@@ -146,9 +146,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in temperatures) {
-        int value = ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * sensor.Index));
+        sbyte value = (sbyte)ReadByte((byte)(
+          TEMPERATURE_BASE_REG + 2 * sensor.Index));
         sensor.Value = value;
-        if (value < 254)
+        if (value < sbyte.MaxValue && value > 0)
           ActivateSensor(sensor);
         else
           DeactivateSensor(sensor);
@@ -170,14 +171,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private void ActivateSensor(Sensor sensor) {
       if (!active.Contains(sensor)) {
         active.Add(sensor);
-        SensorAdded(sensor);
+        if (SensorAdded != null)
+          SensorAdded(sensor);
       }
     }
 
     private void DeactivateSensor(Sensor sensor) {
       if (active.Contains(sensor)) {
         active.Remove(sensor);
-        SensorRemoved(sensor);
+        if (SensorRemoved != null)
+          SensorRemoved(sensor);
       }
     }
 
