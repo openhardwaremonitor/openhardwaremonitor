@@ -161,7 +161,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreTemperatures.Length; i++) {
         if (WinRing0.RdmsrPx(
           IA32_THERM_STATUS_MSR, ref eax, ref edx, 
-            (UIntPtr)(logicalProcessorsPerCore << i))) 
+            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) 
         {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {
