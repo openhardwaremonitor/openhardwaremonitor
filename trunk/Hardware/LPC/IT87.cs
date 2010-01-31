@@ -181,9 +181,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in temperatures) {
-        int value = ReadByte((byte)(TEMPERATURE_BASE_REG + sensor.Index));
+        sbyte value = (sbyte)ReadByte((byte)(TEMPERATURE_BASE_REG + sensor.Index));
         sensor.Value = value;
-        if (value < 254)
+        if (value < sbyte.MaxValue && value > 0)
           ActivateSensor(sensor);
         else
           DeactivateSensor(sensor);

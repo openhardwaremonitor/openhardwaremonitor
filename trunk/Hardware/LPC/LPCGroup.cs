@@ -63,7 +63,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private byte ReadByte(byte register) {
       WinRing0.WriteIoPortByte(registerPort, register);
       return WinRing0.ReadIoPortByte(valuePort);
-    }
+    } 
 
     private ushort ReadWord(byte register) {
       return (ushort)((ReadByte(register) << 8) | 
