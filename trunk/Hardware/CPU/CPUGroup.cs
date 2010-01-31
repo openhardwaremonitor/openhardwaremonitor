@@ -139,6 +139,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             // check if processor supports a digital thermal sensor            
             if (maxCPUID_EXT >= 7 && (cpuidExtData[7, 3] & 1) != 0) {
               switch (family) {
+                case 0x0F:
+                  hardware.Add(new AMD0FCPU(name, family, model, stepping,
+                    cpuidData, cpuidExtData));
+                  break;
                 case 0x10:
                   hardware.Add(new AMD10CPU(name, family, model, stepping,
                     cpuidData, cpuidExtData));
