@@ -58,6 +58,7 @@
   <ItemGroup>
     <Compile Include="GUI\TypeNode.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
+    <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
     <Compile Include="Hardware\HDD\HDD.cs" />
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />

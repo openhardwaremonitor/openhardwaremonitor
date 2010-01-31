@@ -238,10 +238,12 @@ namespace OpenHardwareMonitor.GUI {
       Utilities.Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
       Utilities.Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
 
-      Utilities.Config.Set("mainForm.Location.X", Location.X);
-      Utilities.Config.Set("mainForm.Location.Y", Location.Y);
-      Utilities.Config.Set("mainForm.Width", Width);
-      Utilities.Config.Set("mainForm.Height", Height);
+      if (WindowState != FormWindowState.Minimized) {
+        Utilities.Config.Set("mainForm.Location.X", Location.X);
+        Utilities.Config.Set("mainForm.Location.Y", Location.Y);
+        Utilities.Config.Set("mainForm.Width", Width);
+        Utilities.Config.Set("mainForm.Height", Height);
+      }
 
       foreach (IGroup group in groupList)
         group.Close();
