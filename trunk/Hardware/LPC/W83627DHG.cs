@@ -43,6 +43,7 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.LPC {
   public class W83627DHG : IHardware {
 
+    private Chip chip;
     private byte revision;
 
     private string name;
@@ -95,7 +96,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         (ushort)(address + DATA_REGISTER_OFFSET));
     }    
 
-    public W83627DHG(byte revision, ushort address) {      
+    public W83627DHG(Chip chip, byte revision, ushort address) {
+      this.chip = chip;
       this.revision = revision;
       this.address = address;
 
@@ -121,7 +123,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < FAN_NAME.Length; i++)
         fans[i] = new Sensor(FAN_NAME[i], i, SensorType.Fan, this);
 
-      this.name = "Winbond W83627DHG";
+      switch (chip) {
+        case Chip.W83627DHG: name = "Winbond W83627DHG"; break;
+        case Chip.W83627DHGP: name = "Winbond W83627DHG-P"; break;
+        default: return;
+      }
+
       this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
       available = true;
     }
@@ -135,7 +142,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public string Identifier {
-      get { return "/lpc/w83627dhg"; }
+      get { return "/lpc/" + chip.ToString().ToLower(); }
     }
 
     public Image Icon {
@@ -151,6 +158,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       r.AppendLine("LPC W83627DHG");
       r.AppendLine();
+      r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
       r.Append("Chip revision: 0x"); r.AppendLine(revision.ToString("X"));
       r.Append("Base Adress: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
