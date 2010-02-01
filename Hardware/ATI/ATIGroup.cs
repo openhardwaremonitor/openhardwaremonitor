@@ -101,7 +101,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                   report.Append("AdapterID: 0x");
                   report.AppendLine(adapterID.ToString("X"));
 
-                  if (adapterID > 0 && 
+                  if (adapterID != 0 && 
                     adapterInfo[i].UDID != "" && 
                     adapterInfo[i].Present > 0 &&
                     (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
