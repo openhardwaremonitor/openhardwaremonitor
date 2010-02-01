@@ -116,7 +116,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       }
                     if (!found)
                       hardware.Add(new ATIGPU(
-                        adapterInfo[i].AdapterName,
+                        adapterInfo[i].AdapterName.Trim(),
                         adapterInfo[i].AdapterIndex,
                         adapterInfo[i].BusNumber, 
                         adapterInfo[i].DeviceNumber));
