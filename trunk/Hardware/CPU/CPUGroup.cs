@@ -111,7 +111,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             AppendRegister(nameBuilder, edx);
           }
         }
-        cpuBrandString = nameBuilder.ToString();
+        cpuBrandString = nameBuilder.ToString().Trim('\0');
         nameBuilder.Replace("(R)", " ");
         nameBuilder.Replace("(TM)", " ");
         nameBuilder.Replace("(tm)", " ");
@@ -177,8 +177,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public string GetReport() {
-      if (hardware.Count == 0)
-        return null;
 
       StringBuilder r = new StringBuilder();
 
@@ -199,10 +197,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.AppendLine("CPUID Return Values");
       r.AppendLine();
 
-      r.AppendLine(" Function  EAX       EBX       ECX       EDX");
-      AppendCpuidData(r, cpuidData, CPUID);
-      AppendCpuidData(r, cpuidExtData, CPUID_EXT);
-      r.AppendLine();
+      if (cpuidData != null) {
+        r.AppendLine(" Function  EAX       EBX       ECX       EDX");
+        AppendCpuidData(r, cpuidData, CPUID);
+        AppendCpuidData(r, cpuidExtData, CPUID_EXT);
+        r.AppendLine();
+      }
 
       return r.ToString();
     }

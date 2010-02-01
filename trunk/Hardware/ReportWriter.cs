@@ -21,8 +21,24 @@ namespace OpenHardwareMonitor.Hardware {
         w.WriteLine();
         w.WriteLine("Open Hardware Monitor Report");
         w.WriteLine();
+
         NewSection(w);
         w.Write("Version: "); w.WriteLine(version.ToString());
+        w.WriteLine();
+
+        NewSection(w);
+        foreach (IGroup group in groupList) {          
+          foreach (IHardware hardware in group.Hardware) {
+            w.WriteLine("|");
+            w.WriteLine("+-+ {0} ({1})",
+              new object[] { hardware.Name, hardware.Identifier });
+            foreach (ISensor sensor in hardware.Sensors) {
+              w.WriteLine("|   +- {0} : {1} : {2} : {3}",
+                new object[] { sensor.SensorType, sensor.Index, sensor.Name, 
+                  sensor.Value });
+            }
+          }
+        }
         w.WriteLine();
 
         foreach (IGroup group in groupList) {

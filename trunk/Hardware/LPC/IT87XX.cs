@@ -131,7 +131,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public string Identifier {
-      get { return "/lpc/it87"; }
+      get { return "/lpc/" + chip.ToString().ToLower(); }
     }
 
     public Image Icon {
