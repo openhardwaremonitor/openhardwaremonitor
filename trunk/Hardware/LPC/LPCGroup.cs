@@ -75,12 +75,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(valuePort, logicalDeviceNumber);
     }
 
-    // IT87
-    private const ushort IT8716F_CHIP_ID = 0x8716;
-    private const ushort IT8718F_CHIP_ID = 0x8718;
-    private const ushort IT8720F_CHIP_ID = 0x8720;
-    private const ushort IT8726F_CHIP_ID = 0x8726;
-
     private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;    
 
     private void IT87Enter() {
@@ -100,7 +94,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort FINTEK_VENDOR_ID = 0x1934;
 
     private const byte W83627DHG_HARDWARE_MONITOR_LDN = 0x0B;
-    private const byte F71882FG_HARDWARE_MONITOR_LDN = 0x04;
+
+    private const byte F71858_HARDWARE_MONITOR_LDN = 0x02;
+    private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
 
     private void WinbondFintekEnter() {
       WinRing0.WriteIoPortByte(registerPort, 0x87);
@@ -121,46 +117,79 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         WinbondFintekEnter();
 
-        byte hardwareMonitorLDN;
+        byte logicalDeviceNumber;
         byte id = ReadByte(CHIP_ID_REGISTER);
         byte revision = ReadByte(CHIP_REVISION_REGISTER);
         switch (id) {
+          case 0x05:
+            switch (revision) {
+              case 0x41:
+                chip = Chip.F71882;
+                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;
+          case 0x06:
+            switch (revision) {             
+              case 0x01:
+                chip = Chip.F71862;
+                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;
+          case 0x07:
+            switch (revision) {
+              case 0x23:
+                chip = Chip.F71889;
+                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;
+          case 0x08:
+            switch (revision) {
+              case 0x14:
+                chip = Chip.F71869;
+                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;
           case 0xA0:
             switch (revision & 0xF0) {
               case 0x20: 
                 chip = Chip.W83627DHG;
-                hardwareMonitorLDN = W83627DHG_HARDWARE_MONITOR_LDN;  
+                logicalDeviceNumber = W83627DHG_HARDWARE_MONITOR_LDN;  
                 break;
               default: 
                 chip = Chip.Unknown;
-                hardwareMonitorLDN = 0;
+                logicalDeviceNumber = 0;
                 break;
-            } break;
-          case 0x05:
-            switch (revision) {
-              case 0x41: 
-                chip = Chip.F71882FG;
-                hardwareMonitorLDN = F71882FG_HARDWARE_MONITOR_LDN; 
-                break;
-              default: 
-                chip = Chip.Unknown; 
-                hardwareMonitorLDN = 0;
-                break;
-            } break;
+            } break;          
           default:
             chip = Chip.Unknown; 
-            hardwareMonitorLDN = 0;
+            logicalDeviceNumber = 0;
             break;
         }
         if (chip != Chip.Unknown) {
 
-          Select(hardwareMonitorLDN);
+          Select(logicalDeviceNumber);
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
 
           ushort vendorID = 0;
-          if (chip == Chip.F71882FG)
+          if (chip == Chip.F71862 || chip == Chip.F71882 || chip == Chip.F71889)
             vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
           WinbondFintekExit();
@@ -174,9 +203,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               if (w83627dhg.IsAvailable)
                 hardware.Add(w83627dhg);
               break;
-            case Chip.F71882FG:  
+            case Chip.F71862:
+            case Chip.F71882:
+            case Chip.F71889: 
               if (vendorID == FINTEK_VENDOR_ID)
-                hardware.Add(new F71882(address));
+                hardware.Add(new F718XX(chip, address));
+              break;
+            case Chip.F71869:
+              hardware.Add(new F718XX(chip, address));
               break;
             default: break;
           }
@@ -187,10 +221,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         IT87Enter();
 
         switch (ReadWord(CHIP_ID_REGISTER)) {
-          case 0x8716: chip = Chip.IT8716F; break;
-          case 0x8718: chip = Chip.IT8718F; break;
-          case 0x8720: chip = Chip.IT8720F; break;
-          case 0x8726: chip = Chip.IT8726F; break;
+          case 0x8716: chip = Chip.IT8716; break;
+          case 0x8718: chip = Chip.IT8718; break;
+          case 0x8720: chip = Chip.IT8720; break;
+          case 0x8726: chip = Chip.IT8726; break;
           default: chip = Chip.Unknown; break;
         }
 
@@ -205,7 +239,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           if (address != verify || address == 0 || (address & 0xF007) != 0)
             return;
 
-          IT87 it87 = new IT87(chip, address);
+          IT87XX it87 = new IT87XX(chip, address);
           if (it87.IsAvailable)
             hardware.Add(it87);
 
