@@ -175,7 +175,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 chip = Chip.Unknown;
                 logicalDeviceNumber = 0;
                 break;
-            } break;          
+            } break;
+          case 0xB0:
+            switch (revision & 0xF0) {
+              case 0x70:
+                chip = Chip.W83627DHGP;
+                logicalDeviceNumber = W83627DHG_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;  
           default:
             chip = Chip.Unknown; 
             logicalDeviceNumber = 0;
@@ -199,7 +210,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           
           switch (chip) {
             case Chip.W83627DHG:
-              W83627DHG w83627dhg = new W83627DHG(revision, address);
+            case Chip.W83627DHGP:
+              W83627DHG w83627dhg = new W83627DHG(chip, revision, address);
               if (w83627dhg.IsAvailable)
                 hardware.Add(w83627dhg);
               break;
