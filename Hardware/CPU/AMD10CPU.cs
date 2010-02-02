@@ -65,7 +65,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         coreCount = (cpuidExtData[8, 2] & 0xFF) + 1;
       
       // AMD family 10h processors support only one temperature sensor
-      coreTemperature = new Sensor("Core", 0, SensorType.Temperature, this);
+      coreTemperature = new Sensor(
+        "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0, 
+        SensorType.Temperature, this);
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID, 
         PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID, 0);
