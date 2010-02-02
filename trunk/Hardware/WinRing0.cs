@@ -79,8 +79,10 @@ namespace OpenHardwareMonitor.Hardware {
     
     public delegate uint GetDllStatusDelegate();
     public delegate bool IsCpuidDelegate();
-    public delegate bool CpuidDelegate(uint index, out uint eax, out uint ebx, 
-      out uint ecx, out uint edx);
+    public delegate bool CpuidDelegate(uint index, 
+      out uint eax, out uint ebx, out uint ecx, out uint edx);
+    public delegate bool CpuidExDelegate(uint index, uint ecxValue, 
+      out uint eax, out uint ebx, out uint ecx, out uint edx);
     public delegate bool RdmsrPxDelegate(uint index, ref uint eax, ref uint edx, 
       UIntPtr processAffinityMask);
     public delegate byte ReadIoPortByteDelegate(ushort port);
@@ -99,14 +101,14 @@ namespace OpenHardwareMonitor.Hardware {
     public static GetDllStatusDelegate GetDllStatus;
     public static IsCpuidDelegate IsCpuid;
     public static CpuidDelegate Cpuid;
+    public static CpuidExDelegate CpuidEx;
     public static RdmsrPxDelegate RdmsrPx;
     public static ReadIoPortByteDelegate ReadIoPortByte;
     public static WriteIoPortByteDelegate WriteIoPortByte;
     public static SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
     public static FindPciDeviceByIdDelegate FindPciDeviceById;
     public static ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
-    public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;
-
+    public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;    
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
       where T : class 
@@ -125,6 +127,7 @@ namespace OpenHardwareMonitor.Hardware {
       GetDelegate("GetDllStatus", out GetDllStatus);
       GetDelegate("IsCpuid", out IsCpuid);
       GetDelegate("Cpuid", out Cpuid);
+      GetDelegate("CpuidEx", out CpuidEx);
       GetDelegate("RdmsrPx", out  RdmsrPx);
       GetDelegate("ReadIoPortByte", out ReadIoPortByte);
       GetDelegate("WriteIoPortByte", out WriteIoPortByte);

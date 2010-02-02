@@ -50,7 +50,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private Sensor[] coreTemperatures;
 
     private float tjMax = 0;
+    private uint logicalProcessors;
     private uint logicalProcessorsPerCore;
+    private uint coreCount;
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -60,18 +62,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       
       this.name = name;
       this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
-      
-      uint logicalProcessors = 1;
-      if (cpuidData.GetLength(0) > 0x04)
-        logicalProcessors = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
-
+            
       logicalProcessorsPerCore = 1;
-      if (cpuidData.GetLength(0) > 0x0B)
-        logicalProcessorsPerCore = cpuidData[0x0B, 1] & 0xFF;
-      if (logicalProcessorsPerCore == 0)
+      if (cpuidData.GetLength(0) > 0x0B) {
+        uint eax, ebx, ecx, edx;
+        WinRing0.CpuidEx(0x0B, 0, out eax, out ebx, out ecx, out edx);
+        logicalProcessorsPerCore = ebx & 0xFF; 
+        WinRing0.CpuidEx(0x0B, 1, out eax, out ebx, out ecx, out edx);
+        logicalProcessors = ebx & 0xFF;            
+      } else if (cpuidData.GetLength(0) > 0x04) {
+        logicalProcessors = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
         logicalProcessorsPerCore = 1;
+      } else {
+        logicalProcessors = 1;
+        logicalProcessorsPerCore = 1;
+      }
 
-      uint coreCount = logicalProcessors / logicalProcessorsPerCore;
+      coreCount = logicalProcessors / logicalProcessorsPerCore;
 
       switch (family) {
         case 0x06: {
@@ -147,7 +154,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.AppendLine("Intel CPU");
       r.AppendLine();
       r.AppendFormat("Name: {0}{1}", name, Environment.NewLine);
-      r.AppendFormat("Number of cores: {0}{1}", coreTemperatures.Length, 
+      r.AppendFormat("Number of cores: {0}{1}", coreCount, 
+        Environment.NewLine);
+      r.AppendFormat("Threads per core: {0}{1}", logicalProcessorsPerCore,
         Environment.NewLine);
       r.AppendFormat("TjMax: {0}{1}", tjMax, Environment.NewLine);
       r.AppendLine();
