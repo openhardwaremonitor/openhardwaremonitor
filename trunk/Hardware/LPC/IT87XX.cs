@@ -86,10 +86,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.address = address;
 
       switch (chip) {
-        case Chip.IT8716: name = "ITE IT8716"; break;
-        case Chip.IT8718: name = "ITE IT8718"; break;
-        case Chip.IT8720: name = "ITE IT8720"; break;
-        case Chip.IT8726: name = "ITE IT8726"; break;
+        case Chip.IT8716F: name = "ITE IT8716F"; break;
+        case Chip.IT8718F: name = "ITE IT8718F"; break;
+        case Chip.IT8720F: name = "ITE IT8720F"; break;
+        case Chip.IT8726F: name = "ITE IT8726F"; break;
         default: return;
       }
       
