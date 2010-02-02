@@ -233,10 +233,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         IT87Enter();
 
         switch (ReadWord(CHIP_ID_REGISTER)) {
-          case 0x8716: chip = Chip.IT8716; break;
-          case 0x8718: chip = Chip.IT8718; break;
-          case 0x8720: chip = Chip.IT8720; break;
-          case 0x8726: chip = Chip.IT8726; break;
+          case 0x8716: chip = Chip.IT8716F; break;
+          case 0x8718: chip = Chip.IT8718F; break;
+          case 0x8720: chip = Chip.IT8720F; break;
+          case 0x8726: chip = Chip.IT8726F; break;
           default: chip = Chip.Unknown; break;
         }
 
