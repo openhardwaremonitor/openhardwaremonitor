@@ -63,17 +63,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       this.name = name;
       this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
             
-      logicalProcessorsPerCore = 1;
+      logicalProcessors = 0;
       if (cpuidData.GetLength(0) > 0x0B) {
         uint eax, ebx, ecx, edx;
         WinRing0.CpuidEx(0x0B, 0, out eax, out ebx, out ecx, out edx);
-        logicalProcessorsPerCore = ebx & 0xFF; 
-        WinRing0.CpuidEx(0x0B, 1, out eax, out ebx, out ecx, out edx);
-        logicalProcessors = ebx & 0xFF;            
-      } else if (cpuidData.GetLength(0) > 0x04) {
+        logicalProcessorsPerCore = ebx & 0xFF;
+        if (logicalProcessorsPerCore > 0) {
+          WinRing0.CpuidEx(0x0B, 1, out eax, out ebx, out ecx, out edx);
+          logicalProcessors = ebx & 0xFF;
+        }   
+      }
+      if (logicalProcessors <= 0 && cpuidData.GetLength(0) > 0x04) {
         logicalProcessors = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
         logicalProcessorsPerCore = 1;
-      } else {
+      }
+      if (logicalProcessors <= 0) {
         logicalProcessors = 1;
         logicalProcessorsPerCore = 1;
       }
