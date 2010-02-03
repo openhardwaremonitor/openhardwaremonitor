@@ -130,6 +130,7 @@ namespace OpenHardwareMonitor.GUI {
 
       voltMenuItem.Checked = Utilities.Config.Get(voltMenuItem.Name, true);
       clocksMenuItem.Checked = Utilities.Config.Get(clocksMenuItem.Name, true);
+      loadMenuItem.Checked = Utilities.Config.Get(loadMenuItem.Name, true);
       tempMenuItem.Checked = Utilities.Config.Get(tempMenuItem.Name, true);
       fansMenuItem.Checked = Utilities.Config.Get(fansMenuItem.Name, true);
 
@@ -235,6 +236,7 @@ namespace OpenHardwareMonitor.GUI {
 
       Utilities.Config.Set(voltMenuItem.Name, voltMenuItem.Checked);
       Utilities.Config.Set(clocksMenuItem.Name, clocksMenuItem.Checked);
+      Utilities.Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
       Utilities.Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
       Utilities.Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
 
@@ -319,6 +321,7 @@ namespace OpenHardwareMonitor.GUI {
       foreach (HardwareNode node in root.Nodes) {
         node.SetVisible(SensorType.Voltage, voltMenuItem.Checked);
         node.SetVisible(SensorType.Clock, clocksMenuItem.Checked);
+        node.SetVisible(SensorType.Load, loadMenuItem.Checked);
         node.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
         node.SetVisible(SensorType.Fan, fansMenuItem.Checked);
       }

@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using System.Text;
 
 
@@ -50,8 +51,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private uint pciAddress;
 
     private Sensor[] coreTemperatures;
-
     private float offset;
+
+    private Sensor totalLoad;
+    private Sensor[] coreLoads;
+
+    private List<ISensor> active = new List<ISensor>();
+
+    private PerformanceCounter totalLoadCounter;
+    private PerformanceCounter[] coreLoadCounters;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID = 0x1103;
@@ -71,6 +79,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // max two cores
       coreCount = coreCount > 2 ? 2 : coreCount;
+
+      totalLoadCounter = new PerformanceCounter();
+      totalLoadCounter.CategoryName = "Processor";
+      totalLoadCounter.CounterName = "% Processor Time";
+      totalLoadCounter.InstanceName = "_Total";
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
+
+      coreLoadCounters = new PerformanceCounter[coreCount];
+      coreLoads = new Sensor[coreCount];
+      for (int i = 0; i < coreLoadCounters.Length; i++) {
+        coreLoadCounters[i] = new PerformanceCounter();
+        coreLoadCounters[i].CategoryName = "Processor";
+        coreLoadCounters[i].CounterName = "% Processor Time";
+        coreLoadCounters[i].InstanceName = i.ToString();
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
+          SensorType.Load, this);
+      }        
 
       coreTemperatures = new Sensor[coreCount];
       for (int i = 0; i < coreCount; i++)
@@ -102,9 +127,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public ISensor[] Sensors {
-      get {
-        return coreTemperatures;
-      }
+      get { return active.ToArray(); }
     }
 
     public string GetReport() {
@@ -121,16 +144,42 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
           uint value;
           if (WinRing0.ReadPciConfigDwordEx(
-            pciAddress, THERMTRIP_STATUS_REGISTER, out value)) 
-            coreTemperatures[i].Value = ((value >> 16) & 0xFF) + offset;    
+            pciAddress, THERMTRIP_STATUS_REGISTER, out value)) {
+            coreTemperatures[i].Value = ((value >> 16) & 0xFF) + offset;
+            ActivateSensor(coreTemperatures[i]);
+          } else {
+            DeactivateSensor(coreTemperatures[i]);
+          }
         }
-      }   
+      }
+
+      totalLoad.Value = totalLoadCounter.NextValue();
+      ActivateSensor(totalLoad);
+
+      for (int i = 0; i < coreLoads.Length; i++) {
+        coreLoads[i].Value = coreLoadCounters[i].NextValue();
+        ActivateSensor(coreLoads[i]);
+      }
     }
 
-    #pragma warning disable 67
+    private void ActivateSensor(Sensor sensor) {
+      if (!active.Contains(sensor)) {
+        active.Add(sensor);
+        if (SensorAdded != null)
+          SensorAdded(sensor);
+      }
+    }
+
+    private void DeactivateSensor(Sensor sensor) {
+      if (active.Contains(sensor)) {
+        active.Remove(sensor);
+        if (SensorRemoved != null)
+          SensorRemoved(sensor);
+      }
+    }
+
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
 
   }
 }

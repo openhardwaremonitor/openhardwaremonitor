@@ -42,8 +42,9 @@ namespace OpenHardwareMonitor.Hardware {
 
   public enum SensorType {
     Voltage,
-    Clock,
+    Clock,    
     Temperature,
+    Load,
     Fan    
   }
 

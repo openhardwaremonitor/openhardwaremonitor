@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}</ProjectGuid>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
@@ -135,6 +135,7 @@
     <EmbeddedResource Include="Resources\chip.png" />
     <EmbeddedResource Include="Resources\hdd.png" />
     <Content Include="Resources\icon.ico" />
+    <EmbeddedResource Include="Resources\load.png" />
     <EmbeddedResource Include="Resources\voltage.png" />
     <EmbeddedResource Include="Resources\nvidia.png" />
   </ItemGroup>

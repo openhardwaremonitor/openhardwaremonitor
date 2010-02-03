@@ -54,8 +54,9 @@ namespace OpenHardwareMonitor.GUI {
       this.Image = hardware.Icon;
 
       typeNodes.Add(new TypeNode(SensorType.Voltage));
-      typeNodes.Add(new TypeNode(SensorType.Clock));
+      typeNodes.Add(new TypeNode(SensorType.Clock));      
       typeNodes.Add(new TypeNode(SensorType.Temperature));
+      typeNodes.Add(new TypeNode(SensorType.Load));
       typeNodes.Add(new TypeNode(SensorType.Fan));
       
       foreach (ISensor sensor in hardware.Sensors)
