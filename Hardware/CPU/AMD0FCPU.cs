@@ -80,19 +80,29 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       // max two cores
       coreCount = coreCount > 2 ? 2 : coreCount;
 
-      totalLoadCounter = new PerformanceCounter();
-      totalLoadCounter.CategoryName = "Processor";
-      totalLoadCounter.CounterName = "% Processor Time";
-      totalLoadCounter.InstanceName = "_Total";
+      try {
+        totalLoadCounter = new PerformanceCounter();
+        totalLoadCounter.CategoryName = "Processor";
+        totalLoadCounter.CounterName = "% Processor Time";
+        totalLoadCounter.InstanceName = "_Total";
+        totalLoadCounter.NextValue();
+      } catch (Exception) {
+        totalLoadCounter = null;
+      }
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
 
       coreLoadCounters = new PerformanceCounter[coreCount];
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreLoadCounters.Length; i++) {
-        coreLoadCounters[i] = new PerformanceCounter();
-        coreLoadCounters[i].CategoryName = "Processor";
-        coreLoadCounters[i].CounterName = "% Processor Time";
-        coreLoadCounters[i].InstanceName = i.ToString();
+        try {
+          coreLoadCounters[i] = new PerformanceCounter();
+          coreLoadCounters[i].CategoryName = "Processor";
+          coreLoadCounters[i].CounterName = "% Processor Time";
+          coreLoadCounters[i].InstanceName = i.ToString();
+          coreLoadCounters[i].NextValue();
+        } catch (Exception) {
+          coreLoadCounters[i] = null;
+        }
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
           SensorType.Load, this);
       }        
@@ -153,13 +163,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      totalLoad.Value = totalLoadCounter.NextValue();
-      ActivateSensor(totalLoad);
-
-      for (int i = 0; i < coreLoads.Length; i++) {
-        coreLoads[i].Value = coreLoadCounters[i].NextValue();
-        ActivateSensor(coreLoads[i]);
+      if (totalLoadCounter != null) {
+        totalLoad.Value = totalLoadCounter.NextValue();
+        ActivateSensor(totalLoad);
       }
+
+      for (int i = 0; i < coreLoads.Length; i++)
+        if (coreLoadCounters[i] != null) {
+          coreLoads[i].Value = coreLoadCounters[i].NextValue();
+          ActivateSensor(coreLoads[i]);
+        }
     }
 
     private void ActivateSensor(Sensor sensor) {

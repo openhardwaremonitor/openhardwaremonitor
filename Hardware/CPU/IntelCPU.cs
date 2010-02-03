@@ -133,19 +133,29 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         default: tjMax = 100; break;
       }
 
-      totalLoadCounter = new PerformanceCounter();
-      totalLoadCounter.CategoryName = "Processor";
-      totalLoadCounter.CounterName = "% Processor Time";
-      totalLoadCounter.InstanceName = "_Total";
+      try {
+        totalLoadCounter = new PerformanceCounter();
+        totalLoadCounter.CategoryName = "Processor";
+        totalLoadCounter.CounterName = "% Processor Time";
+        totalLoadCounter.InstanceName = "_Total";
+        totalLoadCounter.NextValue();        
+      } catch (Exception) {
+        totalLoadCounter = null;
+      }
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
 
       coreLoadCounters = new PerformanceCounter[
         coreCount * logicalProcessorsPerCore];
       for (int i = 0; i < coreLoadCounters.Length; i++) {
-        coreLoadCounters[i] = new PerformanceCounter();
-        coreLoadCounters[i].CategoryName = "Processor";
-        coreLoadCounters[i].CounterName = "% Processor Time";
-        coreLoadCounters[i].InstanceName = i.ToString();
+        try {
+          coreLoadCounters[i] = new PerformanceCounter();
+          coreLoadCounters[i].CategoryName = "Processor";
+          coreLoadCounters[i].CounterName = "% Processor Time";
+          coreLoadCounters[i].InstanceName = i.ToString();
+          coreLoadCounters[i].NextValue();
+        } catch (Exception) {
+          coreLoadCounters[i] = null;
+        }
       }
 
       coreTemperatures = new Sensor[coreCount];
@@ -211,17 +221,27 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }        
       }
 
-      totalLoad.Value = totalLoadCounter.NextValue();
-      ActivateSensor(totalLoad);
+      if (totalLoadCounter != null) {
+        totalLoad.Value = totalLoadCounter.NextValue();
+        ActivateSensor(totalLoad);
+      }
 
       for (int i = 0; i < coreLoads.Length; i++) {
         float value = 0;
-        for (int j = 0; j < logicalProcessorsPerCore; j++)
-          value += coreLoadCounters[
-            logicalProcessorsPerCore * i + j].NextValue();
-        value /= logicalProcessorsPerCore;
-        coreLoads[i].Value = value;
-        ActivateSensor(coreLoads[i]);
+        int count = 0;
+        for (int j = 0; j < logicalProcessorsPerCore; j++) {
+          PerformanceCounter counter =
+            coreLoadCounters[logicalProcessorsPerCore * i + j];
+          if (counter != null) {
+            value += counter.NextValue();
+            count++;
+          }
+        }
+        if (count > 0) {
+          value /= count;
+          coreLoads[i].Value = value;
+          ActivateSensor(coreLoads[i]);
+        }
       }
     }
 
