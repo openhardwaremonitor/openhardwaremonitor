@@ -53,6 +53,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private Sensor coreClock;
     private Sensor memoryClock;
     private Sensor coreVoltage;
+    private Sensor coreLoad;
 
     private List<ISensor> active = new List<ISensor>();
 
@@ -74,6 +75,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);
+      this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this);
       Update();                   
     }
 
@@ -130,13 +132,16 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         coreClock.Value = 0.01f * adlp.EngineClock;
         memoryClock.Value = 0.01f * adlp.MemoryClock;
         coreVoltage.Value = 0.001f * adlp.Vddc;
+        coreLoad.Value = adlp.ActivityPercent;
         ActivateSensor(coreClock);
         ActivateSensor(memoryClock);
         ActivateSensor(coreVoltage);
+        ActivateSensor(coreLoad);
       } else {
         DeactivateSensor(coreClock);
         DeactivateSensor(memoryClock);
         DeactivateSensor(coreVoltage);
+        DeactivateSensor(coreLoad);
       }
     }
 

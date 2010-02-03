@@ -59,6 +59,7 @@ namespace OpenHardwareMonitor.GUI {
       switch (sensor.SensorType) {
         case SensorType.Voltage: format = "{0:F2} V"; break;
         case SensorType.Clock: format = "{0:F0} MHz"; break;
+        case SensorType.Load: format = "{0:F1} %"; break;
         case SensorType.Temperature: format = "{0:F1} °C"; break;
         case SensorType.Fan: format = "{0:F0} RPM"; break;
       }      

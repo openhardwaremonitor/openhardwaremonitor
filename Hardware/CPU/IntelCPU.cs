@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
@@ -48,11 +49,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private Image icon;
 
     private Sensor[] coreTemperatures;
+    private Sensor totalLoad;
+    private Sensor[] coreLoads;
+
+    private List<ISensor> active = new List<ISensor>();
 
     private float tjMax = 0;
     private uint logicalProcessors;
     private uint logicalProcessorsPerCore;
     private uint coreCount;
+
+    private PerformanceCounter totalLoadCounter;
+    private PerformanceCounter[] coreLoadCounters;
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -125,11 +133,29 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         default: tjMax = 100; break;
       }
 
+      totalLoadCounter = new PerformanceCounter();
+      totalLoadCounter.CategoryName = "Processor";
+      totalLoadCounter.CounterName = "% Processor Time";
+      totalLoadCounter.InstanceName = "_Total";
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
+
+      coreLoadCounters = new PerformanceCounter[
+        coreCount * logicalProcessorsPerCore];
+      for (int i = 0; i < coreLoadCounters.Length; i++) {
+        coreLoadCounters[i] = new PerformanceCounter();
+        coreLoadCounters[i].CategoryName = "Processor";
+        coreLoadCounters[i].CounterName = "% Processor Time";
+        coreLoadCounters[i].InstanceName = i.ToString();
+      }
+
       coreTemperatures = new Sensor[coreCount];
-      for (int i = 0; i < coreTemperatures.Length; i++)
-        coreTemperatures[i] =
-          new Sensor("Core #" + (i + 1), i, tjMax, SensorType.Temperature, 
-            this);
+      coreLoads = new Sensor[coreCount];
+      for (int i = 0; i < coreTemperatures.Length; i++) {
+        coreTemperatures[i] = new Sensor("Core #" + (i + 1), i, tjMax,
+          SensorType.Temperature, this);
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1, 
+          SensorType.Load, this);
+      }
 
       Update();                   
     }
@@ -147,9 +173,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public ISensor[] Sensors {
-      get {
-        return coreTemperatures;
-      }
+      get { return active.ToArray(); }
     }
 
     public string GetReport() {
@@ -180,14 +204,44 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           if ((eax & 0x80000000) != 0) {
             // get the dist from tjMax from bits 22:16
             coreTemperatures[i].Value = tjMax - ((eax & 0x007F0000) >> 16);
+            ActivateSensor(coreTemperatures[i]);
+          } else {
+            DeactivateSensor(coreTemperatures[i]);
           }
         }        
-      }  
+      }
+
+      totalLoad.Value = totalLoadCounter.NextValue();
+      ActivateSensor(totalLoad);
+
+      for (int i = 0; i < coreLoads.Length; i++) {
+        float value = 0;
+        for (int j = 0; j < logicalProcessorsPerCore; j++)
+          value += coreLoadCounters[
+            logicalProcessorsPerCore * i + j].NextValue();
+        value /= logicalProcessorsPerCore;
+        coreLoads[i].Value = value;
+        ActivateSensor(coreLoads[i]);
+      }
     }
 
-    #pragma warning disable 67
+    private void ActivateSensor(Sensor sensor) {
+      if (!active.Contains(sensor)) {
+        active.Add(sensor);
+        if (SensorAdded != null)
+          SensorAdded(sensor);
+      }
+    }
+
+    private void DeactivateSensor(Sensor sensor) {
+      if (active.Contains(sensor)) {
+        active.Remove(sensor);
+        if (SensorRemoved != null)
+          SensorRemoved(sensor);
+      }
+    }
+
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
   }
 }

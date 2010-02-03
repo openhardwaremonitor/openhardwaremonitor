@@ -88,6 +88,7 @@ namespace OpenHardwareMonitor.GUI {
       this.sensorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.voltMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.clocksMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.loadMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.tempMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.fansMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
@@ -328,9 +329,10 @@ namespace OpenHardwareMonitor.GUI {
             this.voltMenuItem,
             this.clocksMenuItem,
             this.tempMenuItem,
+            this.loadMenuItem,
             this.fansMenuItem});
       this.sensorsToolStripMenuItem.Name = "sensorsToolStripMenuItem";
-      this.sensorsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+      this.sensorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.sensorsToolStripMenuItem.Text = "Sensors";
       // 
       // voltMenuItem
@@ -339,7 +341,7 @@ namespace OpenHardwareMonitor.GUI {
       this.voltMenuItem.CheckOnClick = true;
       this.voltMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.voltMenuItem.Name = "voltMenuItem";
-      this.voltMenuItem.Size = new System.Drawing.Size(147, 22);
+      this.voltMenuItem.Size = new System.Drawing.Size(152, 22);
       this.voltMenuItem.Text = "Voltages";
       this.voltMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
       // 
@@ -349,9 +351,19 @@ namespace OpenHardwareMonitor.GUI {
       this.clocksMenuItem.CheckOnClick = true;
       this.clocksMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.clocksMenuItem.Name = "clocksMenuItem";
-      this.clocksMenuItem.Size = new System.Drawing.Size(147, 22);
+      this.clocksMenuItem.Size = new System.Drawing.Size(152, 22);
       this.clocksMenuItem.Text = "Clocks";
       this.clocksMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
+      // 
+      // loadMenuItem
+      // 
+      this.loadMenuItem.Checked = true;
+      this.loadMenuItem.CheckOnClick = true;
+      this.loadMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.loadMenuItem.Name = "loadMenuItem";
+      this.loadMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.loadMenuItem.Text = "Load";
+      this.loadMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
       // 
       // tempMenuItem
       // 
@@ -359,7 +371,7 @@ namespace OpenHardwareMonitor.GUI {
       this.tempMenuItem.CheckOnClick = true;
       this.tempMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.tempMenuItem.Name = "tempMenuItem";
-      this.tempMenuItem.Size = new System.Drawing.Size(147, 22);
+      this.tempMenuItem.Size = new System.Drawing.Size(152, 22);
       this.tempMenuItem.Text = "Temperatures";
       this.tempMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
       // 
@@ -369,14 +381,14 @@ namespace OpenHardwareMonitor.GUI {
       this.fansMenuItem.CheckOnClick = true;
       this.fansMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.fansMenuItem.Name = "fansMenuItem";
-      this.fansMenuItem.Size = new System.Drawing.Size(147, 22);
+      this.fansMenuItem.Size = new System.Drawing.Size(152, 22);
       this.fansMenuItem.Text = "Fans";
       this.fansMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
       // 
       // toolStripMenuItem1
       // 
       this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-      this.toolStripMenuItem1.Size = new System.Drawing.Size(111, 6);
+      this.toolStripMenuItem1.Size = new System.Drawing.Size(149, 6);
       // 
       // plotMenuItem
       // 
@@ -384,7 +396,7 @@ namespace OpenHardwareMonitor.GUI {
       this.plotMenuItem.CheckOnClick = true;
       this.plotMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.plotMenuItem.Name = "plotMenuItem";
-      this.plotMenuItem.Size = new System.Drawing.Size(114, 22);
+      this.plotMenuItem.Size = new System.Drawing.Size(152, 22);
       this.plotMenuItem.Text = "Plot";
       this.plotMenuItem.CheckedChanged += new System.EventHandler(this.plotToolStripMenuItem_CheckedChanged);
       // 
@@ -400,7 +412,7 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.hddMenuItem.CheckOnClick = true;
       this.hddMenuItem.Name = "hddMenuItem";
-      this.hddMenuItem.Size = new System.Drawing.Size(141, 22);
+      this.hddMenuItem.Size = new System.Drawing.Size(152, 22);
       this.hddMenuItem.Text = "HDD sensors";
       this.hddMenuItem.CheckedChanged += new System.EventHandler(this.hddsensorsToolStripMenuItem_CheckedChanged);
       // 
@@ -518,6 +530,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem fansMenuItem;
     private System.Windows.Forms.ToolStripMenuItem voltMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem loadMenuItem;
   }
 }
 

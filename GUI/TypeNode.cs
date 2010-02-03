@@ -58,6 +58,10 @@ namespace OpenHardwareMonitor.GUI {
           this.Image = Utilities.EmbeddedResources.GetImage("clock.png");
           this.Text = "Clocks";
           break;
+        case SensorType.Load:
+          this.Image = Utilities.EmbeddedResources.GetImage("load.png");
+          this.Text = "Load";
+          break;
         case SensorType.Temperature:
           this.Image = Utilities.EmbeddedResources.GetImage("temperature.png");
           this.Text = "Temperatures";
