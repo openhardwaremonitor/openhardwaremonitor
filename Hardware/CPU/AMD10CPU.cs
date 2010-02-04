@@ -55,8 +55,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private List<ISensor> active = new List<ISensor>();
 
-    private PerformanceCounter totalLoadCounter;
-    private PerformanceCounter[] coreLoadCounters;
+    private CPULoad cpuLoad;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID = 0x1203;
@@ -72,32 +71,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (cpuidExtData.GetLength(0) > 8)
         coreCount = (cpuidExtData[8, 2] & 0xFF) + 1;
 
-      try {
-        totalLoadCounter = new PerformanceCounter();
-        totalLoadCounter.CategoryName = "Processor";
-        totalLoadCounter.CounterName = "% Processor Time";
-        totalLoadCounter.InstanceName = "_Total";
-        totalLoadCounter.NextValue();
-      } catch (Exception) {
-        totalLoadCounter = null;
-      }
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
 
-      coreLoadCounters = new PerformanceCounter[coreCount];
       coreLoads = new Sensor[coreCount];
-      for (int i = 0; i < coreLoadCounters.Length; i++) {
-        try {
-          coreLoadCounters[i] = new PerformanceCounter();
-          coreLoadCounters[i].CategoryName = "Processor";
-          coreLoadCounters[i].CounterName = "% Processor Time";
-          coreLoadCounters[i].InstanceName = i.ToString();
-          coreLoadCounters[i].NextValue();
-        } catch (Exception) {
-          coreLoadCounters[i] = null;
-        }
+      for (int i = 0; i < coreCount; i++) 
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
           SensorType.Load, this);
-      }        
+
+      cpuLoad = new CPULoad(coreCount, 1);
+      if (cpuLoad.IsAvailable) {
+        foreach (Sensor sensor in coreLoads)
+          ActivateSensor(sensor);
+        ActivateSensor(totalLoad);
+      }    
       
       // AMD family 10h processors support only one temperature sensor
       coreTemperature = new Sensor(
@@ -142,16 +128,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         DeactivateSensor(coreTemperature);
       }
 
-      if (totalLoadCounter != null) {
-        totalLoad.Value = totalLoadCounter.NextValue();
-        ActivateSensor(totalLoad);
+      if (cpuLoad.IsAvailable) {
+        cpuLoad.Update();
+        for (int i = 0; i < coreLoads.Length; i++)
+          coreLoads[i].Value = cpuLoad.GetCoreLoad(i);
+        totalLoad.Value = cpuLoad.GetTotalLoad();
       }
-
-      for (int i = 0; i < coreLoads.Length; i++)
-        if (coreLoadCounters[i] != null) {
-          coreLoads[i].Value = coreLoadCounters[i].NextValue();
-          ActivateSensor(coreLoads[i]);
-        }
     }
 
     private void ActivateSensor(Sensor sensor) {
