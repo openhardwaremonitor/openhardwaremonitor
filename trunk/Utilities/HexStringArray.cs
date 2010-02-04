@@ -47,8 +47,9 @@ namespace OpenHardwareMonitor.Utilities {
     public HexStringArray(string input) {
       List<byte> list = new List<byte>();
       foreach (string str in input.Split(' ')) {
-        if (str.Trim().Length > 0)
-          list.Add(Convert.ToByte(str, 16));
+        string s = str.Trim();
+        if (s.Length > 0)
+          list.Add(Convert.ToByte(s, 16));
       }
       array = list.ToArray();
     }

@@ -94,7 +94,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
          (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte(
         (ushort)(address + DATA_REGISTER_OFFSET));
-    }    
+    } 
 
     public W83627DHG(Chip chip, byte revision, ushort address) {
       this.chip = chip;
@@ -215,14 +215,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       foreach (Sensor sensor in temperatures) {
         int value;
         if (sensor.Index < 2) {
-          value = ReadByte((byte)(sensor.Index + 1), TEMPERATURE_BASE_REG);
+          value = (sbyte)ReadByte((byte)(sensor.Index + 1), TEMPERATURE_BASE_REG);
           value = (value << 1) | ReadByte((byte)(sensor.Index + 1),
             (byte)(TEMPERATURE_BASE_REG + 1)) >> 7;
         } else {
-          value = ReadByte(0, TEMPERATURE_SYS_REG) << 1;
+          value = (sbyte)ReadByte(0, TEMPERATURE_SYS_REG) << 1;
         }
         sensor.Value = value / 2.0f;
-        if (value < 0x1FE)
+        if (value < 0xFE)
           ActivateSensor(sensor);
         else
           DeactivateSensor(sensor);

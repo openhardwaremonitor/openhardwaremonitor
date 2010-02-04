@@ -59,9 +59,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private uint logicalProcessorsPerCore;
     private uint coreCount;
 
-    private PerformanceCounter totalLoadCounter;
-    private PerformanceCounter[] coreLoadCounters;
-
+    private CPULoad cpuLoad;
+    
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
 
@@ -133,30 +132,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         default: tjMax = 100; break;
       }
 
-      try {
-        totalLoadCounter = new PerformanceCounter();
-        totalLoadCounter.CategoryName = "Processor";
-        totalLoadCounter.CounterName = "% Processor Time";
-        totalLoadCounter.InstanceName = "_Total";
-        totalLoadCounter.NextValue();        
-      } catch (Exception) {
-        totalLoadCounter = null;
-      }
-      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
-
-      coreLoadCounters = new PerformanceCounter[
-        coreCount * logicalProcessorsPerCore];
-      for (int i = 0; i < coreLoadCounters.Length; i++) {
-        try {
-          coreLoadCounters[i] = new PerformanceCounter();
-          coreLoadCounters[i].CategoryName = "Processor";
-          coreLoadCounters[i].CounterName = "% Processor Time";
-          coreLoadCounters[i].InstanceName = i.ToString();
-          coreLoadCounters[i].NextValue();
-        } catch (Exception) {
-          coreLoadCounters[i] = null;
-        }
-      }
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);     
 
       coreTemperatures = new Sensor[coreCount];
       coreLoads = new Sensor[coreCount];
@@ -165,6 +141,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           SensorType.Temperature, this);
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1, 
           SensorType.Load, this);
+      }
+
+      cpuLoad = new CPULoad(coreCount, logicalProcessorsPerCore);
+      if (cpuLoad.IsAvailable) {
+        foreach (Sensor sensor in coreLoads)
+          ActivateSensor(sensor);
+        ActivateSensor(totalLoad);
       }
 
       Update();                   
@@ -221,27 +204,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }        
       }
 
-      if (totalLoadCounter != null) {
-        totalLoad.Value = totalLoadCounter.NextValue();
-        ActivateSensor(totalLoad);
-      }
-
-      for (int i = 0; i < coreLoads.Length; i++) {
-        float value = 0;
-        int count = 0;
-        for (int j = 0; j < logicalProcessorsPerCore; j++) {
-          PerformanceCounter counter =
-            coreLoadCounters[logicalProcessorsPerCore * i + j];
-          if (counter != null) {
-            value += counter.NextValue();
-            count++;
-          }
-        }
-        if (count > 0) {
-          value /= count;
-          coreLoads[i].Value = value;
-          ActivateSensor(coreLoads[i]);
-        }
+      if (cpuLoad.IsAvailable) {
+        cpuLoad.Update();
+        for (int i = 0; i < coreLoads.Length; i++)
+          coreLoads[i].Value = cpuLoad.GetCoreLoad(i);
+        totalLoad.Value = cpuLoad.GetTotalLoad();
       }
     }
 
