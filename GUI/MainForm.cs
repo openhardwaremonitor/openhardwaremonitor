@@ -325,6 +325,38 @@ namespace OpenHardwareMonitor.GUI {
         node.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
         node.SetVisible(SensorType.Fan, fansMenuItem.Checked);
       }
-    }  
+    }
+
+    private void ToggleSysTray() {
+      if (Visible) {
+        notifyIcon.Visible = true;
+        Visible = false;        
+      } else {
+        Visible = true;
+        notifyIcon.Visible = false;
+      }
+    }
+
+    protected override void WndProc(ref Message m) {
+      const int WM_SYSCOMMAND = 0x112;
+      const int SC_MINIMIZE = 0xF020;
+      if (m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
+        ToggleSysTray();
+      } else {      
+        base.WndProc(ref m);
+      }
+    }
+
+    private void notifyIcon_Click(object sender, EventArgs e) {
+      MouseEventArgs m = e as MouseEventArgs;
+      if (m == null || m.Button != MouseButtons.Left)
+        return;
+
+      ToggleSysTray(); 
+    }
+
+    private void restoreToolStripMenuItem_Click(object sender, EventArgs e) {
+      ToggleSysTray(); 
+    }
   }
 }

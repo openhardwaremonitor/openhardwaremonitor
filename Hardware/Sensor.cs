@@ -61,14 +61,8 @@ namespace OpenHardwareMonitor.Hardware {
     private const int MAX_MINUTES = 120;
 
     private string GetIdentifier() {
-      string s = "";
-      switch (sensorType) {
-        case SensorType.Voltage: s = "voltage"; break;
-        case SensorType.Clock: s = "clock"; break;
-        case SensorType.Temperature: s = "temperature"; break;
-        case SensorType.Fan: s = "fan"; break;
-      }
-      return hardware.Identifier + "/" + s + "/" + index;
+      return hardware.Identifier + "/" + sensorType.ToString().ToLower() + 
+        "/" + index;
     }
 
     public Sensor(string name, int index, SensorType sensorType,
