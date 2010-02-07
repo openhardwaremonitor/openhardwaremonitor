@@ -93,7 +93,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte FINTEK_VENDOR_ID_REGISTER = 0x23;
     private const ushort FINTEK_VENDOR_ID = 0x1934;
 
-    private const byte W83627DHG_HARDWARE_MONITOR_LDN = 0x0B;
+    private const byte W83627_HARDWARE_MONITOR_LDN = 0x0B;
 
     private const byte F71858_HARDWARE_MONITOR_LDN = 0x02;
     private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
@@ -165,11 +165,23 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 logicalDeviceNumber = 0;
                 break;
             } break;
+          case 0x52:
+            switch (revision) {
+              case 0x17:
+              case 0x3A:
+                chip = Chip.W83627HF;
+                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;
+                break;
+              default:
+                chip = Chip.Unknown;
+                logicalDeviceNumber = 0;
+                break;
+            } break;
           case 0xA0:
             switch (revision & 0xF0) {
               case 0x20: 
                 chip = Chip.W83627DHG;
-                logicalDeviceNumber = W83627DHG_HARDWARE_MONITOR_LDN;  
+                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;  
                 break;
               default: 
                 chip = Chip.Unknown;
@@ -180,7 +192,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             switch (revision & 0xF0) {
               case 0x70:
                 chip = Chip.W83627DHGP;
-                logicalDeviceNumber = W83627DHG_HARDWARE_MONITOR_LDN;
+                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;
                 break;
               default:
                 chip = Chip.Unknown;
@@ -211,9 +223,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           switch (chip) {
             case Chip.W83627DHG:
             case Chip.W83627DHGP:
-              W83627DHG w83627dhg = new W83627DHG(chip, revision, address);
-              if (w83627dhg.IsAvailable)
-                hardware.Add(w83627dhg);
+            case Chip.W83627HF:
+              W83627 w83627 = new W83627(chip, revision, address);
+              if (w83627.IsAvailable)
+                hardware.Add(w83627);
               break;
             case Chip.F71862:
             case Chip.F71882:

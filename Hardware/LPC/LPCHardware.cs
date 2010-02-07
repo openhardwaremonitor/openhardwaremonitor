@@ -35,39 +35,46 @@
  
 */
 
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("Open Hardware Monitor")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Open Hardware Monitor")]
-[assembly: AssemblyCopyright("Copyright © 2009-2010 Michael Möller")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
+namespace OpenHardwareMonitor.Hardware.LPC {
+  public abstract class LPCHardware : Hardware {
+        
+    private Image icon;
+    protected readonly string name;
+    protected readonly Chip chip;
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-[assembly: ComVisible(false)]
+    public LPCHardware(Chip chip) {
+      this.chip = chip;
+      this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f7a1c873-0bec-4762-8707-2edce3a6444d")]
+      switch (chip) {
+        case Chip.F71862: name = "Fintek F71862"; break;
+        case Chip.F71869: name = "Fintek F71869"; break;
+        case Chip.F71882: name = "Fintek F71882"; break;
+        case Chip.F71889: name = "Fintek F71889"; break;
+        case Chip.IT8716F: this.name = "ITE IT8716F"; break;
+        case Chip.IT8718F: this.name = "ITE IT8718F"; break;
+        case Chip.IT8720F: this.name = "ITE IT8720F"; break;
+        case Chip.IT8726F: this.name = "ITE IT8726F"; break;
+        case Chip.W83627DHG: this.name = "Winbond W83627DHG"; break;
+        case Chip.W83627DHGP: this.name = "Winbond W83627DHG-P"; break;
+        case Chip.W83627HF: this.name = "Winbond W83627HF"; break;
+      }
+    }
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.14.0")]
-[assembly: AssemblyFileVersion("0.1.14.0")]
+    public string Identifier {
+      get { return "/lpc/" + chip.ToString().ToLower(); }
+    }
+
+    public Image Icon {
+      get { return icon; }
+    }
+
+    public string Name {
+      get { return name; }
+    }
+  }
+}

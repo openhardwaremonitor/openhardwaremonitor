@@ -41,19 +41,14 @@ using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class IT87XX : IHardware {
-
-    private string name;
-    private Image icon;
+  public class IT87XX : LPCHardware, IHardware {
         
     private bool available = false;
-    private Chip chip;
     private ushort address;
 
     private Sensor[] temperatures;
     private Sensor[] fans;
     private Sensor[] voltages;
-    private List<ISensor> active = new List<ISensor>();
     private float[] voltageGains;
    
     // Consts
@@ -80,18 +75,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
     }
 
-    public IT87XX(Chip chip, ushort address) {
+    public IT87XX(Chip chip, ushort address) : base (chip) {
       
-      this.chip = chip;
       this.address = address;
-
-      switch (chip) {
-        case Chip.IT8716F: name = "ITE IT8716F"; break;
-        case Chip.IT8718F: name = "ITE IT8718F"; break;
-        case Chip.IT8720F: name = "ITE IT8720F"; break;
-        case Chip.IT8726F: name = "ITE IT8726F"; break;
-        default: return;
-      }
       
       // Check vendor id
       byte vendorId = ReadByte(VENDOR_ID_REGISTER);      
@@ -119,33 +105,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       voltages[1] = new Sensor("Battery", 8, SensorType.Voltage, this);           
 
       available = true;
-      icon = Utilities.EmbeddedResources.GetImage("chip.png");
     }
 
     public bool IsAvailable {
       get { return available; } 
     }
 
-    public string Name {
-      get { return name; }
-    }
-
-    public string Identifier {
-      get { return "/lpc/" + chip.ToString().ToLower(); }
-    }
-
-    public Image Icon {
-      get { return icon; }
-    }
-
-    public ISensor[] Sensors {
-      get { return active.ToArray(); }
-    }
-
     public string GetReport() {
       StringBuilder r = new StringBuilder();
 
-      r.AppendLine("LPC IT87XX");
+      r.AppendLine("LPC " + this.GetType().Name);
       r.AppendLine();
       r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
       r.Append("Chip Name: "); r.AppendLine(name);
@@ -200,26 +169,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           DeactivateSensor(sensor);
         }
       }      
-    }
-
-    private void ActivateSensor(Sensor sensor) {
-      if (!active.Contains(sensor)) {
-        active.Add(sensor);
-        if (SensorAdded != null)
-          SensorAdded(sensor);
-      }
-    }
-
-    private void DeactivateSensor(Sensor sensor) {
-      if (active.Contains(sensor)) {
-        active.Remove(sensor);
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);
-      }
-    }
-
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-
+    }   
   }
 }

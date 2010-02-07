@@ -43,7 +43,7 @@ using System.Text;
 
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  public class AMD0FCPU : IHardware {
+  public class AMD0FCPU : Hardware, IHardware {
 
     private string name;
     private Image icon;
@@ -55,8 +55,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private Sensor totalLoad;
     private Sensor[] coreLoads;
-
-    private List<ISensor> active = new List<ISensor>();
 
     private CPULoad cpuLoad;
 
@@ -121,10 +119,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return icon; }
     }
 
-    public ISensor[] Sensors {
-      get { return active.ToArray(); }
-    }
-
     public string GetReport() {
       return null;
     }
@@ -154,26 +148,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           coreLoads[i].Value = cpuLoad.GetCoreLoad(i);
         totalLoad.Value = cpuLoad.GetTotalLoad();
       }
-    }
-
-    private void ActivateSensor(Sensor sensor) {
-      if (!active.Contains(sensor)) {
-        active.Add(sensor);
-        if (SensorAdded != null)
-          SensorAdded(sensor);
-      }
-    }
-
-    private void DeactivateSensor(Sensor sensor) {
-      if (active.Contains(sensor)) {
-        active.Remove(sensor);
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);
-      }
-    }
-
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-
+    }   
   }
 }

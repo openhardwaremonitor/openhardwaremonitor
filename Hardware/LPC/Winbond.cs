@@ -41,106 +41,92 @@ using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class F718XX : LPCHardware, IHardware {
+  public abstract class Winbond : LPCHardware {
 
     private ushort address;
+    private byte revision;
 
-    private Sensor[] temperatures;
-    private Sensor[] fans;
-    private Sensor[] voltages;
-    private float[] voltageGains;
+    private bool available;
+
+    // Consts 
+    private const ushort WINBOND_VENDOR_ID = 0x5CA3;
+    private const byte HIGH_BYTE = 0x80;
 
     // Hardware Monitor
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
     private const byte DATA_REGISTER_OFFSET = 0x06;
 
     // Hardware Monitor Registers
-    private const byte VOLTAGE_BASE_REG = 0x20;
-    private const byte TEMPERATURE_BASE_REG = 0x72;
-    private byte[] FAN_TACHOMETER_REG = new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
-    
-    private byte ReadByte(byte register) {
+    private const byte BANK_SELECT_REGISTER = 0x04E;
+    private const byte VENDOR_ID_REGISTER = 0x4F;
+
+    protected byte ReadByte(byte bank, byte register) {
       WinRing0.WriteIoPortByte(
-        (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
-      return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
+         (ushort)(address + ADDRESS_REGISTER_OFFSET), BANK_SELECT_REGISTER);
+      WinRing0.WriteIoPortByte(
+         (ushort)(address + DATA_REGISTER_OFFSET), bank);
+      WinRing0.WriteIoPortByte(
+         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
+      return WinRing0.ReadIoPortByte(
+        (ushort)(address + DATA_REGISTER_OFFSET));
+    } 
+
+    private bool IsWinbondVendor() {
+      ushort vendorId =
+        (ushort)((ReadByte(HIGH_BYTE, VENDOR_ID_REGISTER) << 8) |
+           ReadByte(0, VENDOR_ID_REGISTER));
+      return vendorId == WINBOND_VENDOR_ID;
     }
 
-    public F718XX(Chip chip, ushort address) : base(chip) {
+    public Winbond(Chip chip, byte revision, ushort address)
+      : base(chip) 
+    {
       this.address = address;
+      this.revision = revision;
 
-      temperatures = new Sensor[3];
-      for (int i = 0; i < temperatures.Length; i++)
-        temperatures[i] = new Sensor("Temperature #" + (i + 1), i,
-          SensorType.Temperature, this);
-
-      fans = new Sensor[4];
-      for (int i = 0; i < fans.Length; i++)
-        fans[i] = new Sensor("Fan #" + (i + 1), i, SensorType.Fan, this);
-
-      voltageGains = new float[] { 1, 0.5f, 1, 1, 1, 1, 1, 1, 1 };
-      voltages = new Sensor[4];
-      voltages[0] = new Sensor("VCC3V", 0, SensorType.Voltage, this);
-      voltages[1] = new Sensor("CPU VCore", 1, SensorType.Voltage, this);      
-      voltages[2] = new Sensor("VSB3V", 7, SensorType.Voltage, this);
-      voltages[3] = new Sensor("Battery", 8, SensorType.Voltage, this);
+      available = IsWinbondVendor();
     }
 
+    public bool IsAvailable {
+      get { return available; }
+    }    
+   
     public string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);
       r.AppendLine();
+      r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
+      r.Append("Chip revision: 0x"); r.AppendLine(revision.ToString("X"));
       r.Append("Base Adress: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
       r.AppendLine("Hardware Monitor Registers");
       r.AppendLine();
-
       r.AppendLine("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
-      for (int i = 0; i <= 0xF; i++) {
+      for (int i = 0; i < 0x7; i++) {
         r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           r.Append(" ");
-          r.Append(ReadByte((byte)((i << 4) | j)).ToString("X2"));
+          r.Append(ReadByte(0, (byte)((i << 4) | j)).ToString("X2"));
         }
         r.AppendLine();
       }
-      r.AppendLine();
-      return r.ToString();
-    }
-
-    public void Update() {
-
-      foreach (Sensor sensor in voltages) {
-        int value = ReadByte((byte)(VOLTAGE_BASE_REG + sensor.Index));
-        sensor.Value = voltageGains[sensor.Index] * 0.001f * (value << 4);
-        if (sensor.Value > 0)
-          ActivateSensor(sensor);
-        else
-          DeactivateSensor(sensor);
-      }
-
-      foreach (Sensor sensor in temperatures) {
-        sbyte value = (sbyte)ReadByte((byte)(
-          TEMPERATURE_BASE_REG + 2 * sensor.Index));
-        sensor.Value = value;
-        if (value < sbyte.MaxValue && value > 0)
-          ActivateSensor(sensor);
-        else
-          DeactivateSensor(sensor);
-      }
-
-      foreach (Sensor sensor in fans) {
-        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index]) << 8;
-        value |= ReadByte((byte)(FAN_TACHOMETER_REG[sensor.Index] + 1));
-
-        if (value > 0) {
-          sensor.Value = (value < 0x0fff) ? 1.5e6f / value : 0;
-          ActivateSensor(sensor);
-        } else {
-          DeactivateSensor(sensor);
+      for (int k = 1; k <= 5; k++) {
+        r.AppendLine("Bank " + k);
+        for (int i = 0x5; i < 0x6; i++) {
+          r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
+          for (int j = 0; j <= 0xF; j++) {
+            r.Append(" ");
+            r.Append(ReadByte((byte)(k),
+              (byte)((i << 4) | j)).ToString("X2"));
+          }
+          r.AppendLine();
         }
-      }      
+      }
+      r.AppendLine();
+
+      return r.ToString();
     }
   }
 }
