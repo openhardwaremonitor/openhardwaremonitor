@@ -41,7 +41,7 @@ using System.Drawing;
 using System.Reflection;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
-  public class ATIGPU : IHardware {
+  public class ATIGPU : Hardware, IHardware {
 
     private string name;
     private Image icon;
@@ -54,8 +54,6 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private Sensor memoryClock;
     private Sensor coreVoltage;
     private Sensor coreLoad;
-
-    private List<ISensor> active = new List<ISensor>();
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber) 
@@ -93,10 +91,6 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public Image Icon {
       get { return icon; }
-    }
-
-    public ISensor[] Sensors {
-      get { return active.ToArray(); }
     }
 
     public string GetReport() {
@@ -144,24 +138,5 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         DeactivateSensor(coreLoad);
       }
     }
-
-    private void ActivateSensor(Sensor sensor) {
-      if (!active.Contains(sensor)) {
-        active.Add(sensor);
-        if (SensorAdded != null) 
-          SensorAdded(sensor);
-      }
-    }
-
-    private void DeactivateSensor(Sensor sensor) {
-      if (active.Contains(sensor)) {
-        active.Remove(sensor);
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);
-      }
-    }
-
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
   }
 }
