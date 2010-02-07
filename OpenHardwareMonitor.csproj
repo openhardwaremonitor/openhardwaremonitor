@@ -69,7 +69,7 @@
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\SMBIOS\SMBIOSGroup.cs" />
     <Compile Include="Hardware\LPC\W83627DHG.cs" />
-    <Compile Include="Hardware\ReportWriter.cs" />
+    <Compile Include="Hardware\Computer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\AboutBox.cs">
       <SubType>Form</SubType>
@@ -80,6 +80,7 @@
     <Compile Include="Hardware\ATI\ADL.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
+    <Compile Include="Utilities\IconFactory.cs" />
     <Compile Include="Utilities\Configuration.cs" />
     <Compile Include="Utilities\CrashReport.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
@@ -137,7 +138,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\chip.png" />
     <EmbeddedResource Include="Resources\hdd.png" />
-    <Content Include="Resources\icon.ico" />
+    <None Include="Resources\icon.ico" />
     <EmbeddedResource Include="Resources\load.png" />
     <EmbeddedResource Include="Resources\voltage.png" />
     <EmbeddedResource Include="Resources\nvidia.png" />

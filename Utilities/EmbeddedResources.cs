@@ -56,6 +56,20 @@ namespace OpenHardwareMonitor.Utilities {
 
       return new Bitmap(1, 1);    
     }
+
+    public static Icon GetIcon(string name) {
+      name = "OpenHardwareMonitor.Resources." + name;
+
+      string[] names =
+        Assembly.GetExecutingAssembly().GetManifestResourceNames();
+      for (int i = 0; i < names.Length; i++) {
+        if (names[i].Replace('\\', '.') == name)
+          return new Icon(Assembly.GetExecutingAssembly().
+        GetManifestResourceStream(names[i]));
+      }
+
+      return null;
+    }
          
   }
 }

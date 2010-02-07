@@ -45,19 +45,19 @@ using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
 
+    private Computer computer = new Computer();
     private Node root;
-    private List<IGroup> groupList = new List<IGroup>();
     private TreeModel treeModel;
     private IDictionary<ISensor, Color> sensorPlotColors = 
       new Dictionary<ISensor, Color>();
     private Color[] plotColorPalette;
 
-    public MainForm() {
-      
+    public MainForm() {      
       InitializeComponent();
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
@@ -99,13 +99,10 @@ namespace OpenHardwareMonitor.GUI {
       treeModel.Nodes.Add(root);
       treeView.Model = treeModel;
 
-      AddGroup(new Hardware.SMBIOS.SMBIOSGroup());
-      AddGroup(new Hardware.LPC.LPCGroup());
-      AddGroup(new Hardware.CPU.CPUGroup());
-      AddGroup(new Hardware.ATI.ATIGroup());
-      AddGroup(new Hardware.Nvidia.NvidiaGroup());
-      AddGroup(new Hardware.TBalancer.TBalancerGroup());
-      
+      computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
+      computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
+      computer.Open();
+
       plotColorPalette = new Color[14];
       plotColorPalette[0] = Color.Blue;
       plotColorPalette[1] = Color.OrangeRed;
@@ -122,38 +119,36 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[12] = Color.Olive;
       plotColorPalette[13] = Color.Firebrick;
 
-      plotMenuItem.Checked = Utilities.Config.Get(plotMenuItem.Name, false);
-      minMenuItem.Checked = Utilities.Config.Get(minMenuItem.Name, false);
-      maxMenuItem.Checked = Utilities.Config.Get(maxMenuItem.Name, true);
-      limitMenuItem.Checked = Utilities.Config.Get(limitMenuItem.Name, false);
-      hddMenuItem.Checked = Utilities.Config.Get(hddMenuItem.Name, true);
+      plotMenuItem.Checked = Config.Get(plotMenuItem.Name, false);
+      minMenuItem.Checked = Config.Get(minMenuItem.Name, false);
+      maxMenuItem.Checked = Config.Get(maxMenuItem.Name, true);
+      limitMenuItem.Checked = Config.Get(limitMenuItem.Name, false);
 
-      voltMenuItem.Checked = Utilities.Config.Get(voltMenuItem.Name, true);
-      clocksMenuItem.Checked = Utilities.Config.Get(clocksMenuItem.Name, true);
-      loadMenuItem.Checked = Utilities.Config.Get(loadMenuItem.Name, true);
-      tempMenuItem.Checked = Utilities.Config.Get(tempMenuItem.Name, true);
-      fansMenuItem.Checked = Utilities.Config.Get(fansMenuItem.Name, true);
+      minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
+      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
 
-      timer.Enabled = true;
+      voltMenuItem.Checked = Config.Get(voltMenuItem.Name, true);
+      clocksMenuItem.Checked = Config.Get(clocksMenuItem.Name, true);
+      loadMenuItem.Checked = Config.Get(loadMenuItem.Name, true);
+      tempMenuItem.Checked = Config.Get(tempMenuItem.Name, true);
+      fansMenuItem.Checked = Config.Get(fansMenuItem.Name, true);
+     
+      timer.Enabled = true;   
     }
 
-    private void AddGroup(IGroup group) {
-      groupList.Add(group);
-      foreach (IHardware hardware in group.Hardware)
-        root.Nodes.Add(new HardwareNode(hardware));
+    private void HardwareAdded(IHardware hardware) {
+      root.Nodes.Add(new HardwareNode(hardware));
     }
 
-    private void RemoveGroup(IGroup group) {
+    private void HardwareRemoved(IHardware hardware) {      
       List<Node> nodesToRemove = new List<Node>();
-      foreach (IHardware hardware in group.Hardware)
-        foreach (Node node in root.Nodes) {
-          HardwareNode hardwareNode = node as HardwareNode;
-          if (hardwareNode != null && hardwareNode.Hardware == hardware)
-            nodesToRemove.Add(node);
-        }
+      foreach (Node node in root.Nodes) {
+        HardwareNode hardwareNode = node as HardwareNode;
+        if (hardwareNode != null && hardwareNode.Hardware == hardware)
+          nodesToRemove.Add(node);
+      }
       foreach (Node node in nodesToRemove)
         root.Nodes.Remove(node);
-      groupList.Remove(group);
     }
 
     private void nodeTextBoxLimit_DrawText(object sender, DrawEventArgs e) {
@@ -213,12 +208,10 @@ namespace OpenHardwareMonitor.GUI {
       #if !DEBUG
       try {
       #endif
-        foreach (IGroup group in groupList)
-          foreach (IHardware hardware in group.Hardware)
-            hardware.Update();
+        computer.Update();        
       #if !DEBUG
       } catch (Exception exception) {
-        Utilities.CrashReport.Save(exception);
+        CrashReport.Save(exception);
         Close();
       }
       #endif
@@ -228,27 +221,29 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-      Utilities.Config.Set(plotMenuItem.Name, plotMenuItem.Checked);
-      Utilities.Config.Set(minMenuItem.Name, minMenuItem.Checked);
-      Utilities.Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
-      Utilities.Config.Set(limitMenuItem.Name, limitMenuItem.Checked);
-      Utilities.Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
+            
+      Config.Set(plotMenuItem.Name, plotMenuItem.Checked);
+      Config.Set(minMenuItem.Name, minMenuItem.Checked);
+      Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
+      Config.Set(limitMenuItem.Name, limitMenuItem.Checked);
 
-      Utilities.Config.Set(voltMenuItem.Name, voltMenuItem.Checked);
-      Utilities.Config.Set(clocksMenuItem.Name, clocksMenuItem.Checked);
-      Utilities.Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
-      Utilities.Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
-      Utilities.Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
+      Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
+      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
+
+      Config.Set(voltMenuItem.Name, voltMenuItem.Checked);
+      Config.Set(clocksMenuItem.Name, clocksMenuItem.Checked);
+      Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
+      Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
+      Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
 
       if (WindowState != FormWindowState.Minimized) {
-        Utilities.Config.Set("mainForm.Location.X", Location.X);
-        Utilities.Config.Set("mainForm.Location.Y", Location.Y);
-        Utilities.Config.Set("mainForm.Width", Width);
-        Utilities.Config.Set("mainForm.Height", Height);
+        Config.Set("mainForm.Location.X", Location.X);
+        Config.Set("mainForm.Location.Y", Location.Y);
+        Config.Set("mainForm.Width", Width);
+        Config.Set("mainForm.Height", Height);
       }
 
-      foreach (IGroup group in groupList)
-        group.Close();
+      computer.Close();
     }
 
     private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -290,31 +285,21 @@ namespace OpenHardwareMonitor.GUI {
         return;
 
       NodeControlInfo info = treeView.GetNodeControlInfoAt(new Point(m.X, m.Y));
-      if (info.Control == null)
+      if (info.Control == null) {
         columnsContextMenuStrip.Show(treeView, m.X, m.Y);
+      } 
     }
 
     private void saveReportToolStripMenuItem_Click(object sender, EventArgs e) {
-      ReportWriter.Save(groupList, new Version(Application.ProductVersion));
+      computer.SaveReport(new Version(Application.ProductVersion));      
     }
 
     private void hddsensorsToolStripMenuItem_CheckedChanged(object sender, 
       EventArgs e) 
     {
-      if (hddMenuItem.Checked) {
-        AddGroup(new Hardware.HDD.HDDGroup());
-        UpdateSensorTypeChecked(null, null);
-      } else {
-        List<IGroup> groupsToRemove = new List<IGroup>();
-        foreach (IGroup group in groupList) 
-          if (group is Hardware.HDD.HDDGroup)
-            groupsToRemove.Add(group);
-        foreach (IGroup group in groupsToRemove) {
-          group.Close();
-          RemoveGroup(group);
-        }
-        UpdatePlotSelection(null, null);        
-      }
+      computer.HDDEnabled = hddMenuItem.Checked;
+      UpdateSensorTypeChecked(null, null);
+      UpdatePlotSelection(null, null);      
     }
 
     private void UpdateSensorTypeChecked(object sender, EventArgs e) {
@@ -334,29 +319,24 @@ namespace OpenHardwareMonitor.GUI {
       } else {
         Visible = true;
         notifyIcon.Visible = false;
+        BringToFront();
       }
     }
 
     protected override void WndProc(ref Message m) {
       const int WM_SYSCOMMAND = 0x112;
       const int SC_MINIMIZE = 0xF020;
-      if (m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
+      if (minTrayMenuItem.Checked && 
+        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
         ToggleSysTray();
       } else {      
         base.WndProc(ref m);
       }
     }
 
-    private void notifyIcon_Click(object sender, EventArgs e) {
-      MouseEventArgs m = e as MouseEventArgs;
-      if (m == null || m.Button != MouseButtons.Left)
-        return;
-
-      ToggleSysTray(); 
+    private void restoreClick(object sender, EventArgs e) {
+      ToggleSysTray();
     }
 
-    private void restoreToolStripMenuItem_Click(object sender, EventArgs e) {
-      ToggleSysTray(); 
-    }
   }
 }

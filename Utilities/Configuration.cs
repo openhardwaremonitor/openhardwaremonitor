@@ -99,6 +99,10 @@ namespace OpenHardwareMonitor.Utilities {
       return element != null;
     }
 
+    public static void Remove(string name) {
+      instance.config.AppSettings.Settings.Remove(name);
+    }
+
     public static void Set(string name, bool value) {
       instance[name] = value ? "true" : "false";
     }
