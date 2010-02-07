@@ -59,12 +59,7 @@ namespace OpenHardwareMonitor.Hardware {
     private int count = 0;
 
     private const int MAX_MINUTES = 120;
-
-    private string GetIdentifier() {
-      return hardware.Identifier + "/" + sensorType.ToString().ToLower() + 
-        "/" + index;
-    }
-
+   
     public Sensor(string name, int index, SensorType sensorType,
       IHardware hardware)
       : this(name, index, null, sensorType, hardware) { }
@@ -77,22 +72,33 @@ namespace OpenHardwareMonitor.Hardware {
       this.defaultLimit = limit;
       this.sensorType = sensorType;
       this.hardware = hardware;
-      string configName = 
-        Utilities.Config.Settings[GetIdentifier() + "/name"];
+      string configName =
+        Utilities.Config.Settings[Identifier + "/name"];
       if (configName != null)
         this.name = configName;
       else
         this.name = name;
       string configLimit =
-        Utilities.Config.Settings[GetIdentifier() + "/limit"];
+        Utilities.Config.Settings[Identifier + "/limit"];
       if (configLimit != null && configLimit != "")
         this.limit = float.Parse(configLimit);
       else
         this.limit = limit;
     }
 
+    public IHardware Hardware {
+      get { return hardware; }
+    }
+
     public SensorType SensorType {
       get { return sensorType; }
+    }
+
+    public string Identifier {
+      get {
+        return hardware.Identifier + "/" + sensorType.ToString().ToLower() +
+          "/" + index;
+      }
     }
 
     public string Name {
@@ -104,7 +110,7 @@ namespace OpenHardwareMonitor.Hardware {
           name = value;          
         else 
           name = defaultName;
-        Utilities.Config.Settings[GetIdentifier() + "/name"] = name;
+        Utilities.Config.Settings[Identifier + "/name"] = name;
       }
     }
 
@@ -150,11 +156,11 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         if (value.HasValue) {
           limit = value;
-          Utilities.Config.Settings[GetIdentifier() + "/limit"] =
+          Utilities.Config.Settings[Identifier + "/limit"] =
             limit.ToString();
         } else {
           limit = defaultLimit;
-          Utilities.Config.Settings[GetIdentifier() + "/limit"] = "";          
+          Utilities.Config.Settings[Identifier + "/limit"] = "";          
         }        
       }
     }

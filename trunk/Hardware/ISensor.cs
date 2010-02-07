@@ -54,7 +54,9 @@ namespace OpenHardwareMonitor.Hardware {
   }
 
   public interface ISensor {
+    IHardware Hardware { get; }
     SensorType SensorType { get; }
+    string Identifier { get; }
     string Name { get; set; }
     int Index { get; }
     float? Value { get; }
