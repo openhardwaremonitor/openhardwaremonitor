@@ -73,6 +73,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 int isActive;
                 ADL.ADL_Adapter_Active_Get(adapterInfo[i].AdapterIndex,
                   out isActive);
+                int adapterID;
+                ADL.ADL_Adapter_ID_Get(adapterInfo[i].AdapterIndex,
+                  out adapterID);
 
                 report.Append("AdapterIndex: "); 
                 report.AppendLine(i.ToString());
@@ -91,36 +94,26 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.Append("DeviceNumber: ");
                 report.AppendLine(adapterInfo[i].DeviceNumber.ToString());
                 report.Append("FunctionNumber: ");
-                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());                
+                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());
+                report.Append("AdapterID: 0x");
+                report.AppendLine(adapterID.ToString("X"));
 
-                if (isActive == 1) {
-                  int adapterID;
-                  ADL.ADL_Adapter_ID_Get(adapterInfo[i].AdapterIndex,
-                    out adapterID);
-
-                  report.Append("AdapterID: 0x");
-                  report.AppendLine(adapterID.ToString("X"));
-
-                  if (adapterID != 0 && 
-                    adapterInfo[i].UDID != "" && 
-                    adapterInfo[i].Present > 0 &&
-                    (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
-                     adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) 
-                  {
-                    bool found = false;
-                    foreach (ATIGPU gpu in hardware)
-                      if (gpu.BusNumber == adapterInfo[i].BusNumber &&
-                        gpu.DeviceNumber == adapterInfo[i].DeviceNumber) {
-                        found = true;
-                        break;
-                      }
-                    if (!found)
-                      hardware.Add(new ATIGPU(
-                        adapterInfo[i].AdapterName.Trim(),
-                        adapterInfo[i].AdapterIndex,
-                        adapterInfo[i].BusNumber, 
-                        adapterInfo[i].DeviceNumber));
-                  }
+                if (adapterID != 0 && adapterInfo[i].UDID != "" &&
+                  (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
+                   adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) {
+                  bool found = false;
+                  foreach (ATIGPU gpu in hardware)
+                    if (gpu.BusNumber == adapterInfo[i].BusNumber &&
+                      gpu.DeviceNumber == adapterInfo[i].DeviceNumber) {
+                      found = true;
+                      break;
+                    }
+                  if (!found)
+                    hardware.Add(new ATIGPU(
+                      adapterInfo[i].AdapterName.Trim(),
+                      adapterInfo[i].AdapterIndex,
+                      adapterInfo[i].BusNumber,
+                      adapterInfo[i].DeviceNumber));
                 }
 
                 report.AppendLine();

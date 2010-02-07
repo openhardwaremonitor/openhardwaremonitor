@@ -80,7 +80,6 @@
     <Compile Include="Hardware\ATI\ADL.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
-    <Compile Include="Utilities\IconFactory.cs" />
     <Compile Include="Utilities\Configuration.cs" />
     <Compile Include="Utilities\CrashReport.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
