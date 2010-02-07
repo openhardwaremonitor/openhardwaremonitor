@@ -39,24 +39,30 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
+using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
   public class TBalancerGroup : IGroup {
 
     private List<TBalancer> hardware = new List<TBalancer>();
+    private StringBuilder report = new StringBuilder();
 
     public TBalancerGroup() {
-
-      string[] portNames = SerialPort.GetPortNames();
+   
+      string[] portNames = SerialPort.GetPortNames();      
       for (int i = portNames.Length - 1; i >= 0; i--) {
         try {
+
           SerialPort serialPort =
             new SerialPort(portNames[i], 19200, Parity.None, 8, StopBits.One);
           serialPort.Open();
           bool isValid = false;
           if (serialPort.IsOpen && serialPort.CDHolding &&
             serialPort.CtsHolding) {
+
+            report.Append("Port name: "); report.AppendLine(portNames[i]);            
+
             serialPort.DiscardInBuffer();
             serialPort.DiscardOutBuffer();
             serialPort.Write(new byte[] { 0x38 }, 0, 1);
@@ -65,32 +71,46 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
               Thread.Sleep(100);
               j++;
             }
-            if (serialPort.BytesToRead > 0 && 
-              serialPort.ReadByte() == TBalancer.STARTFLAG) 
-            {
+            if (serialPort.BytesToRead > 0 &&
+              serialPort.ReadByte() == TBalancer.STARTFLAG) {
               while (serialPort.BytesToRead < 284 && j < 5) {
                 Thread.Sleep(100);
                 j++;
               }
-              if (serialPort.BytesToRead == 284) {
+              int length = serialPort.BytesToRead;
+              if (length >= 284) {
                 int[] data = new int[285];
                 data[0] = TBalancer.STARTFLAG;
                 for (int k = 1; k < data.Length; k++)
                   data[k] = serialPort.ReadByte();
-                
+
                 // check protocol version
-                isValid = (data[274] == TBalancer.PROTOCOL_VERSION); 
+                isValid = (data[274] == TBalancer.PROTOCOL_VERSION);
+                if (!isValid) {
+                  report.Append("Status: Wrong Protocol Version: 0x");
+                  report.AppendLine(data[274].ToString("X"));
+                }
+              } else {
+                report.AppendLine("Status: Wrong Message Length: " + length);
               }
+            } else {
+              report.AppendLine("Status: Wrong Startflag");
             }
           }
           serialPort.DiscardInBuffer();
           serialPort.Close();
           if (isValid) {
+            report.AppendLine("Status: OK");
             hardware.Add(new TBalancer(portNames[i]));
             return;
           }
-        } catch (IOException) { } catch (UnauthorizedAccessException) { } 
-          catch (NullReferenceException) { }
+        } catch (IOException ioe) {
+          report.AppendLine(ioe.ToString());
+        } catch (UnauthorizedAccessException uae) {
+          report.AppendLine(uae.ToString());
+        } catch (NullReferenceException ne) {
+          report.AppendLine(ne.ToString());
+        }
       }
     }
 
@@ -101,7 +121,13 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     public string GetReport() {
-      return null;
+      if (report.Length > 0) {
+        report.Insert(0, "Serial Port T-Balancer" + Environment.NewLine +
+          Environment.NewLine);
+        report.AppendLine();
+        return report.ToString();
+      } else
+        return null;
     }
 
     public void Close() {
