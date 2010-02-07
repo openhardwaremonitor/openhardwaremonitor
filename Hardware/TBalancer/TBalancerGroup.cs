@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
             new SerialPort(portNames[i], 19200, Parity.None, 8, StopBits.One);
           serialPort.Open();
           bool isValid = false;
+          byte protocolVersion = 0;
           if (serialPort.IsOpen && serialPort.CDHolding &&
             serialPort.CtsHolding) {
 
@@ -79,16 +80,19 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
               }
               int length = serialPort.BytesToRead;
               if (length >= 284) {
-                int[] data = new int[285];
+                byte[] data = new byte[285];
                 data[0] = TBalancer.STARTFLAG;
                 for (int k = 1; k < data.Length; k++)
-                  data[k] = serialPort.ReadByte();
+                  data[k] = (byte)serialPort.ReadByte();
 
                 // check protocol version
-                isValid = (data[274] == TBalancer.PROTOCOL_VERSION);
+                isValid = 
+                  data[274] == TBalancer.PROTOCOL_VERSION_2A ||
+                  data[274] == TBalancer.PROTOCOL_VERSION_2C;
+                protocolVersion = data[274];
                 if (!isValid) {
                   report.Append("Status: Wrong Protocol Version: 0x");
-                  report.AppendLine(data[274].ToString("X"));
+                  report.AppendLine(protocolVersion.ToString("X"));
                 }
               } else {
                 report.AppendLine("Status: Wrong Message Length: " + length);
@@ -101,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           serialPort.Close();
           if (isValid) {
             report.AppendLine("Status: OK");
-            hardware.Add(new TBalancer(portNames[i]));
+            hardware.Add(new TBalancer(portNames[i], protocolVersion));
             return;
           }
         } catch (IOException ioe) {

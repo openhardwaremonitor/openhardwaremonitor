@@ -48,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     private Image icon;
     private SerialPort serialPort;
+    private byte protocolVersion;
     private Sensor[] digitalTemperatures = new Sensor[8];
     private Sensor[] analogTemperatures = new Sensor[4];
     private Sensor[] fans = new Sensor[4];
@@ -56,10 +57,12 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private int[] data;
 
     public const byte STARTFLAG = 100;
-    public const byte PROTOCOL_VERSION = 0x2A;
+    public const byte PROTOCOL_VERSION_2A = 0x2A;
+    public const byte PROTOCOL_VERSION_2C = 0x2C;
 
-    public TBalancer(string portName) {
+    public TBalancer(string portName, byte protocolVersion) {
       icon = Utilities.EmbeddedResources.GetImage("bigng.png");
+      this.protocolVersion = protocolVersion;
 
       try {
         serialPort = new SerialPort(portName, 19200, Parity.None, 8,
@@ -102,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       for (int i = 0; i < data.Length; i++)
         data[i] = serialPort.ReadByte();
 
-      if (data[0] != STARTFLAG || data[274] != PROTOCOL_VERSION) {
+      if (data[0] != STARTFLAG || data[274] != protocolVersion) {
         serialPort.DiscardInBuffer();   
         return;
       }
