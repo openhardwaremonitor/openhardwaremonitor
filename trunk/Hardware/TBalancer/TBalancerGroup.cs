@@ -62,7 +62,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           if (serialPort.IsOpen && serialPort.CDHolding &&
             serialPort.CtsHolding) {
 
-            report.Append("Port name: "); report.AppendLine(portNames[i]);            
+            report.Append("Port Name: "); report.AppendLine(portNames[i]);            
 
             serialPort.DiscardInBuffer();
             serialPort.DiscardOutBuffer();
