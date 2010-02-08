@@ -69,9 +69,8 @@
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
-    <Compile Include="Hardware\LPC\Winbond.cs" />
     <Compile Include="Hardware\SMBIOS\SMBIOSGroup.cs" />
-    <Compile Include="Hardware\LPC\W83627.cs" />
+    <Compile Include="Hardware\LPC\W836XX.cs" />
     <Compile Include="Hardware\Computer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\AboutBox.cs">

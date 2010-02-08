@@ -319,7 +319,7 @@ namespace OpenHardwareMonitor.GUI {
       } else {
         Visible = true;
         notifyIcon.Visible = false;
-        BringToFront();
+        Activate();
       }
     }
 

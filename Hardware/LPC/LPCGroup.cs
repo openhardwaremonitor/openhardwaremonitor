@@ -75,6 +75,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(valuePort, logicalDeviceNumber);
     }
 
+    // ITE
     private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;    
 
     private void IT87Enter() {
@@ -93,7 +94,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte FINTEK_VENDOR_ID_REGISTER = 0x23;
     private const ushort FINTEK_VENDOR_ID = 0x1934;
 
-    private const byte W83627_HARDWARE_MONITOR_LDN = 0x0B;
+    private const byte WINBOND_HARDWARE_MONITOR_LDN = 0x0B;
 
     private const byte F71858_HARDWARE_MONITOR_LDN = 0x02;
     private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
@@ -120,89 +121,80 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         byte logicalDeviceNumber;
         byte id = ReadByte(CHIP_ID_REGISTER);
         byte revision = ReadByte(CHIP_REVISION_REGISTER);
+        chip = Chip.Unknown;
+        logicalDeviceNumber = 0;
         switch (id) {
           case 0x05:
             switch (revision) {
               case 0x41:
                 chip = Chip.F71882;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
-                break;
+                break;              
             } break;
           case 0x06:
             switch (revision) {             
               case 0x01:
                 chip = Chip.F71862;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
-                break;
+                break;              
             } break;
           case 0x07:
             switch (revision) {
               case 0x23:
                 chip = Chip.F71889;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
-                break;
+                break;              
             } break;
           case 0x08:
             switch (revision) {
               case 0x14:
                 chip = Chip.F71869;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
-                break;
+                break;              
             } break;
           case 0x52:
             switch (revision) {
               case 0x17:
               case 0x3A:
                 chip = Chip.W83627HF;
-                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;
-                break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+                break;             
+            } break;
+          case 0x88:
+            switch (revision & 0xF0) {
+              case 0x60:
+                chip = Chip.W83627EHF;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
             } break;
           case 0xA0:
             switch (revision & 0xF0) {
               case 0x20: 
                 chip = Chip.W83627DHG;
-                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;  
-                break;
-              default: 
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;  
+                break;             
+            } break;
+          case 0xA5:
+            switch (revision & 0xF0) {
+              case 0x10:
+                chip = Chip.W83667HG;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
             } break;
           case 0xB0:
             switch (revision & 0xF0) {
               case 0x70:
                 chip = Chip.W83627DHGP;
-                logicalDeviceNumber = W83627_HARDWARE_MONITOR_LDN;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+                break;             
+            } break;
+          case 0xB3:
+            switch (revision & 0xF0) {
+              case 0x50:
+                chip = Chip.W83667HGB;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
-              default:
-                chip = Chip.Unknown;
-                logicalDeviceNumber = 0;
-                break;
-            } break;  
-          default:
-            chip = Chip.Unknown; 
-            logicalDeviceNumber = 0;
-            break;
+            } break; 
         }
         if (chip != Chip.Unknown) {
 
@@ -217,16 +209,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           WinbondFintekExit();
 
-          if (address != verify || address == 0 || (address & 0xF007) != 0)
+          if (address != verify || address < 0x100 || (address & 0xF007) != 0)
             return;
           
           switch (chip) {
             case Chip.W83627DHG:
             case Chip.W83627DHGP:
+            case Chip.W83627EHF:
             case Chip.W83627HF:
-              W83627 w83627 = new W83627(chip, revision, address);
-              if (w83627.IsAvailable)
-                hardware.Add(w83627);
+            case Chip.W83667HG:
+            case Chip.W83667HGB:
+              W836XX w836XX = new W836XX(chip, revision, address);
+              if (w836XX.IsAvailable)
+                hardware.Add(w836XX);
               break;
             case Chip.F71862:
             case Chip.F71882:
@@ -261,7 +256,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           IT87Exit();
 
-          if (address != verify || address == 0 || (address & 0xF007) != 0)
+          if (address != verify || address < 0x100 || (address & 0xF007) != 0)
             return;
 
           IT87XX it87 = new IT87XX(chip, address);
