@@ -37,15 +37,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
 
   public class NvidiaGroup : IGroup {
+   
     private List<IHardware> hardware = new List<IHardware>();
+    private StringBuilder report = new StringBuilder();
 
     public NvidiaGroup() {
       if (!NVAPI.IsAvailable)
         return;
+
+      report.AppendLine("NVAPI");
+      report.AppendLine();
 
       NvPhysicalGpuHandle[] handles = 
         new NvPhysicalGpuHandle[NVAPI.MAX_PHYSICAL_GPUS];
@@ -53,6 +59,10 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       int count;
       if (NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count) != NvStatus.OK)
         return;
+
+      report.Append("Number of GPUs: ");
+      report.AppendLine(count.ToString());
+      report.AppendLine();
 
       for (int i = 0; i < count; i++) {
         string gpuName;
@@ -69,7 +79,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     public string GetReport() {
-      return null;
+      return report.ToString();
     }
 
     public void Close() {

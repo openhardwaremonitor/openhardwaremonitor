@@ -62,7 +62,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           int numberOfAdapters = 0;
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);
           
-          report.Append("Numer of adapters: "); 
+          report.Append("Number of adapters: "); 
           report.AppendLine(numberOfAdapters.ToString());
           report.AppendLine();
 
