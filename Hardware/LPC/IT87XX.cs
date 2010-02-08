@@ -164,8 +164,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         if (value > 0) {
           sensor.Value = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
-          if (sensor.Value > 0)
-            ActivateSensor(sensor);
+          ActivateSensor(sensor);
         } else {
           DeactivateSensor(sensor);
         }

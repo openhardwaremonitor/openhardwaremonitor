@@ -38,7 +38,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -134,7 +133,7 @@ namespace OpenHardwareMonitor.Hardware {
     public void SaveReport(Version version) {
 
       using (TextWriter w =
-        new StreamWriter("OpenHardwareMonitor.Report.txt")) {        
+        new StreamWriter("OpenHardwareMonitor.Report.txt")) {
 
         w.WriteLine();
         w.WriteLine("Open Hardware Monitor Report");
@@ -153,8 +152,7 @@ namespace OpenHardwareMonitor.Hardware {
             foreach (ISensor sensor in hardware.Sensors) {
               w.WriteLine("|   +- {0} : {1} : {2} : {3}",
                 new object[] { sensor.SensorType, sensor.Index, sensor.Name, 
-                  string.Format(CultureInfo.InvariantCulture, "{0}", 
-                  sensor.Value) });
+                  sensor.Value });
             }
           }
         }

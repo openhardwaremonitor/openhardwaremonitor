@@ -111,7 +111,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             AppendRegister(nameBuilder, edx);
           }
         }
-        cpuBrandString = nameBuilder.ToString().Trim('\0').Trim();
+        cpuBrandString = nameBuilder.ToString().Trim('\0');
         nameBuilder.Replace("(R)", " ");
         nameBuilder.Replace("(TM)", " ");
         nameBuilder.Replace("(tm)", " ");
