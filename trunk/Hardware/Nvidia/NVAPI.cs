@@ -174,6 +174,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       out int gpuCount);
     public delegate NvStatus NvAPI_EnumPhysicalGPUsDelegate(
       [Out] NvPhysicalGpuHandle[] gpuHandles, out int gpuCount);
+    public delegate NvStatus NvAPI_GPU_GetTachReadingDelegate(
+      NvPhysicalGpuHandle gpuHandle, out int value);
 
     private static bool available = false;
     private static nvapi_QueryInterfaceDelegate nvapi_QueryInterface;
@@ -188,6 +190,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvAPI_GetPhysicalGPUsFromDisplay;
     public static NvAPI_EnumPhysicalGPUsDelegate
       NvAPI_EnumPhysicalGPUs;
+    public static NvAPI_GPU_GetTachReadingDelegate
+      NvAPI_GPU_GetTachReading;
 
     public static NvStatus NvAPI_GPU_GetFullName(NvPhysicalGpuHandle gpuHandle,
       out string name) {
@@ -209,7 +213,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       where T : class 
     {
       IntPtr ptr = nvapi_QueryInterface(id);
-      newDelegate = Marshal.GetDelegateForFunctionPointer(ptr, typeof(T)) as T;      
+      if (ptr != IntPtr.Zero) {
+        newDelegate =
+          Marshal.GetDelegateForFunctionPointer(ptr, typeof(T)) as T;
+      } else {
+        newDelegate = null;
+      }
     }
 
     static NVAPI() { 
@@ -231,6 +240,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         GetDelegate(0x9ABDD40D, out NvAPI_EnumNvidiaDisplayHandle);
         GetDelegate(0x34EF9506, out NvAPI_GetPhysicalGPUsFromDisplay);
         GetDelegate(0xE5AC921F, out NvAPI_EnumPhysicalGPUs);
+        GetDelegate(0x5F608315, out NvAPI_GPU_GetTachReading);        
         available = true;
       }
     }
