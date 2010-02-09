@@ -40,7 +40,7 @@ using System.Collections.Generic;
 using System.Drawing;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
-  public class NvidiaGPU : IHardware {
+  public class NvidiaGPU : Hardware, IHardware {
 
     private string name;
     private Image icon;
@@ -48,12 +48,18 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private NvPhysicalGpuHandle handle;
 
     private Sensor[] temperatures;
+    private Sensor fan = null;
+
+    private bool available;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle) {
       try {
         string gpuName;
-        NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName);
-        this.name = "NVIDIA " + gpuName;
+        if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
+          this.name = "NVIDIA " + gpuName.Trim();
+        } else {
+          this.name = "NVIDIA";
+        }
         this.icon = Utilities.EmbeddedResources.GetImage("nvidia.png");
         this.adapterIndex = adapterIndex;
         this.handle = handle;
@@ -73,10 +79,26 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           }
           temperatures[i] = new Sensor(name, i, sensor.DefaultMaxTemp, 
             SensorType.Temperature, this);
+          ActivateSensor(temperatures[i]);
         }
+        
+        int value;
+        if (NVAPI.NvAPI_GPU_GetTachReading != null &&
+          NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
+          if (value > 0) {
+            fan = new Sensor("GPU", 0, SensorType.Fan, this);
+            ActivateSensor(fan);
+          }
+        }
+
+        available = temperatures.Length > 0 || fan != null;
       } catch (Exception e) {
         System.Windows.Forms.MessageBox.Show(e.Message + "\n" + e.StackTrace);
       }
+    }
+
+    public bool IsAvailable {
+      get { return available; }
     }
 
     public string Name {
@@ -91,12 +113,6 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       get { return icon; }
     }
 
-    public ISensor[] Sensors {
-      get {
-        return temperatures;
-      }
-    }
-
     public string GetReport() {
       return null;
     }
@@ -106,21 +122,23 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       settings.Version = NVAPI.GPU_THERMAL_SETTINGS_VER;
       settings.Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU;
       settings.Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU];
-      NVAPI.NvAPI_GPU_GetThermalSettings(handle, (int)NvThermalTarget.ALL,
-        ref settings);
+      if (NVAPI.NvAPI_GPU_GetThermalSettings(handle, (int)NvThermalTarget.ALL,
+        ref settings) != NvStatus.OK) {
+        settings.Count = 0;        
+      }
       return settings;
     }
 
     public void Update() {
       NvGPUThermalSettings settings = GetThermalSettings();
       foreach (Sensor sensor in temperatures) 
-        sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;              
+        sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
+
+      if (fan != null) {
+        int value = 0;
+        NVAPI.NvAPI_GPU_GetTachReading(handle, out value);
+        fan.Value = value;
+      }
     }
-
-    #pragma warning disable 67
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
-
   }
 }
