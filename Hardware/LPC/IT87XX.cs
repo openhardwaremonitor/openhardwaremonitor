@@ -69,25 +69,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       new byte[] { 0x18, 0x19, 0x1a, 0x81, 0x83 };
     private const byte VOLTAGE_BASE_REG = 0x20;  
     
-    /* private byte ReadByte(byte register) {
+    private byte ReadByte(byte register) {
       WinRing0.WriteIoPortByte(
         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
-    } */
-    private byte ReadByte(byte register) {
-      return new Utilities.HexStringArray(
-        @"19 00 00 00 00 00 00 00 00 80 3F C9 07 9B A3 FF
-          FF FF FF 73 D7 80 81 40 00 03 FF FF FF FF FF FF
-          50 70 D2 B9 BA 57 48 FF BD 24 24 2D 84 DC DC DC
-          FF FF FF FF FF FF FF FF FF FF EF FF FF FF FF FF
-          3C 7F 70 7F 70 7F 5F 74 2D 40 9C 22 FF FF FF FF
-          FF 15 7F 7F 7F 50 FF 56 90 0A 03 12 64 00 00 83
-          00 00 50 7F 10 24 FF FF 00 23 50 40 10 24 FF FF
-          7F 7F 7F 00 00 24 FF FF FF FF FF FF FF FF FF FF
-          19 00 00 00 00 00 00 00 00 80 3F C9 07 9B A3 FF
-          FF FF FF 73 D7 80 81 40 00 03 FF FF FF FF FF FF
-          50 70 D2 B9 BA 57 48 FF BD 24 24 2D 84 DC DC DC")[register];
-    }
+    } 
 
     public IT87XX(Chip chip, ushort address) : base (chip) {
       
