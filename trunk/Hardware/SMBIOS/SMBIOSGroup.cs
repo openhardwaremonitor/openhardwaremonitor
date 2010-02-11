@@ -56,34 +56,34 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
         return;
       
       List<Structure> structureList = new List<Structure>();
-      
+
       try {
         ManagementObjectCollection collection = new ManagementObjectSearcher(
           "root\\WMI", "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables").Get();
-  
+
         byte[] raw = null;
         foreach (ManagementObject mo in collection) {
           raw = (byte[])mo["SMBiosData"];
           break;
-        }      
-      
+        }
+
         if (raw != null && raw.Length > 0) {
           int offset = 0;
           byte type = raw[offset];
           while (offset < raw.Length && type != 127) {
-            
+
             type = raw[offset]; offset++;
             int length = raw[offset]; offset++;
-            ushort handle = (ushort)((raw[offset] << 8) | raw[offset + 1]); 
+            ushort handle = (ushort)((raw[offset] << 8) | raw[offset + 1]);
             offset += 2;
-            
+
             byte[] data = new byte[length];
             Array.Copy(raw, offset - 4, data, 0, length); offset += length - 4;
-  
+
             List<string> stringsList = new List<string>();
             if (raw[offset] == 0)
               offset++;
-            while (raw[offset] != 0) {   
+            while (raw[offset] != 0) {
               StringBuilder sb = new StringBuilder();
               while (raw[offset] != 0) {
                 sb.Append((char)raw[offset]); offset++;
@@ -105,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
             }
           }
         }
-      } catch (NotImplementedException) { }
+      } catch (NotImplementedException) { } catch (ManagementException) { }
       
       table = structureList.ToArray();
     }
