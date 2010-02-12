@@ -58,6 +58,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\SensorNotifyIcon.cs" />
+    <Compile Include="GUI\SensorSystemTray.cs" />
     <Compile Include="GUI\TypeNode.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Hardware\Nvidia\NvidiaGPU.cs" />
     <Compile Include="Hardware\Nvidia\NvidiaGroup.cs" />
     <Compile Include="Utilities\HexStringArray.cs" />
+    <Compile Include="Utilities\IconFactory.cs" />
     <Compile Include="Utilities\PInvokeDelegateFactory.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>
@@ -139,13 +142,16 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\chip.png" />
     <EmbeddedResource Include="Resources\hdd.png" />
-    <None Include="Resources\icon.ico" />
     <EmbeddedResource Include="Resources\load.png" />
     <EmbeddedResource Include="Resources\voltage.png" />
     <EmbeddedResource Include="Resources\nvidia.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\app.manifest" />
+    <None Include="Resources\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\smallicon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
