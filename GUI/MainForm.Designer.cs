@@ -102,11 +102,11 @@ namespace OpenHardwareMonitor.GUI {
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new System.Windows.Forms.SplitContainer();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
-      this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
       this.notifyContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+      this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.columnsContextMenuStrip.SuspendLayout();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
@@ -490,13 +490,6 @@ namespace OpenHardwareMonitor.GUI {
       this.plotPanel.Size = new System.Drawing.Size(478, 198);
       this.plotPanel.TabIndex = 0;
       // 
-      // notifyIcon
-      // 
-      this.notifyIcon.ContextMenuStrip = this.notifyContextMenuStrip;
-      this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
-      this.notifyIcon.Text = "Open Hardware Monitor";
-      this.notifyIcon.DoubleClick += new System.EventHandler(this.restoreClick);
-      // 
       // notifyContextMenuStrip
       // 
       this.notifyContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -525,6 +518,11 @@ namespace OpenHardwareMonitor.GUI {
       this.exitToolStripMenuItem1.Size = new System.Drawing.Size(118, 22);
       this.exitToolStripMenuItem1.Text = "Exit";
       this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+      // 
+      // sensorContextMenuStrip
+      // 
+      this.sensorContextMenuStrip.Name = "sensorContextMenuStrip";
+      this.sensorContextMenuStrip.Size = new System.Drawing.Size(61, 4);
       // 
       // MainForm
       // 
@@ -592,13 +590,13 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem voltMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
     private System.Windows.Forms.ToolStripMenuItem loadMenuItem;
-    private System.Windows.Forms.NotifyIcon notifyIcon;
     private System.Windows.Forms.ContextMenuStrip notifyContextMenuStrip;
     private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
     private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
     private System.Windows.Forms.ToolStripMenuItem minTrayMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+    private System.Windows.Forms.ContextMenuStrip sensorContextMenuStrip;
   }
 }
 

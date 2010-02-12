@@ -56,6 +56,8 @@ namespace OpenHardwareMonitor.GUI {
     private IDictionary<ISensor, Color> sensorPlotColors = 
       new Dictionary<ISensor, Color>();
     private Color[] plotColorPalette;
+    private SensorSystemTray sensorSystemTray;
+    private NotifyIcon notifyIcon;
 
     public MainForm() {      
       InitializeComponent();
@@ -98,6 +100,14 @@ namespace OpenHardwareMonitor.GUI {
       
       treeModel.Nodes.Add(root);
       treeView.Model = treeModel;
+      
+      notifyIcon = new NotifyIcon();
+      notifyIcon.ContextMenuStrip = this.notifyContextMenuStrip;
+      notifyIcon.Icon = EmbeddedResources.GetIcon("smallicon.ico");
+      notifyIcon.Text = "Open Hardware Monitor";      
+      notifyIcon.DoubleClick += new EventHandler(this.restoreClick);
+
+      sensorSystemTray = new SensorSystemTray(computer);
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
@@ -218,6 +228,7 @@ namespace OpenHardwareMonitor.GUI {
             
       treeView.Invalidate();
       plotPanel.Invalidate();
+      sensorSystemTray.Redraw();
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -242,6 +253,9 @@ namespace OpenHardwareMonitor.GUI {
         Config.Set("mainForm.Width", Width);
         Config.Set("mainForm.Height", Height);
       }
+      
+      sensorSystemTray.Dispose();
+      notifyIcon.Dispose();
 
       computer.Close();
     }
@@ -287,7 +301,27 @@ namespace OpenHardwareMonitor.GUI {
       NodeControlInfo info = treeView.GetNodeControlInfoAt(new Point(m.X, m.Y));
       if (info.Control == null) {
         columnsContextMenuStrip.Show(treeView, m.X, m.Y);
-      } 
+      } else {
+        SensorNode node = info.Node.Tag as SensorNode;
+        if (node != null && node.Sensor != null) {
+
+          sensorContextMenuStrip.Items.Clear();
+          if (sensorSystemTray.Contains(node.Sensor)) {
+            ToolStripMenuItem item = new ToolStripMenuItem("Remove From Tray");
+            item.Click += delegate(object obj, EventArgs args) {
+              sensorSystemTray.Remove(node.Sensor);
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          } else {
+            ToolStripMenuItem item = new ToolStripMenuItem("Add To Tray");
+            item.Click += delegate(object obj, EventArgs args) {
+              sensorSystemTray.Add(node.Sensor);
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          }
+          sensorContextMenuStrip.Show(treeView, m.X, m.Y);
+        }
+      }
     }
 
     private void saveReportToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -336,6 +370,18 @@ namespace OpenHardwareMonitor.GUI {
 
     private void restoreClick(object sender, EventArgs e) {
       ToggleSysTray();
+    }
+
+    private void removeToolStripMenuItem_Click(object sender, EventArgs e) {
+      ToolStripMenuItem item = sender as ToolStripMenuItem;
+      if (item == null)
+        return;
+
+      ISensor sensor = item.Owner.Tag as ISensor;
+      if (sensor == null)
+        return;
+
+      sensorSystemTray.Remove(sensor);
     }
 
   }
