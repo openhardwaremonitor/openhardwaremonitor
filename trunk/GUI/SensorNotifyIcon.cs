@@ -55,18 +55,32 @@ namespace OpenHardwareMonitor.GUI {
     private Bitmap bitmap;
     private Graphics graphics;
     private int majorVersion;
+    private Color color;
 
-    public SensorNotifyIcon(SensorSystemTray sensorSystemTray, ISensor sensor) {
+    public SensorNotifyIcon(SensorSystemTray sensorSystemTray, ISensor sensor,
+      bool balloonTip) 
+    {
       this.sensor = sensor;
       this.notifyIcon = new NotifyIcon();
-      this.majorVersion = Environment.OSVersion.Version.Major;      
+      this.majorVersion = Environment.OSVersion.Version.Major;
+      this.color = Config.Get(sensor.Identifier + "/traycolor", Color.Black);
       
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
-      ToolStripMenuItem item = new ToolStripMenuItem("Remove");
-      item.Click += delegate(object obj, EventArgs args) {
-        sensorSystemTray.Remove(sensor);
+      ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
+      removeItem.Click += delegate(object obj, EventArgs args) {
+        sensorSystemTray.Remove(this.sensor);
       };
-      contextMenuStrip.Items.Add(item);
+      contextMenuStrip.Items.Add(removeItem);
+      ToolStripMenuItem colorItem = new ToolStripMenuItem("Change Color...");
+      colorItem.Click += delegate(object obj, EventArgs args) {
+        ColorDialog dialog = new ColorDialog();
+        dialog.Color = this.color;
+        if (dialog.ShowDialog() == DialogResult.OK) {
+          this.color = dialog.Color;
+          Config.Set(sensor.Identifier + "/traycolor", this.color);
+        }
+      };
+      contextMenuStrip.Items.Add(colorItem);
       this.notifyIcon.ContextMenuStrip = contextMenuStrip;
 
       this.bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
@@ -77,6 +91,11 @@ namespace OpenHardwareMonitor.GUI {
 
     public ISensor Sensor {
       get { return sensor; }
+    }
+
+    public Color Color {
+      get { return color; }
+      set { color = value; }
     }
 
     public void Dispose() {      
@@ -113,7 +132,7 @@ namespace OpenHardwareMonitor.GUI {
 
       graphics.Clear(SystemColors.ButtonFace);
       TextRenderer.DrawText(graphics, GetString(), SystemFonts.StatusFont,
-        new Point(-2, 0), Color.Blue, SystemColors.ButtonFace);
+        new Point(-2, 0), color, SystemColors.ButtonFace);
 
       BitmapData data = bitmap.LockBits(
         new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -154,9 +173,9 @@ namespace OpenHardwareMonitor.GUI {
         green = bytes[i + 1];
         red = bytes[i + 2];
 
-        bytes[i] = 255;
-        bytes[i + 1] = 255;
-        bytes[i + 2] = 255;
+        bytes[i] = color.B;
+        bytes[i + 1] = color.G;
+        bytes[i + 2] = color.R;
         bytes[i + 3] = (byte)(0.3 * red + 0.59 * green + 0.11 * blue);
       }
 
@@ -184,9 +203,9 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Fan: format = "{0}\n{1}: {2:F0} RPM"; break;
       }
 
-      notifyIcon.Text = string.Format(format, 
-        sensor.Hardware.Name, sensor.Name, sensor.Value);
-      notifyIcon.Visible = true;
+      notifyIcon.Text = string.Format(format, sensor.Hardware.Name, sensor.Name,
+        sensor.Value);    
+      notifyIcon.Visible = true;         
     }
   }
 }
