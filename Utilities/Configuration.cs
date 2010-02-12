@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 namespace OpenHardwareMonitor.Utilities {
@@ -129,6 +130,26 @@ namespace OpenHardwareMonitor.Utilities {
         int parsedValue;
         if (int.TryParse(element.Value, out parsedValue))
           return parsedValue;
+        else
+          return value;
+      }
+    }
+
+    public static void Set(string name, Color color) {
+      instance[name] = color.ToArgb().ToString("X8");
+    }
+
+    public static Color Get(string name, Color value) {
+      System.Configuration.KeyValueConfigurationElement element =
+        instance.config.AppSettings.Settings[name];
+      if (element == null)
+        return value;
+      else {
+        int parsedValue;
+        if (int.TryParse(element.Value, 
+          System.Globalization.NumberStyles.HexNumber, 
+          System.Globalization.CultureInfo.InvariantCulture, out parsedValue))
+          return Color.FromArgb(parsedValue);
         else
           return value;
       }

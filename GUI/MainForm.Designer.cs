@@ -101,12 +101,12 @@ namespace OpenHardwareMonitor.GUI {
       this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new System.Windows.Forms.SplitContainer();
-      this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.notifyContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.columnsContextMenuStrip.SuspendLayout();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
@@ -480,16 +480,6 @@ namespace OpenHardwareMonitor.GUI {
       this.splitContainer.SplitterWidth = 3;
       this.splitContainer.TabIndex = 3;
       // 
-      // plotPanel
-      // 
-      this.plotPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.plotPanel.Font = new System.Drawing.Font("Segoe UI", 9F);
-      this.plotPanel.Location = new System.Drawing.Point(0, 0);
-      this.plotPanel.Name = "plotPanel";
-      this.plotPanel.Size = new System.Drawing.Size(478, 198);
-      this.plotPanel.TabIndex = 0;
-      // 
       // notifyContextMenuStrip
       // 
       this.notifyContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -523,6 +513,16 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.sensorContextMenuStrip.Name = "sensorContextMenuStrip";
       this.sensorContextMenuStrip.Size = new System.Drawing.Size(61, 4);
+      // 
+      // plotPanel
+      // 
+      this.plotPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.plotPanel.Font = new System.Drawing.Font("Segoe UI", 9F);
+      this.plotPanel.Location = new System.Drawing.Point(0, 0);
+      this.plotPanel.Name = "plotPanel";
+      this.plotPanel.Size = new System.Drawing.Size(478, 198);
+      this.plotPanel.TabIndex = 0;
       // 
       // MainForm
       // 

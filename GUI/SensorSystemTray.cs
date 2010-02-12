@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using OpenHardwareMonitor.Hardware;
@@ -69,14 +70,12 @@ namespace OpenHardwareMonitor.GUI {
 
     private void SensorAdded(ISensor sensor) {
       if (Config.Get(sensor.Identifier + "/tray", false)) 
-        Add(sensor);   
+        Add(sensor, false);   
     }
 
     private void SensorRemoved(ISensor sensor) {
-      if (Contains(sensor)) {        
-        Remove(sensor);
-        Config.Set(sensor.Identifier + "/tray", true);
-      }
+      if (Contains(sensor)) 
+        Remove(sensor, false);
     }
 
     public void Dispose() {
@@ -96,17 +95,24 @@ namespace OpenHardwareMonitor.GUI {
       return false;
     }
 
-    public void Add(ISensor sensor) {
+    public void Add(ISensor sensor, bool balloonTip) {
       if (Contains(sensor)) {
         return;
-      } else {
-        list.Add(new SensorNotifyIcon(this, sensor));
+      } else {        
+        list.Add(new SensorNotifyIcon(this, sensor, balloonTip));
         Config.Set(sensor.Identifier + "/tray", true);
       }
     }
 
     public void Remove(ISensor sensor) {
-      Config.Remove(sensor.Identifier + "/tray");
+      Remove(sensor, true);
+    }
+
+    private void Remove(ISensor sensor, bool deleteConfig) {
+      if (deleteConfig) {
+        Config.Remove(sensor.Identifier + "/tray");
+        Config.Remove(sensor.Identifier + "/traycolor");
+      }
       SensorNotifyIcon instance = null;
       foreach (SensorNotifyIcon icon in list)
         if (icon.Sensor == sensor)

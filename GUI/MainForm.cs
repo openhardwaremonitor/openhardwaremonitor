@@ -253,10 +253,9 @@ namespace OpenHardwareMonitor.GUI {
         Config.Set("mainForm.Width", Width);
         Config.Set("mainForm.Height", Height);
       }
-      
+           
       sensorSystemTray.Dispose();
       notifyIcon.Dispose();
-
       computer.Close();
     }
 
@@ -315,7 +314,7 @@ namespace OpenHardwareMonitor.GUI {
           } else {
             ToolStripMenuItem item = new ToolStripMenuItem("Add To Tray");
             item.Click += delegate(object obj, EventArgs args) {
-              sensorSystemTray.Add(node.Sensor);
+              sensorSystemTray.Add(node.Sensor, true);
             };
             sensorContextMenuStrip.Items.Add(item);
           }

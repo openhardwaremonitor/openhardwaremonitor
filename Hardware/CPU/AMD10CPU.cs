@@ -57,6 +57,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID = 0x1203;
+    private const ushort PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID = 0x1303;
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
     public AMD10CPU(string name, uint family, uint model, uint stepping, 
@@ -90,6 +91,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID, 
         PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID, 0);
+      if (pciAddress == 0xFFFFFFFF) 
+        pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
+          PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID, 0);
+
       Update();                   
     }
 
@@ -110,16 +115,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public void Update() {
-      if (pciAddress == 0xFFFFFFFF)
-        return;
-
-      uint value;      
-      if (WinRing0.ReadPciConfigDwordEx(pciAddress, 
-        REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
-        coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f;
-        ActivateSensor(coreTemperature);
-      } else {
-        DeactivateSensor(coreTemperature);
+      if (pciAddress != 0xFFFFFFFF) {
+        uint value;
+        if (WinRing0.ReadPciConfigDwordEx(pciAddress,
+          REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
+          coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f;
+          ActivateSensor(coreTemperature);
+        } else {
+          DeactivateSensor(coreTemperature);
+        }
       }
 
       if (cpuLoad.IsAvailable) {

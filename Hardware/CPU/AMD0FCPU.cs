@@ -124,20 +124,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public void Update() {
-      if (pciAddress == 0xFFFFFFFF)
-        return;
+      if (pciAddress != 0xFFFFFFFF) {
 
-      for (uint i = 0; i < coreTemperatures.Length; i++) {
-        if (WinRing0.WritePciConfigDwordEx(
-          pciAddress, THERMTRIP_STATUS_REGISTER,
-          i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
-          uint value;
-          if (WinRing0.ReadPciConfigDwordEx(
-            pciAddress, THERMTRIP_STATUS_REGISTER, out value)) {
-            coreTemperatures[i].Value = ((value >> 16) & 0xFF) + offset;
-            ActivateSensor(coreTemperatures[i]);
-          } else {
-            DeactivateSensor(coreTemperatures[i]);
+        for (uint i = 0; i < coreTemperatures.Length; i++) {
+          if (WinRing0.WritePciConfigDwordEx(
+            pciAddress, THERMTRIP_STATUS_REGISTER,
+            i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
+            uint value;
+            if (WinRing0.ReadPciConfigDwordEx(
+              pciAddress, THERMTRIP_STATUS_REGISTER, out value)) {
+              coreTemperatures[i].Value = ((value >> 16) & 0xFF) + offset;
+              ActivateSensor(coreTemperatures[i]);
+            } else {
+              DeactivateSensor(coreTemperatures[i]);
+            }
           }
         }
       }
