@@ -54,17 +54,26 @@ namespace OpenHardwareMonitor.GUI {
     private NotifyIcon notifyIcon;
     private Bitmap bitmap;
     private Graphics graphics;
-    private int majorVersion;
     private Color color;
+    private Color darkColor;
+    private Brush brush;
+    private Brush darkBrush;
+    private Pen pen;
 
     public SensorNotifyIcon(SensorSystemTray sensorSystemTray, ISensor sensor,
       bool balloonTip) 
     {
       this.sensor = sensor;
       this.notifyIcon = new NotifyIcon();
-      this.majorVersion = Environment.OSVersion.Version.Major;
-      this.color = Config.Get(sensor.Identifier + "/traycolor", Color.Black);
+
+      Color defaultColor = Color.Black;
+      if (sensor.SensorType == SensorType.Load) {
+        defaultColor = Color.FromArgb(0xff, 0x70, 0x8c, 0xf1);
+      }
+      Color = Config.Get(sensor.Identifier + "/traycolor", defaultColor);      
       
+      this.pen = new Pen(Color.FromArgb(96, Color.Black));
+
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
       ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
       removeItem.Click += delegate(object obj, EventArgs args) {
@@ -74,10 +83,10 @@ namespace OpenHardwareMonitor.GUI {
       ToolStripMenuItem colorItem = new ToolStripMenuItem("Change Color...");
       colorItem.Click += delegate(object obj, EventArgs args) {
         ColorDialog dialog = new ColorDialog();
-        dialog.Color = this.color;
+        dialog.Color = Color;
         if (dialog.ShowDialog() == DialogResult.OK) {
-          this.color = dialog.Color;
-          Config.Set(sensor.Identifier + "/traycolor", this.color);
+          Color = dialog.Color;
+          Config.Set(sensor.Identifier + "/traycolor", Color);
         }
       };
       contextMenuStrip.Items.Add(colorItem);
@@ -95,7 +104,21 @@ namespace OpenHardwareMonitor.GUI {
 
     public Color Color {
       get { return color; }
-      set { color = value; }
+      set { 
+        this.color = value;
+        this.darkColor = Color.FromArgb(255,
+          Math.Max(this.color.R - 100, 0),
+          Math.Max(this.color.G - 100, 0),
+          Math.Max(this.color.B - 100, 0));
+        Brush brush = this.brush;
+        this.brush = new SolidBrush(this.color);
+        if (brush != null)
+          brush.Dispose();
+        Brush darkBrush = this.darkBrush;
+        this.darkBrush = new SolidBrush(this.darkColor);
+        if (darkBrush != null)
+          darkBrush.Dispose();
+      }
     }
 
     public void Dispose() {      
@@ -106,6 +129,11 @@ namespace OpenHardwareMonitor.GUI {
       notifyIcon.Dispose();
       notifyIcon = null;
 
+      if (brush != null)
+        brush.Dispose();
+      if (darkBrush != null)
+        darkBrush.Dispose();
+      pen.Dispose();
       graphics.Dispose();
       graphics = null;
       bitmap.Dispose();
@@ -126,27 +154,6 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
       }
       return "-";
-    }
-
-    private Icon CreateSimpleIcon() {
-
-      graphics.Clear(SystemColors.ButtonFace);
-      TextRenderer.DrawText(graphics, GetString(), SystemFonts.StatusFont,
-        new Point(-2, 0), color, SystemColors.ButtonFace);
-
-      BitmapData data = bitmap.LockBits(
-        new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-        ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-
-      int stride = data.Stride;
-      IntPtr Scan0 = data.Scan0;
-
-      int numBytes = bitmap.Width * bitmap.Height * 4;
-      byte[] bytes = new byte[numBytes];
-      Marshal.Copy(Scan0, bytes, 0, numBytes);
-      bitmap.UnlockBits(data);
-
-      return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
     }
 
     private Icon CreateTransparentIcon() {
@@ -182,15 +189,31 @@ namespace OpenHardwareMonitor.GUI {
       return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
     }
 
+    private Icon CreateLoadIcon() {
+      graphics.Clear(Color.Transparent);
+      graphics.FillRectangle(darkBrush, 0.5f, -0.5f, 14, 16);
+      float y = 0.16f * (100 - sensor.Value.Value);
+      graphics.FillRectangle(brush, 0.5f, -0.5f + y, 14, 16 - y);
+      graphics.DrawRectangle(pen, 1, 0, 13, 15);
+
+      BitmapData data = bitmap.LockBits(
+        new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+        ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+      byte[] bytes = new byte[bitmap.Width * bitmap.Height * 4];
+      Marshal.Copy(data.Scan0, bytes, 0, bytes.Length);
+      bitmap.UnlockBits(data);
+
+      return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
+    }
+
     public void Update() {
       Icon icon = notifyIcon.Icon;
 
-      if (majorVersion < 6) {
-        notifyIcon.Icon = CreateSimpleIcon();
+      if (sensor.SensorType == SensorType.Load) {
+        notifyIcon.Icon = CreateLoadIcon();
       } else {
         notifyIcon.Icon = CreateTransparentIcon();
       }
-      
       if (icon != null) 
         icon.Dispose();
 
