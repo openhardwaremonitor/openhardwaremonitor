@@ -131,10 +131,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         switch (cpuVendor) {
           case "GenuineIntel":
-            // check if processor supports a digital thermal sensor
-            if (maxCPUID >= 6 && (cpuidData[6, 0] & 1) != 0) 
-              hardware.Add(new IntelCPU(name, family, model, stepping, 
-                cpuidData, cpuidExtData));
+            hardware.Add(new IntelCPU(name, family, model, stepping, 
+              cpuidData, cpuidExtData));
             break;
           case "AuthenticAMD":                       
             // check if processor supports a digital thermal sensor            
