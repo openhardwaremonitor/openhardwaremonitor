@@ -57,8 +57,6 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private int[] data;
 
     public const byte STARTFLAG = 100;
-    public const byte PROTOCOL_VERSION_2A = 0x2A;
-    public const byte PROTOCOL_VERSION_2C = 0x2C;
 
     public TBalancer(string portName, byte protocolVersion) {
       icon = Utilities.EmbeddedResources.GetImage("bigng.png");

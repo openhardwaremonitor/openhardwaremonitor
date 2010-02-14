@@ -83,10 +83,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
                   for (int k = 1; k < data.Length; k++)
                     data[k] = (byte)serialPort.ReadByte();
 
-                  // check protocol version
-                  isValid =
-                    data[274] == TBalancer.PROTOCOL_VERSION_2A ||
-                    data[274] == TBalancer.PROTOCOL_VERSION_2C;
+                  // check protocol version 2X (protocols seen: 2C, 2A, 28)
+                  isValid = (data[274] & 0xF0) == 0x20;
                   protocolVersion = data[274];
                   if (!isValid) {
                     report.Append("Status: Wrong Protocol Version: 0x");
@@ -131,7 +129,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public string GetReport() {
       if (report.Length > 0) {
         report.Insert(0, "Serial Port T-Balancer" + Environment.NewLine +
-          Environment.NewLine);        
+          Environment.NewLine);
+        report.AppendLine();
         return report.ToString();
       } else
         return null;
