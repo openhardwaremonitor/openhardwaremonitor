@@ -51,6 +51,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private Sensor[] coreTemperatures;
     private Sensor totalLoad;
     private Sensor[] coreLoads;
+    private Sensor[] coreClocks;
+    private Sensor busClock;
 
     private float tjMax = 0;
     private uint logicalProcessors;
@@ -58,9 +60,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private uint coreCount;
 
     private CPULoad cpuLoad;
+
+    private ulong lastCount;    
+    private long lastTime;
     
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
+    private const uint IA32_PERF_STATUS = 0x0198;
 
     public IntelCPU(string name, uint family, uint model, uint stepping, 
       uint[,] cpuidData, uint[,] cpuidExtData) {
@@ -89,58 +95,64 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       coreCount = logicalProcessors / logicalProcessorsPerCore;
 
-      switch (family) {
-        case 0x06: {
-          switch (model) {
-            case 0x0F: // Intel Core 65nm
-              switch (stepping) {
-                case 0x06: // B2
-                  switch (coreCount) {
-                    case 2:
+      // check if processor supports a digital thermal sensor
+      if (cpuidData.GetLength(0) > 6 && (cpuidData[6, 0] & 1) != 0) {
+
+        switch (family) {
+          case 0x06: {
+              switch (model) {
+                case 0x0F: // Intel Core 65nm
+                  switch (stepping) {
+                    case 0x06: // B2
+                      switch (coreCount) {
+                        case 2:
+                          tjMax = 80; break;
+                        case 4:
+                          tjMax = 90; break;
+                        default:
+                          tjMax = 85; break;
+                      }
                       tjMax = 80; break;
-                    case 4:
+                    case 0x0B: // G0
                       tjMax = 90; break;
+                    case 0x0D: // M0
+                      tjMax = 85; break;
                     default:
                       tjMax = 85; break;
-                  }
-                  tjMax = 80; break;
-                case 0x0B: // G0
+                  } break;
+                case 0x17: // Intel Core 45nm
+                  tjMax = 100; break;
+                case 0x1C: // Intel Atom 
                   tjMax = 90; break;
-                case 0x0D: // M0
-                  tjMax = 85; break;
+                case 0x1A:
+                  uint eax = 0, edx = 0;
+                  if (WinRing0.RdmsrPx(
+                      IA32_TEMPERATURE_TARGET, ref eax, ref edx, (UIntPtr)1)) {
+                    tjMax = (eax >> 16) & 0xFF;
+                  } else
+                    tjMax = 100;
+                  break;
                 default:
-                  tjMax = 85; break;
-              } break;            
-            case 0x17: // Intel Core 45nm
-              tjMax = 100; break;
-            case 0x1C: // Intel Atom 
-              tjMax = 90; break;
-            case 0x1A:
-              uint eax = 0, edx = 0;
-              if (WinRing0.RdmsrPx(
-                  IA32_TEMPERATURE_TARGET, ref eax, ref edx, (UIntPtr)1)) {
-                tjMax = (eax >> 16) & 0xFF;
-              } else
-                tjMax = 100;
-              break;
-            default:
-              tjMax = 100; break;
-          }
-        } break;
-        default: tjMax = 100; break;
+                  tjMax = 100; break;
+              }
+            } break;
+          default: tjMax = 100; break;
+        }
+
+        coreTemperatures = new Sensor[coreCount];
+        for (int i = 0; i < coreTemperatures.Length; i++) {
+          coreTemperatures[i] = new Sensor("Core #" + (i + 1), i, tjMax,
+            SensorType.Temperature, this);
+        }
+      } else {
+        coreTemperatures = new Sensor[0];
       }
-
-      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);     
-
-      coreTemperatures = new Sensor[coreCount];
+              
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);   
       coreLoads = new Sensor[coreCount];
-      for (int i = 0; i < coreTemperatures.Length; i++) {
-        coreTemperatures[i] = new Sensor("Core #" + (i + 1), i, tjMax,
-          SensorType.Temperature, this);
-        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1, 
-          SensorType.Load, this);
-      }
-
+      for (int i = 0; i < coreLoads.Length; i++) 
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
+          SensorType.Load, this);     
       cpuLoad = new CPULoad(coreCount, logicalProcessorsPerCore);
       if (cpuLoad.IsAvailable) {
         foreach (Sensor sensor in coreLoads)
@@ -148,6 +160,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         ActivateSensor(totalLoad);
       }
 
+      lastCount = 0;
+      lastTime = 0;
+      busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this);      
+      coreClocks = new Sensor[coreCount];
+      for (int i = 0; i < coreClocks.Length; i++) {
+        coreClocks[i] = 
+          new Sensor("Core #" + (i + 1), i + 1, SensorType.Clock, this);
+        ActivateSensor(coreClocks[i]);
+      }
+      
       Update();                   
     }
 
@@ -180,9 +202,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public void Update() {
-
-      uint eax = 0, edx = 0;      
+            
       for (int i = 0; i < coreTemperatures.Length; i++) {
+        uint eax = 0, edx = 0;
         if (WinRing0.RdmsrPx(
           IA32_THERM_STATUS_MSR, ref eax, ref edx, 
             (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) 
@@ -204,6 +226,42 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           coreLoads[i].Value = cpuLoad.GetCoreLoad(i);
         totalLoad.Value = cpuLoad.GetTotalLoad();
       }
+     
+      uint lsb = 0, msb = 0;
+      bool valid = WinRing0.RdtscPx(ref lsb, ref msb, (UIntPtr)1);
+      long time = Stopwatch.GetTimestamp();
+      ulong count = ((ulong)msb << 32) | lsb;
+      double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
+      if (valid && delta > 0.5) {
+        double maxClock = (float)((count - lastCount) / (1e6 * delta));
+        double busClock = 0;
+        uint eax, edx;       
+        for (int i = 0; i < coreClocks.Length; i++) {
+          eax = 0; edx = 0;
+          System.Threading.Thread.Sleep(1);
+          if (WinRing0.RdmsrPx(IA32_PERF_STATUS, ref eax, ref edx,
+            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
+            uint multiplier = (eax >> 8) & 0x1f;
+            uint maxMultiplier = (edx >> 8) & 0x1f;
+            // factor = multiplier * 2 to handle non integer multipliers 
+            uint factor = (multiplier << 1) | ((eax >> 14) & 1);
+            uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
+            if (maxFactor > 0) {
+              coreClocks[i].Value = (float)(factor * maxClock / maxFactor);
+              busClock = (float)(2 * maxClock / maxFactor);
+            }
+          } else {
+            // if IA32_PERF_STATUS is not available, assume maxClock
+            coreClocks[i].Value = (float)maxClock;
+          }                  
+        }
+        if (busClock > 0) {
+          this.busClock.Value = (float)busClock;
+          ActivateSensor(this.busClock);
+        }
+      }
+      lastCount = count;
+      lastTime = time;
     }  
   }
 }

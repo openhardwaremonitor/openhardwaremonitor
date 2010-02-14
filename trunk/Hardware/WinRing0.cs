@@ -94,6 +94,8 @@ namespace OpenHardwareMonitor.Hardware {
       uint regAddress, out uint value);
     public delegate bool WritePciConfigDwordExDelegate(uint pciAddress, 
       uint regAddress, uint value);
+    public delegate bool RdtscPxDelegate(ref uint eax, ref uint edx,
+      UIntPtr processAffinityMask);
 
     private static InitializeOlsDelegate InitializeOls;
     private static DeinitializeOlsDelegate DeinitializeOls;
@@ -108,7 +110,8 @@ namespace OpenHardwareMonitor.Hardware {
     public static SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
     public static FindPciDeviceByIdDelegate FindPciDeviceById;
     public static ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
-    public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;    
+    public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;
+    public static RdtscPxDelegate RdtscPx;
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
       where T : class 
@@ -135,6 +138,7 @@ namespace OpenHardwareMonitor.Hardware {
       GetDelegate("FindPciDeviceById", out FindPciDeviceById);
       GetDelegate("ReadPciConfigDwordEx", out ReadPciConfigDwordEx);
       GetDelegate("WritePciConfigDwordEx", out WritePciConfigDwordEx);
+      GetDelegate("RdtscPx", out RdtscPx);
 
       try {
         if (InitializeOls != null && InitializeOls())

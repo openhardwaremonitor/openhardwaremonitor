@@ -107,9 +107,9 @@ namespace OpenHardwareMonitor.GUI {
       set { 
         this.color = value;
         this.darkColor = Color.FromArgb(255,
-          Math.Max(this.color.R - 100, 0),
-          Math.Max(this.color.G - 100, 0),
-          Math.Max(this.color.B - 100, 0));
+          this.color.R / 3,
+          this.color.G / 3,
+          this.color.B / 3);
         Brush brush = this.brush;
         this.brush = new SolidBrush(this.color);
         if (brush != null)
