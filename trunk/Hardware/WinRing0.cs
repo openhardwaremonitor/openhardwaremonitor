@@ -83,8 +83,9 @@ namespace OpenHardwareMonitor.Hardware {
       out uint eax, out uint ebx, out uint ecx, out uint edx);
     public delegate bool CpuidExDelegate(uint index, uint ecxValue, 
       out uint eax, out uint ebx, out uint ecx, out uint edx);
-    public delegate bool RdmsrPxDelegate(uint index, ref uint eax, ref uint edx, 
-      UIntPtr processAffinityMask);
+    public delegate bool RdmsrDelegate(uint index, out uint eax, out uint edx);
+    public delegate bool RdmsrTxDelegate(uint index, out uint eax, out uint edx,
+      UIntPtr threadAffinityMask);
     public delegate byte ReadIoPortByteDelegate(ushort port);
     public delegate void WriteIoPortByteDelegate(ushort port, byte value);
     public delegate void SetPciMaxBusIndexDelegate(byte max);
@@ -94,8 +95,8 @@ namespace OpenHardwareMonitor.Hardware {
       uint regAddress, out uint value);
     public delegate bool WritePciConfigDwordExDelegate(uint pciAddress, 
       uint regAddress, uint value);
-    public delegate bool RdtscPxDelegate(ref uint eax, ref uint edx,
-      UIntPtr processAffinityMask);
+    public delegate bool RdtscTxDelegate(out uint eax, out uint edx,
+      UIntPtr threadAffinityMask);
 
     private static InitializeOlsDelegate InitializeOls;
     private static DeinitializeOlsDelegate DeinitializeOls;
@@ -104,14 +105,15 @@ namespace OpenHardwareMonitor.Hardware {
     public static IsCpuidDelegate IsCpuid;
     public static CpuidDelegate Cpuid;
     public static CpuidExDelegate CpuidEx;
-    public static RdmsrPxDelegate RdmsrPx;
+    public static RdmsrDelegate Rdmsr;
+    public static RdmsrTxDelegate RdmsrTx;
     public static ReadIoPortByteDelegate ReadIoPortByte;
     public static WriteIoPortByteDelegate WriteIoPortByte;
     public static SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
     public static FindPciDeviceByIdDelegate FindPciDeviceById;
     public static ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
     public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;
-    public static RdtscPxDelegate RdtscPx;
+    public static RdtscTxDelegate RdtscTx;
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
       where T : class 
@@ -131,14 +133,15 @@ namespace OpenHardwareMonitor.Hardware {
       GetDelegate("IsCpuid", out IsCpuid);
       GetDelegate("Cpuid", out Cpuid);
       GetDelegate("CpuidEx", out CpuidEx);
-      GetDelegate("RdmsrPx", out  RdmsrPx);
+      GetDelegate("Rdmsr", out  Rdmsr);
+      GetDelegate("RdmsrTx", out  RdmsrTx);
       GetDelegate("ReadIoPortByte", out ReadIoPortByte);
       GetDelegate("WriteIoPortByte", out WriteIoPortByte);
       GetDelegate("SetPciMaxBusIndex", out SetPciMaxBusIndex);
       GetDelegate("FindPciDeviceById", out FindPciDeviceById);
       GetDelegate("ReadPciConfigDwordEx", out ReadPciConfigDwordEx);
       GetDelegate("WritePciConfigDwordEx", out WritePciConfigDwordEx);
-      GetDelegate("RdtscPx", out RdtscPx);
+      GetDelegate("RdtscTx", out RdtscTx);
 
       try {
         if (InitializeOls != null && InitializeOls())
