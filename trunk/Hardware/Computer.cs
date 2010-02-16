@@ -162,7 +162,7 @@ namespace OpenHardwareMonitor.Hardware {
 
         foreach (IGroup group in groups) {
           string report = group.GetReport();
-          if (report != null) {
+          if (report != null && report != "") {
             NewSection(w);
             w.Write(report);
           }
@@ -170,7 +170,7 @@ namespace OpenHardwareMonitor.Hardware {
           IHardware[] hardwareArray = group.Hardware;
           foreach (IHardware hardware in hardwareArray) {
             string hardwareReport = hardware.GetReport();
-            if (hardwareReport != null) {
+            if (hardwareReport != null && hardwareReport != "") {
               NewSection(w);
               w.Write(hardwareReport);
             }

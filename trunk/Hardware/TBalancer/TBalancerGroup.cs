@@ -56,54 +56,64 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
           SerialPort serialPort =
             new SerialPort(portNames[i], 19200, Parity.None, 8, StopBits.One);
-          serialPort.Open();
+          
           bool isValid = false;
           byte protocolVersion = 0;
           report.Append("Port Name: "); report.AppendLine(portNames[i]);
 
+          try {
+            serialPort.Open();
+          } catch (UnauthorizedAccessException) {
+            report.AppendLine("Exception: Access Denied");
+          }
+       
           if (serialPort.IsOpen) {
-            serialPort.DiscardInBuffer();
-            serialPort.DiscardOutBuffer();
-            serialPort.Write(new byte[] { 0x38 }, 0, 1);
-            int j = 0;
-            while (serialPort.BytesToRead == 0 && j < 2) {
-              Thread.Sleep(100);
-              j++;
-            }
-            if (serialPort.BytesToRead > 0) {
-              if (serialPort.ReadByte() == TBalancer.STARTFLAG) {
-                while (serialPort.BytesToRead < 284 && j < 5) {
-                  Thread.Sleep(100);
-                  j++;
-                }
-                int length = serialPort.BytesToRead;
-                if (length >= 284) {
-                  byte[] data = new byte[285];
-                  data[0] = TBalancer.STARTFLAG;
-                  for (int k = 1; k < data.Length; k++)
-                    data[k] = (byte)serialPort.ReadByte();
+            if (serialPort.CtsHolding) {
+              serialPort.DiscardInBuffer();
+              serialPort.DiscardOutBuffer();
+              serialPort.Write(new byte[] { 0x38 }, 0, 1);
+              int j = 0;
+              while (serialPort.BytesToRead == 0 && j < 2) {
+                Thread.Sleep(100);
+                j++;
+              }
+              if (serialPort.BytesToRead > 0) {
+                if (serialPort.ReadByte() == TBalancer.STARTFLAG) {
+                  while (serialPort.BytesToRead < 284 && j < 5) {
+                    Thread.Sleep(100);
+                    j++;
+                  }
+                  int length = serialPort.BytesToRead;
+                  if (length >= 284) {
+                    byte[] data = new byte[285];
+                    data[0] = TBalancer.STARTFLAG;
+                    for (int k = 1; k < data.Length; k++)
+                      data[k] = (byte)serialPort.ReadByte();
 
-                  // check protocol version 2X (protocols seen: 2C, 2A, 28)
-                  isValid = (data[274] & 0xF0) == 0x20;
-                  protocolVersion = data[274];
-                  if (!isValid) {
-                    report.Append("Status: Wrong Protocol Version: 0x");
-                    report.AppendLine(protocolVersion.ToString("X"));
+                    // check protocol version 2X (protocols seen: 2C, 2A, 28)
+                    isValid = (data[274] & 0xF0) == 0x20;
+                    protocolVersion = data[274];
+                    if (!isValid) {
+                      report.Append("Status: Wrong Protocol Version: 0x");
+                      report.AppendLine(protocolVersion.ToString("X"));
+                    }
+                  } else {
+                    report.AppendLine("Status: Wrong Message Length: " +length);
                   }
                 } else {
-                  report.AppendLine("Status: Wrong Message Length: " + length);
+                  report.AppendLine("Status: Wrong Startflag");
                 }
               } else {
-                report.AppendLine("Status: Wrong Startflag");
+                report.AppendLine("Status: No Response");
               }
             } else {
-              report.AppendLine("Status: No Response");
+              report.AppendLine("Status: Not Clear to Send");
             }
-          } else {
+            serialPort.DiscardInBuffer();
+            serialPort.Close();
+          } else {            
             report.AppendLine("Status: Port not Open");
-          }
-          serialPort.DiscardInBuffer();
-          serialPort.Close();
+          }                          
           if (isValid) {
             report.AppendLine("Status: OK");
             hardware.Add(new TBalancer(portNames[i], protocolVersion));
@@ -111,8 +121,6 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           }
         } catch (IOException ioe) {
           report.AppendLine(ioe.ToString());
-        } catch (UnauthorizedAccessException uae) {
-          report.AppendLine(uae.ToString());
         } catch (NullReferenceException ne) {
           report.AppendLine(ne.ToString());
         }
