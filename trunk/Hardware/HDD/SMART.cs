@@ -67,13 +67,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       RecalibrationRetries = 0x0B,
       PowerCycleCount = 0x0C,
       SoftReadErrorRate = 0x0D,
+      AirflowTemperature = 0xBE,
       Temperature = 0xC2,
       HardwareECCRecovered = 0xC3,
       ReallocationEventCount = 0xC4,
       CurrentPendingSectorCount = 0xC5,
       UncorrectableSectorCount = 0xC6,
       UltraDMACRCErrorCount = 0xC7,
-      WriteErrorRate = 0xC8
+      WriteErrorRate = 0xC8,
+      DriveTemperature = 0xE7
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
