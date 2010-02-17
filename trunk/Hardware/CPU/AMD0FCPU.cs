@@ -61,7 +61,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID = 0x1103;
     private const uint THERMTRIP_STATUS_REGISTER = 0xE4;
-    private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x2;
+    private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
 
     public AMD0FCPU(string name, uint family, uint model, uint stepping, 
