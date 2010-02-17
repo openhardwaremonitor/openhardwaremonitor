@@ -67,12 +67,24 @@ namespace OpenHardwareMonitor.Hardware.HDD {
                 continue;
 
               int attribute = -1;
-              for (int i = 0; i < attributes.Length; i++) {
+              for (int i = 0; i < attributes.Length; i++) 
                 if (attributes[i].ID == SMART.AttributeID.Temperature) {
                   attribute = i;
                   break;
                 }
-              }
+              if (attribute == -1) 
+                for (int i = 0; i < attributes.Length; i++)
+                  if (attributes[i].ID == SMART.AttributeID.DriveTemperature) {
+                    attribute = i;
+                    break;
+                  }
+              if (attribute == -1)
+                for (int i = 0; i < attributes.Length; i++)
+                  if (attributes[i].ID == SMART.AttributeID.AirflowTemperature) 
+                  {
+                    attribute = i;
+                    break;
+                  }
 
               if (attribute >= 0) {
                 hardware.Add(new HDD(name, handle, drive, attribute));
