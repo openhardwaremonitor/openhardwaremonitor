@@ -127,19 +127,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   case 0x06: // B2
                     switch (coreCount) {
                       case 2:
-                        tjMax = 80; break;
+                        tjMax = 80 + 10; break;
                       case 4:
-                        tjMax = 90; break;
+                        tjMax = 90 + 10; break;
                       default:
-                        tjMax = 85; break;
+                        tjMax = 85 + 10; break;
                     }
-                    tjMax = 80; break;
+                    tjMax = 80 + 10; break;
                   case 0x0B: // G0
-                    tjMax = 90; break;
+                    tjMax = 90 + 10; break;
                   case 0x0D: // M0
-                    tjMax = 85; break;
+                    tjMax = 85 + 10; break;
                   default:
-                    tjMax = 85; break;
+                    tjMax = 85 + 10; break;
                 } break;
               case 0x17: // Intel Core (45nm)
                 tjMax = 100; break;
