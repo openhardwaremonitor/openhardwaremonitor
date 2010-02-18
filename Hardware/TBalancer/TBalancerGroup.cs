@@ -119,11 +119,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
             hardware.Add(new TBalancer(portNames[i], protocolVersion));
             return;
           }
-        } catch (IOException ioe) {
-          report.AppendLine(ioe.ToString());
-        } catch (NullReferenceException ne) {
-          report.AppendLine(ne.ToString());
-        }
+        } catch (Exception e) {
+          report.AppendLine(e.ToString());
+        } 
         report.AppendLine();
       }
     }
