@@ -134,6 +134,7 @@ namespace OpenHardwareMonitor.GUI {
       maxMenuItem.Checked = Config.Get(maxMenuItem.Name, true);
       limitMenuItem.Checked = Config.Get(limitMenuItem.Name, false);
 
+      startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
       minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
       hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
 
@@ -143,7 +144,18 @@ namespace OpenHardwareMonitor.GUI {
       tempMenuItem.Checked = Config.Get(tempMenuItem.Name, true);
       fansMenuItem.Checked = Config.Get(fansMenuItem.Name, true);
      
-      timer.Enabled = true;   
+      timer.Enabled = true;
+
+      if (startMinMenuItem.Checked) {
+        if (minTrayMenuItem.Checked) {
+          notifyIcon.Visible = true;
+        } else {
+          WindowState = FormWindowState.Minimized;
+          Show();
+        }
+      } else {
+        Show();
+      }
     }
 
     private void HardwareAdded(IHardware hardware) {
@@ -238,6 +250,7 @@ namespace OpenHardwareMonitor.GUI {
       Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
       Config.Set(limitMenuItem.Name, limitMenuItem.Checked);
 
+      Config.Set(startMinMenuItem.Name, startMinMenuItem.Checked);
       Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
       Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
 
@@ -346,13 +359,13 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void ToggleSysTray() {
-      if (Visible) {
-        notifyIcon.Visible = true;
-        Visible = false;        
-      } else {
+      if (notifyIcon.Visible) {
         Visible = true;
         notifyIcon.Visible = false;
-        Activate();
+        Activate(); 
+      } else {
+        notifyIcon.Visible = true;
+        Visible = false;           
       }
     }
 
@@ -382,6 +395,5 @@ namespace OpenHardwareMonitor.GUI {
 
       sensorSystemTray.Remove(sensor);
     }
-
   }
 }
