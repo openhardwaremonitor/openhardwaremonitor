@@ -63,6 +63,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.W83627DHGP: this.name = "Winbond W83627DHG-P"; break;
         case Chip.W83627EHF: this.name = "Winbond W83627EHF"; break;
         case Chip.W83627HF: this.name = "Winbond W83627HF"; break;
+        case Chip.W83627THF: this.name = "Winbond W83627THF"; break;
         case Chip.W83667HG: this.name = "Winbond W83667HG"; break;
         case Chip.W83667HGB: this.name = "Winbond W83667HG-B"; break;
       }

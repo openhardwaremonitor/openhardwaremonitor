@@ -160,6 +160,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;             
             } break;
+          case 0x82:
+            switch (revision) {
+              case 0x83:
+                chip = Chip.W83627THF;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+                break;
+            } break;
           case 0x88:
             switch (revision & 0xF0) {
               case 0x60:
@@ -217,6 +224,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             case Chip.W83627DHGP:
             case Chip.W83627EHF:
             case Chip.W83627HF:
+            case Chip.W83627THF:
             case Chip.W83667HG:
             case Chip.W83667HGB:
               W836XX w836XX = new W836XX(chip, revision, address);
