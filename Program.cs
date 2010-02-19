@@ -51,12 +51,21 @@ namespace OpenHardwareMonitor {
       #endif
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new GUI.MainForm());
+
+        using (GUI.MainForm form = new GUI.MainForm()) {
+          form.FormClosed += delegate(Object sender, FormClosedEventArgs e) {
+            Application.Exit();
+          };
+          Application.Run();
+        }
+        
       #if !DEBUG
       } catch (Exception e) {
         Utilities.CrashReport.Save(e);
       }
       #endif
     }
+
+    
   }
 }
