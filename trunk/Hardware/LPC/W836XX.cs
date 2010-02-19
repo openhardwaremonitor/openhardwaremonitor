@@ -219,7 +219,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
         r.AppendLine();
       }
-      for (int k = 1; k <= 5; k++) {
+      for (int k = 1; k <= 15; k++) {
         r.AppendLine("Bank " + k);
         for (int i = 0x5; i < 0x6; i++) {
           r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
