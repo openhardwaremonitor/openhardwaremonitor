@@ -65,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     // Hardware Monitor Registers
     private const byte VOLTAGE_BASE_REG = 0x20;
-    private const byte BANK_SELECT_REGISTER = 0x04E;
+    private const byte BANK_SELECT_REGISTER = 0x4E;
     private const byte VENDOR_ID_REGISTER = 0x4F;
     private const byte TEMPERATURE_BASE_REG = 0x50;
     private const byte TEMPERATURE_SYS_REG = 0x27;    
@@ -115,8 +115,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           voltages[1] = new Sensor("+3.3V", 3, SensorType.Voltage, this);
           voltages[2] = new Sensor("Battery", 7, SensorType.Voltage, this);
           break;
-        case Chip.W83627HF: 
-          fanNames = new string[] { "Fan #1", "Fan #2", "Fan #3" };
+        case Chip.W83627HF:
+        case Chip.W83627THF:
+          fanNames = new string[] { "System", "CPU", "Auxiliary" };
           voltageGains = new float[] { 2, 1, 2, 1, 1, 1, 1, 2 };
           voltages = new Sensor[3];
           voltages[0] = new Sensor("CPU VCore", 0, SensorType.Voltage, this);
