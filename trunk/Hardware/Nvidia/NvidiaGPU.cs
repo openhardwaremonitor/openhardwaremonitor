@@ -50,55 +50,43 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private Sensor[] temperatures;
     private Sensor fan = null;
 
-    private bool available;
-
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle) {
-      try {
-        string gpuName;
-        if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
-          this.name = "NVIDIA " + gpuName.Trim();
-        } else {
-          this.name = "NVIDIA";
-        }
-        this.icon = Utilities.EmbeddedResources.GetImage("nvidia.png");
-        this.adapterIndex = adapterIndex;
-        this.handle = handle;
-
-        NvGPUThermalSettings settings = GetThermalSettings();
-        temperatures = new Sensor[settings.Count];
-        for (int i = 0; i < temperatures.Length; i++) {
-          NvSensor sensor = settings.Sensor[i];
-          string name;
-          switch (sensor.Target) {
-            case NvThermalTarget.BOARD: name = "GPU Board"; break;
-            case NvThermalTarget.GPU: name = "GPU Core"; break;
-            case NvThermalTarget.MEMORY: name = "GPU Memory"; break;
-            case NvThermalTarget.POWER_SUPPLY: name = "GPU Power Supply"; break;
-            case NvThermalTarget.UNKNOWN: name = "GPU Unknown"; break;
-            default: name = "GPU"; break;
-          }
-          temperatures[i] = new Sensor(name, i, sensor.DefaultMaxTemp, 
-            SensorType.Temperature, this);
-          ActivateSensor(temperatures[i]);
-        }
-        
-        int value;
-        if (NVAPI.NvAPI_GPU_GetTachReading != null &&
-          NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
-          if (value > 0) {
-            fan = new Sensor("GPU", 0, SensorType.Fan, this);
-            ActivateSensor(fan);
-          }
-        }
-
-        available = temperatures.Length > 0 || fan != null;
-      } catch (Exception e) {
-        System.Windows.Forms.MessageBox.Show(e.Message + "\n" + e.StackTrace);
+      string gpuName;
+      if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
+        this.name = "NVIDIA " + gpuName.Trim();
+      } else {
+        this.name = "NVIDIA";
       }
-    }
+      this.icon = Utilities.EmbeddedResources.GetImage("nvidia.png");
+      this.adapterIndex = adapterIndex;
+      this.handle = handle;
 
-    public bool IsAvailable {
-      get { return available; }
+      NvGPUThermalSettings settings = GetThermalSettings();
+      temperatures = new Sensor[settings.Count];
+      for (int i = 0; i < temperatures.Length; i++) {
+        NvSensor sensor = settings.Sensor[i];
+        string name;
+        switch (sensor.Target) {
+          case NvThermalTarget.BOARD: name = "GPU Board"; break;
+          case NvThermalTarget.GPU: name = "GPU Core"; break;
+          case NvThermalTarget.MEMORY: name = "GPU Memory"; break;
+          case NvThermalTarget.POWER_SUPPLY: name = "GPU Power Supply"; break;
+          case NvThermalTarget.UNKNOWN: name = "GPU Unknown"; break;
+          default: name = "GPU"; break;
+        }
+        temperatures[i] = new Sensor(name, i, sensor.DefaultMaxTemp,
+          SensorType.Temperature, this);
+        ActivateSensor(temperatures[i]);
+      }
+
+      int value;
+      if (NVAPI.NvAPI_GPU_GetTachReading != null &&
+        NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
+        if (value > 0) {
+          fan = new Sensor("GPU", 0, SensorType.Fan, this);
+          ActivateSensor(fan);
+        }
+      }
     }
 
     public string Name {
