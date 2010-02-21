@@ -45,7 +45,8 @@ namespace OpenHardwareMonitor.Hardware {
     Clock,    
     Temperature,
     Load,
-    Fan    
+    Fan,
+    Flow
   }
 
   public interface ISensorEntry {

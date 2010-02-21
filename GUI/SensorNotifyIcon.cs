@@ -152,6 +152,8 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F0}", sensor.Value);
         case SensorType.Fan: 
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
+        case SensorType.Flow:
+          return string.Format("{0:F11}", 1e-3f * sensor.Value);
       }
       return "-";
     }
@@ -224,6 +226,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Load: format = "{0}\n{1}: {2:F1} %"; break;
         case SensorType.Temperature: format = "{0}\n{1}: {2:F1} °C"; break;
         case SensorType.Fan: format = "{0}\n{1}: {2:F0} RPM"; break;
+        case SensorType.Flow: format = "{0}\n{1}: {2:F0} L/h"; break;
       }
 
       notifyIcon.Text = string.Format(format, sensor.Hardware.Name, sensor.Name,

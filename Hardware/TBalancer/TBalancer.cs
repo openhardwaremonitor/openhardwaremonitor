@@ -46,36 +46,67 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.TBalancer {
   public class TBalancer : IHardware {
 
+    private string portName;
     private Image icon;
     private SerialPort serialPort;
     private byte protocolVersion;
     private Sensor[] digitalTemperatures = new Sensor[8];
     private Sensor[] analogTemperatures = new Sensor[4];
+    private Sensor[] sensorhubTemperatures = new Sensor[6];
+    private Sensor[] sensorhubFlows = new Sensor[2];
     private Sensor[] fans = new Sensor[4];
+    private Sensor[] miniNGTemperatures = new Sensor[4];
+    private Sensor[] miniNGFans = new Sensor[4];
     private List<ISensor> active = new List<ISensor>();
     private List<ISensor> deactivating = new List<ISensor>();
-    private int[] data;
+    private int[] primaryData = new int[0];
+    private int[] alternativeData = new int[0];
 
     public const byte STARTFLAG = 100;
+    public const byte ENDFLAG = 254;
+
+    private delegate void MethodDelegate();
+    private MethodDelegate alternativeRequest;    
 
     public TBalancer(string portName, byte protocolVersion) {
-      icon = Utilities.EmbeddedResources.GetImage("bigng.png");
+      this.portName = portName;
+      this.icon = Utilities.EmbeddedResources.GetImage("bigng.png");
       this.protocolVersion = protocolVersion;
+
+      int offset = 0;
+      for (int i = 0; i < digitalTemperatures.Length; i++)
+        digitalTemperatures[i] = new Sensor("Digital Sensor #" + (i + 1),
+          offset + i, SensorType.Temperature, this);
+      offset += digitalTemperatures.Length;
+
+      for (int i = 0; i < analogTemperatures.Length; i++)
+        analogTemperatures[i] = new Sensor("Analog Sensor #" + (i + 1),
+          offset + i, SensorType.Temperature, this);
+      offset += analogTemperatures.Length;
+
+      for (int i = 0; i < sensorhubTemperatures.Length; i++)
+        sensorhubTemperatures[i] = new Sensor("Sensorhub Sensor #" + (i + 1),
+          offset + i, SensorType.Temperature, this);
+      offset += sensorhubTemperatures.Length;
+
+      for (int i = 0; i < sensorhubFlows.Length; i++)
+        sensorhubFlows[i] = new Sensor("Flowmeter #" + (i + 1),
+          offset + i, SensorType.Flow, this);
+      offset += sensorhubFlows.Length;
+
+      for (int i = 0; i < miniNGTemperatures.Length; i++)
+        miniNGTemperatures[i] = new Sensor("miniNG #" + (i / 2 + 1) + 
+          " Sensor #" + (i % 2 + 1), offset + i, SensorType.Temperature, this);
+      offset += miniNGTemperatures.Length;
+
+      alternativeRequest = new MethodDelegate(DelayedAlternativeRequest);
 
       try {
         serialPort = new SerialPort(portName, 19200, Parity.None, 8,
           StopBits.One);
         serialPort.Open();
         Update();
-      } catch (IOException) { }
-
-      for (int i = 0; i < digitalTemperatures.Length; i++) 
-        digitalTemperatures[i] = new Sensor("Digital Sensor #" + (i + 1), i, 
-          SensorType.Temperature, this);
-
-      for (int i = 0; i < analogTemperatures.Length; i++)
-        analogTemperatures[i] = new Sensor("Analog Sensor #" + (i + 1),
-          i + digitalTemperatures.Length, SensorType.Temperature, this);        
+      } catch (IOException) { }      
     }
 
     private void ActivateSensor(Sensor sensor) {
@@ -98,46 +129,110 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       }     
     }
 
+    private void ReadminiNG(int[] data, int number) {
+      int offset = 1 + number * 65;
+
+      if (data[offset + 61] != ENDFLAG)
+        return;
+
+      for (int i = 0; i < 2; i++) {
+        Sensor sensor = miniNGTemperatures[number * 2 + i];
+        if (data[offset + 7 + i] > 0) {
+          sensor.Value = 0.5f * data[offset + 7 + i];
+          ActivateSensor(sensor);
+        } else {
+          DeactivateSensor(sensor);
+        }
+      }
+
+      for (int i = 0; i < 2; i++) {
+        float maxRPM = 20.0f * data[offset + 44 + 2 * i];
+
+        if (miniNGFans[number * 2 + i] == null)
+          miniNGFans[number * 2 + i] = 
+            new Sensor("miniNG #" + (number + 1) + " Fan #" + (i + 1),
+            4 + number * 2 + i, maxRPM, SensorType.Fan, this);
+        
+        Sensor sensor = miniNGFans[number * 2 + i];
+
+        sensor.Value = 20.0f * data[offset + 43 + 2 * i];
+        ActivateSensor(sensor);
+      }
+    }
+
     private void ReadData() {
       int[] data = new int[285];
       for (int i = 0; i < data.Length; i++)
         data[i] = serialPort.ReadByte();
 
-      if (data[0] != STARTFLAG || data[274] != protocolVersion) {
+      if (data[0] != STARTFLAG) {
         serialPort.DiscardInBuffer();   
         return;
       }
 
-      for (int i = 0; i < digitalTemperatures.Length; i++)
-        if (data[238 + i] > 0) {
-          digitalTemperatures[i].Value = 0.5f * data[238 + i];
-          ActivateSensor(digitalTemperatures[i]);
-        } else {
-          DeactivateSensor(digitalTemperatures[i]);
+      if (data[1] == 255) { // bigNG
+
+        if (data[274] != protocolVersion) 
+          return;
+
+        this.primaryData = data;
+
+        for (int i = 0; i < digitalTemperatures.Length; i++)
+          if (data[238 + i] > 0) {
+            digitalTemperatures[i].Value = 0.5f * data[238 + i];
+            ActivateSensor(digitalTemperatures[i]);
+          } else {
+            DeactivateSensor(digitalTemperatures[i]);
+          }
+
+        for (int i = 0; i < analogTemperatures.Length; i++)
+          if (data[260 + i] > 0) {
+            analogTemperatures[i].Value = 0.5f * data[260 + i];
+            ActivateSensor(analogTemperatures[i]);
+          } else {
+            DeactivateSensor(analogTemperatures[i]);
+          }
+
+        for (int i = 0; i < sensorhubTemperatures.Length; i++)
+          if (data[246 + i] > 0) {
+            sensorhubTemperatures[i].Value = 0.5f * data[246 + i];
+            ActivateSensor(sensorhubTemperatures[i]);
+          } else {
+            DeactivateSensor(sensorhubTemperatures[i]);
+          }
+
+        for (int i = 0; i < sensorhubFlows.Length; i++)
+          if (data[231 + i] > 0 && data[234] > 0) {
+            float pulsesPerSecond = ((float)data[231 + i]) / data[234];
+            const float pulsesPerLiter = 509;
+            sensorhubFlows[i].Value = pulsesPerSecond * 3600 / pulsesPerLiter;
+            ActivateSensor(sensorhubFlows[i]);
+          } else {
+            DeactivateSensor(sensorhubFlows[i]);
+          }
+
+        for (int i = 0; i < fans.Length; i++) {
+          float maxRPM = 11.5f * ((data[149 + 2 * i] << 8) | data[148 + 2 * i]);
+
+          if (fans[i] == null)
+            fans[i] = new Sensor("Fan #" + (i + 1), i, maxRPM, SensorType.Fan,
+              this);
+
+          if ((data[136] & (1 << i)) == 0)
+            fans[i].Value = maxRPM * 0.01f * data[156 + i]; // pwm mode
+          else
+            fans[i].Value = maxRPM * 0.01f * data[141 + i]; // analog mode
+          ActivateSensor(fans[i]);
         }
 
-      for (int i = 0; i < analogTemperatures.Length; i++)
-        if (data[260 + i] > 0) {
-          analogTemperatures[i].Value = 0.5f * data[260 + i];
-          ActivateSensor(analogTemperatures[i]);
-        } else {
-          DeactivateSensor(analogTemperatures[i]);
-        }
-      
-      for (int i = 0; i < fans.Length; i++) {
-        float maxRPM = 11.5f * ((data[149 + 2 * i] << 8) | data[148 + 2 * i]);
-        
-        if (fans[i] == null) 
-          fans[i] = new Sensor("Fan #" + (i + 1), i, maxRPM, SensorType.Fan, 
-            this);
+      } else if (data[1] == 253) { // miniNG #1
+        this.alternativeData = data;
 
-        if ((data[136] & (1 << i)) == 0)
-          fans[i].Value = maxRPM * 0.01f * data[156 + i]; // pwm mode
-        else
-          fans[i].Value = maxRPM * 0.01f * data[141 + i]; // analog mode
-        ActivateSensor(fans[i]);
-      }
-      this.data = data;
+        ReadminiNG(data, 0);        
+              
+        if (data[66] == 252)  // miniNG #2
+          ReadminiNG(data, 1);
+      } 
     }
 
     public Image Icon {
@@ -150,7 +245,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public string Identifier {
       get { return "/bigng/" + 
-        serialPort.PortName.TrimStart(new char[]{'/'}).ToLower(); }
+        this.portName.TrimStart(new char[]{'/'}).ToLower(); }
     }
 
     public ISensor[] Sensors {
@@ -164,31 +259,62 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       r.AppendLine();
       r.Append("Port Name: "); r.AppendLine(serialPort.PortName);
       r.AppendLine();
-      r.AppendLine("System Information Answer");
-      r.AppendLine();
 
+      r.AppendLine("Primary System Information Answer");
+      r.AppendLine();
       r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
       for (int i = 0; i <= 0x11; i++) {
         r.Append(" "); r.Append((i << 4).ToString("X3")); r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           int index = ((i << 4) | j);
-          if (index < data.Length) {
+          if (index < primaryData.Length) {
             r.Append(" ");
-            r.Append(data[index].ToString("X2"));
+            r.Append(primaryData[index].ToString("X2"));
           }          
         }
         r.AppendLine();
       }
       r.AppendLine();
 
+      if (alternativeData.Length > 0) {
+        r.AppendLine("Alternative System Information Answer");
+        r.AppendLine();
+        r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
+        r.AppendLine();
+        for (int i = 0; i <= 0x11; i++) {
+          r.Append(" "); r.Append((i << 4).ToString("X3")); r.Append("  ");
+          for (int j = 0; j <= 0xF; j++) {
+            int index = ((i << 4) | j);
+            if (index < alternativeData.Length) {
+              r.Append(" ");
+              r.Append(alternativeData[index].ToString("X2"));
+            }
+          }
+          r.AppendLine();
+        }
+        r.AppendLine();
+      }
+
       return r.ToString();
+    }
+
+    private void DelayedAlternativeRequest() {
+      System.Threading.Thread.Sleep(500);
+      try {
+        if (serialPort.IsOpen)
+          serialPort.Write(new byte[] { 0x37 }, 0, 1);
+      } catch (Exception) { }
     }
 
     public void Update() {
       while (serialPort.BytesToRead >= 285)
         ReadData();
+      if (serialPort.BytesToRead == 1)
+        serialPort.ReadByte();
+
       serialPort.Write(new byte[] { 0x38 }, 0, 1);
+      alternativeRequest.BeginInvoke(null, null);
     }
 
     public void Close() {

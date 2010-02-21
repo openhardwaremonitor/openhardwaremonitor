@@ -68,6 +68,7 @@
     <Compile Include="Hardware\HDD\HDD.cs" />
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
+    <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
@@ -152,6 +153,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\smallicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

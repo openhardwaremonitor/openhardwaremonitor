@@ -143,6 +143,7 @@ namespace OpenHardwareMonitor.GUI {
       loadMenuItem.Checked = Config.Get(loadMenuItem.Name, true);
       tempMenuItem.Checked = Config.Get(tempMenuItem.Name, true);
       fansMenuItem.Checked = Config.Get(fansMenuItem.Name, true);
+      flowsMenuItem.Checked = Config.Get(flowsMenuItem.Name, true);
      
       timer.Enabled = true;
 
@@ -259,6 +260,7 @@ namespace OpenHardwareMonitor.GUI {
       Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
       Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
       Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
+      Config.Set(flowsMenuItem.Name, flowsMenuItem.Checked);
 
       if (WindowState != FormWindowState.Minimized) {
         Config.Set("mainForm.Location.X", Location.X);
@@ -355,6 +357,7 @@ namespace OpenHardwareMonitor.GUI {
         node.SetVisible(SensorType.Load, loadMenuItem.Checked);
         node.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
         node.SetVisible(SensorType.Fan, fansMenuItem.Checked);
+        node.SetVisible(SensorType.Flow, flowsMenuItem.Checked);
       }
     }
 
