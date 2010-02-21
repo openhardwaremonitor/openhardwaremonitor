@@ -183,8 +183,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       foreach (Sensor sensor in voltages) {
         if (sensor.Index < 7) {
-          int value = ReadByte(0, (byte)(VOLTAGE_BASE_REG + sensor.Index));
-          sensor.Value = 0.008f * voltageGains[sensor.Index] * value;
+          // two special VCore measurement modes for W83627THF
+          if (chip == Chip.W83627THF && sensor.Index == 0) {
+            byte vrmConfiguration = ReadByte(0, 0x18);
+            int value = ReadByte(0, VOLTAGE_BASE_REG);
+            if ((vrmConfiguration & 0x01) == 0)
+              sensor.Value = 0.016f * value; // VRM8 formula
+            else
+              sensor.Value = 0.00488f * value + 0.69f; // VRM9 formula
+          } else {
+            int value = ReadByte(0, (byte)(VOLTAGE_BASE_REG + sensor.Index));
+            sensor.Value = 0.008f * voltageGains[sensor.Index] * value;
+          }
           if (sensor.Value > 0)
             ActivateSensor(sensor);
           else
