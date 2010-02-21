@@ -62,6 +62,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Load: format = "{0:F1} %"; break;
         case SensorType.Temperature: format = "{0:F1} °C"; break;
         case SensorType.Fan: format = "{0:F0} RPM"; break;
+        case SensorType.Flow: format = "{0:F0} L/h"; break;
       }      
     }
 
