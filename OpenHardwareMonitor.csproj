@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}</ProjectGuid>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
@@ -68,7 +68,6 @@
     <Compile Include="Hardware\HDD\HDD.cs" />
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
-    <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
@@ -124,12 +123,15 @@
   <ItemGroup>
     <EmbeddedResource Include="GUI\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\PlotPanel.resx">
       <DependentUpon>PlotPanel.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">
     </EmbeddedResource>

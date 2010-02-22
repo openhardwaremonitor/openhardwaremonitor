@@ -206,17 +206,24 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if (chip != Chip.Unknown) {
 
           Select(logicalDeviceNumber);
-          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+          ushort address = ReadWord(BASE_ADDRESS_REGISTER);          
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
-
+          
           ushort vendorID = 0;
           if (chip == Chip.F71862 || chip == Chip.F71882 || chip == Chip.F71889)
             vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
           WinbondFintekExit();
 
-          if (address != verify || address < 0x100 || (address & 0xF007) != 0)
+          if (address != verify)
+            return;
+
+          // some Fintek chips have address register offset 0x05 added already
+          if ((address & 0x07) == 0x05)
+            address &= 0xFFF8;
+
+          if (address < 0x100 || (address & 0xF007) != 0)
             return;
           
           switch (chip) {
