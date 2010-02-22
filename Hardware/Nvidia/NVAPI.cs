@@ -122,7 +122,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     UNKNOWN = -1
   };
 
-  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  [StructLayout(LayoutKind.Sequential, Pack = 8)]
   public struct NvSensor {
     public NvThermalController Controller;
     public int DefaultMinTemp;
@@ -131,7 +131,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public NvThermalTarget Target;     
   }
 
-  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  [StructLayout(LayoutKind.Sequential, Pack = 8)]
   public struct NvGPUThermalSettings {
     public int Version;
     public int Count;
@@ -140,14 +140,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public NvSensor[] Sensor;
   }
 
-  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  [StructLayout(LayoutKind.Sequential)]
   public struct NvDisplayHandle {
-    private int handle;
+    private IntPtr ptr;
   }
 
-  [StructLayout(LayoutKind.Sequential, Pack = 1)]
+  [StructLayout(LayoutKind.Sequential)]
   public struct NvPhysicalGpuHandle {
-    private int handle;
+    private IntPtr ptr;
   }
 
   public class NVAPI {
