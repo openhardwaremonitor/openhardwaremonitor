@@ -152,9 +152,15 @@ namespace OpenHardwareMonitor.Hardware {
               new object[] { hardware.Name, hardware.Identifier });
             foreach (ISensor sensor in hardware.Sensors) {
               w.WriteLine("|   +- {0} : {1} : {2} : {3}",
-                new object[] { sensor.SensorType, sensor.Index, sensor.Name, 
-                  string.Format(CultureInfo.InvariantCulture, "{0}", 
-                  sensor.Value) });
+                sensor.SensorType, sensor.Index, sensor.Name, 
+                  string.Format(CultureInfo.InvariantCulture, "{0} : {1} : {2}", 
+                  sensor.Value, sensor.Min, sensor.Max) );
+              foreach (IParameter parameter in sensor.Parameters) {
+                w.WriteLine("|      +- {0} : {1} : {2}",
+                  parameter.Name, parameter.IsDefault,   
+                  string.Format(CultureInfo.InvariantCulture, "{0} : {1}", 
+                    parameter.DefaultValue, parameter.Value) );
+              }
             }
           }
         }

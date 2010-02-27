@@ -154,5 +154,26 @@ namespace OpenHardwareMonitor.Utilities {
           return value;
       }
     }
+
+    public static void Set(string name, float value) {
+      instance[name] = value.ToString(
+        System.Globalization.CultureInfo.InvariantCulture.NumberFormat); 
+    }
+
+    public static float Get(string name, float value) {
+      System.Configuration.KeyValueConfigurationElement element =
+        instance.config.AppSettings.Settings[name];
+      if (element == null)
+        return value;
+      else {
+        float parsedValue;
+        if (float.TryParse(element.Value,
+          System.Globalization.NumberStyles.Float,
+          System.Globalization.CultureInfo.InvariantCulture, out parsedValue))
+          return parsedValue;
+        else
+          return value;
+      }
+    }
   }
 }
