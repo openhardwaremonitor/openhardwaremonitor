@@ -37,28 +37,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
-namespace OpenHardwareMonitor.Hardware {
-
-  public delegate void SensorEventHandler(ISensor sensor);
-
-  public interface IHardware {
-
-    string Name { get; }
-    string Identifier { get; }
-
-    Image Icon { get; }
-
-    string GetReport();
-
-    void Update();
-
-    IHardware[] SubHardware { get; }
-
-    ISensor[] Sensors { get; }
-
-    event SensorEventHandler SensorAdded;
-    event SensorEventHandler SensorRemoved;
+namespace OpenHardwareMonitor.Hardware.Mainboard {
+  
+  public enum Manufacturer {
+    ASUS,
+    DFI,
+    EPoX,
+    Gigabyte,
+    MSI,
+    Unkown    
   }
+
 }

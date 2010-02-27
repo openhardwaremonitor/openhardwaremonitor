@@ -40,17 +40,16 @@ using System.Collections.Generic;
 using System.Management;
 using System.Text;
 
-namespace OpenHardwareMonitor.Hardware.SMBIOS {
+namespace OpenHardwareMonitor.Hardware.Mainboard {
 
-  public class SMBIOSGroup : IGroup {
+  public class SMBIOS {
 
     private Structure[] table;
 
     private BIOSInformation biosInformation = null;
-
     private BaseBoardInformation baseBoardInformation = null;
 
-    public SMBIOSGroup() {
+    public SMBIOS() {
       int p = (int)System.Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         return;
@@ -110,13 +109,8 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
       table = structureList.ToArray();
     }
 
-    public IHardware[] Hardware { get { return new IHardware[0]; } }
-
     public string GetReport() {
-      StringBuilder r = new StringBuilder();
-
-      r.AppendLine("SMBIOS");
-      r.AppendLine();
+      StringBuilder r = new StringBuilder();      
 
       if (biosInformation != null) {
         r.Append("BIOS Vendor: "); r.AppendLine(biosInformation.Vendor);
@@ -126,7 +120,7 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
 
       if (baseBoardInformation != null) {
         r.Append("Mainboard Manufacturer: "); 
-        r.AppendLine(baseBoardInformation.Manufacturer);
+        r.AppendLine(baseBoardInformation.ManufacturerName);
         r.Append("Mainboard Name: "); 
         r.AppendLine(baseBoardInformation.ProductName);
         r.AppendLine();
@@ -135,7 +129,13 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
       return r.ToString();
     }
 
-    public void Close() { }
+    public BIOSInformation BIOS {
+      get { return biosInformation; }
+    }
+
+    public BaseBoardInformation Board {
+      get { return baseBoardInformation; }
+    }
 
     public class Structure {
       private byte type;
@@ -185,20 +185,39 @@ namespace OpenHardwareMonitor.Hardware.SMBIOS {
 
     public class BaseBoardInformation : Structure {
 
-      private string manufacturer;
+      private string manufacturerName;
       private string productName;
+      private Manufacturer manufacturer;
 
       public BaseBoardInformation(byte type, ushort handle, byte[] data,
         string[] strings)
         : base(type, handle, data, strings) {
 
-        this.manufacturer = GetString(0x04);
-        this.productName = GetString(0x05);
+        this.manufacturerName = GetString(0x04).Trim();
+        this.productName = GetString(0x05).Trim();
+
+        switch (manufacturerName) {
+          case "ASUSTeK Computer INC.":
+            manufacturer = Manufacturer.ASUS; break;
+          case "DFI":
+          case "DFI Inc.:":
+            manufacturer = Manufacturer.DFI; break;
+          case "EPoX COMPUTER CO., LTD":
+            manufacturer = Manufacturer.EPoX; break;
+          case "Gigabyte Technology Co., Ltd.":
+            manufacturer = Manufacturer.Gigabyte; break;
+          case "MICRO-STAR INTERNATIONAL CO., LTD":
+            manufacturer = Manufacturer.MSI; break;
+          default:
+            manufacturer = Manufacturer.Unkown; break;
+        }
       }
 
-      public string Manufacturer { get { return manufacturer; } }
+      public string ManufacturerName { get { return manufacturerName; } }
 
       public string ProductName { get { return productName; } }
+
+      public Manufacturer Manufacturer { get { return manufacturer; } }
     }
   }
 }

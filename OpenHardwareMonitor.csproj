@@ -78,8 +78,11 @@
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
+    <Compile Include="Hardware\Mainboard\Mainboard.cs" />
+    <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
+    <Compile Include="Hardware\Mainboard\Manufacturer.cs" />
     <Compile Include="Hardware\Parameter.cs" />
-    <Compile Include="Hardware\SMBIOS\SMBIOSGroup.cs" />
+    <Compile Include="Hardware\Mainboard\SMBIOS.cs" />
     <Compile Include="Hardware\LPC\W836XX.cs" />
     <Compile Include="Hardware\Computer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -171,6 +174,9 @@
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\flow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\mainboard.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -159,8 +159,18 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+    private void SubHardwareAdded(IHardware hardware, Node node) {
+      Node hardwareNode = new HardwareNode(hardware);
+      node.Nodes.Add(hardwareNode);
+      foreach (IHardware subHardware in hardware.SubHardware)
+        SubHardwareAdded(subHardware, hardwareNode);  
+    }
+
     private void HardwareAdded(IHardware hardware) {
-      root.Nodes.Add(new HardwareNode(hardware));
+      Node hardwareNode = new HardwareNode(hardware);
+      root.Nodes.Add(hardwareNode);
+      foreach (IHardware subHardware in hardware.SubHardware)
+        SubHardwareAdded(subHardware, hardwareNode);     
     }
 
     private void HardwareRemoved(IHardware hardware) {      
@@ -357,15 +367,25 @@ namespace OpenHardwareMonitor.GUI {
       UpdatePlotSelection(null, null);      
     }
 
-    private void UpdateSensorTypeChecked(object sender, EventArgs e) {
-      foreach (HardwareNode node in root.Nodes) {
-        node.SetVisible(SensorType.Voltage, voltMenuItem.Checked);
-        node.SetVisible(SensorType.Clock, clocksMenuItem.Checked);
-        node.SetVisible(SensorType.Load, loadMenuItem.Checked);
-        node.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
-        node.SetVisible(SensorType.Fan, fansMenuItem.Checked);
-        node.SetVisible(SensorType.Flow, flowsMenuItem.Checked);
-      }
+    private void UpdateSensorTypeVisible(Node node) {
+      HardwareNode hardwareNode = node as HardwareNode;
+      if (hardwareNode == null)
+        return;
+
+      hardwareNode.SetVisible(SensorType.Voltage, voltMenuItem.Checked);
+      hardwareNode.SetVisible(SensorType.Clock, clocksMenuItem.Checked);
+      hardwareNode.SetVisible(SensorType.Load, loadMenuItem.Checked);
+      hardwareNode.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
+      hardwareNode.SetVisible(SensorType.Fan, fansMenuItem.Checked);
+      hardwareNode.SetVisible(SensorType.Flow, flowsMenuItem.Checked);
+
+      foreach (Node n in node.Nodes)
+        UpdateSensorTypeVisible(n);
+    }
+
+    private void UpdateSensorTypeChecked(object sender, EventArgs e) {          
+      foreach (HardwareNode node in root.Nodes) 
+        UpdateSensorTypeVisible(node);
     }
 
     private void ToggleSysTray() {

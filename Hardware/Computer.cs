@@ -61,7 +61,7 @@ namespace OpenHardwareMonitor.Hardware {
       groups.Add(group);
 
       if (HardwareAdded != null)
-        foreach (IHardware hardware in group.Hardware)
+        foreach (IHardware hardware in group.Hardware) 
           HardwareAdded(hardware);
     }
 
@@ -72,7 +72,7 @@ namespace OpenHardwareMonitor.Hardware {
       groups.Remove(group);
 
       if (HardwareRemoved != null)
-        foreach (IHardware hardware in group.Hardware)
+        foreach (IHardware hardware in group.Hardware) 
           HardwareRemoved(hardware);
     }
 
@@ -80,8 +80,7 @@ namespace OpenHardwareMonitor.Hardware {
       if (open)
         return;
 
-      Add(new SMBIOS.SMBIOSGroup());
-      Add(new LPC.LPCGroup());
+      Add(new Mainboard.MainboardGroup());
       Add(new CPU.CPUGroup());
       Add(new ATI.ATIGroup());
       Add(new Nvidia.NvidiaGroup());
@@ -93,10 +92,19 @@ namespace OpenHardwareMonitor.Hardware {
       open = true;
     }
 
+    private void SubHardwareUpdate(IHardware hardware) {
+      foreach (IHardware subHardware in hardware.SubHardware) {
+        subHardware.Update();
+        SubHardwareUpdate(subHardware);
+      }
+    }
+
     public void Update() {
       foreach (IGroup group in groups)
-        foreach (IHardware hardware in group.Hardware)
+        foreach (IHardware hardware in group.Hardware) {
           hardware.Update();
+          SubHardwareUpdate(hardware);
+        }
     }
 
     public bool HDDEnabled {
@@ -131,6 +139,38 @@ namespace OpenHardwareMonitor.Hardware {
       writer.WriteLine();
     }
 
+    private void ReportHardwareTree(IHardware hardware, TextWriter w, 
+      string space) 
+    {
+      w.WriteLine("{0}|", space);
+      w.WriteLine("{0}+-+ {1} ({2})", 
+        space, hardware.Name, hardware.Identifier);
+      foreach (ISensor sensor in hardware.Sensors) {
+        w.WriteLine("{0}|   +- {1} : {2} : {3} : {4}",
+          space, sensor.SensorType, sensor.Index, sensor.Name,
+            string.Format(CultureInfo.InvariantCulture, "{0} : {1} : {2}",
+            sensor.Value, sensor.Min, sensor.Max));
+        foreach (IParameter parameter in sensor.Parameters) {
+          w.WriteLine("{0}|      +- {1} : {2} : {3}",
+            space, parameter.Name, parameter.IsDefault,
+            string.Format(CultureInfo.InvariantCulture, "{0} : {1}",
+              parameter.DefaultValue, parameter.Value));
+        }
+      }
+      foreach (IHardware subHardware in hardware.SubHardware)
+        ReportHardwareTree(subHardware, w, "|   ");
+    }
+
+    private void ReportHardware(IHardware hardware, TextWriter w) {
+      string hardwareReport = hardware.GetReport();
+      if (hardwareReport != null && hardwareReport != "") {
+        NewSection(w);
+        w.Write(hardwareReport);
+      }
+      foreach (IHardware subHardware in hardware.SubHardware)
+        ReportHardware(subHardware, w);
+    }
+
     public void SaveReport(Version version) {
 
       using (TextWriter w =
@@ -146,23 +186,8 @@ namespace OpenHardwareMonitor.Hardware {
 
         NewSection(w);
         foreach (IGroup group in groups) {
-          foreach (IHardware hardware in group.Hardware) {
-            w.WriteLine("|");
-            w.WriteLine("+-+ {0} ({1})",
-              new object[] { hardware.Name, hardware.Identifier });
-            foreach (ISensor sensor in hardware.Sensors) {
-              w.WriteLine("|   +- {0} : {1} : {2} : {3}",
-                sensor.SensorType, sensor.Index, sensor.Name, 
-                  string.Format(CultureInfo.InvariantCulture, "{0} : {1} : {2}", 
-                  sensor.Value, sensor.Min, sensor.Max) );
-              foreach (IParameter parameter in sensor.Parameters) {
-                w.WriteLine("|      +- {0} : {1} : {2}",
-                  parameter.Name, parameter.IsDefault,   
-                  string.Format(CultureInfo.InvariantCulture, "{0} : {1}", 
-                    parameter.DefaultValue, parameter.Value) );
-              }
-            }
-          }
+          foreach (IHardware hardware in group.Hardware)
+            ReportHardwareTree(hardware, w, "");          
         }
         w.WriteLine();
 
@@ -174,13 +199,9 @@ namespace OpenHardwareMonitor.Hardware {
           }
 
           IHardware[] hardwareArray = group.Hardware;
-          foreach (IHardware hardware in hardwareArray) {
-            string hardwareReport = hardware.GetReport();
-            if (hardwareReport != null && hardwareReport != "") {
-              NewSection(w);
-              w.Write(hardwareReport);
-            }
-          }
+          foreach (IHardware hardware in hardwareArray)
+            ReportHardware(hardware, w);
+          
         }
       }
     }
@@ -198,8 +219,6 @@ namespace OpenHardwareMonitor.Hardware {
 
     public event HardwareEventHandler HardwareAdded;
     public event HardwareEventHandler HardwareRemoved;
-
-
 
   }
 }

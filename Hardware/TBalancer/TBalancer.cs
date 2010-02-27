@@ -262,6 +262,10 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         this.portName.TrimStart(new char[]{'/'}).ToLower(); }
     }
 
+    public IHardware[] SubHardware {
+      get { return new IHardware[0]; }
+    }
+
     public ISensor[] Sensors {
       get { return active.ToArray(); }
     }
