@@ -43,6 +43,10 @@ namespace OpenHardwareMonitor.Hardware {
 
     private List<ISensor> active = new List<ISensor>();
 
+    public IHardware[] SubHardware {
+      get { return new IHardware[0]; }
+    }
+
     public ISensor[] Sensors {
       get { return active.ToArray(); }
     }
@@ -63,7 +67,9 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
+    #pragma warning disable 67
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
+    #pragma warning restore 67
   }
 }

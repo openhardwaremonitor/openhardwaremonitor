@@ -59,13 +59,17 @@ namespace OpenHardwareMonitor.GUI {
       hardware.SensorRemoved -= new SensorEventHandler(SensorRemoved);
       foreach (ISensor sensor in hardware.Sensors) 
         SensorRemoved(sensor);
+      foreach (IHardware subHardware in hardware.SubHardware)
+        HardwareRemoved(subHardware);
     }
-   
+
     private void HardwareAdded(IHardware hardware) {
       foreach (ISensor sensor in hardware.Sensors)
         SensorAdded(sensor);
       hardware.SensorAdded += new SensorEventHandler(SensorAdded);
       hardware.SensorRemoved += new SensorEventHandler(SensorRemoved);
+      foreach (IHardware subHardware in hardware.SubHardware)
+        HardwareAdded(subHardware);
     }
 
     private void SensorAdded(ISensor sensor) {

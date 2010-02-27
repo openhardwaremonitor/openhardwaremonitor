@@ -37,78 +37,29 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
-namespace OpenHardwareMonitor.Hardware.HDD {
-  public class HDD : IHardware {
+namespace OpenHardwareMonitor.Hardware.Mainboard {
+  public class MainboardGroup : IGroup {
 
-    private const int UPDATE_DIVIDER = 30; // update only every 30s
+    private Mainboard[] mainboards;
 
-    private string name;
-    private IntPtr handle;
-    private int drive;
-    private int attribute;    
-    private Image icon;
-    private Sensor temperature;
-    private int count;
-    
-
-    public HDD(string name, IntPtr handle, int drive, int attribute) {
-      this.name = name;
-      this.handle = handle;
-      this.drive = drive;
-      this.attribute = attribute;
-      this.count = 0;
-      this.icon = Utilities.EmbeddedResources.GetImage("hdd.png");
-      this.temperature = new Sensor("HDD", 0, SensorType.Temperature, this);
-      Update();
+    public MainboardGroup() {
+      mainboards = new Mainboard[1];
+      mainboards[0] = new Mainboard();
     }
 
-
-    public string Name {
-      get { return name; }
-    }
-
-    public string Identifier {
-      get { return "/hdd/" + drive; }
-    }
-
-    public Image Icon {
-      get { return icon; }
-    }
-
-    public IHardware[] SubHardware {
-      get { return new IHardware[0]; }
-    }
-
-    public ISensor[] Sensors {
-      get {
-        return new ISensor[] { temperature };
-      }
+    public void Close() {
+      foreach (Mainboard mainboard in mainboards)
+        mainboard.Close();
     }
 
     public string GetReport() {
       return null;
     }
 
-    public void Update() {
-      if (count == 0) {
-        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
-        temperature.Value = attributes[attribute].RawValue[0];
-      } else {
-        temperature.Value = temperature.Value;
-      }
+    public IHardware[] Hardware {
+      get { return mainboards; }
 
-      count++; count %= UPDATE_DIVIDER; 
     }
-
-    public void Close() {
-      SMART.CloseHandle(handle);
-    }
-
-    #pragma warning disable 67
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
   }
 }

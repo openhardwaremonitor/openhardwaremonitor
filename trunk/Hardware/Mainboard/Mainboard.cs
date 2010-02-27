@@ -38,72 +38,67 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text;
+using OpenHardwareMonitor.Hardware.LPC;
 
-namespace OpenHardwareMonitor.Hardware.HDD {
-  public class HDD : IHardware {
-
-    private const int UPDATE_DIVIDER = 30; // update only every 30s
-
+namespace OpenHardwareMonitor.Hardware.Mainboard {
+  public class Mainboard : IHardware {
+    private SMBIOS smbios;
     private string name;
-    private IntPtr handle;
-    private int drive;
-    private int attribute;    
     private Image icon;
-    private Sensor temperature;
-    private int count;
-    
 
-    public HDD(string name, IntPtr handle, int drive, int attribute) {
-      this.name = name;
-      this.handle = handle;
-      this.drive = drive;
-      this.attribute = attribute;
-      this.count = 0;
-      this.icon = Utilities.EmbeddedResources.GetImage("hdd.png");
-      this.temperature = new Sensor("HDD", 0, SensorType.Temperature, this);
-      Update();
+    private LPCGroup lpcGroup;
+
+    public Mainboard() {
+      this.smbios = new SMBIOS();
+      if (smbios.Board != null && smbios.Board.ProductName != null
+        && smbios.Board.ProductName != "") {
+        if (smbios.Board.Manufacturer == Manufacturer.Unkown)
+          this.name = smbios.Board.ProductName;
+        else
+          this.name = smbios.Board.Manufacturer + " " + 
+            smbios.Board.ProductName;
+      } else {
+        this.name = smbios.Board.Manufacturer.ToString();
+      }
+      this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
+      this.lpcGroup = new LPCGroup();
     }
 
-
     public string Name {
-      get { return name; }
+      get { return name; } 
     }
 
     public string Identifier {
-      get { return "/hdd/" + drive; }
+      get { return "/mainboard"; }
     }
 
     public Image Icon {
       get { return icon; }
     }
 
+    public string GetReport() {
+      StringBuilder r = new StringBuilder(); 
+
+      r.AppendLine("Mainboard");
+      r.AppendLine();           
+      r.Append(smbios.GetReport());
+
+      return r.ToString();
+    }
+
+    public void Update() { }
+
+    public void Close() {
+      lpcGroup.Close();
+    }
+
     public IHardware[] SubHardware {
-      get { return new IHardware[0]; }
+      get { return lpcGroup.Hardware; }
     }
 
     public ISensor[] Sensors {
-      get {
-        return new ISensor[] { temperature };
-      }
-    }
-
-    public string GetReport() {
-      return null;
-    }
-
-    public void Update() {
-      if (count == 0) {
-        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
-        temperature.Value = attributes[attribute].RawValue[0];
-      } else {
-        temperature.Value = temperature.Value;
-      }
-
-      count++; count %= UPDATE_DIVIDER; 
-    }
-
-    public void Close() {
-      SMART.CloseHandle(handle);
+      get { return new ISensor[0]; }
     }
 
     #pragma warning disable 67
