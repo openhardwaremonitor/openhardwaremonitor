@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -47,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware {
     private int index;
     private SensorType sensorType;
     private IHardware hardware;
+    private ReadOnlyArray<IParameter> parameters;
     private float? value;
     private float? min;
     private float? max;
@@ -61,25 +63,32 @@ namespace OpenHardwareMonitor.Hardware {
     private const int MAX_MINUTES = 120;
    
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware)
-      : this(name, index, null, sensorType, hardware) { }
+      IHardware hardware) : this(name, index, null, sensorType, hardware, 
+      new ParameterDescription[0]) { }
 
-    public Sensor(string name, int index, float? limit, 
-      SensorType sensorType, IHardware hardware) 
+    public Sensor(string name, int index, float? limit,
+      SensorType sensorType, IHardware hardware) : this(name, index, limit, 
+      sensorType, hardware, new ParameterDescription[0]) { }    
+
+    public Sensor(string name, int index, float? limit, SensorType sensorType, 
+      IHardware hardware, ParameterDescription[] parameterDescriptions) 
     {
       this.defaultName = name;      
       this.index = index;
       this.defaultLimit = limit;
       this.sensorType = sensorType;
       this.hardware = hardware;
-      string configName =
-        Utilities.Config.Settings[Identifier + "/name"];
+      Parameter[] parameters = new Parameter[parameterDescriptions.Length];
+      for (int i = 0; i < parameters.Length; i++ ) 
+        parameters[i] = new Parameter(parameterDescriptions[i], this);
+      this.parameters = parameters;
+
+      string configName = Config.Settings[Identifier + "/name"];
       if (configName != null)
         this.name = configName;
       else
         this.name = name;
-      string configLimit =
-        Utilities.Config.Settings[Identifier + "/limit"];
+      string configLimit = Config.Settings[Identifier + "/limit"];
       if (configLimit != null && configLimit != "")
         this.limit = float.Parse(configLimit);
       else
@@ -110,12 +119,16 @@ namespace OpenHardwareMonitor.Hardware {
           name = value;          
         else 
           name = defaultName;
-        Utilities.Config.Settings[Identifier + "/name"] = name;
+        Config.Settings[Identifier + "/name"] = name;
       }
     }
 
     public int Index {
       get { return index; }
+    }
+
+    public IReadOnlyArray<IParameter> Parameters {
+      get { return parameters; }
     }
 
     public float? Value {
@@ -156,11 +169,11 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         if (value.HasValue) {
           limit = value;
-          Utilities.Config.Settings[Identifier + "/limit"] =
+          Config.Settings[Identifier + "/limit"] =
             limit.ToString();
         } else {
           limit = defaultLimit;
-          Utilities.Config.Settings[Identifier + "/limit"] = "";          
+          Config.Settings[Identifier + "/limit"] = "";          
         }        
       }
     }

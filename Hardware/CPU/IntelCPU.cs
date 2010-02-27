@@ -40,6 +40,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
@@ -53,15 +55,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private uint stepping;
 
     private Sensor[] coreTemperatures;
+
     private Sensor totalLoad;
     private Sensor[] coreLoads;
     private Sensor[] coreClocks;
     private Sensor busClock;
-
-    private float tjMax = 0;
     private uint logicalProcessors;
     private uint logicalProcessorsPerCore;
     private uint coreCount;
+    private ulong affinityMask;
 
     private CPULoad cpuLoad;
 
@@ -80,6 +82,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       else
         return "CPU Core #" + (i + 1);
     }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern bool GetProcessAffinityMask(IntPtr handle, 
+      out IntPtr processMask, out IntPtr systemMask);
 
     public IntelCPU(string name, uint family, uint model, uint stepping, 
       uint[,] cpuidData, uint[,] cpuidExtData) {
@@ -117,8 +123,30 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         logicalProcessorsPerCore = 1;
       }
 
+      IntPtr processMask, systemMask;
+      GetProcessAffinityMask(Process.GetCurrentProcess().Handle,
+        out processMask, out systemMask);
+      affinityMask = (ulong)systemMask;
+
+      // correct values in case HypeThreading is disabled
+      if (logicalProcessorsPerCore > 1) {
+        ulong affinity = affinityMask;
+        int availableLogicalProcessors = 0;
+        while (affinity != 0) {
+          if ((affinity & 0x1) > 0)
+            availableLogicalProcessors++;
+          affinity >>= 1;
+        }
+        while (logicalProcessorsPerCore > 1 &&
+          availableLogicalProcessors < logicalProcessors) {
+          logicalProcessors >>= 1;
+          logicalProcessorsPerCore >>= 1;
+        }
+      }
+
       coreCount = logicalProcessors / logicalProcessorsPerCore;
-      
+
+      float tjMax;
       switch (family) {
         case 0x06: {
             switch (model) {
@@ -170,7 +198,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax,
-            SensorType.Temperature, this);
+            SensorType.Temperature, this, new ParameterDescription[] { 
+              new ParameterDescription(
+                "TjMax", "TjMax temperature of the core.\n" + 
+                "Temperature = TjMax - TSlope * Value.", tjMax), 
+              new ParameterDescription(
+                "TSlope", "Temperature slope of the digital thermal sensor.\n" + 
+                "Temperature = TjMax - TSlope * Value.", 1)});
         }
       } else {
         coreTemperatures = new Sensor[0];
@@ -237,11 +271,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.AppendLine("Intel CPU");
       r.AppendLine();
       r.AppendFormat("Name: {0}{1}", name, Environment.NewLine);
-      r.AppendFormat("Number of cores: {0}{1}", coreCount, 
+      r.AppendFormat("Number of Cores: {0}{1}", coreCount, 
         Environment.NewLine);
-      r.AppendFormat("Threads per core: {0}{1}", logicalProcessorsPerCore,
+      r.AppendFormat("Threads per Core: {0}{1}", logicalProcessorsPerCore,
         Environment.NewLine);
-      r.AppendFormat("TjMax: {0}{1}", tjMax, Environment.NewLine);
+      r.AppendFormat("Affinity Mask: 0x{0}{1}", affinityMask.ToString("X"),
+        Environment.NewLine);  
       r.AppendLine();
 
       for (int i = 0; i < coreCount; i++) {
@@ -269,7 +304,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {
             // get the dist from tjMax from bits 22:16
-            coreTemperatures[i].Value = tjMax - ((eax & 0x007F0000) >> 16);
+            float deltaT = ((eax & 0x007F0000) >> 16);
+            float tjMax = coreTemperatures[i].Parameters[0].Value;
+            float tSlope = coreTemperatures[i].Parameters[1].Value;
+            coreTemperatures[i].Value = tjMax - tSlope * deltaT;
             ActivateSensor(coreTemperatures[i]);
           } else {
             DeactivateSensor(coreTemperatures[i]);

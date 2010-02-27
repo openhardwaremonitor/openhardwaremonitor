@@ -63,7 +63,7 @@ namespace OpenHardwareMonitor.GUI {
       InitializeComponent();
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
-      plotPanel.Font = SystemFonts.MessageBoxFont;      
+      plotPanel.Font = SystemFonts.MessageBoxFont;
       
       nodeCheckBox.IsVisibleValueNeeded += 
         new EventHandler<NodeControlValueEventArgs>(
@@ -320,6 +320,13 @@ namespace OpenHardwareMonitor.GUI {
         if (node != null && node.Sensor != null) {
 
           sensorContextMenuStrip.Items.Clear();
+          if (node.Sensor.Parameters.Length > 0) {
+            ToolStripMenuItem item = new ToolStripMenuItem("Parameters...");
+            item.Click += delegate(object obj, EventArgs args) {
+              ShowParameterForm(node.Sensor);
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          }
           if (sensorSystemTray.Contains(node.Sensor)) {
             ToolStripMenuItem item = new ToolStripMenuItem("Remove From Tray");
             item.Click += delegate(object obj, EventArgs args) {
@@ -397,6 +404,22 @@ namespace OpenHardwareMonitor.GUI {
         return;
 
       sensorSystemTray.Remove(sensor);
+    }
+
+    private void ShowParameterForm(ISensor sensor) {
+      ParameterForm form = new ParameterForm();
+      form.Parameters = sensor.Parameters;
+      form.captionLabel.Text = sensor.Name;
+      form.ShowDialog();
+    }
+
+    private void treeView_NodeMouseDoubleClick(object sender, 
+      TreeNodeAdvMouseEventArgs e) {
+      SensorNode node = e.Node.Tag as SensorNode;
+      if (node != null && node.Sensor != null && 
+        node.Sensor.Parameters.Length > 0) {
+        ShowParameterForm(node.Sensor);
+      }
     }
   }
 }

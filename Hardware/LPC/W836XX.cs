@@ -73,7 +73,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       new string[] {"CPU", "Auxiliary", "System"};
     private byte[] TEMPERATURE_REG = new byte[] { 0x50, 0x50, 0x27 };
     private byte[] TEMPERATURE_BANK = new byte[] { 1, 2, 0 };
-    private byte[] TEMPERATURE_SEL = new byte[] { 1, 2, 0 };
 
     private byte[] FAN_TACHO_REG = new byte[] { 0x28, 0x29, 0x2A, 0x3F, 0x53 };
     private byte[] FAN_TACHO_BANK = new byte[] { 0, 0, 0, 0, 5 };       
@@ -112,26 +111,42 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       available = IsWinbondVendor();
 
+      ParameterDescription[] parameter = new ParameterDescription[] {
+        new ParameterDescription("Offset", "Temperature offset.", 0)
+      };
       List<Sensor> list = new List<Sensor>();
       switch (chip) {
-        case Chip.W83627DHG:
-          // do not add temperature sensor registers that read PECI agents
+        case Chip.W83667HG:
+        case Chip.W83667HGB:
+          // do not add temperature sensor registers that read PECI
+          byte flag = ReadByte(0, TEMPERATURE_SOURCE_SELECT_REG);
+          if ((flag & 0x04) == 0)
+            list.Add(new Sensor(TEMPERATURE_NAME[0], 0, null,
+              SensorType.Temperature, this, parameter));
+          if ((flag & 0x40) == 0)
+            list.Add(new Sensor(TEMPERATURE_NAME[1], 1, null,
+              SensorType.Temperature, this, parameter));
+          list.Add(new Sensor(TEMPERATURE_NAME[2], 2, null,
+            SensorType.Temperature, this, parameter));
+          break;
+        case Chip.W83627DHG:        
+        case Chip.W83627DHGP:
+          // do not add temperature sensor registers that read PECI
           byte sel = ReadByte(0, TEMPERATURE_SOURCE_SELECT_REG);
           if ((sel & 0x07) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[0], 0,
-              SensorType.Temperature, this));
+            list.Add(new Sensor(TEMPERATURE_NAME[0], 0, null,
+              SensorType.Temperature, this, parameter));
           if ((sel & 0x70) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[1], 1,
-              SensorType.Temperature, this));
-          list.Add(new Sensor(TEMPERATURE_NAME[2], 2,
-            SensorType.Temperature, this));
+            list.Add(new Sensor(TEMPERATURE_NAME[1], 1, null,
+              SensorType.Temperature, this, parameter));
+          list.Add(new Sensor(TEMPERATURE_NAME[2], 2, null,
+            SensorType.Temperature, this, parameter));
           break;
         default:
-          // no PECI support or extra sensor report register
-          for (int i = 0; i < TEMPERATURE_NAME.Length; i++) {
-            list.Add(new Sensor(TEMPERATURE_NAME[i], i,
-              SensorType.Temperature, this));
-          }
+          // no PECI support, add all sensors
+          for (int i = 0; i < TEMPERATURE_NAME.Length; i++)
+            list.Add(new Sensor(TEMPERATURE_NAME[i], i, null,
+              SensorType.Temperature, this, parameter));
           break;
       }
       temperatures = list.ToArray();
@@ -212,29 +227,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in temperatures) {
-        int value;
-        switch (chip) {
-          case Chip.W83667HG:
-          case Chip.W83667HGB:
-            WriteByte(0, 0x7D, TEMPERATURE_SEL[sensor.Index]);
-            value = ((sbyte)ReadByte(0, 0x7E)) << 1;
-            break;
-          case Chip.W83627DHGP:
-            WriteByte(0, 0x7C, TEMPERATURE_SEL[sensor.Index]);
-            value = ((sbyte)ReadByte(0, 0x7D)) << 1;
-            break;
-          default:
-            value = ((sbyte)ReadByte(TEMPERATURE_BANK[sensor.Index],
-              TEMPERATURE_REG[sensor.Index])) << 1;
-            if (TEMPERATURE_BANK[sensor.Index] > 0) {
-              value |= ReadByte(TEMPERATURE_BANK[sensor.Index],
-                (byte)(TEMPERATURE_REG[sensor.Index] + 1)) >> 7;
-            }            
-            break;
-        }
+        int value = ((sbyte)ReadByte(TEMPERATURE_BANK[sensor.Index],
+          TEMPERATURE_REG[sensor.Index])) << 1;
+        if (TEMPERATURE_BANK[sensor.Index] > 0) 
+          value |= ReadByte(TEMPERATURE_BANK[sensor.Index],
+            (byte)(TEMPERATURE_REG[sensor.Index] + 1)) >> 7;
+
         float temperature = value / 2.0f;
         if (temperature <= 125 && temperature >= -55) {
-          sensor.Value = temperature;
+          sensor.Value = temperature + sensor.Parameters[0].Value;
           ActivateSensor(sensor);
         } else {
           DeactivateSensor(sensor);

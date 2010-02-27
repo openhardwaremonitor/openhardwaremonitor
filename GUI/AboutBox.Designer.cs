@@ -122,9 +122,9 @@ namespace OpenHardwareMonitor.GUI {
       this.label3.Location = new System.Drawing.Point(86, 36);
       this.label3.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
       this.label3.Name = "label3";
-      this.label3.Size = new System.Drawing.Size(99, 15);
+      this.label3.Size = new System.Drawing.Size(132, 15);
       this.label3.TabIndex = 4;
-      this.label3.Text = "Version " + System.Windows.Forms.Application.ProductVersion + " Beta";
+      this.label3.Text = "Version 9.0.30729.1 Beta";
       // 
       // label4
       // 
@@ -189,6 +189,7 @@ namespace OpenHardwareMonitor.GUI {
       this.MaximizeBox = false;
       this.MinimizeBox = false;
       this.Name = "AboutBox";
+      this.ShowInTaskbar = false;
       this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
       this.Text = "About";
       ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();

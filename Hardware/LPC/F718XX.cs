@@ -70,8 +70,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       temperatures = new Sensor[3];
       for (int i = 0; i < temperatures.Length; i++)
-        temperatures[i] = new Sensor("Temperature #" + (i + 1), i,
-          SensorType.Temperature, this);
+        temperatures[i] = new Sensor("Temperature #" + (i + 1), i, null,
+          SensorType.Temperature, this, new ParameterDescription[] {
+            new ParameterDescription("Offset", "Temperature offset.", 0)
+          });
 
       fans = new Sensor[4];
       for (int i = 0; i < fans.Length; i++)
@@ -123,7 +125,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       foreach (Sensor sensor in temperatures) {
         sbyte value = (sbyte)ReadByte((byte)(
           TEMPERATURE_BASE_REG + 2 * sensor.Index));
-        sensor.Value = value;
+        sensor.Value = value + sensor.Parameters[0].Value;
         if (value < sbyte.MaxValue && value > 0)
           ActivateSensor(sensor);
         else

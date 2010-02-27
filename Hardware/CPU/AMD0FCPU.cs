@@ -79,13 +79,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
         
+      offset = -49.0f;
+
+      // AM2+ 65nm +21 offset
+      if (model >= 0x69 && model != 0xc1 && model != 0x6c && model != 0x7c) 
+        offset += 21;
+
       coreTemperatures = new Sensor[coreCount];
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreCount; i++) {
         coreTemperatures[i] =
           new Sensor("Core #" + (i + 1), i, SensorType.Temperature, this);
-        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
-          SensorType.Load, this);
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1, null,
+          SensorType.Load, this, new ParameterDescription[] {
+            new ParameterDescription("Offset", 
+              "Temperature offset of the thermal sensor.\n" + 
+              "Temperature = Value + Offset.", offset)
+          });
       }
 
       cpuLoad = new CPULoad(coreCount, 1);
@@ -97,12 +107,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
         PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID, 0);
-
-      offset = -49.0f;
-
-      // AM2+ 65nm +21 offset
-      if (model >= 0x69 && model != 0xc1 && model != 0x6c && model != 0x7c) 
-        offset += 21;
 
       Update();                   
     }
@@ -133,7 +137,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             uint value;
             if (WinRing0.ReadPciConfigDwordEx(
               pciAddress, THERMTRIP_STATUS_REGISTER, out value)) {
-              coreTemperatures[i].Value = ((value >> 16) & 0xFF) + offset;
+              coreTemperatures[i].Value = ((value >> 16) & 0xFF) + 
+                coreTemperatures[i].Parameters[0].Value;
               ActivateSensor(coreTemperatures[i]);
             } else {
               DeactivateSensor(coreTemperatures[i]);

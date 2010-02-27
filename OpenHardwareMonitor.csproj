@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}</ProjectGuid>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputType>WinExe</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
@@ -58,6 +58,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\ParameterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\ParameterForm.Designer.cs">
+      <DependentUpon>ParameterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\SensorNotifyIcon.cs" />
     <Compile Include="GUI\SensorSystemTray.cs" />
     <Compile Include="GUI\TypeNode.cs" />
@@ -68,9 +74,11 @@
     <Compile Include="Hardware\HDD\HDD.cs" />
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
+    <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
+    <Compile Include="Hardware\Parameter.cs" />
     <Compile Include="Hardware\SMBIOS\SMBIOSGroup.cs" />
     <Compile Include="Hardware\LPC\W836XX.cs" />
     <Compile Include="Hardware\Computer.cs" />
@@ -84,7 +92,7 @@
     <Compile Include="Hardware\ATI\ADL.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
-    <Compile Include="Utilities\Configuration.cs" />
+    <Compile Include="Utilities\Config.cs" />
     <Compile Include="Utilities\CrashReport.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="GUI\HardwareNode.cs" />
@@ -104,6 +112,7 @@
     <Compile Include="Hardware\Nvidia\NvidiaGroup.cs" />
     <Compile Include="Utilities\HexStringArray.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
+    <Compile Include="Utilities\IReadOnlyArray.cs" />
     <Compile Include="Utilities\PInvokeDelegateFactory.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>
@@ -119,6 +128,7 @@
     <Compile Include="Hardware\TBalancer\TBalancer.cs" />
     <Compile Include="Hardware\TBalancer\TBalancerGroup.cs" />
     <Compile Include="Hardware\WinRing0.cs" />
+    <Compile Include="Utilities\ReadOnlyArray.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\AboutBox.resx">
@@ -157,6 +167,9 @@
     <EmbeddedResource Include="Resources\smallicon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GUI\ParameterForm.resx">
+      <DependentUpon>ParameterForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\flow.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

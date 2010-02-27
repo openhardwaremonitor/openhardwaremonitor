@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -55,15 +56,21 @@ namespace OpenHardwareMonitor.Hardware {
   }
 
   public interface ISensor {
+
     IHardware Hardware { get; }
+
     SensorType SensorType { get; }
     string Identifier { get; }
     string Name { get; set; }
     int Index { get; }
+
+    IReadOnlyArray<IParameter> Parameters { get; }
+
     float? Value { get; }
     float? Min { get; }
     float? Max { get; }
     float? Limit { get; set; }
+
     IEnumerable<ISensorEntry> Plot { get; }
   }
 
