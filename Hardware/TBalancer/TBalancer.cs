@@ -214,7 +214,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         for (int i = 0; i < sensorhubFlows.Length; i++)
           if (data[231 + i] > 0 && data[234] > 0) {
-            float pulsesPerSecond = ((float)data[231 + i]) / data[234];
+            float pulsesPerSecond = (data[231 + i] * 4.0f) / data[234];
             float pulsesPerLiter = sensorhubFlows[i].Parameters[0].Value;
             sensorhubFlows[i].Value = pulsesPerSecond * 3600 / pulsesPerLiter;
             ActivateSensor(sensorhubFlows[i]);
