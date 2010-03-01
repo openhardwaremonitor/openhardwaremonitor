@@ -167,6 +167,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           break;
         case Chip.W83627HF:
         case Chip.W83627THF:
+        case Chip.W83687THF:
           fanNames = new string[] { "System", "CPU", "Auxiliary" };
           voltageGains = new float[] { 2, 1, 2, 1, 1, 1, 1, 2 };
           voltages = new Sensor[3];
@@ -199,7 +200,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       foreach (Sensor sensor in voltages) {
         if (sensor.Index < 7) {
           // two special VCore measurement modes for W83627THF
-          if (chip == Chip.W83627THF && sensor.Index == 0) {
+          if ((chip == Chip.W83627HF || chip == Chip.W83627THF || 
+            chip == Chip.W83687THF) && sensor.Index == 0) 
+          {
             byte vrmConfiguration = ReadByte(0, 0x18);
             int value = ReadByte(0, VOLTAGE_BASE_REG);
             if ((vrmConfiguration & 0x01) == 0)
