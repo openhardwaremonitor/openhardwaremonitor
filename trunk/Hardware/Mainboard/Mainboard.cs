@@ -84,6 +84,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       r.AppendLine();           
       r.Append(smbios.GetReport());
 
+      r.Append(lpcGroup.GetReport());
+
       return r.ToString();
     }
 

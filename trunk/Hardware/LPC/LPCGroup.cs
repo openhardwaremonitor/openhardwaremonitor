@@ -42,7 +42,9 @@ using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
   public class LPCGroup : IGroup {
+
     private List<IHardware> hardware = new List<IHardware>();
+    private StringBuilder report = new StringBuilder();
 
     private Chip chip = Chip.Unknown;
 
@@ -108,6 +110,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);      
     }
 
+    // SMSC
+    private void SMSCEnter() {
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
+    }
+
+    private void SMSCExit() {
+      WinRing0.WriteIoPortByte(registerPort, 0xAA);
+    }
+
     public LPCGroup() {
       if (!WinRing0.IsAvailable)
         return;
@@ -167,6 +178,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
             } break;
+          case 0x85:
+            switch (revision) {
+              case 0x41:
+                chip = Chip.W83687THF;
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+                break;
+            } break;
           case 0x88:
             switch (revision & 0xF0) {
               case 0x60:
@@ -203,7 +221,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 break;
             } break; 
         }
-        if (chip != Chip.Unknown) {
+        if (chip == Chip.Unknown) {
+          if (id != 0 && id != 0xff) {
+            WinbondFintekExit();
+
+            report.Append("Chip ID: Unknown Winbond / Fintek with ID 0x"); 
+            report.AppendLine(((id << 8) | revision).ToString("X"));
+            report.AppendLine();
+          }
+        } else {
 
           Select(logicalDeviceNumber);
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);          
@@ -216,16 +242,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           WinbondFintekExit();
 
-          if (address != verify)
+          if (address != verify) {            
+            report.Append("Chip ID: 0x"); 
+            report.AppendLine(chip.ToString("X"));
+            report.Append("Chip revision: 0x"); 
+            report.AppendLine(revision.ToString("X"));
+            report.AppendLine("Error: Address verification failed");
+            report.AppendLine();
             return;
+          }
 
           // some Fintek chips have address register offset 0x05 added already
           if ((address & 0x07) == 0x05)
             address &= 0xFFF8;
 
-          if (address < 0x100 || (address & 0xF007) != 0)
+          if (address < 0x100 || (address & 0xF007) != 0) {            
+            report.Append("Chip ID: 0x");
+            report.AppendLine(chip.ToString("X"));
+            report.Append("Chip revision: 0x");
+            report.AppendLine(revision.ToString("X"));
+            report.Append("Error: Invalid address 0x");
+            report.AppendLine(address.ToString("X"));
+            report.AppendLine();
             return;
-          
+          }
+
           switch (chip) {
             case Chip.W83627DHG:
             case Chip.W83627DHGP:
@@ -234,6 +275,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             case Chip.W83627THF:
             case Chip.W83667HG:
             case Chip.W83667HGB:
+            case Chip.W83687THF:
               W836XX w836XX = new W836XX(chip, revision, address);
               if (w836XX.IsAvailable)
                 hardware.Add(w836XX);
@@ -255,15 +297,23 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         IT87Enter();
 
-        switch (ReadWord(CHIP_ID_REGISTER)) {
+        ushort chipID = ReadWord(CHIP_ID_REGISTER);
+        switch (chipID) {
           case 0x8716: chip = Chip.IT8716F; break;
           case 0x8718: chip = Chip.IT8718F; break;
           case 0x8720: chip = Chip.IT8720F; break;
-          case 0x8726: chip = Chip.IT8726F; break;
+          case 0x8726: chip = Chip.IT8726F; break; 
           default: chip = Chip.Unknown; break;
         }
+        if (chip == Chip.Unknown) {
+          if (chipID != 0 && chipID != 0xffff) {
+            IT87Exit();
 
-        if (chip != Chip.Unknown) {
+            report.Append("Chip ID: Unknown ITE with ID 0x");
+            report.AppendLine(chipID.ToString("X"));
+            report.AppendLine();
+          }
+        } else {
           Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
@@ -271,12 +321,38 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           IT87Exit();
 
-          if (address != verify || address < 0x100 || (address & 0xF007) != 0)
+          if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
+            report.Append("Chip ID: 0x");
+            report.AppendLine(chip.ToString("X"));            
+            report.Append("Error: Invalid address 0x");
+            report.AppendLine(address.ToString("X"));
+            report.AppendLine();
             return;
+          }
 
           IT87XX it87 = new IT87XX(chip, address);
           if (it87.IsAvailable)
             hardware.Add(it87);
+
+          return;
+        }
+
+        SMSCEnter();
+
+        chipID = ReadWord(CHIP_ID_REGISTER);
+        switch (chipID) {
+          default: chip = Chip.Unknown; break;
+        }
+        if (chip == Chip.Unknown) {
+          if (chipID != 0 && chipID != 0xffff) {
+            SMSCExit();
+
+            report.Append("Chip ID: Unknown SMSC with ID 0x");
+            report.AppendLine(chipID.ToString("X"));
+            report.AppendLine();
+          }
+        } else {
+          SMSCExit();
 
           return;
         }
@@ -290,7 +366,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public string GetReport() {
-      return null;
+      if (report.Length > 0) {
+        report.Insert(0, "LPCIO" + Environment.NewLine +
+          Environment.NewLine);        
+        return report.ToString();
+      } else
+        return null;
     }
 
     public void Close() { }
