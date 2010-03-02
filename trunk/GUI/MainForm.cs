@@ -158,8 +158,8 @@ namespace OpenHardwareMonitor.GUI {
         Show();
       }
 
-      // Create a handle, otherwise calling Close() does not fire FormClosed
-      CreateHandle();
+      // Create a handle, otherwise calling Close() does not fire FormClosed     
+      IntPtr handle = Handle;
     }
 
     private void SubHardwareAdded(IHardware hardware, Node node) {
