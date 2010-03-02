@@ -87,6 +87,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private static extern bool GetProcessAffinityMask(IntPtr handle, 
       out IntPtr processMask, out IntPtr systemMask);
 
+    private float[] Floats(float f) {
+      float[] result = new float[coreCount];
+      for (int i = 0; i < coreCount; i++)
+        result[i] = f;
+      return result;
+    }
+
     public IntelCPU(string name, uint family, uint model, uint stepping, 
       uint[,] cpuidData, uint[,] cpuidExtData) {
       
@@ -146,7 +153,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       coreCount = logicalProcessors / logicalProcessorsPerCore;
 
-      float tjMax;
+      float[] tjMax;
       switch (family) {
         case 0x06: {
             switch (model) {
@@ -155,53 +162,59 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   case 0x06: // B2
                     switch (coreCount) {
                       case 2:
-                        tjMax = 80 + 10; break;
+                        tjMax = Floats(80 + 10); break;
                       case 4:
-                        tjMax = 90 + 10; break;
+                        tjMax = Floats(90 + 10); break;
                       default:
-                        tjMax = 85 + 10; break;
+                        tjMax = Floats(85 + 10); break;
                     }
-                    tjMax = 80 + 10; break;
+                    tjMax = Floats(80 + 10); break;
                   case 0x0B: // G0
-                    tjMax = 90 + 10; break;
+                    tjMax = Floats(90 + 10); break;
                   case 0x0D: // M0
-                    tjMax = 85 + 10; break;
+                    tjMax = Floats(85 + 10); break;
                   default:
-                    tjMax = 85 + 10; break;
+                    tjMax = Floats(85 + 10); break;
                 } break;
               case 0x17: // Intel Core (45nm)
-                tjMax = 100; break;
+                tjMax = Floats(100); break;
               case 0x1C: // Intel Atom 
-                tjMax = 90; break;
+                tjMax = Floats(90); break;
               case 0x1A: // Intel Core i7 LGA1366 (45nm)
               case 0x1E: // Intel Core i5, i7 LGA1156 (45nm)
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
                 uint eax, edx;
-                if (WinRing0.Rdmsr(IA32_TEMPERATURE_TARGET, out eax, out edx)) {
-                  tjMax = (eax >> 16) & 0xFF;
-                } else {
-                  tjMax = 100;
+                tjMax = new float[coreCount];
+                for (int i = 0; i < coreCount; i++) {
+                  if (WinRing0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
+                    out edx, (UIntPtr)(
+                    1 << (int)(logicalProcessorsPerCore * i)))) 
+                  {
+                    tjMax[i] = (eax >> 16) & 0xFF;
+                  } else {
+                    tjMax[i] = 100;
+                  }
                 }
                 if (WinRing0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
                   maxNehalemMultiplier = (eax >> 8) & 0xff;
                 }
                 break;
               default:
-                tjMax = 100; break;
+                tjMax = Floats(100); break;
             }
           } break;
-        default: tjMax = 100; break;
+        default: tjMax = Floats(100); break;
       }
 
       // check if processor supports a digital thermal sensor
       if (cpuidData.GetLength(0) > 6 && (cpuidData[6, 0] & 1) != 0) {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
-          coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax,
+          coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax[i],
             SensorType.Temperature, this, new ParameterDescription[] { 
               new ParameterDescription(
                 "TjMax", "TjMax temperature of the core.\n" + 
-                "Temperature = TjMax - TSlope * Value.", tjMax), 
+                "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
               new ParameterDescription(
                 "TSlope", "Temperature slope of the digital thermal sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", 1)});
