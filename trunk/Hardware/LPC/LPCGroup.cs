@@ -137,6 +137,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         switch (id) {
           case 0x05:
             switch (revision) {
+              case 0x07:
+                chip = Chip.F71858;
+                logicalDeviceNumber = F71858_HARDWARE_MONITOR_LDN;
+                break;
               case 0x41:
                 chip = Chip.F71882;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
@@ -235,9 +239,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);          
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
-          
-          ushort vendorID = 0;
-          if (chip == Chip.F71862 || chip == Chip.F71882 || chip == Chip.F71889)
+
+          ushort vendorID = FINTEK_VENDOR_ID;
+          if (chip == Chip.F71858 || chip == Chip.F71862 || 
+            chip == Chip.F71882 || chip == Chip.F71889)
             vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
           WinbondFintekExit();
@@ -280,12 +285,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               if (w836XX.IsAvailable)
                 hardware.Add(w836XX);
               break;
+            case Chip.F71858:
             case Chip.F71862:
             case Chip.F71882:
             case Chip.F71889: 
-              if (vendorID == FINTEK_VENDOR_ID)
-                hardware.Add(new F718XX(chip, address));
-              break;
             case Chip.F71869:
               hardware.Add(new F718XX(chip, address));
               break;
