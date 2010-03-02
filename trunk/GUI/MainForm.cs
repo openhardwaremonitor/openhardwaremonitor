@@ -157,6 +157,9 @@ namespace OpenHardwareMonitor.GUI {
       } else {
         Show();
       }
+
+      // Create a handle, otherwise calling Close() does not fire FormClosed
+      CreateHandle();
     }
 
     private void SubHardwareAdded(IHardware hardware, Node node) {
@@ -233,7 +236,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void exitToolStripMenuItem_Click(object sender, EventArgs e) {
-      Close();
+      Close();      
     }
 
     private void timer_Tick(object sender, EventArgs e) {

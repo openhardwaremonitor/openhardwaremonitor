@@ -59,6 +59,7 @@ namespace OpenHardwareMonitor.GUI {
     private Brush brush;
     private Brush darkBrush;
     private Pen pen;
+    private Font font;
 
     public SensorNotifyIcon(SensorSystemTray sensorSystemTray, ISensor sensor,
       bool balloonTip) 
@@ -73,6 +74,7 @@ namespace OpenHardwareMonitor.GUI {
       Color = Config.Get(sensor.Identifier + "/traycolor", defaultColor);      
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
+      this.font = new Font(SystemFonts.StatusFont.FontFamily, 9);
 
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
       ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
@@ -134,6 +136,7 @@ namespace OpenHardwareMonitor.GUI {
       if (darkBrush != null)
         darkBrush.Dispose();
       pen.Dispose();
+      font.Dispose();
       graphics.Dispose();
       graphics = null;
       bitmap.Dispose();
@@ -161,7 +164,7 @@ namespace OpenHardwareMonitor.GUI {
     private Icon CreateTransparentIcon() {
 
       graphics.Clear(Color.Black);
-      TextRenderer.DrawText(graphics, GetString(), SystemFonts.StatusFont,
+      TextRenderer.DrawText(graphics, GetString(), font,
         new Point(-2, 0), Color.White, Color.Black);
 
       BitmapData data = bitmap.LockBits(
