@@ -19,6 +19,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     W83667HG = 0xA510,
     W83667HGB = 0xB350,
     W83687THF = 0x8541,
+    F71858 = 0x0507,
     F71862 = 0x0601, 
     F71869 = 0x0814,
     F71882 = 0x0541,

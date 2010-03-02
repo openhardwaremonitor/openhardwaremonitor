@@ -51,6 +51,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
 
       switch (chip) {
+        case Chip.F71858: name = "Fintek F71858"; break;
         case Chip.F71862: name = "Fintek F71862"; break;
         case Chip.F71869: name = "Fintek F71869"; break;
         case Chip.F71882: name = "Fintek F71882"; break;
