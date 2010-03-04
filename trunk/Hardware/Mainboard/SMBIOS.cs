@@ -200,13 +200,16 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "ASUSTeK Computer INC.":
             manufacturer = Manufacturer.ASUS; break;
           case "DFI":
-          case "DFI Inc.:":
+          case "DFI Inc.":            
             manufacturer = Manufacturer.DFI; break;
           case "EPoX COMPUTER CO., LTD":
             manufacturer = Manufacturer.EPoX; break;
           case "Gigabyte Technology Co., Ltd.":
             manufacturer = Manufacturer.Gigabyte; break;
+          case "IBM":
+            manufacturer = Manufacturer.IBM; break;
           case "MICRO-STAR INTERNATIONAL CO., LTD":
+          case "MICRO-STAR INTERNATIONAL CO.,LTD":
             manufacturer = Manufacturer.MSI; break;
           default:
             manufacturer = Manufacturer.Unkown; break;
