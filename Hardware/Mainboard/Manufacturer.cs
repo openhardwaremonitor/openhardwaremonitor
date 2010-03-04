@@ -45,6 +45,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     DFI,
     EPoX,
     Gigabyte,
+    IBM,
     MSI,
     Unkown    
   }

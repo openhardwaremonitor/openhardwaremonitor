@@ -74,7 +74,7 @@ namespace OpenHardwareMonitor.GUI {
       Color = Config.Get(sensor.Identifier + "/traycolor", defaultColor);      
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
-      this.font = new Font(SystemFonts.StatusFont.FontFamily, 9);
+      this.font = new Font(SystemFonts.MessageBoxFont.FontFamily, 9);
 
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
       ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
