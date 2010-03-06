@@ -178,7 +178,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         return;
       }
 
-      if (data[1] == 255) { // bigNG
+      if (data[1] == 255 || data[1] == 88) { // bigNG
 
         if (data[274] != protocolVersion) 
           return;
