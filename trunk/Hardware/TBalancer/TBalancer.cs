@@ -233,7 +233,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
               });
 
           if ((data[136] & (1 << i)) == 0) // pwm mode
-            fans[i].Value = fans[i].Parameters[0].Value * 0.01f * data[156 + i];
+            fans[i].Value = fans[i].Parameters[0].Value * 0.02f * data[137 + i];
           else // analog mode
             fans[i].Value = fans[i].Parameters[0].Value * 0.01f * data[141 + i]; 
           ActivateSensor(fans[i]);
