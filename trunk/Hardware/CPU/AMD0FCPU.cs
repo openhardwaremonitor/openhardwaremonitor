@@ -50,8 +50,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private uint pciAddress;
 
-    private Sensor[] coreTemperatures;
-    private float offset;
+    private Sensor[] coreTemperatures;    
 
     private Sensor totalLoad;
     private Sensor[] coreLoads;
@@ -79,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
         
-      offset = -49.0f;
+      float offset = -49.0f;
 
       // AM2+ 65nm +21 offset
       if (model >= 0x69 && model != 0xc1 && model != 0x6c && model != 0x7c) 
@@ -89,13 +88,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreCount; i++) {
         coreTemperatures[i] =
-          new Sensor("Core #" + (i + 1), i, SensorType.Temperature, this);
-        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1, null,
-          SensorType.Load, this, new ParameterDescription[] {
-            new ParameterDescription("Offset", 
+          new Sensor("Core #" + (i + 1), i, null, SensorType.Temperature, this,
+            new ParameterDescription[] { new ParameterDescription("Offset", 
               "Temperature offset of the thermal sensor.\n" + 
               "Temperature = Value + Offset.", offset)
           });
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
+          SensorType.Load, this);
       }
 
       cpuLoad = new CPULoad(coreCount, 1);
