@@ -51,16 +51,22 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public Mainboard() {
       this.smbios = new SMBIOS();
-      if (smbios.Board != null && smbios.Board.ProductName != null
-        && smbios.Board.ProductName != "") {
-        if (smbios.Board.Manufacturer == Manufacturer.Unkown)
-          this.name = smbios.Board.ProductName;
-        else
-          this.name = smbios.Board.Manufacturer + " " + 
-            smbios.Board.ProductName;
+     
+      if (smbios.Board != null) {
+        if (smbios.Board.ProductName != null
+          && smbios.Board.ProductName != "") {
+          if (smbios.Board.Manufacturer == Manufacturer.Unkown)
+            this.name = smbios.Board.ProductName;
+          else
+            this.name = smbios.Board.Manufacturer + " " +
+              smbios.Board.ProductName;
+        } else {
+          this.name = smbios.Board.Manufacturer.ToString();
+        }
       } else {
-        this.name = smbios.Board.Manufacturer.ToString();
+        this.name = Manufacturer.Unkown.ToString();
       }
+
       this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
       this.lpcGroup = new LPCGroup();
     }
