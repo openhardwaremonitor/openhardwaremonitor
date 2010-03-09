@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -63,13 +64,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private uint logicalProcessors;
     private uint logicalProcessorsPerCore;
     private uint coreCount;
-    private ulong affinityMask;
+    private bool hasTSC;
+    private bool invariantTSC;    
+    private double estimatedMaxClock;
 
+    private ulong affinityMask;
     private CPULoad cpuLoad;
 
-    private ulong lastCount;    
+    private ulong lastTimeStampCount;    
     private long lastTime;
-    private uint maxNehalemMultiplier = 0;
+    private uint maxNehalemMultiplier = 0;    
     
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -239,14 +243,34 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(totalLoad);
       }
 
-      lastCount = 0;
+      // check if processor has TSC
+      if (cpuidData.GetLength(0) > 1 && (cpuidData[1, 3] & 0x10) != 0)
+        hasTSC = true;
+      else
+        hasTSC = false; 
+
+      // check if processor supports invariant TSC 
+      if (cpuidExtData.GetLength(0) > 7 && (cpuidExtData[7, 3] & 0x100) != 0)
+        invariantTSC = true;
+      else
+        invariantTSC = false;
+
+      // preload the function
+      EstimateMaxClock(0); 
+      EstimateMaxClock(0); 
+
+      // estimate the max clock in MHz      
+      estimatedMaxClock = 1e-6 * EstimateMaxClock(0.01);
+
+      lastTimeStampCount = 0;
       lastTime = 0;
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this);      
       coreClocks = new Sensor[coreCount];
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] =
           new Sensor(CoreString(i), i + 1, SensorType.Clock, this);
-        ActivateSensor(coreClocks[i]);
+        if (hasTSC)
+          ActivateSensor(coreClocks[i]);
       }
       
       Update();                   
@@ -289,7 +313,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.AppendFormat("Threads per Core: {0}{1}", logicalProcessorsPerCore,
         Environment.NewLine);
       r.AppendFormat("Affinity Mask: 0x{0}{1}", affinityMask.ToString("X"),
-        Environment.NewLine);  
+        Environment.NewLine);
+      r.AppendLine("TSC: " + 
+        (hasTSC ? (invariantTSC ? "Invariant" : "Not Invariant") : "None"));
+      r.AppendLine(string.Format(CultureInfo.InvariantCulture, 
+        "Timer Frequency: {0} MHz", Stopwatch.Frequency * 1e-6));
+      r.AppendLine(string.Format(CultureInfo.InvariantCulture,
+        "Max Clock: {0} MHz", Math.Round(estimatedMaxClock * 100) * 0.01));
       r.AppendLine();
 
       for (int i = 0; i < coreCount; i++) {
@@ -306,14 +336,33 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return r.ToString();
     }
 
+    private double EstimateMaxClock(double timeWindow) {
+      long ticks = (long)(timeWindow * Stopwatch.Frequency);
+      uint lsbBegin, msbBegin, lsbEnd, msbEnd; 
+      
+      Thread.BeginThreadAffinity();
+      long timeBegin = Stopwatch.GetTimestamp() + 2;
+      long timeEnd = timeBegin + ticks;      
+      while (Stopwatch.GetTimestamp() < timeBegin) { }
+      WinRing0.Rdtsc(out lsbBegin, out msbBegin);
+      while (Stopwatch.GetTimestamp() < timeEnd) { }
+      WinRing0.Rdtsc(out lsbEnd, out msbEnd);
+      Thread.EndThreadAffinity();
+
+      ulong countBegin = ((ulong)msbBegin << 32) | lsbBegin;
+      ulong countEnd = ((ulong)msbEnd << 32) | lsbEnd;
+
+      return (((double)(countEnd - countBegin)) * Stopwatch.Frequency) / 
+        (timeEnd - timeBegin);
+    }
+
     public void Update() {
-            
+
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
         if (WinRing0.RdmsrTx(
-          IA32_THERM_STATUS_MSR, out eax, out edx, 
-            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) 
-        {
+          IA32_THERM_STATUS_MSR, out eax, out edx,
+            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {
             // get the dist from tjMax from bits 22:16
@@ -325,7 +374,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } else {
             DeactivateSensor(coreTemperatures[i]);
           }
-        }        
+        }
       }
 
       if (cpuLoad.IsAvailable) {
@@ -335,48 +384,55 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         if (totalLoad != null)
           totalLoad.Value = cpuLoad.GetTotalLoad();
       }
-     
-      uint lsb, msb;
-      bool valid = WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
-      long time = Stopwatch.GetTimestamp();
-      ulong count = ((ulong)msb << 32) | lsb;
-      double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
-      if (valid && delta > 0.5) {
-        double maxClock = (count - lastCount) / (1e6 * delta);
-        double busClock = 0;
-        uint eax, edx;
-        for (int i = 0; i < coreClocks.Length; i++) {
-          System.Threading.Thread.Sleep(1);
-          if (WinRing0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
-            if (maxNehalemMultiplier > 0) { // Core i3, i5, i7
-              uint nehalemMultiplier = eax & 0xff;
-              coreClocks[i].Value =
-                (float)(nehalemMultiplier * maxClock / maxNehalemMultiplier);
-              busClock = (float)(maxClock / maxNehalemMultiplier);
-            } else { // Core 2
-              uint multiplier = (eax >> 8) & 0x1f;
-              uint maxMultiplier = (edx >> 8) & 0x1f;
-              // factor = multiplier * 2 to handle non integer multipliers 
-              uint factor = (multiplier << 1) | ((eax >> 14) & 1);
-              uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
-              if (maxFactor > 0) {
-                coreClocks[i].Value = (float)(factor * maxClock / maxFactor);
-                busClock = (float)(2 * maxClock / maxFactor);
+
+      if (hasTSC) {
+        uint lsb, msb;
+        WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
+        long time = Stopwatch.GetTimestamp();
+        ulong timeStampCount = ((ulong)msb << 32) | lsb;
+        double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
+        if (delta > 0.5) {
+          double maxClock;
+          if (invariantTSC)
+            maxClock = (timeStampCount - lastTimeStampCount) / (1e6 * delta);
+          else
+            maxClock = estimatedMaxClock;
+
+          double busClock = 0;
+          uint eax, edx;
+          for (int i = 0; i < coreClocks.Length; i++) {
+            System.Threading.Thread.Sleep(1);
+            if (WinRing0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
+              (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
+              if (maxNehalemMultiplier > 0) { // Core i3, i5, i7
+                uint nehalemMultiplier = eax & 0xff;
+                coreClocks[i].Value =
+                  (float)(nehalemMultiplier * maxClock / maxNehalemMultiplier);
+                busClock = (float)(maxClock / maxNehalemMultiplier);
+              } else { // Core 2
+                uint multiplier = (eax >> 8) & 0x1f;
+                uint maxMultiplier = (edx >> 8) & 0x1f;
+                // factor = multiplier * 2 to handle non integer multipliers 
+                uint factor = (multiplier << 1) | ((eax >> 14) & 1);
+                uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
+                if (maxFactor > 0) {
+                  coreClocks[i].Value = (float)(factor * maxClock / maxFactor);
+                  busClock = (float)(2 * maxClock / maxFactor);
+                }
               }
-            }  
-          } else { // Intel Pentium 4
-            // if IA32_PERF_STATUS is not available, assume maxClock
-            coreClocks[i].Value = (float)maxClock;
+            } else { // Intel Pentium 4
+              // if IA32_PERF_STATUS is not available, assume maxClock
+              coreClocks[i].Value = (float)maxClock;
+            }
+          }
+          if (busClock > 0) {
+            this.busClock.Value = (float)busClock;
+            ActivateSensor(this.busClock);
           }
         }
-        if (busClock > 0) {
-          this.busClock.Value = (float)busClock;
-          ActivateSensor(this.busClock);
-        }
+        lastTimeStampCount = timeStampCount;
+        lastTime = time;
       }
-      lastCount = count;
-      lastTime = time;
     }
   }  
 }

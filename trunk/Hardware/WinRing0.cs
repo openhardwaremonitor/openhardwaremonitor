@@ -97,6 +97,7 @@ namespace OpenHardwareMonitor.Hardware {
       uint regAddress, uint value);
     public delegate bool RdtscTxDelegate(out uint eax, out uint edx,
       UIntPtr threadAffinityMask);
+    public delegate bool RdtscDelegate(out uint eax, out uint edx);
 
     private static InitializeOlsDelegate InitializeOls;
     private static DeinitializeOlsDelegate DeinitializeOls;
@@ -114,6 +115,7 @@ namespace OpenHardwareMonitor.Hardware {
     public static ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
     public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;
     public static RdtscTxDelegate RdtscTx;
+    public static RdtscDelegate Rdtsc;
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
       where T : class 
@@ -142,6 +144,7 @@ namespace OpenHardwareMonitor.Hardware {
       GetDelegate("ReadPciConfigDwordEx", out ReadPciConfigDwordEx);
       GetDelegate("WritePciConfigDwordEx", out WritePciConfigDwordEx);
       GetDelegate("RdtscTx", out RdtscTx);
+      GetDelegate("Rdtsc", out Rdtsc);
 
       try {
         if (InitializeOls != null && InitializeOls())
