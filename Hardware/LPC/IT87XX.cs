@@ -46,6 +46,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private bool available = false;
     private ushort address;
 
+    private readonly ushort addressReg;
+    private readonly ushort dataReg;
+
     private Sensor[] temperatures;
     private Sensor[] fans;
     private Sensor[] voltages;
@@ -67,25 +70,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       new byte[] { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
     private byte[] FAN_TACHOMETER_EXT_REG =
       new byte[] { 0x18, 0x19, 0x1a, 0x81, 0x83 };
-    private const byte VOLTAGE_BASE_REG = 0x20;  
-    
-    private byte ReadByte(byte register) {
-      WinRing0.WriteIoPortByte(
-        (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
-      return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
-    } 
+    private const byte VOLTAGE_BASE_REG = 0x20;
+
+    private byte ReadByte(byte register, out bool valid) {
+      WinRing0.WriteIoPortByte(addressReg, register);
+      byte value = WinRing0.ReadIoPortByte(dataReg);
+      valid = register == WinRing0.ReadIoPortByte(addressReg);
+      return value;
+    }
 
     public IT87XX(Chip chip, ushort address) : base (chip) {
       
       this.address = address;
+      this.addressReg = (ushort)(address + ADDRESS_REGISTER_OFFSET);
+      this.dataReg = (ushort)(address + DATA_REGISTER_OFFSET);
       
       // Check vendor id
-      byte vendorId = ReadByte(VENDOR_ID_REGISTER);      
-      if (vendorId != ITE_VENDOR_ID)
+      bool valid;
+      byte vendorId = ReadByte(VENDOR_ID_REGISTER, out valid);       
+      if (!valid || vendorId != ITE_VENDOR_ID)
         return;
 
       // Bit 0x10 of the configuration register should always be 1
-      if ((ReadByte(CONFIGURATION_REGISTER) & 0x10) == 0)
+      if ((ReadByte(CONFIGURATION_REGISTER, out valid) & 0x10) == 0)
+        return;
+      if (!valid)
         return;
 
       temperatures = new Sensor[3];
@@ -131,7 +140,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           r.Append(" ");
-          r.Append(ReadByte((byte)((i << 4) | j)).ToString("X2"));
+          bool valid;
+          byte value = ReadByte((byte)((i << 4) | j), out valid);
+          if (valid)
+            r.Append(value.ToString("X2"));
+          else
+            r.Append("??");
         }
         r.AppendLine();
       }
@@ -143,7 +157,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public void Update() {
 
       foreach (Sensor sensor in voltages) {
-        int value = ReadByte((byte)(VOLTAGE_BASE_REG + sensor.Index));
+        bool valid;
+        int value = ReadByte(
+          (byte)(VOLTAGE_BASE_REG + sensor.Index), out valid);
+        if (!valid)
+          continue;
+
         sensor.Value = voltageGains[sensor.Index] * 0.001f * (value << 4);
         if (sensor.Value > 0)
           ActivateSensor(sensor);
@@ -152,8 +171,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in temperatures) {
-        sbyte value = 
-          (sbyte)ReadByte((byte)(TEMPERATURE_BASE_REG + sensor.Index));
+        bool valid;
+        sbyte value = (sbyte)ReadByte(
+          (byte)(TEMPERATURE_BASE_REG + sensor.Index), out valid);
+        if (!valid)
+          continue;
+
         sensor.Value = value + sensor.Parameters[0].Value;
         if (value < sbyte.MaxValue && value > 0)
           ActivateSensor(sensor);
@@ -162,8 +185,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       foreach (Sensor sensor in fans) {
-        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index]);
-        value |= ReadByte(FAN_TACHOMETER_EXT_REG[sensor.Index]) << 8;
+        bool valid;
+        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index], out valid);
+        if (!valid) 
+          continue;
+        value |= ReadByte(FAN_TACHOMETER_EXT_REG[sensor.Index], out valid) << 8;
+        if (!valid)
+          continue;
 
         if (value > 0x3f) {
           sensor.Value = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
