@@ -123,13 +123,22 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       if (ADL.ADL_Overdrive5_CurrentActivity_Get(adapterIndex, ref adlp)
         == ADL.ADL_OK) 
       {
-        coreClock.Value = 0.01f * adlp.EngineClock;
-        memoryClock.Value = 0.01f * adlp.MemoryClock;
-        coreVoltage.Value = 0.001f * adlp.Vddc;
-        coreLoad.Value = adlp.ActivityPercent;
-        ActivateSensor(coreClock);
-        ActivateSensor(memoryClock);
-        ActivateSensor(coreVoltage);
+        if (adlp.EngineClock > 0) {
+          coreClock.Value = 0.01f * adlp.EngineClock;
+          ActivateSensor(coreClock);
+        }
+
+        if (adlp.MemoryClock > 0) {
+          memoryClock.Value = 0.01f * adlp.MemoryClock;
+          ActivateSensor(memoryClock);
+        }
+
+        if (adlp.Vddc > 0) {
+          coreVoltage.Value = 0.001f * adlp.Vddc;
+          ActivateSensor(coreVoltage);
+        }
+
+        coreLoad.Value = adlp.ActivityPercent;                        
         ActivateSensor(coreLoad);
       } else {
         DeactivateSensor(coreClock);
