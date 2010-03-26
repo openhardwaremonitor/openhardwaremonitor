@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
     private Color[] plotColorPalette;
     private SensorSystemTray sensorSystemTray;
     private NotifyIcon notifyIcon;
+    private StartupManager startupManager = new StartupManager();
 
     public MainForm() {      
       InitializeComponent();
@@ -105,7 +106,7 @@ namespace OpenHardwareMonitor.GUI {
       notifyIcon.ContextMenuStrip = this.notifyContextMenuStrip;
       notifyIcon.Icon = EmbeddedResources.GetIcon("smallicon.ico");
       notifyIcon.Text = "Open Hardware Monitor";      
-      notifyIcon.DoubleClick += new EventHandler(this.restoreClick);
+      notifyIcon.DoubleClick += new EventHandler(this.hideShowClick);
 
       sensorSystemTray = new SensorSystemTray(computer);
 
@@ -136,6 +137,7 @@ namespace OpenHardwareMonitor.GUI {
 
       startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
       minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
+      startupMenuItem.Checked = startupManager.Startup;
       hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
 
       voltMenuItem.Checked = Config.Get(voltMenuItem.Name, true);
@@ -148,9 +150,7 @@ namespace OpenHardwareMonitor.GUI {
       timer.Enabled = true;
 
       if (startMinMenuItem.Checked) {
-        if (minTrayMenuItem.Checked) {
-          notifyIcon.Visible = true;
-        } else {
+        if (!minTrayMenuItem.Checked) {
           WindowState = FormWindowState.Minimized;
           Show();
         }
@@ -273,7 +273,7 @@ namespace OpenHardwareMonitor.GUI {
       Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
       Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
       Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
-      Config.Set(flowsMenuItem.Name, flowsMenuItem.Checked);
+      Config.Set(flowsMenuItem.Name, flowsMenuItem.Checked);      
 
       if (WindowState != FormWindowState.Minimized) {
         Config.Set("mainForm.Location.X", Location.X);
@@ -391,15 +391,10 @@ namespace OpenHardwareMonitor.GUI {
         UpdateSensorTypeVisible(node);
     }
 
-    private void ToggleSysTray() {
-      if (notifyIcon.Visible) {
-        Visible = true;
-        notifyIcon.Visible = false;
-        Activate(); 
-      } else {
-        notifyIcon.Visible = true;
-        Visible = false;           
-      }
+    private void SysTrayHideShow() {
+      Visible = !Visible;
+      if (Visible)
+        Activate();    
     }
 
     protected override void WndProc(ref Message m) {
@@ -407,14 +402,14 @@ namespace OpenHardwareMonitor.GUI {
       const int SC_MINIMIZE = 0xF020;
       if (minTrayMenuItem.Checked && 
         m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
-        ToggleSysTray();
+        SysTrayHideShow();
       } else {      
         base.WndProc(ref m);
       }
     }
 
-    private void restoreClick(object sender, EventArgs e) {
-      ToggleSysTray();
+    private void hideShowClick(object sender, EventArgs e) {
+      SysTrayHideShow();
     }
 
     private void removeToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -443,6 +438,16 @@ namespace OpenHardwareMonitor.GUI {
         node.Sensor.Parameters.Length > 0) {
         ShowParameterForm(node.Sensor);
       }
+    }
+
+    private void runOnWindowsStartupToolStripMenuItem_CheckedChanged(
+      object sender, EventArgs e) 
+    {
+      startupManager.Startup = startupMenuItem.Checked;
+    }
+
+    private void minTrayMenuItem_CheckedChanged(object sender, EventArgs e) {
+      notifyIcon.Visible = minTrayMenuItem.Checked;
     }
   }
 }

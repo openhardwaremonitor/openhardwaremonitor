@@ -97,6 +97,7 @@ namespace OpenHardwareMonitor.GUI {
       this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.startMinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
       this.hddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,7 +106,7 @@ namespace OpenHardwareMonitor.GUI {
       this.splitContainer = new System.Windows.Forms.SplitContainer();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.notifyContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-      this.restoreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.hideShowToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -427,6 +428,7 @@ namespace OpenHardwareMonitor.GUI {
       this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.startMinMenuItem,
             this.minTrayMenuItem,
+            this.startupMenuItem,
             this.toolStripMenuItem3,
             this.hddMenuItem});
       this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
@@ -437,28 +439,35 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.startMinMenuItem.CheckOnClick = true;
       this.startMinMenuItem.Name = "startMinMenuItem";
-      this.startMinMenuItem.Size = new System.Drawing.Size(166, 22);
+      this.startMinMenuItem.Size = new System.Drawing.Size(207, 22);
       this.startMinMenuItem.Text = "Start Minimized";
       // 
       // minTrayMenuItem
       // 
-      this.minTrayMenuItem.Checked = true;
       this.minTrayMenuItem.CheckOnClick = true;
-      this.minTrayMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.minTrayMenuItem.Name = "minTrayMenuItem";
-      this.minTrayMenuItem.Size = new System.Drawing.Size(166, 22);
+      this.minTrayMenuItem.Size = new System.Drawing.Size(207, 22);
       this.minTrayMenuItem.Text = "Minimize To Tray";
+      this.minTrayMenuItem.CheckedChanged += new System.EventHandler(this.minTrayMenuItem_CheckedChanged);
+      // 
+      // startupMenuItem
+      // 
+      this.startupMenuItem.CheckOnClick = true;
+      this.startupMenuItem.Name = "startupMenuItem";
+      this.startupMenuItem.Size = new System.Drawing.Size(207, 22);
+      this.startupMenuItem.Text = "Run On Windows Startup";
+      this.startupMenuItem.CheckedChanged += new System.EventHandler(this.runOnWindowsStartupToolStripMenuItem_CheckedChanged);
       // 
       // toolStripMenuItem3
       // 
       this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-      this.toolStripMenuItem3.Size = new System.Drawing.Size(163, 6);
+      this.toolStripMenuItem3.Size = new System.Drawing.Size(204, 6);
       // 
       // hddMenuItem
       // 
       this.hddMenuItem.CheckOnClick = true;
       this.hddMenuItem.Name = "hddMenuItem";
-      this.hddMenuItem.Size = new System.Drawing.Size(166, 22);
+      this.hddMenuItem.Size = new System.Drawing.Size(207, 22);
       this.hddMenuItem.Text = "HDD sensors";
       this.hddMenuItem.CheckedChanged += new System.EventHandler(this.hddsensorsToolStripMenuItem_CheckedChanged);
       // 
@@ -515,29 +524,29 @@ namespace OpenHardwareMonitor.GUI {
       // notifyContextMenuStrip
       // 
       this.notifyContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.restoreToolStripMenuItem,
+            this.hideShowToolStripMenuItem,
             this.toolStripMenuItem2,
             this.exitToolStripMenuItem1});
       this.notifyContextMenuStrip.Name = "notifyContextMenuStrip";
-      this.notifyContextMenuStrip.Size = new System.Drawing.Size(119, 54);
+      this.notifyContextMenuStrip.Size = new System.Drawing.Size(153, 76);
       // 
-      // restoreToolStripMenuItem
+      // hideShowToolStripMenuItem
       // 
-      this.restoreToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-      this.restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
-      this.restoreToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
-      this.restoreToolStripMenuItem.Text = "Restore";
-      this.restoreToolStripMenuItem.Click += new System.EventHandler(this.restoreClick);
+      this.hideShowToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+      this.hideShowToolStripMenuItem.Name = "hideShowToolStripMenuItem";
+      this.hideShowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.hideShowToolStripMenuItem.Text = "Hide/Show";
+      this.hideShowToolStripMenuItem.Click += new System.EventHandler(this.hideShowClick);
       // 
       // toolStripMenuItem2
       // 
       this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(115, 6);
+      this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
       // 
       // exitToolStripMenuItem1
       // 
       this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
-      this.exitToolStripMenuItem1.Size = new System.Drawing.Size(118, 22);
+      this.exitToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
       this.exitToolStripMenuItem1.Text = "Exit";
       this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
@@ -613,7 +622,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
     private System.Windows.Forms.ToolStripMenuItem loadMenuItem;
     private System.Windows.Forms.ContextMenuStrip notifyContextMenuStrip;
-    private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem hideShowToolStripMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
     private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
     private System.Windows.Forms.ToolStripMenuItem minTrayMenuItem;
@@ -621,6 +630,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ContextMenuStrip sensorContextMenuStrip;
     private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
     private System.Windows.Forms.ToolStripMenuItem flowsMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
   }
 }
 
