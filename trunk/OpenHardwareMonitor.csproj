@@ -66,6 +66,8 @@
     </Compile>
     <Compile Include="GUI\SensorNotifyIcon.cs" />
     <Compile Include="GUI\SensorSystemTray.cs" />
+    <Compile Include="GUI\StartupManager.cs" />
+    <Compile Include="GUI\TaskScheduler.cs" />
     <Compile Include="GUI\TypeNode.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
