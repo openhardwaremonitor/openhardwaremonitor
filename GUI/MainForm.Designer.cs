@@ -102,7 +102,6 @@ namespace OpenHardwareMonitor.GUI {
       this.hddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new System.Windows.Forms.SplitContainer();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.notifyContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -110,6 +109,7 @@ namespace OpenHardwareMonitor.GUI {
       this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.columnsContextMenuStrip.SuspendLayout();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
@@ -314,14 +314,14 @@ namespace OpenHardwareMonitor.GUI {
       // saveReportToolStripMenuItem
       // 
       this.saveReportToolStripMenuItem.Name = "saveReportToolStripMenuItem";
-      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-      this.saveReportToolStripMenuItem.Text = "Save Report";
+      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.saveReportToolStripMenuItem.Text = "Save Report...";
       this.saveReportToolStripMenuItem.Click += new System.EventHandler(this.saveReportToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-      this.exitToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+      this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
       this.exitToolStripMenuItem.Text = "Exit";
       this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
@@ -486,11 +486,6 @@ namespace OpenHardwareMonitor.GUI {
       this.aboutToolStripMenuItem.Text = "About";
       this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
       // 
-      // timer
-      // 
-      this.timer.Interval = 1000;
-      this.timer.Tick += new System.EventHandler(this.timer_Tick);
-      // 
       // splitContainer
       // 
       this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -528,25 +523,25 @@ namespace OpenHardwareMonitor.GUI {
             this.toolStripMenuItem2,
             this.exitToolStripMenuItem1});
       this.notifyContextMenuStrip.Name = "notifyContextMenuStrip";
-      this.notifyContextMenuStrip.Size = new System.Drawing.Size(153, 76);
+      this.notifyContextMenuStrip.Size = new System.Drawing.Size(137, 54);
       // 
       // hideShowToolStripMenuItem
       // 
       this.hideShowToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
       this.hideShowToolStripMenuItem.Name = "hideShowToolStripMenuItem";
-      this.hideShowToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.hideShowToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
       this.hideShowToolStripMenuItem.Text = "Hide/Show";
       this.hideShowToolStripMenuItem.Click += new System.EventHandler(this.hideShowClick);
       // 
       // toolStripMenuItem2
       // 
       this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
+      this.toolStripMenuItem2.Size = new System.Drawing.Size(133, 6);
       // 
       // exitToolStripMenuItem1
       // 
       this.exitToolStripMenuItem1.Name = "exitToolStripMenuItem1";
-      this.exitToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+      this.exitToolStripMenuItem1.Size = new System.Drawing.Size(136, 22);
       this.exitToolStripMenuItem1.Text = "Exit";
       this.exitToolStripMenuItem1.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
@@ -554,6 +549,14 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.sensorContextMenuStrip.Name = "sensorContextMenuStrip";
       this.sensorContextMenuStrip.Size = new System.Drawing.Size(61, 4);
+      // 
+      // saveFileDialog
+      // 
+      this.saveFileDialog.DefaultExt = "txt";
+      this.saveFileDialog.FileName = "OpenHardwareMonitor.Report.txt";
+      this.saveFileDialog.Filter = "Text Documents|*.txt|All Files|*.*";
+      this.saveFileDialog.RestoreDirectory = true;
+      this.saveFileDialog.Title = "Save Report As";
       // 
       // MainForm
       // 
@@ -596,7 +599,6 @@ namespace OpenHardwareMonitor.GUI {
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxValue;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMin;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMax;
-    private System.Windows.Forms.Timer timer;
     private System.Windows.Forms.SplitContainer splitContainer;
     private PlotPanel plotPanel;
     private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
@@ -631,6 +633,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
     private System.Windows.Forms.ToolStripMenuItem flowsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
+    private System.Windows.Forms.SaveFileDialog saveFileDialog;
   }
 }
 

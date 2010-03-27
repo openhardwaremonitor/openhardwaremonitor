@@ -45,10 +45,10 @@ using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
   public class SensorSystemTray : IDisposable {
-    private Computer computer;
+    private IComputer computer;
     private List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
 
-    public SensorSystemTray(Computer computer) {
+    public SensorSystemTray(IComputer computer) {
       this.computer = computer;
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
