@@ -129,7 +129,6 @@ namespace OpenHardwareMonitor.GUI {
       if (icon != null)
         icon.Dispose();      
       notifyIcon.Dispose();
-      notifyIcon = null;
 
       if (brush != null)
         brush.Dispose();
@@ -137,10 +136,8 @@ namespace OpenHardwareMonitor.GUI {
         darkBrush.Dispose();
       pen.Dispose();
       font.Dispose();
-      graphics.Dispose();
-      graphics = null;
-      bitmap.Dispose();
-      bitmap = null;
+      graphics.Dispose();      
+      bitmap.Dispose();      
     }
 
     private string GetString() {
