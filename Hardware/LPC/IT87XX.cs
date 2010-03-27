@@ -165,9 +165,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         sensor.Value = voltageGains[sensor.Index] * 0.001f * (value << 4);
         if (sensor.Value > 0)
-          ActivateSensor(sensor);
-        else
-          DeactivateSensor(sensor);
+          ActivateSensor(sensor);        
       }
 
       foreach (Sensor sensor in temperatures) {
@@ -179,9 +177,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         sensor.Value = value + sensor.Parameters[0].Value;
         if (value < sbyte.MaxValue && value > 0)
-          ActivateSensor(sensor);
-        else
-          DeactivateSensor(sensor);
+          ActivateSensor(sensor);        
       }
 
       foreach (Sensor sensor in fans) {
@@ -198,7 +194,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           if (sensor.Value > 0)
             ActivateSensor(sensor);
         } else {
-          DeactivateSensor(sensor);
+          sensor.Value = null;
         }
       }      
     }   

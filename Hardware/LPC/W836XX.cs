@@ -215,8 +215,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           }
           if (sensor.Value > 0)
             ActivateSensor(sensor);
-          else
-            DeactivateSensor(sensor);
         } else {
           // Battery voltage
           bool valid = (ReadByte(0, 0x5D) & 0x01) > 0;
@@ -224,8 +222,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             sensor.Value =
               0.008f * voltageGains[sensor.Index] * ReadByte(5, 0x51);
             ActivateSensor(sensor);
-          } else
-            DeactivateSensor(sensor);
+          } else {
+            sensor.Value = null;
+          }
         }
       }
 
@@ -241,7 +240,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           sensor.Value = temperature + sensor.Parameters[0].Value;
           ActivateSensor(sensor);
         } else {
-          DeactivateSensor(sensor);
+          sensor.Value = null;
         }
       }
 
