@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
@@ -112,6 +113,7 @@ namespace OpenHardwareMonitor.GUI {
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
+      computer.Updated += new UpdateEventHandler(Updated);
       computer.Open();
 
       plotColorPalette = new Color[14];
@@ -145,9 +147,7 @@ namespace OpenHardwareMonitor.GUI {
       loadMenuItem.Checked = Config.Get(loadMenuItem.Name, true);
       tempMenuItem.Checked = Config.Get(tempMenuItem.Name, true);
       fansMenuItem.Checked = Config.Get(fansMenuItem.Name, true);
-      flowsMenuItem.Checked = Config.Get(flowsMenuItem.Name, true);
-     
-      timer.Enabled = true;
+      flowsMenuItem.Checked = Config.Get(flowsMenuItem.Name, true);    
 
       if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
@@ -239,19 +239,7 @@ namespace OpenHardwareMonitor.GUI {
       Close();      
     }
 
-    private void timer_Tick(object sender, EventArgs e) {
-      
-      #if !DEBUG
-      try {
-      #endif
-        computer.Update();        
-      #if !DEBUG
-      } catch (Exception exception) {
-        CrashReport.Save(exception);
-        Close();
-      }
-      #endif
-            
+    private void Updated() {          
       treeView.Invalidate();
       plotPanel.Invalidate();
       sensorSystemTray.Redraw();
@@ -359,7 +347,12 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void saveReportToolStripMenuItem_Click(object sender, EventArgs e) {
-      computer.SaveReport(new Version(Application.ProductVersion));      
+      string report = computer.GetReport();
+      if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+        using (TextWriter w = new StreamWriter(saveFileDialog.FileName)) {
+          w.Write(report);
+        }
+      }
     }
 
     private void hddsensorsToolStripMenuItem_CheckedChanged(object sender, 

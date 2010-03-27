@@ -40,12 +40,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public delegate void HardwareEventHandler(IHardware hardware);
+  public class Computer : IComputer {
 
-  public class Computer {
+    private Timer timer;
 
     private List<IGroup> groups = new List<IGroup>();
 
@@ -61,7 +62,7 @@ namespace OpenHardwareMonitor.Hardware {
       groups.Add(group);
 
       if (HardwareAdded != null)
-        foreach (IHardware hardware in group.Hardware) 
+        foreach (IHardware hardware in group.Hardware)
           HardwareAdded(hardware);
     }
 
@@ -72,7 +73,7 @@ namespace OpenHardwareMonitor.Hardware {
       groups.Remove(group);
 
       if (HardwareRemoved != null)
-        foreach (IHardware hardware in group.Hardware) 
+        foreach (IHardware hardware in group.Hardware)
           HardwareRemoved(hardware);
     }
 
@@ -86,10 +87,24 @@ namespace OpenHardwareMonitor.Hardware {
       Add(new Nvidia.NvidiaGroup());
       Add(new TBalancer.TBalancerGroup());
 
-      if (hddEnabled)        
+      if (hddEnabled)
         Add(new HDD.HDDGroup());
 
       open = true;
+
+      timer = new Timer(
+        delegate(Object stateInfo) {
+          #if !DEBUG
+          try {
+          #endif
+            Update();
+          #if !DEBUG
+          } catch (Exception exception) {
+            Utilities.CrashReport.Save(exception);
+            throw;
+          }
+          #endif
+        }, null, 1000, 1000);
     }
 
     private void SubHardwareUpdate(IHardware hardware) {
@@ -99,12 +114,14 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public void Update() {
+    private void Update() {
       foreach (IGroup group in groups)
         foreach (IHardware hardware in group.Hardware) {
           hardware.Update();
           SubHardwareUpdate(hardware);
         }
+      if (Updated != null)
+        Updated();
     }
 
     public bool HDDEnabled {
@@ -118,17 +135,19 @@ namespace OpenHardwareMonitor.Hardware {
             if (group is HDD.HDDGroup)
               list.Add(group);
           foreach (IGroup group in list)
-            Remove(group);          
+            Remove(group);
         }
         hddEnabled = value;
       }
     }
 
-    public IEnumerable<IHardware> Hardware {
-      get {       
+    public IHardware[] Hardware {
+      get {
+        List<IHardware> list = new List<IHardware>();
         foreach (IGroup group in groups)
           foreach (IHardware hardware in group.Hardware)
-            yield return hardware;
+            list.Add(hardware);
+        return list.ToArray();
       }
     }
 
@@ -139,11 +158,10 @@ namespace OpenHardwareMonitor.Hardware {
       writer.WriteLine();
     }
 
-    private void ReportHardwareTree(IHardware hardware, TextWriter w, 
-      string space) 
-    {
+    private void ReportHardwareTree(IHardware hardware, TextWriter w,
+      string space) {
       w.WriteLine("{0}|", space);
-      w.WriteLine("{0}+-+ {1} ({2})", 
+      w.WriteLine("{0}+-+ {1} ({2})",
         space, hardware.Name, hardware.Identifier);
       foreach (ISensor sensor in hardware.Sensors) {
         w.WriteLine("{0}|   +- {1} : {2} : {3} : {4}",
@@ -171,14 +189,15 @@ namespace OpenHardwareMonitor.Hardware {
         ReportHardware(subHardware, w);
     }
 
-    public void SaveReport(Version version) {
+    public string GetReport() {
 
-      using (TextWriter w =
-        new StreamWriter("OpenHardwareMonitor.Report.txt")) {        
+      using (StringWriter w = new StringWriter()) {
 
         w.WriteLine();
         w.WriteLine("Open Hardware Monitor Report");
         w.WriteLine();
+
+        Version version = typeof(Computer).Assembly.GetName().Version;
 
         NewSection(w);
         w.Write("Version: "); w.WriteLine(version.ToString());
@@ -187,7 +206,7 @@ namespace OpenHardwareMonitor.Hardware {
         NewSection(w);
         foreach (IGroup group in groups) {
           foreach (IHardware hardware in group.Hardware)
-            ReportHardwareTree(hardware, w, "");          
+            ReportHardwareTree(hardware, w, "");
         }
         w.WriteLine();
 
@@ -201,12 +220,16 @@ namespace OpenHardwareMonitor.Hardware {
           IHardware[] hardwareArray = group.Hardware;
           foreach (IHardware hardware in hardwareArray)
             ReportHardware(hardware, w);
-          
+
         }
+        return w.ToString();
       }
     }
 
-    public void Close() {
+    public void Close() {      
+      timer.Dispose();
+      timer = null;
+
       if (!open)
         return;
 
@@ -217,6 +240,7 @@ namespace OpenHardwareMonitor.Hardware {
       open = false;
     }
 
+    public event UpdateEventHandler Updated;
     public event HardwareEventHandler HardwareAdded;
     public event HardwareEventHandler HardwareRemoved;
 

@@ -326,17 +326,23 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     public void Update() {
-      while (serialPort.BytesToRead >= 285)
-        ReadData();
-      if (serialPort.BytesToRead == 1)
-        serialPort.ReadByte();
+      try {
+        while (serialPort.IsOpen && serialPort.BytesToRead >= 285)
+          ReadData();
+        if (serialPort.BytesToRead == 1)
+          serialPort.ReadByte();
 
-      serialPort.Write(new byte[] { 0x38 }, 0, 1);
-      alternativeRequest.BeginInvoke(null, null);
+        serialPort.Write(new byte[] { 0x38 }, 0, 1);
+        alternativeRequest.BeginInvoke(null, null);
+      } catch (InvalidOperationException) {
+        foreach (Sensor sensor in active)
+          sensor.Value = null;
+      }
     }
 
     public void Close() {
-      serialPort.Close();
+      if (serialPort.IsOpen)
+        serialPort.Close();
     }
 
     public event SensorEventHandler SensorAdded;
