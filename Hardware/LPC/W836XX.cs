@@ -90,7 +90,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
          (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte(
         (ushort)(address + DATA_REGISTER_OFFSET));
-    } 
+    }
 
     private void WriteByte(byte bank, byte register, byte value) {
       WinRing0.WriteIoPortByte(
@@ -195,6 +195,17 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return vendorId == WINBOND_VENDOR_ID;
     }
 
+    private ulong SetBit(ulong target, int bit, int value) {
+      if ((value & 1) != value)
+        throw new ArgumentException("Value must be one bit only.");
+
+      if (bit < 0 || bit > 63)
+        throw new ArgumentException("Bit out of range.");
+
+      ulong mask = (((ulong)1) << bit);
+      return value > 0 ? target | mask : target & ~mask;
+    }
+
     public void Update() {
 
       foreach (Sensor sensor in voltages) {
@@ -244,22 +255,49 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
       }
 
-      long bits = 0;
+      ulong bits = 0;
       for (int i = 0; i < FAN_BIT_REG.Length; i++)
         bits = (bits << 8) | ReadByte(0, FAN_BIT_REG[i]);
+      ulong newBits = bits;
       foreach (Sensor sensor in fans) {
         int count = ReadByte(FAN_TACHO_BANK[sensor.Index], 
           FAN_TACHO_REG[sensor.Index]);
+        
+        // assemble fan divisor
         int divisorBits = (int)(
           (((bits >> FAN_DIV_BIT2[sensor.Index]) & 1) << 2) |
           (((bits >> FAN_DIV_BIT1[sensor.Index]) & 1) << 1) |
            ((bits >> FAN_DIV_BIT0[sensor.Index]) & 1));
         int divisor = 1 << divisorBits;
+       
         float value = (count < 0xff) ? 1.35e6f / (count * divisor) : 0;
         sensor.Value = value;
         if (value > 0)
-          ActivateSensor(sensor);        
-      }     
+          ActivateSensor(sensor);
+
+        // update fan divisor
+        if (count > 192 && divisorBits < 7) 
+          divisorBits++;
+        if (count < 96 && divisorBits > 0)
+          divisorBits--;
+
+        newBits = SetBit(newBits, FAN_DIV_BIT2[sensor.Index], 
+          (divisorBits >> 2) & 1);
+        newBits = SetBit(newBits, FAN_DIV_BIT1[sensor.Index], 
+          (divisorBits >> 1) & 1);
+        newBits = SetBit(newBits, FAN_DIV_BIT0[sensor.Index], 
+          divisorBits & 1);
+      }
+     
+      // write new fan divisors 
+      for (int i = FAN_BIT_REG.Length - 1; i >= 0; i--) {
+        byte oldByte = (byte)(bits & 0xFF);
+        byte newByte = (byte)(newBits & 0xFF);
+        bits = bits >> 8;
+        newBits = newBits >> 8;
+        if (oldByte != newByte) 
+          WriteByte(0, FAN_BIT_REG[i], newByte);        
+      }
     }
 
     public string GetReport() {

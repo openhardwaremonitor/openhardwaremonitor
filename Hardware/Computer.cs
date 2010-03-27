@@ -101,7 +101,6 @@ namespace OpenHardwareMonitor.Hardware {
           #if !DEBUG
           } catch (Exception exception) {
             Utilities.CrashReport.Save(exception);
-            throw;
           }
           #endif
         }, null, 1000, 1000);
