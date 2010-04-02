@@ -46,8 +46,6 @@ namespace OpenHardwareMonitor.Hardware {
 
   public class Computer : IComputer {
 
-    private Timer timer;
-
     private List<IGroup> groups = new List<IGroup>();
 
     private bool open = false;
@@ -91,19 +89,6 @@ namespace OpenHardwareMonitor.Hardware {
         Add(new HDD.HDDGroup());
 
       open = true;
-
-      timer = new Timer(
-        delegate(Object stateInfo) {
-          #if !DEBUG
-          try {
-          #endif
-            Update();
-          #if !DEBUG
-          } catch (Exception exception) {
-            Utilities.CrashReport.Save(exception);
-          }
-          #endif
-        }, null, 1000, 1000);
     }
 
     private void SubHardwareUpdate(IHardware hardware) {
@@ -113,14 +98,12 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    private void Update() {
+    public void Update() {
       foreach (IGroup group in groups)
         foreach (IHardware hardware in group.Hardware) {
           hardware.Update();
           SubHardwareUpdate(hardware);
         }
-      if (Updated != null)
-        Updated();
     }
 
     public bool HDDEnabled {
@@ -226,9 +209,6 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public void Close() {      
-      timer.Dispose();
-      timer = null;
-
       if (!open)
         return;
 
@@ -239,9 +219,7 @@ namespace OpenHardwareMonitor.Hardware {
       open = false;
     }
 
-    public event UpdateEventHandler Updated;
     public event HardwareEventHandler HardwareAdded;
     public event HardwareEventHandler HardwareRemoved;
-
   }
 }

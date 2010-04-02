@@ -191,8 +191,12 @@ namespace OpenHardwareMonitor.GUI {
       return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
     }
 
-    private Icon CreateLoadIcon() {
-      graphics.Clear(Color.Transparent);
+    private Icon CreateLoadIcon() {      
+      try {
+        graphics.Clear(Color.Transparent);
+      } catch (ArgumentException) {
+        graphics.Clear(Color.Black);
+      }
       graphics.FillRectangle(darkBrush, 0.5f, -0.5f, 14, 16);
       float y = 0.16f * (100 - sensor.Value.Value);
       graphics.FillRectangle(brush, 0.5f, -0.5f + y, 14, 16 - y);

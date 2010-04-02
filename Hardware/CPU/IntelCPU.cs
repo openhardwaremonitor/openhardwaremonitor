@@ -356,8 +356,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         (timeEnd - timeBegin);
     }
 
-    public void Update() {
-
+    public void Update() {      
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
         if (WinRing0.RdmsrTx(

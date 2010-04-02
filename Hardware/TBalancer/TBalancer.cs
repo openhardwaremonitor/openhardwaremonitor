@@ -221,7 +221,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           } else {
             DeactivateSensor(sensorhubFlows[i]);
           }
-
+        
         for (int i = 0; i < fans.Length; i++) {
           float maxRPM = 11.5f * ((data[149 + 2 * i] << 8) | data[148 + 2 * i]);
 
@@ -325,7 +325,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       } catch (Exception) { }
     }
 
-    public void Update() {
+    public void Update() {      
       try {
         while (serialPort.IsOpen && serialPort.BytesToRead >= 285)
           ReadData();
@@ -337,7 +337,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       } catch (InvalidOperationException) {
         foreach (Sensor sensor in active)
           sensor.Value = null;
-      }
+      }      
     }
 
     public void Close() {

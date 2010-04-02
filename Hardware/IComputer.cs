@@ -40,7 +40,6 @@ using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public delegate void UpdateEventHandler();
   public delegate void HardwareEventHandler(IHardware hardware);
 
   public interface IComputer {
@@ -51,7 +50,6 @@ namespace OpenHardwareMonitor.Hardware {
 
     string GetReport();
 
-    event UpdateEventHandler Updated;
     event HardwareEventHandler HardwareAdded;
     event HardwareEventHandler HardwareRemoved;
   }
