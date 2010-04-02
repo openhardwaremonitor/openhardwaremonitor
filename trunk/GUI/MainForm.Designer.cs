@@ -110,6 +110,7 @@ namespace OpenHardwareMonitor.GUI {
       this.exitToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+      this.timer = new System.Windows.Forms.Timer(this.components);
       this.columnsContextMenuStrip.SuspendLayout();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
@@ -314,14 +315,14 @@ namespace OpenHardwareMonitor.GUI {
       // saveReportToolStripMenuItem
       // 
       this.saveReportToolStripMenuItem.Name = "saveReportToolStripMenuItem";
-      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
       this.saveReportToolStripMenuItem.Text = "Save Report...";
       this.saveReportToolStripMenuItem.Click += new System.EventHandler(this.saveReportToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-      this.exitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.exitToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
       this.exitToolStripMenuItem.Text = "Exit";
       this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
       // 
@@ -558,6 +559,11 @@ namespace OpenHardwareMonitor.GUI {
       this.saveFileDialog.RestoreDirectory = true;
       this.saveFileDialog.Title = "Save Report As";
       // 
+      // timer
+      // 
+      this.timer.Interval = 1000;
+      this.timer.Tick += new System.EventHandler(this.timer_Tick);
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -634,6 +640,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem flowsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
     private System.Windows.Forms.SaveFileDialog saveFileDialog;
+    private System.Windows.Forms.Timer timer;
   }
 }
 

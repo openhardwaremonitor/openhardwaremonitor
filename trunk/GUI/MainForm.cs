@@ -113,8 +113,9 @@ namespace OpenHardwareMonitor.GUI {
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
-      computer.Updated += new UpdateEventHandler(Updated);
       computer.Open();
+
+      timer.Enabled = true;
 
       plotColorPalette = new Color[14];
       plotColorPalette[0] = Color.Blue;
@@ -239,7 +240,8 @@ namespace OpenHardwareMonitor.GUI {
       Close();      
     }
 
-    private void Updated() {          
+    private void timer_Tick(object sender, EventArgs e) {
+      computer.Update();  
       treeView.Invalidate();
       plotPanel.Invalidate();
       sensorSystemTray.Redraw();
@@ -269,7 +271,9 @@ namespace OpenHardwareMonitor.GUI {
         Config.Set("mainForm.Width", Width);
         Config.Set("mainForm.Height", Height);
       }
-           
+
+      timer.Enabled = false;
+
       sensorSystemTray.Dispose();
       notifyIcon.Dispose();
       computer.Close();

@@ -36,36 +36,39 @@
 */
 
 using System;
+using System.IO;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-
+using OpenHardwareMonitor.GUI;
 
 namespace OpenHardwareMonitor {
-  static class Program {
-    /// <summary>
-    /// The main entry point for the application.
-    /// </summary>
-    [STAThread]
-    static void Main() {
-      #if !DEBUG
-      try {
-      #endif
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
+  public static class Program {
 
-        using (GUI.MainForm form = new GUI.MainForm()) {
-          form.FormClosed += delegate(Object sender, FormClosedEventArgs e) {
-            Application.Exit();
-          };
-          Application.Run();
-        }
-        
+    [STAThread]
+    public static void Main() {
       #if !DEBUG
-      } catch (Exception e) {
-        Utilities.CrashReport.Save(e);
-      }
+        AppDomain.CurrentDomain.UnhandledException += 
+          new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
       #endif
+
+      Application.EnableVisualStyles();
+      Application.SetCompatibleTextRenderingDefault(false);
+      using (GUI.MainForm form = new GUI.MainForm()) {
+        form.FormClosed += delegate(Object sender, FormClosedEventArgs e) {
+          Application.Exit();
+        };        
+        Application.Run();
+      }
     }
 
-    
+    public static void CurrentDomain_UnhandledException(object sender, 
+      UnhandledExceptionEventArgs args) 
+    {
+      CrashReportForm form = new CrashReportForm();
+      form.Exception = (Exception)args.ExceptionObject;
+      form.ShowDialog();
+      Environment.Exit(0);
+    }   
   }
 }

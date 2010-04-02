@@ -54,10 +54,17 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\CrashReportForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\CrashReportForm.Designer.cs">
+      <DependentUpon>CrashReportForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\ParameterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -99,7 +106,6 @@
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
     <Compile Include="Utilities\Config.cs" />
-    <Compile Include="Utilities\CrashReport.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="GUI\HardwareNode.cs" />
     <Compile Include="Hardware\IGroup.cs" />
@@ -179,6 +185,9 @@
     <EmbeddedResource Include="Resources\flow.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GUI\CrashReportForm.resx">
+      <DependentUpon>CrashReportForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\mainboard.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
