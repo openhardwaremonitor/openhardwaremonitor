@@ -76,22 +76,22 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       };
       int offset = 0;
       for (int i = 0; i < digitalTemperatures.Length; i++)
-        digitalTemperatures[i] = new Sensor("Digital Sensor #" + (i + 1),
+        digitalTemperatures[i] = new Sensor("Digital Sensor " + i,
           offset + i, null, SensorType.Temperature, this, parameter);
       offset += digitalTemperatures.Length;
 
       for (int i = 0; i < analogTemperatures.Length; i++)
-        analogTemperatures[i] = new Sensor("Analog Sensor #" + (i + 1),
+        analogTemperatures[i] = new Sensor("Analog Sensor " + (i + 1),
           offset + i, null, SensorType.Temperature, this, parameter);
       offset += analogTemperatures.Length;
 
       for (int i = 0; i < sensorhubTemperatures.Length; i++)
-        sensorhubTemperatures[i] = new Sensor("Sensorhub Sensor #" + (i + 1),
+        sensorhubTemperatures[i] = new Sensor("Sensorhub Sensor " + i,
           offset + i, null, SensorType.Temperature, this, parameter);
       offset += sensorhubTemperatures.Length;
 
       for (int i = 0; i < sensorhubFlows.Length; i++)
-        sensorhubFlows[i] = new Sensor("Flowmeter #" + (i + 1),
+        sensorhubFlows[i] = new Sensor("Flowmeter " + (i + 1),
           offset + i, null, SensorType.Flow, this, new ParameterDescription[] {
             new ParameterDescription("Impulse Rate", 
               "The impulse rate of the flowmeter in pulses/L", 509)
@@ -100,7 +100,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       for (int i = 0; i < miniNGTemperatures.Length; i++)
         miniNGTemperatures[i] = new Sensor("miniNG #" + (i / 2 + 1) +
-          " Sensor #" + (i % 2 + 1), offset + i, null, SensorType.Temperature, 
+          " Sensor " + (i % 2 + 1), offset + i, null, SensorType.Temperature, 
           this, parameter);
       offset += miniNGTemperatures.Length;
 
@@ -152,7 +152,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         if (miniNGFans[number * 2 + i] == null)
           miniNGFans[number * 2 + i] = 
-            new Sensor("miniNG #" + (number + 1) + " Fan #" + (i + 1),
+            new Sensor("miniNG #" + (number + 1) + " Fan Channel " + (i + 1),
             4 + number * 2 + i, maxRPM, SensorType.Fan, this);
         
         Sensor sensor = miniNGFans[number * 2 + i];
@@ -220,7 +220,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           float maxRPM = 11.5f * ((data[149 + 2 * i] << 8) | data[148 + 2 * i]);
 
           if (fans[i] == null)
-            fans[i] = new Sensor("Fan #" + (i + 1), i, maxRPM, SensorType.Fan,
+            fans[i] = new Sensor("Fan Channel " + i, i, maxRPM, SensorType.Fan,
               this, new ParameterDescription[] {
                 new ParameterDescription("MaxRPM", 
                   "Maximum revolutions per minute (RPM) of the fan.", maxRPM)
