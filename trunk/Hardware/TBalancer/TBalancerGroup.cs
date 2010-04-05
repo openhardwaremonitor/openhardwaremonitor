@@ -49,79 +49,87 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private StringBuilder report = new StringBuilder();
 
     public TBalancerGroup() {
-   
-      string[] portNames = SerialPort.GetPortNames();      
-      for (int i = portNames.Length - 1; i >= 0; i--) {
-        try {
 
-          SerialPort serialPort =
-            new SerialPort(portNames[i], 19200, Parity.None, 8, StopBits.One);
-          
-          bool isValid = false;
-          byte protocolVersion = 0;
-          report.Append("Port Name: "); report.AppendLine(portNames[i]);
+      uint numDevices;
+      try {
+        FTD2XX.FT_CreateDeviceInfoList(out numDevices);
+      } catch (DllNotFoundException) { return; } 
+        catch (ArgumentNullException) { return; }
+     
+      FT_DEVICE_INFO_NODE[] info = new FT_DEVICE_INFO_NODE[numDevices];
+      FTD2XX.FT_GetDeviceInfoList(info, ref numDevices);
 
-          try {
-            serialPort.Open();
-          } catch (UnauthorizedAccessException) {
-            report.AppendLine("Exception: Access Denied");
-          }
-       
-          if (serialPort.IsOpen) {
-            if (serialPort.CtsHolding) {
-              serialPort.DiscardInBuffer();
-              serialPort.DiscardOutBuffer();
-              serialPort.Write(new byte[] { 0x38 }, 0, 1);
-              int j = 0;
-              while (serialPort.BytesToRead == 0 && j < 2) {
-                Thread.Sleep(100);
-                j++;
-              }
-              if (serialPort.BytesToRead > 0) {
-                if (serialPort.ReadByte() == TBalancer.STARTFLAG) {
-                  while (serialPort.BytesToRead < 284 && j < 5) {
-                    Thread.Sleep(100);
-                    j++;
-                  }
-                  int length = serialPort.BytesToRead;
-                  if (length >= 284) {
-                    byte[] data = new byte[285];
-                    data[0] = TBalancer.STARTFLAG;
-                    for (int k = 1; k < data.Length; k++)
-                      data[k] = (byte)serialPort.ReadByte();
+      for (int i = 0; i < numDevices; i++) {
+        report.Append("Device Index: "); report.AppendLine(i.ToString());
+        
+        FT_HANDLE handle;
+        FT_STATUS status;
+        status = FTD2XX.FT_Open(i, out handle);
+        if (status != FT_STATUS.FT_OK) {
+          report.AppendLine("Open Status: " + status);
+          continue;
+        }
 
-                    // check protocol version 2X (protocols seen: 2C, 2A, 28)
-                    isValid = (data[274] & 0xF0) == 0x20;
-                    protocolVersion = data[274];
-                    if (!isValid) {
-                      report.Append("Status: Wrong Protocol Version: 0x");
-                      report.AppendLine(protocolVersion.ToString("X"));
-                    }
-                  } else {
-                    report.AppendLine("Status: Wrong Message Length: " +length);
-                  }
-                } else {
-                  report.AppendLine("Status: Wrong Startflag");
-                }
-              } else {
-                report.AppendLine("Status: No Response");
+        FTD2XX.FT_SetBaudRate(handle, 19200);
+        FTD2XX.FT_SetDataCharacteristics(handle, 8, 1, 0);
+        FTD2XX.FT_SetFlowControl(handle, FT_FLOW_CONTROL.FT_FLOW_RTS_CTS, 0x11, 
+          0x13);
+        FTD2XX.FT_SetTimeouts(handle, 1000, 1000);
+        FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_ALL);
+        
+        status = FTD2XX.Write(handle, new byte[] { 0x38 });
+        if (status != FT_STATUS.FT_OK) {
+          report.AppendLine("Write Status: " + status);
+          FTD2XX.FT_Close(handle);
+          continue;
+        }
+
+        bool isValid = false;
+        byte protocolVersion = 0;
+
+        int j = 0;
+        while (FTD2XX.BytesToRead(handle) == 0 && j < 2) {
+          Thread.Sleep(100);
+          j++;
+        }
+        if (FTD2XX.BytesToRead(handle) > 0) {
+          if (FTD2XX.ReadByte(handle) == TBalancer.STARTFLAG) {
+            while (FTD2XX.BytesToRead(handle) < 284 && j < 5) {
+              Thread.Sleep(100);
+              j++;
+            }
+            int length = FTD2XX.BytesToRead(handle);
+            if (length >= 284) {
+              byte[] data = new byte[285];
+              data[0] = TBalancer.STARTFLAG;
+              for (int k = 1; k < data.Length; k++)
+                data[k] = FTD2XX.ReadByte(handle);
+
+              // check protocol version 2X (protocols seen: 2C, 2A, 28)
+              isValid = (data[274] & 0xF0) == 0x20;
+              protocolVersion = data[274];
+              if (!isValid) {
+                report.Append("Status: Wrong Protocol Version: 0x");
+                report.AppendLine(protocolVersion.ToString("X"));
               }
             } else {
-              report.AppendLine("Status: Not Clear to Send");
+              report.AppendLine("Status: Wrong Message Length: " + length);
             }
-            serialPort.DiscardInBuffer();
-            serialPort.Close();
-          } else {            
-            report.AppendLine("Status: Port not Open");
-          }                          
-          if (isValid) {
-            report.AppendLine("Status: OK");
-            hardware.Add(new TBalancer(portNames[i], protocolVersion));
-            return;
+          } else {
+            report.AppendLine("Status: Wrong Startflag");
           }
-        } catch (Exception e) {
-          report.AppendLine(e.ToString());
-        } 
+        } else {
+          report.AppendLine("Status: No Response");
+        }
+
+        FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_ALL);
+        FTD2XX.FT_Close(handle);
+
+        if (isValid) {
+          report.AppendLine("Status: OK");
+          hardware.Add(new TBalancer(i, protocolVersion));
+          return;
+        }
         report.AppendLine();
       }
     }
@@ -134,7 +142,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public string GetReport() {
       if (report.Length > 0) {
-        report.Insert(0, "Serial Port T-Balancer" + Environment.NewLine +
+        report.Insert(0, "FTD2XX" + Environment.NewLine +
           Environment.NewLine);
         report.AppendLine();
         return report.ToString();

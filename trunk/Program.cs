@@ -48,6 +48,11 @@ namespace OpenHardwareMonitor {
     [STAThread]
     public static void Main() {
       #if !DEBUG
+        Application.ThreadException += 
+          new ThreadExceptionEventHandler(Application_ThreadException);
+        Application.SetUnhandledExceptionMode(
+          UnhandledExceptionMode.CatchException);
+
         AppDomain.CurrentDomain.UnhandledException += 
           new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
       #endif
@@ -62,13 +67,31 @@ namespace OpenHardwareMonitor {
       }
     }
 
+    private static void ReportException(Exception e) {
+      CrashReportForm form = new CrashReportForm();
+      form.Exception = e;
+      form.ShowDialog();
+    }
+
+    public static void Application_ThreadException(object sender, 
+      ThreadExceptionEventArgs e) 
+    {
+      try {
+        ReportException(e.Exception);
+      } catch {
+      } finally {
+        Application.Exit();
+      }
+    }
+
     public static void CurrentDomain_UnhandledException(object sender, 
       UnhandledExceptionEventArgs args) 
     {
-      CrashReportForm form = new CrashReportForm();
-      form.Exception = (Exception)args.ExceptionObject;
-      form.ShowDialog();
-      Environment.Exit(0);
+      try {
+        Exception e = args.ExceptionObject as Exception;
+        if (e != null)
+          ReportException(e);
+      } catch { } 
     }   
   }
 }
