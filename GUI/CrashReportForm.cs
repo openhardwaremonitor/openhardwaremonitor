@@ -74,34 +74,37 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void sendButton_Click(object sender, EventArgs e) {
-      Version version = typeof(CrashReportForm).Assembly.GetName().Version;
-      WebRequest request = WebRequest.Create(
-        "http://openhardwaremonitor.org/report.php");
-      request.Method = "POST";
-      request.Timeout = 3000;
-      request.ContentType = "application/x-www-form-urlencoded";
-
-      string report = 
-        "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
-        "report=" + HttpUtility.UrlEncode(reportTextBox.Text + 
-        commentTextBox.Text);
-      byte[] byteArray = Encoding.UTF8.GetBytes(report);          
-      request.ContentLength = byteArray.Length;
-    
-      Stream dataStream = request.GetRequestStream();
-      dataStream.Write(byteArray, 0, byteArray.Length);    
-      dataStream.Close();
       try {
-        WebResponse response = request.GetResponse();
-        dataStream = response.GetResponseStream();
-        StreamReader reader = new StreamReader(dataStream);
-        string responseFromServer = reader.ReadToEnd();
-        reader.Close();
+        Version version = typeof(CrashReportForm).Assembly.GetName().Version;
+        WebRequest request = WebRequest.Create(
+          "http://openhardwaremonitor.org/report.php");
+        request.Method = "POST";
+        request.Timeout = 3000;
+        request.ContentType = "application/x-www-form-urlencoded";
+
+        string report =
+          "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
+          "report=" + HttpUtility.UrlEncode(reportTextBox.Text +
+          commentTextBox.Text);
+        byte[] byteArray = Encoding.UTF8.GetBytes(report);
+        request.ContentLength = byteArray.Length;
+
+        Stream dataStream = request.GetRequestStream();
+        dataStream.Write(byteArray, 0, byteArray.Length);
         dataStream.Close();
-        response.Close();
-      } catch (WebException) {
+        try {
+          WebResponse response = request.GetResponse();
+          dataStream = response.GetResponseStream();
+          StreamReader reader = new StreamReader(dataStream);
+          string responseFromServer = reader.ReadToEnd();
+          reader.Close();
+          dataStream.Close();
+          response.Close();
+        } catch (WebException) {
+        }
+      } finally {
+        Close();
       }
-      Close();      
     }
   }  
 }

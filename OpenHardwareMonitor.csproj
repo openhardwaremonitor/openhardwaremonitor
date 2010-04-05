@@ -95,6 +95,7 @@
     <Compile Include="Hardware\Mainboard\SMBIOS.cs" />
     <Compile Include="Hardware\LPC\W836XX.cs" />
     <Compile Include="Hardware\Computer.cs" />
+    <Compile Include="Hardware\TBalancer\FTD2XX.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\AboutBox.cs">
       <SubType>Form</SubType>

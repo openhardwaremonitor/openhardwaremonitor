@@ -39,16 +39,14 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
-using System.IO;
-using System.IO.Ports;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
   public class TBalancer : IHardware {
 
-    private string portName;
+    private int portIndex;
+    private FT_HANDLE handle;
     private Image icon;
-    private SerialPort serialPort;
     private byte protocolVersion;
     private Sensor[] digitalTemperatures = new Sensor[8];
     private Sensor[] analogTemperatures = new Sensor[4];
@@ -68,8 +66,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private delegate void MethodDelegate();
     private MethodDelegate alternativeRequest;    
 
-    public TBalancer(string portName, byte protocolVersion) {
-      this.portName = portName;
+    public TBalancer(int portIndex, byte protocolVersion) {
+      this.portIndex = portIndex;
       this.icon = Utilities.EmbeddedResources.GetImage("bigng.png");
       this.protocolVersion = protocolVersion;
 
@@ -108,12 +106,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       alternativeRequest = new MethodDelegate(DelayedAlternativeRequest);
 
-      try {
-        serialPort = new SerialPort(portName, 19200, Parity.None, 8,
-          StopBits.One);
-        serialPort.Open();
-        Update();
-      } catch (IOException) { }      
+      Open();
+      Update(); 
     }
 
     private void ActivateSensor(Sensor sensor) {
@@ -171,10 +165,10 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private void ReadData() {
       int[] data = new int[285];
       for (int i = 0; i < data.Length; i++)
-        data[i] = serialPort.ReadByte();
+        data[i] = FTD2XX.ReadByte(handle);
 
       if (data[0] != STARTFLAG) {
-        serialPort.DiscardInBuffer();   
+        FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_RX);   
         return;
       }
 
@@ -258,8 +252,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     public string Identifier {
-      get { return "/bigng/" + 
-        this.portName.TrimStart(new char[]{'/'}).ToLower(); }
+      get { return "/bigng/" + this.portIndex; }
     }
 
     public IHardware[] SubHardware {
@@ -275,7 +268,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       r.AppendLine("T-Balancer bigNG");
       r.AppendLine();
-      r.Append("Port Name: "); r.AppendLine(serialPort.PortName);
+      r.Append("Port Index: "); r.AppendLine(portIndex.ToString());
       r.AppendLine();
 
       r.AppendLine("Primary System Information Answer");
@@ -318,31 +311,32 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     private void DelayedAlternativeRequest() {
-      System.Threading.Thread.Sleep(500);
-      try {
-        if (serialPort.IsOpen)
-          serialPort.Write(new byte[] { 0x37 }, 0, 1);
-      } catch (Exception) { }
+      System.Threading.Thread.Sleep(500);      
+      FTD2XX.Write(handle, new byte[] { 0x37 });
     }
 
-    public void Update() {      
-      try {
-        while (serialPort.IsOpen && serialPort.BytesToRead >= 285)
-          ReadData();
-        if (serialPort.BytesToRead == 1)
-          serialPort.ReadByte();
+    public void Open() {
+      FTD2XX.FT_Open(portIndex, out handle); 
+      FTD2XX.FT_SetBaudRate(handle, 19200);
+      FTD2XX.FT_SetDataCharacteristics(handle, 8, 1, 0);
+      FTD2XX.FT_SetFlowControl(handle, FT_FLOW_CONTROL.FT_FLOW_RTS_CTS, 0x11,
+        0x13);
+      FTD2XX.FT_SetTimeouts(handle, 1000, 1000);
+      FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_ALL);
+    }
 
-        serialPort.Write(new byte[] { 0x38 }, 0, 1);
-        alternativeRequest.BeginInvoke(null, null);
-      } catch (InvalidOperationException) {
-        foreach (Sensor sensor in active)
-          sensor.Value = null;
-      }      
+    public void Update() {
+      while (FTD2XX.BytesToRead(handle) >= 285)
+        ReadData();
+      if (FTD2XX.BytesToRead(handle) == 1)
+        FTD2XX.ReadByte(handle);
+
+      FTD2XX.Write(handle, new byte[] { 0x38 });
+      alternativeRequest.BeginInvoke(null, null);
     }
 
     public void Close() {
-      if (serialPort.IsOpen)
-        serialPort.Close();
+      FTD2XX.FT_Close(handle);
     }
 
     public event SensorEventHandler SensorAdded;
