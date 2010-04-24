@@ -7,6 +7,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
   public enum Chip : ushort {
     Unknown = 0,
+    IT8712F = 0x8712,
     IT8716F = 0x8716,
     IT8718F = 0x8718,
     IT8720F = 0x8720,
