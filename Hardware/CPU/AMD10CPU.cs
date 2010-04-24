@@ -60,15 +60,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID = 0x1303;
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
-    public AMD10CPU(string name, uint family, uint model, uint stepping, 
-      uint[,] cpuidData, uint[,] cpuidExtData) {
-      
-      this.name = name;
-      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");     
+    public AMD10CPU(CPUID[][] cpuid) {
 
-      uint coreCount = 1;
-      if (cpuidExtData.GetLength(0) > 8)
-        coreCount = (cpuidExtData[8, 2] & 0xFF) + 1;
+      this.name = cpuid[0][0].Name;
+      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
+
+      int coreCount = cpuid.Length;
 
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
 
@@ -77,7 +74,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
           SensorType.Load, this);
 
-      cpuLoad = new CPULoad(coreCount, 1);
+      cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
         foreach (Sensor sensor in coreLoads)
           ActivateSensor(sensor);

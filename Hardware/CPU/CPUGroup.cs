@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
@@ -44,119 +45,99 @@ namespace OpenHardwareMonitor.Hardware.CPU {
   public class CPUGroup : IGroup { 
     private List<IHardware> hardware = new List<IHardware>();
 
-    private string cpuBrandString;
-    private string cpuVendor;
-    private uint[,] cpuidData;
-    private uint[,] cpuidExtData;
+    private CPUID[][][] threads;
 
-    private uint family;
-    private uint model;
-    private uint stepping;
+    private CPUID[][] GetProcessorThreads() {
 
-    private static uint CPUID = 0;
-    private static uint CPUID_EXT = 0x80000000;
+      List<CPUID> threads = new List<CPUID>();
+      for (int i = 0; i < 32; i++) {
+        try {
+          threads.Add(new CPUID(i));
+        } catch (ArgumentException) { }
+      }
 
-    public static void AppendRegister(StringBuilder b, uint value) {
-      b.Append((char)((value) & 0xff));
-      b.Append((char)((value >> 8) & 0xff));
-      b.Append((char)((value >> 16) & 0xff));
-      b.Append((char)((value >> 24) & 0xff));
+      SortedDictionary<uint, List<CPUID>> processors =
+        new SortedDictionary<uint, List<CPUID>>();
+      foreach (CPUID thread in threads) {
+        List<CPUID> list;
+        processors.TryGetValue(thread.ProcessorId, out list);
+        if (list == null) {
+          list = new List<CPUID>();
+          processors.Add(thread.ProcessorId, list);
+        }
+        list.Add(thread);
+      }
+
+      CPUID[][] processorThreads = new CPUID[processors.Count][];
+      int index = 0;
+      foreach (List<CPUID> list in processors.Values) {
+        processorThreads[index] = list.ToArray();
+        index++;
+      }
+      return processorThreads;
+    }
+
+    private CPUID[][] GroupThreadsByCore(CPUID[] threads) {
+
+      SortedDictionary<uint, List<CPUID>> cores = 
+        new SortedDictionary<uint, List<CPUID>>();
+      foreach (CPUID thread in threads) {
+        List<CPUID> coreList;
+        cores.TryGetValue(thread.CoreId, out coreList);
+        if (coreList == null) {
+          coreList = new List<CPUID>();
+          cores.Add(thread.CoreId, coreList);
+        }
+        coreList.Add(thread);
+      }
+
+      CPUID[][] coreThreads = new CPUID[cores.Count][];
+      int index = 0;
+      foreach (List<CPUID> list in cores.Values) {
+        coreThreads[index] = list.ToArray();
+        index++;
+      }
+      return coreThreads;
     }
 
     public CPUGroup() {
-
-      if (!WinRing0.IsAvailable) 
+      if (!WinRing0.IsCpuid())
         return;
 
-      if (WinRing0.IsCpuid()) {
-        uint maxCPUID = 0;
-        uint maxCPUID_EXT = 0;
-        uint eax, ebx, ecx, edx;
+      CPUID[][] processorThreads = GetProcessorThreads();
+      this.threads = new CPUID[processorThreads.Length][][];
 
-        
-        if (WinRing0.Cpuid(CPUID, out eax, out ebx, out ecx, out edx)) {
-          maxCPUID = eax;
-          StringBuilder vendorBuilder = new StringBuilder();
-          AppendRegister(vendorBuilder, ebx);
-          AppendRegister(vendorBuilder, edx);
-          AppendRegister(vendorBuilder, ecx);
-          cpuVendor = vendorBuilder.ToString();
+      int index = 0;
+      foreach (CPUID[] threads in processorThreads) {
+        if (threads.Length == 0)
+          continue;
+            
+        CPUID[][] coreThreads = GroupThreadsByCore(threads);
 
-          eax = ebx = ecx = edx = 0;
-          if (WinRing0.Cpuid(CPUID_EXT, out eax, out ebx, out ecx, out edx)) {
-            maxCPUID_EXT = eax - CPUID_EXT;
-          }
-        }
-        if (maxCPUID == 0 || maxCPUID_EXT == 0)
-          return;        
+        this.threads[index] = coreThreads;
+        index++;
 
-        cpuidData = new uint[maxCPUID + 1, 4];
-        for (uint i = 0; i < (maxCPUID + 1); i++)
-          WinRing0.Cpuid(CPUID + i, out cpuidData[i, 0], out cpuidData[i, 1],
-            out cpuidData[i, 2], out cpuidData[i, 3]);
-
-        cpuidExtData = new uint[maxCPUID_EXT + 1, 4];
-        for (uint i = 0; i < (maxCPUID_EXT + 1); i++)
-          WinRing0.Cpuid(CPUID_EXT + i, out cpuidExtData[i, 0],
-            out cpuidExtData[i, 1], out cpuidExtData[i, 2],
-            out cpuidExtData[i, 3]);
-
-        StringBuilder nameBuilder = new StringBuilder();
-        for (uint i = 2; i <= 4; i++) {
-          if (WinRing0.Cpuid(CPUID_EXT + i, out eax, out ebx, out ecx, out edx)) 
-          {
-            AppendRegister(nameBuilder, eax);
-            AppendRegister(nameBuilder, ebx);
-            AppendRegister(nameBuilder, ecx);
-            AppendRegister(nameBuilder, edx);
-          }
-        }
-        nameBuilder.Replace('\0', ' ');
-        cpuBrandString = nameBuilder.ToString().Trim();
-        nameBuilder.Replace("(R)", " ");
-        nameBuilder.Replace("(TM)", " ");
-        nameBuilder.Replace("(tm)", " ");
-        nameBuilder.Replace("CPU", "");
-        for (int i = 0; i < 10; i++) nameBuilder.Replace("  ", " ");
-        string name = nameBuilder.ToString();
-        if (name.Contains("@"))
-          name = name.Remove(name.LastIndexOf('@')); 
-        name = name.Trim();
-
-        this.family = ((cpuidData[1, 0] & 0x0FF00000) >> 20) +
-          ((cpuidData[1, 0] & 0x0F00) >> 8);
-        this.model = ((cpuidData[1, 0] & 0x0F0000) >> 12) +
-          ((cpuidData[1, 0] & 0xF0) >> 4);
-        this.stepping = (cpuidData[1, 0] & 0x0F);
-
-        switch (cpuVendor) {
-          case "GenuineIntel":
-            hardware.Add(new IntelCPU(name, family, model, stepping, 
-              cpuidData, cpuidExtData));
+        switch (threads[0].Vendor) {
+          case Vendor.Intel:
+            hardware.Add(new IntelCPU(coreThreads));
             break;
-          case "AuthenticAMD":                       
-            // check if processor supports a digital thermal sensor            
-            if (maxCPUID_EXT >= 7 && (cpuidExtData[7, 3] & 1) != 0) {
-              switch (family) {
-                case 0x0F:
-                  hardware.Add(new AMD0FCPU(name, family, model, stepping,
-                    cpuidData, cpuidExtData));
-                  break;
-                case 0x10:
-                  hardware.Add(new AMD10CPU(name, family, model, stepping,
-                    cpuidData, cpuidExtData));
-                  break;
-                default:
-                  break;
-              }
-            }
-            break;
+          case Vendor.AMD:
+            switch (threads[0].Family) {
+              case 0x0F:
+                hardware.Add(new AMD0FCPU(coreThreads));
+                break;
+              case 0x10:
+                hardware.Add(new AMD10CPU(coreThreads));
+                break;
+              default:
+                break;
+            } break;
           default:
             break;
-        }
+        } 
       }
     }
-
+    
     public IHardware[] Hardware {
       get {
         return hardware.ToArray();
@@ -178,32 +159,43 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public string GetReport() {
 
       StringBuilder r = new StringBuilder();
-
+      
       r.AppendLine("CPUID");
       r.AppendLine();
-      r.AppendFormat("Processor Vendor: {0}{1}", cpuVendor, 
-        Environment.NewLine);
-      r.AppendFormat("Processor Brand: {0}{1}", cpuBrandString, 
-        Environment.NewLine);
-      r.AppendFormat("Family: 0x{0}{1}", family.ToString("X"),
-        Environment.NewLine);
-      r.AppendFormat("Model: 0x{0}{1}", model.ToString("X"),
-        Environment.NewLine);
-      r.AppendFormat("Stepping: 0x{0}{1}", stepping.ToString("X"),
-        Environment.NewLine);
-      r.AppendLine();
 
-      r.AppendLine("CPUID Return Values");
-      r.AppendLine();
+      for (int i = 0; i < threads.Length; i++) {
 
-      if (cpuidData != null) {
-        r.AppendLine(" Function  EAX       EBX       ECX       EDX");
-        AppendCpuidData(r, cpuidData, CPUID);
-        AppendCpuidData(r, cpuidExtData, CPUID_EXT);
+        r.AppendLine("Processor " + i);
         r.AppendLine();
-      }
+        r.AppendFormat("Processor Vendor: {0}{1}", threads[i][0][0].Vendor,
+          Environment.NewLine);
+        r.AppendFormat("Processor Brand: {0}{1}", threads[i][0][0].BrandString,
+          Environment.NewLine);
+        r.AppendFormat("Family: 0x{0}{1}", 
+          threads[i][0][0].Family.ToString("X"), Environment.NewLine);
+        r.AppendFormat("Model: 0x{0}{1}", 
+          threads[i][0][0].Model.ToString("X"), Environment.NewLine);
+        r.AppendFormat("Stepping: 0x{0}{1}", 
+          threads[i][0][0].Stepping.ToString("X"), Environment.NewLine);
+        r.AppendLine();
 
-      return r.ToString();
+        r.AppendLine("CPUID Return Values");
+        r.AppendLine();
+        for (int j = 0; j < threads[i].Length; j++)
+          for (int k = 0; k < threads[i][j].Length; k++) {
+            r.AppendLine(" CPU Thread: " + threads[i][j][k].Thread);
+            r.AppendLine(" APIC ID: " + threads[i][j][k].ApicId);
+            r.AppendLine(" Processor ID: " + threads[i][j][k].ProcessorId);
+            r.AppendLine(" Core ID: " + threads[i][j][k].CoreId);
+            r.AppendLine(" Thread ID: " + threads[i][j][k].ThreadId);
+            r.AppendLine();
+            r.AppendLine(" Function  EAX       EBX       ECX       EDX");
+            AppendCpuidData(r, threads[i][j][k].Data, CPUID.CPUID_0);
+            AppendCpuidData(r, threads[i][j][k].ExtData, CPUID.CPUID_EXT);
+            r.AppendLine();
+          }
+      }
+      return r.ToString(); 
     }
 
     public void Close() { }

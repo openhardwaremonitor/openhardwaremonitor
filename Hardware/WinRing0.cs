@@ -79,10 +79,11 @@ namespace OpenHardwareMonitor.Hardware {
     
     public delegate uint GetDllStatusDelegate();
     public delegate bool IsCpuidDelegate();
-    public delegate bool CpuidDelegate(uint index, 
+    public delegate bool CpuidDelegate(uint index, uint ecxValue, 
       out uint eax, out uint ebx, out uint ecx, out uint edx);
-    public delegate bool CpuidExDelegate(uint index, uint ecxValue, 
-      out uint eax, out uint ebx, out uint ecx, out uint edx);
+    public delegate bool CpuidTxDelegate(uint index, uint ecxValue,
+      out uint eax, out uint ebx, out uint ecx, out uint edx,
+      UIntPtr threadAffinityMask);
     public delegate bool RdmsrDelegate(uint index, out uint eax, out uint edx);
     public delegate bool RdmsrTxDelegate(uint index, out uint eax, out uint edx,
       UIntPtr threadAffinityMask);
@@ -105,7 +106,7 @@ namespace OpenHardwareMonitor.Hardware {
     public static GetDllStatusDelegate GetDllStatus;
     public static IsCpuidDelegate IsCpuid;
     public static CpuidDelegate Cpuid;
-    public static CpuidExDelegate CpuidEx;
+    public static CpuidTxDelegate CpuidTx;
     public static RdmsrDelegate Rdmsr;
     public static RdmsrTxDelegate RdmsrTx;
     public static ReadIoPortByteDelegate ReadIoPortByte;
@@ -134,7 +135,7 @@ namespace OpenHardwareMonitor.Hardware {
       GetDelegate("GetDllStatus", out GetDllStatus);
       GetDelegate("IsCpuid", out IsCpuid);
       GetDelegate("Cpuid", out Cpuid);
-      GetDelegate("CpuidEx", out CpuidEx);
+      GetDelegate("CpuidTx", out CpuidTx);
       GetDelegate("Rdmsr", out  Rdmsr);
       GetDelegate("RdmsrTx", out  RdmsrTx);
       GetDelegate("ReadIoPortByte", out ReadIoPortByte);

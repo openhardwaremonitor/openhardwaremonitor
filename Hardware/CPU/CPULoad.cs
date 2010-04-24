@@ -68,8 +68,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       [Out] SystemProcessorPerformanceInformation[] informations, 
       int structSize, out IntPtr returnLength);
 
-    private uint coreCount;
-    private uint logicalProcessorsPerCore;
+    private CPUID[][] cpuid;
 
     private long systemTime;
     private long[] idleTimes;
@@ -80,7 +79,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private bool available = false;
 
     private long[] GetIdleTimes() {
-      long[] result = new long[coreCount * logicalProcessorsPerCore];
+      long[] result = new long[cpuid.Length * cpuid[0].Length];
       SystemProcessorPerformanceInformation[] informations = new
        SystemProcessorPerformanceInformation[result.Length];
 
@@ -97,10 +96,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return result;
     }
 
-    public CPULoad(uint coreCount, uint logicalProcessorsPerCore) {
-      this.coreCount = coreCount;
-      this.logicalProcessorsPerCore = logicalProcessorsPerCore;
-      this.coreLoads = new float[coreCount];         
+    public CPULoad(CPUID[][] cpuid) {
+      this.cpuid = cpuid;
+      this.coreLoads = new float[cpuid.Length];         
       this.systemTime = DateTime.Now.Ticks;
       this.totalLoad = 0;
       try {
@@ -135,21 +133,22 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         return;
 
       float total = 0;
-      for (int i = 0; i < coreCount; i++) {
+      int count = 0;
+      for (int i = 0; i < cpuid.Length; i++) {
         float value = 0;
-        for (int j = 0; j < logicalProcessorsPerCore; j++) {
-          long index = i * logicalProcessorsPerCore + j;
+        for (int j = 0; j < cpuid[i].Length; j++) {
+          long index = cpuid[i][j].Thread;
           long delta = idleTimes[index] - this.idleTimes[index];
           value += delta;
           total += delta;
+          count++;
         }
-        value = 1.0f - value / (logicalProcessorsPerCore * 
+        value = 1.0f - value / (cpuid[i].Length * 
           (systemTime - this.systemTime));
         value = value < 0 ? 0 : value;
         coreLoads[i] = value * 100;
       }
-      total = 1.0f - total / (coreCount * logicalProcessorsPerCore *
-        (systemTime - this.systemTime));
+      total = 1.0f - total / (count * (systemTime - this.systemTime));
       total = total < 0 ? 0 : total;
       this.totalLoad = total * 100;
 
