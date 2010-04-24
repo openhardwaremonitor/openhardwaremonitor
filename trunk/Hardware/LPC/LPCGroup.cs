@@ -171,6 +171,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             switch (revision) {
               case 0x17:
               case 0x3A:
+              case 0x41:
                 chip = Chip.W83627HF;
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;             
