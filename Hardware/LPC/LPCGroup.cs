@@ -303,6 +303,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         ushort chipID = ReadWord(CHIP_ID_REGISTER);
         switch (chipID) {
+          case 0x8712: chip = Chip.IT8712F; break;
           case 0x8716: chip = Chip.IT8716F; break;
           case 0x8718: chip = Chip.IT8718F; break;
           case 0x8720: chip = Chip.IT8720F; break;

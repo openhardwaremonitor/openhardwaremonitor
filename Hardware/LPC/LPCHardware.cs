@@ -56,6 +56,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.F71869: name = "Fintek F71869"; break;
         case Chip.F71882: name = "Fintek F71882"; break;
         case Chip.F71889: name = "Fintek F71889"; break;
+        case Chip.IT8712F: this.name = "ITE IT8712F"; break;
         case Chip.IT8716F: this.name = "ITE IT8716F"; break;
         case Chip.IT8718F: this.name = "ITE IT8718F"; break;
         case Chip.IT8720F: this.name = "ITE IT8720F"; break;
