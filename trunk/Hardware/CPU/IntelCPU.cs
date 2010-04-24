@@ -48,6 +48,9 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.CPU {
   public class IntelCPU : Hardware, IHardware {
 
+    private CPUID[][] cpuid;
+    private int coreCount;
+    
     private string name;
     private Image icon;
 
@@ -60,15 +63,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private Sensor totalLoad;
     private Sensor[] coreLoads;
     private Sensor[] coreClocks;
-    private Sensor busClock;
-    private uint logicalProcessors;
-    private uint logicalProcessorsPerCore;
-    private uint coreCount;
+    private Sensor busClock;    
     private bool hasTSC;
     private bool invariantTSC;    
     private double estimatedMaxClock;
 
-    private ulong affinityMask;
     private CPULoad cpuLoad;
 
     private ulong lastTimeStampCount;    
@@ -87,10 +86,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         return "CPU Core #" + (i + 1);
     }
 
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern bool GetProcessAffinityMask(IntPtr handle, 
-      out IntPtr processMask, out IntPtr systemMask);
-
     private float[] Floats(float f) {
       float[] result = new float[coreCount];
       for (int i = 0; i < coreCount; i++)
@@ -98,64 +93,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return result;
     }
 
-    public IntelCPU(string name, uint family, uint model, uint stepping, 
-      uint[,] cpuidData, uint[,] cpuidExtData) {
-      
-      this.name = name;
+    public IntelCPU(CPUID[][] cpuid) {
+
+      this.cpuid = cpuid;
+      this.coreCount = cpuid.Length;
+      this.name = cpuid[0][0].Name;
       this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
-      this.family = family;
-      this.model = model;
-      this.stepping = stepping;
-
-      logicalProcessors = 0;
-      if (cpuidData.GetLength(0) > 0x0B) {
-        uint eax, ebx, ecx, edx;
-        WinRing0.CpuidEx(0x0B, 0, out eax, out ebx, out ecx, out edx);
-        logicalProcessorsPerCore = ebx & 0xFF;
-        if (logicalProcessorsPerCore > 0) {
-          WinRing0.CpuidEx(0x0B, 1, out eax, out ebx, out ecx, out edx);
-          logicalProcessors = ebx & 0xFF;
-        }   
-      }
-      if (logicalProcessors <= 0 && cpuidData.GetLength(0) > 0x04) {
-        uint coresPerPackage = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
-        uint logicalPerPackage = (cpuidData[1, 1] >> 16) & 0xFF;        
-        logicalProcessorsPerCore = logicalPerPackage / coresPerPackage;
-        logicalProcessors = logicalPerPackage;
-      }
-      if (logicalProcessors <= 0 && cpuidData.GetLength(0) > 0x01) {
-        uint logicalPerPackage = (cpuidData[1, 1] >> 16) & 0xFF;
-        logicalProcessorsPerCore = logicalPerPackage;
-        logicalProcessors = logicalPerPackage;
-      }
-      if (logicalProcessors <= 0) {
-        logicalProcessors = 1;
-        logicalProcessorsPerCore = 1;
-      }
-
-      IntPtr processMask, systemMask;
-      GetProcessAffinityMask(Process.GetCurrentProcess().Handle,
-        out processMask, out systemMask);
-      affinityMask = (ulong)systemMask;
-
-      // correct values in case HypeThreading is disabled
-      if (logicalProcessorsPerCore > 1) {
-        ulong affinity = affinityMask;
-        int availableLogicalProcessors = 0;
-        while (affinity != 0) {
-          if ((affinity & 0x1) > 0)
-            availableLogicalProcessors++;
-          affinity >>= 1;
-        }
-        while (logicalProcessorsPerCore > 1 &&
-          availableLogicalProcessors < logicalProcessors) {
-          logicalProcessors >>= 1;
-          logicalProcessorsPerCore >>= 1;
-        }
-      }
-
-      coreCount = logicalProcessors / logicalProcessorsPerCore;
+      this.family = cpuid[0][0].Family;
+      this.model = cpuid[0][0].Model;
+      this.stepping = cpuid[0][0].Stepping;
 
       float[] tjMax;
       switch (family) {
@@ -191,8 +138,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = new float[coreCount];
                 for (int i = 0; i < coreCount; i++) {
                   if (WinRing0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
-                    out edx, (UIntPtr)(
-                    1 << (int)(logicalProcessorsPerCore * i)))) 
+                    out edx, (UIntPtr)(1L << cpuid[i][0].Thread)))
                   {
                     tjMax[i] = (eax >> 16) & 0xFF;
                   } else {
@@ -211,7 +157,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       // check if processor supports a digital thermal sensor
-      if (cpuidData.GetLength(0) > 6 && (cpuidData[6, 0] & 1) != 0) {
+      if (cpuid[0][0].Data.GetLength(0) > 6 && 
+        (cpuid[0][0].Data[6, 0] & 1) != 0) 
+      {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax[i],
@@ -235,7 +183,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreLoads.Length; i++)
         coreLoads[i] = new Sensor(CoreString(i), i + 1,
           SensorType.Load, this);     
-      cpuLoad = new CPULoad(coreCount, logicalProcessorsPerCore);
+      cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
         foreach (Sensor sensor in coreLoads)
           ActivateSensor(sensor);
@@ -244,13 +192,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       // check if processor has TSC
-      if (cpuidData.GetLength(0) > 1 && (cpuidData[1, 3] & 0x10) != 0)
+      if (cpuid[0][0].Data.GetLength(0) > 1 
+        && (cpuid[0][0].Data[1, 3] & 0x10) != 0)
         hasTSC = true;
       else
         hasTSC = false; 
 
       // check if processor supports invariant TSC 
-      if (cpuidExtData.GetLength(0) > 7 && (cpuidExtData[7, 3] & 0x100) != 0)
+      if (cpuid[0][0].ExtData.GetLength(0) > 7 
+        && (cpuid[0][0].ExtData[7, 3] & 0x100) != 0)
         invariantTSC = true;
       else
         invariantTSC = false;
@@ -288,10 +238,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return icon; }
     }
 
-    private void AppendMSRData(StringBuilder r, uint msr, int core) {
+    private void AppendMSRData(StringBuilder r, uint msr, int thread) {
       uint eax, edx;
-      if (WinRing0.RdmsrTx(msr, out eax, out edx,
-         (UIntPtr)(1 << (int)(logicalProcessorsPerCore * core)))) {
+      if (WinRing0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
         r.Append(" ");
         r.Append((msr).ToString("X8"));
         r.Append("  ");
@@ -310,10 +259,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.AppendFormat("Name: {0}{1}", name, Environment.NewLine);
       r.AppendFormat("Number of Cores: {0}{1}", coreCount, 
         Environment.NewLine);
-      r.AppendFormat("Threads per Core: {0}{1}", logicalProcessorsPerCore,
-        Environment.NewLine);
-      r.AppendFormat("Affinity Mask: 0x{0}{1}", affinityMask.ToString("X"),
-        Environment.NewLine);
+      r.AppendFormat("Threads per Core: {0}{1}", cpuid[0].Length,
+        Environment.NewLine);     
       r.AppendLine("TSC: " + 
         (hasTSC ? (invariantTSC ? "Invariant" : "Not Invariant") : "None"));
       r.AppendLine(string.Format(CultureInfo.InvariantCulture, 
@@ -322,14 +269,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         "Max Clock: {0} MHz", Math.Round(estimatedMaxClock * 100) * 0.01));
       r.AppendLine();
 
-      for (int i = 0; i < coreCount; i++) {
+      for (int i = 0; i < cpuid.Length; i++) {
         r.AppendLine("MSR Core #" + (i + 1));
         r.AppendLine();
         r.AppendLine(" MSR       EDX       EAX");
-        AppendMSRData(r, MSR_PLATFORM_INFO, i);
-        AppendMSRData(r, IA32_PERF_STATUS, i);
-        AppendMSRData(r, IA32_THERM_STATUS_MSR, i);
-        AppendMSRData(r, IA32_TEMPERATURE_TARGET, i);
+        AppendMSRData(r, MSR_PLATFORM_INFO, cpuid[i][0].Thread);
+        AppendMSRData(r, IA32_PERF_STATUS, cpuid[i][0].Thread);
+        AppendMSRData(r, IA32_THERM_STATUS_MSR, cpuid[i][0].Thread);
+        AppendMSRData(r, IA32_TEMPERATURE_TARGET, cpuid[i][0].Thread);
         r.AppendLine();
       }
 
@@ -360,8 +307,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
         if (WinRing0.RdmsrTx(
-          IA32_THERM_STATUS_MSR, out eax, out edx,
-            (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
+          IA32_THERM_STATUS_MSR, out eax, out edx, 
+            (UIntPtr)(1L << cpuid[i][0].Thread))) {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {
             // get the dist from tjMax from bits 22:16
@@ -402,7 +349,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           for (int i = 0; i < coreClocks.Length; i++) {
             System.Threading.Thread.Sleep(1);
             if (WinRing0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-              (UIntPtr)(1 << (int)(logicalProcessorsPerCore * i)))) {
+              (UIntPtr)(1L << cpuid[i][0].Thread))) {
               if (maxNehalemMultiplier > 0) { // Core i3, i5, i7
                 uint nehalemMultiplier = eax & 0xff;
                 coreClocks[i].Value =

@@ -63,41 +63,46 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
 
-    public AMD0FCPU(string name, uint family, uint model, uint stepping, 
-      uint[,] cpuidData, uint[,] cpuidExtData) {
-      
-      this.name = name;
-      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");     
+    public AMD0FCPU(CPUID[][] cpuid) {
 
-      uint coreCount = 1;
-      if (cpuidExtData.GetLength(0) > 8)
-        coreCount = (cpuidExtData[8, 2] & 0xFF) + 1;
+      this.name = cpuid[0][0].Name;
+      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
-      // max two cores
-      coreCount = coreCount > 2 ? 2 : coreCount;
+      int coreCount = cpuid.Length;      
 
       totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
         
       float offset = -49.0f;
 
       // AM2+ 65nm +21 offset
+      uint model = cpuid[0][0].Model;
       if (model >= 0x69 && model != 0xc1 && model != 0x6c && model != 0x7c) 
         offset += 21;
 
-      coreTemperatures = new Sensor[coreCount];
-      coreLoads = new Sensor[coreCount];
-      for (int i = 0; i < coreCount; i++) {
-        coreTemperatures[i] =
-          new Sensor("Core #" + (i + 1), i, null, SensorType.Temperature, this,
-            new ParameterDescription[] { new ParameterDescription("Offset", 
-              "Temperature offset of the thermal sensor.\n" + 
-              "Temperature = Value + Offset.", offset)
+      // check if processor supports a digital thermal sensor 
+      if (cpuid[0][0].ExtData.GetLength(0) > 7 && 
+        (cpuid[0][0].ExtData[7, 3] & 1) != 0) 
+      {
+        coreTemperatures = new Sensor[coreCount];
+        for (int i = 0; i < coreCount; i++) {
+          coreTemperatures[i] =
+            new Sensor("Core #" + (i + 1), i, null, SensorType.Temperature,
+              this, new ParameterDescription[] { 
+                new ParameterDescription("Offset", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", offset)
           });
-        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
-          SensorType.Load, this);
+        }
+      } else {
+        coreTemperatures = new Sensor[0];
       }
 
-      cpuLoad = new CPULoad(coreCount, 1);
+      coreLoads = new Sensor[coreCount];
+      for (int i = 0; i < coreCount; i++) 
+        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
+          SensorType.Load, this);     
+
+      cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
         foreach (Sensor sensor in coreLoads)
           ActivateSensor(sensor);
@@ -128,7 +133,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public void Update() {
       if (pciAddress != 0xFFFFFFFF) {
-
         for (uint i = 0; i < coreTemperatures.Length; i++) {
           if (WinRing0.WritePciConfigDwordEx(
             pciAddress, THERMTRIP_STATUS_REGISTER,

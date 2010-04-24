@@ -78,6 +78,7 @@
     <Compile Include="GUI\TypeNode.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
+    <Compile Include="Hardware\CPU\CPUID.cs" />
     <Compile Include="Hardware\CPU\CPULoad.cs" />
     <Compile Include="Hardware\Hardware.cs" />
     <Compile Include="Hardware\HDD\HDD.cs" />
