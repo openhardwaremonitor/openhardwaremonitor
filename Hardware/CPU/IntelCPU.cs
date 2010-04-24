@@ -134,6 +134,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x1A: // Intel Core i7 LGA1366 (45nm)
               case 0x1E: // Intel Core i5, i7 LGA1156 (45nm)
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
+              case 0x2C: // Intel Core i7 LGA1366 (32nm) 6 Core
                 uint eax, edx;
                 tjMax = new float[coreCount];
                 for (int i = 0; i < coreCount; i++) {
