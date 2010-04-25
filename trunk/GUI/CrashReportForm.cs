@@ -79,7 +79,7 @@ namespace OpenHardwareMonitor.GUI {
         WebRequest request = WebRequest.Create(
           "http://openhardwaremonitor.org/report.php");
         request.Method = "POST";
-        request.Timeout = 3000;
+        request.Timeout = 5000;
         request.ContentType = "application/x-www-form-urlencoded";
 
         string report =
@@ -89,10 +89,11 @@ namespace OpenHardwareMonitor.GUI {
         byte[] byteArray = Encoding.UTF8.GetBytes(report);
         request.ContentLength = byteArray.Length;
 
-        Stream dataStream = request.GetRequestStream();
-        dataStream.Write(byteArray, 0, byteArray.Length);
-        dataStream.Close();
         try {
+          Stream dataStream = request.GetRequestStream();
+          dataStream.Write(byteArray, 0, byteArray.Length);
+          dataStream.Close();
+
           WebResponse response = request.GetResponse();
           dataStream = response.GetResponseStream();
           StreamReader reader = new StreamReader(dataStream);
@@ -100,10 +101,13 @@ namespace OpenHardwareMonitor.GUI {
           reader.Close();
           dataStream.Close();
           response.Close();
+
+          Close();
         } catch (WebException) {
+          MessageBox.Show("Sending the crash report failed.", "Error", 
+            MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
-      } finally {
-        Close();
+      } catch {
       }
     }
   }  

@@ -91,7 +91,10 @@ namespace OpenHardwareMonitor {
         Exception e = args.ExceptionObject as Exception;
         if (e != null)
           ReportException(e);
-      } catch { } 
+      } catch {
+      } finally {
+        Environment.Exit(0);
+      }
     }   
   }
 }
