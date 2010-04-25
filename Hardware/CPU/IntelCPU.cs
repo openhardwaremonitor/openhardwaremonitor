@@ -211,7 +211,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       EstimateMaxClock(0); 
 
       // estimate the max clock in MHz      
-      estimatedMaxClock = 1e-6 * EstimateMaxClock(0.01);
+      List<double> estimatedMaxClocks = new List<double>(3);
+      for (int i = 0; i < 3; i++)
+        estimatedMaxClocks.Add(1e-6 * EstimateMaxClock(0.025));
+      estimatedMaxClocks.Sort();
+      estimatedMaxClock = estimatedMaxClocks[1];
 
       lastTimeStampCount = 0;
       lastTime = 0;
@@ -289,7 +293,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint lsbBegin, msbBegin, lsbEnd, msbEnd; 
       
       Thread.BeginThreadAffinity();
-      long timeBegin = Stopwatch.GetTimestamp() + 2;
+      long timeBegin = Stopwatch.GetTimestamp() + 
+        (long)Math.Ceiling(0.001 * ticks);
       long timeEnd = timeBegin + ticks;      
       while (Stopwatch.GetTimestamp() < timeBegin) { }
       WinRing0.Rdtsc(out lsbBegin, out msbBegin);
