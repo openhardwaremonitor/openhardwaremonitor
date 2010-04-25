@@ -128,8 +128,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           out cpuidData[i, 0], out cpuidData[i, 1],
           out cpuidData[i, 2], out cpuidData[i, 3], mask);
 
-      cpuidExtData = new uint[MaxCpuidExt + 1, 4];
-      for (uint i = 0; i < (MaxCpuidExt + 1); i++)
+      cpuidExtData = new uint[maxCpuidExt + 1, 4];
+      for (uint i = 0; i < (maxCpuidExt + 1); i++)
         WinRing0.CpuidTx(CPUID_EXT + i, 0, 
           out cpuidExtData[i, 0], out cpuidExtData[i, 1], 
           out cpuidExtData[i, 2], out cpuidExtData[i, 3], mask);
@@ -155,7 +155,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       name = nameBuilder.ToString();
       if (name.Contains("@"))
         name = name.Remove(name.LastIndexOf('@'));
-      name = name.Trim();
+      name = name.Trim();      
 
       this.family = ((cpuidData[1, 0] & 0x0FF00000) >> 20) +
         ((cpuidData[1, 0] & 0x0F00) >> 8);
@@ -168,13 +168,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       switch (vendor) {
         case Vendor.Intel:
           uint maxCoreAndThreadIdPerPackage = (cpuidData[1, 1] >> 16) & 0xFF;
-          uint maxCoreIdPerPackage = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
+          uint maxCoreIdPerPackage;
+          if (maxCpuid >= 4)
+            maxCoreIdPerPackage = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
+          else
+            maxCoreIdPerPackage = 1;
           threadMaskWith = (uint)Math.Ceiling(Math.Log(
             maxCoreAndThreadIdPerPackage / maxCoreIdPerPackage, 2));
           coreMaskWith = (uint)Math.Ceiling(Math.Log(maxCoreIdPerPackage, 2));
           break;
         case Vendor.AMD:
-          uint corePerPackage = (cpuidExtData[8, 2] & 0xFF) + 1;
+          uint corePerPackage;
+          if (maxCpuidExt >= 8)
+            corePerPackage = (cpuidExtData[8, 2] & 0xFF) + 1;
+          else
+            corePerPackage = 1;
           threadMaskWith = 0;
           coreMaskWith = (uint)Math.Ceiling(Math.Log(corePerPackage, 2));
           break;
@@ -185,8 +193,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       processorId = (uint)(apicId >> (int)(coreMaskWith + threadMaskWith));
-      coreId = (uint)((apicId >> (int)(threadMaskWith)) - processorId);
-      threadId = apicId - processorId - coreId;
+      coreId = (uint)((apicId >> (int)(threadMaskWith)) 
+        - (processorId << (int)(coreMaskWith + threadMaskWith)));
+      threadId = apicId
+        - (processorId << (int)(coreMaskWith + threadMaskWith))
+        - (coreId << (int)(threadMaskWith)); 
     }
 
     public string Name {
