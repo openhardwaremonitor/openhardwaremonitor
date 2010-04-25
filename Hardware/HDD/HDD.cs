@@ -94,7 +94,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public void Update() {
       if (count == 0) {
         SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
-        temperature.Value = attributes[attribute].RawValue[0];
+        if (attributes != null && attribute < attributes.Length) 
+          temperature.Value = attributes[attribute].RawValue[0];
       } else {
         temperature.Value = temperature.Value;
       }
