@@ -64,7 +64,7 @@ namespace OpenHardwareMonitor.GUI {
           ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
           IRegisteredTask task = folder.GetTask("Startup");
           startup = task != null;
-        } catch (FileNotFoundException) {
+        } catch (IOException) {
           startup = false;
         }
       } else {
