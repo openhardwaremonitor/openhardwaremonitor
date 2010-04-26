@@ -196,7 +196,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public static NvStatus NvAPI_GPU_GetFullName(NvPhysicalGpuHandle gpuHandle,
       out string name) {
       StringBuilder builder = new StringBuilder(SHORT_STRING_MAX);
-      NvStatus status = _NvAPI_GPU_GetFullName(gpuHandle, builder);
+      NvStatus status;
+      if (_NvAPI_GPU_GetFullName != null)
+        status = _NvAPI_GPU_GetFullName(gpuHandle, builder);
+      else
+        status = NvStatus.FUNCTION_NOT_FOUND;
       name = builder.ToString();
       return status;
     }

@@ -114,8 +114,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             
         CPUID[][] coreThreads = GroupThreadsByCore(threads);
 
-        this.threads[index] = coreThreads;
-        index++;
+        this.threads[index] = coreThreads;        
 
         switch (threads[0].Vendor) {
           case Vendor.Intel:
@@ -134,7 +133,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             } break;
           default:
             break;
-        } 
+        }
+
+        index++;
       }
     }
     
