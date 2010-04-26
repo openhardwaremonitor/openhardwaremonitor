@@ -48,6 +48,7 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.CPU {
   public class IntelCPU : Hardware, IHardware {
 
+    private int processorIndex;
     private CPUID[][] cpuid;
     private int coreCount;
     
@@ -93,8 +94,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return result;
     }
 
-    public IntelCPU(CPUID[][] cpuid) {
+    public IntelCPU(int processorIndex, CPUID[][] cpuid) {
 
+      this.processorIndex = processorIndex;
       this.cpuid = cpuid;
       this.coreCount = cpuid.Length;
       this.name = cpuid[0][0].Name;
@@ -236,7 +238,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public string Identifier {
-      get { return "/intelcpu/0"; }
+      get { return "/intelcpu/" + processorIndex; }
     }
 
     public Image Icon {

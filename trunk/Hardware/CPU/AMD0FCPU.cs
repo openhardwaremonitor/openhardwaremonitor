@@ -48,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private string name;
     private Image icon;
 
+    private int processorIndex;
     private uint pciAddress;
 
     private Sensor[] coreTemperatures;    
@@ -63,8 +64,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
 
-    public AMD0FCPU(CPUID[][] cpuid) {
+    public AMD0FCPU(int processorIndex, CPUID[][] cpuid) {
 
+      this.processorIndex = processorIndex;
       this.name = cpuid[0][0].Name;
       this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
@@ -110,7 +112,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
-        PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID, 0);
+        PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
 
       Update();                   
     }
@@ -120,7 +122,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public string Identifier {
-      get { return "/amdcpu/0"; }
+      get { return "/amdcpu/" + processorIndex; }
     }
 
     public Image Icon {

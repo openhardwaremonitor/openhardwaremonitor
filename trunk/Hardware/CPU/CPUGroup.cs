@@ -119,15 +119,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         switch (threads[0].Vendor) {
           case Vendor.Intel:
-            hardware.Add(new IntelCPU(coreThreads));
+            hardware.Add(new IntelCPU(index, coreThreads));
             break;
           case Vendor.AMD:
             switch (threads[0].Family) {
               case 0x0F:
-                hardware.Add(new AMD0FCPU(coreThreads));
+                hardware.Add(new AMD0FCPU(index, coreThreads));
                 break;
               case 0x10:
-                hardware.Add(new AMD10CPU(coreThreads));
+                hardware.Add(new AMD10CPU(index, coreThreads));
                 break;
               default:
                 break;
