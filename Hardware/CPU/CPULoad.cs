@@ -78,17 +78,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private bool available = false;
 
-    private long[] GetIdleTimes() {
-      long[] result = new long[cpuid.Length * cpuid[0].Length];
+    private long[] GetIdleTimes() {      
       SystemProcessorPerformanceInformation[] informations = new
-       SystemProcessorPerformanceInformation[result.Length];
+        SystemProcessorPerformanceInformation[64];
+
+      int size = Marshal.SizeOf(typeof(SystemProcessorPerformanceInformation));
 
       IntPtr returnLength;
       NtQuerySystemInformation(
         SystemInformationClass.SystemProcessorPerformanceInformation,
-        informations, informations.Length * 
-        Marshal.SizeOf(typeof(SystemProcessorPerformanceInformation)),
-        out returnLength);
+        informations, informations.Length * size, out returnLength);
+
+      long[] result = new long[(int)returnLength / size];
 
       for (int i = 0; i < result.Length; i++)
         result[i] = informations[i].IdleTime;
@@ -138,18 +139,24 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         float value = 0;
         for (int j = 0; j < cpuid[i].Length; j++) {
           long index = cpuid[i][j].Thread;
-          long delta = idleTimes[index] - this.idleTimes[index];
-          value += delta;
-          total += delta;
-          count++;
+          if (index < idleTimes.Length) {
+            long delta = idleTimes[index] - this.idleTimes[index];
+            value += delta;
+            total += delta;
+            count++;
+          }
         }
         value = 1.0f - value / (cpuid[i].Length * 
           (systemTime - this.systemTime));
         value = value < 0 ? 0 : value;
         coreLoads[i] = value * 100;
       }
-      total = 1.0f - total / (count * (systemTime - this.systemTime));
-      total = total < 0 ? 0 : total;
+      if (count > 0) {
+        total = 1.0f - total / (count * (systemTime - this.systemTime));
+        total = total < 0 ? 0 : total;
+      } else {
+        total = 0;
+      }
       this.totalLoad = total * 100;
 
       this.systemTime = systemTime;
