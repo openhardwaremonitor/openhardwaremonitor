@@ -194,7 +194,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       processorId = (uint)(apicId >> (int)(coreMaskWith + threadMaskWith));
       coreId = (uint)((apicId >> (int)(threadMaskWith)) 
-        - (processorId << (int)(coreMaskWith + threadMaskWith)));
+        - (processorId << (int)(coreMaskWith)));
       threadId = apicId
         - (processorId << (int)(coreMaskWith + threadMaskWith))
         - (coreId << (int)(threadMaskWith)); 
