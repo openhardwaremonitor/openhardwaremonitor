@@ -64,7 +64,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(
         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
-    }
+    } 
 
     public F718XX(Chip chip, ushort address) : base(chip) {
       this.address = address;
