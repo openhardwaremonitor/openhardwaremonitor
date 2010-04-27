@@ -156,7 +156,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case 0x07:
             switch (revision) {
               case 0x23:
-                chip = Chip.F71889;
+                chip = Chip.F71889F;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
                 break;              
             } break;
@@ -164,6 +164,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             switch (revision) {
               case 0x14:
                 chip = Chip.F71869;
+                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+                break;              
+            } break;
+          case 0x09:
+            switch (revision) {
+              case 0x09:
+                chip = Chip.F71889ED;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
                 break;              
             } break;
@@ -241,10 +248,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
 
-          ushort vendorID = FINTEK_VENDOR_ID;
-          if (chip == Chip.F71858 || chip == Chip.F71862 || 
-            chip == Chip.F71882 || chip == Chip.F71889)
-            vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
+          ushort vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
           WinbondFintekExit();
 
@@ -288,9 +292,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               break;
             case Chip.F71858:
             case Chip.F71862:
-            case Chip.F71882:
-            case Chip.F71889: 
             case Chip.F71869:
+            case Chip.F71882:
+            case Chip.F71889ED:
+            case Chip.F71889F:
+              if (vendorID != FINTEK_VENDOR_ID) {
+                report.Append("Chip ID: 0x");
+                report.AppendLine(chip.ToString("X"));
+                report.Append("Chip revision: 0x");
+                report.AppendLine(revision.ToString("X"));
+                report.Append("Error: Invalid vendor ID 0x");
+                report.AppendLine(vendorID.ToString("X"));
+                report.AppendLine();
+                return;
+              }
               hardware.Add(new F718XX(chip, address));
               break;
             default: break;

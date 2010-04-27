@@ -65,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           raw = (byte[])mo["SMBiosData"];
           break;
         }
-      } catch (NotImplementedException) { } catch (ManagementException) { }
+      } catch { }      
 
       if (raw != null && raw.Length > 0) {
         int offset = 0;
