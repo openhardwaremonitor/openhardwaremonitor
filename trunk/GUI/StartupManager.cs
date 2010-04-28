@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.GUI {
       try {
         scheduler = new TaskSchedulerClass();
         scheduler.Connect(null, null, null, null);
-      } catch (Exception) {
+      } catch {
         scheduler = null;
       }
 
@@ -101,7 +101,7 @@ namespace OpenHardwareMonitor.GUI {
       ITaskFolder folder;
       try {
         folder = root.GetFolder("Open Hardware Monitor");
-      } catch (FileNotFoundException) {
+      } catch (IOException) {
         folder = root.CreateFolder("Open Hardware Monitor", "");
       }
       folder.RegisterTaskDefinition("Startup", definition,
@@ -114,10 +114,10 @@ namespace OpenHardwareMonitor.GUI {
       try {
         ITaskFolder folder = root.GetFolder("Open Hardware Monitor");
         folder.DeleteTask("Startup", 0);
-      } catch (FileNotFoundException) { }
+      } catch (IOException) { }
       try {
         root.DeleteFolder("Open Hardware Monitor", 0);
-      } catch (FileNotFoundException) { }
+      } catch (IOException) { }
     }
 
     private void CreateRegistryRun() {
