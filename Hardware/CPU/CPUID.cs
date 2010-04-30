@@ -85,6 +85,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       b.Append((char)((value >> 24) & 0xff));
     }
 
+    private uint NextLog2(long x) {
+      if (x <= 0)
+        return 0;
+
+      x--;
+      uint count = 0;
+      while (x > 0) {
+        x >>= 1;
+        count++;
+      }
+
+      return count;
+    }
+
     public CPUID(int thread) {
       this.thread = thread;
 
@@ -173,9 +187,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             maxCoreIdPerPackage = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
           else
             maxCoreIdPerPackage = 1;
-          threadMaskWith = (uint)Math.Ceiling(Math.Log(
-            maxCoreAndThreadIdPerPackage / maxCoreIdPerPackage, 2));
-          coreMaskWith = (uint)Math.Ceiling(Math.Log(maxCoreIdPerPackage, 2));
+          threadMaskWith = 
+            NextLog2(maxCoreAndThreadIdPerPackage / maxCoreIdPerPackage);
+          coreMaskWith = NextLog2(maxCoreIdPerPackage);
           break;
         case Vendor.AMD:
           uint corePerPackage;
@@ -184,7 +198,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           else
             corePerPackage = 1;
           threadMaskWith = 0;
-          coreMaskWith = (uint)Math.Ceiling(Math.Log(corePerPackage, 2));
+          coreMaskWith = NextLog2(corePerPackage);
           break;
         default:
           threadMaskWith = 0;
