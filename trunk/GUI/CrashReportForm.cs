@@ -61,7 +61,7 @@ namespace OpenHardwareMonitor.GUI {
         exception = value;
         StringBuilder s = new StringBuilder();
         Version version = typeof(CrashReportForm).Assembly.GetName().Version;
-        s.Append("Version: "); s.AppendLine(version.ToString());
+        s.Append("Version: "); s.AppendLine(version.ToString());        
         s.AppendLine();
         s.AppendLine(exception.ToString());
         s.AppendLine();
@@ -69,7 +69,13 @@ namespace OpenHardwareMonitor.GUI {
           s.AppendLine(exception.InnerException.ToString());
           s.AppendLine();
         }
-        reportTextBox.Text = s.ToString();
+        s.Append("Common Language Runtime: "); 
+        s.AppendLine(Environment.Version.ToString());
+        s.Append("Operating System: ");
+        s.AppendLine(Environment.OSVersion.ToString());
+        s.Append("Process Type: ");
+        s.AppendLine(IntPtr.Size == 4 ? "32-Bit" : "64-Bit");
+        reportTextBox.Text = s.ToString();        
       }
     }
 
@@ -84,8 +90,9 @@ namespace OpenHardwareMonitor.GUI {
 
         string report =
           "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
-          "report=" + HttpUtility.UrlEncode(reportTextBox.Text +
-          commentTextBox.Text);
+          "report=" + HttpUtility.UrlEncode(reportTextBox.Text) + "&" +
+          "comment=" + HttpUtility.UrlEncode(commentTextBox.Text) + "&" +
+          "email=" + HttpUtility.UrlEncode(emailTextBox.Text);
         byte[] byteArray = Encoding.UTF8.GetBytes(report);
         request.ContentLength = byteArray.Length;
 
