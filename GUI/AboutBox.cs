@@ -56,7 +56,9 @@ namespace OpenHardwareMonitor.GUI {
 
     private void linkLabel1_LinkClicked(object sender, 
       LinkLabelLinkClickedEventArgs e) {
-      Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()));
+      try {
+        Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()));
+      } catch { }
     }
 
   }
