@@ -57,6 +57,9 @@ namespace OpenHardwareMonitor {
           new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
       #endif
 
+      if (!AllRequiredFilesAvailable())
+        Environment.Exit(0);
+
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
       using (GUI.MainForm form = new GUI.MainForm()) {
@@ -65,6 +68,37 @@ namespace OpenHardwareMonitor {
         };        
         Application.Run();
       }
+    }
+
+    private static bool IsFileAvailable(string fileName) {
+      string path = Path.GetDirectoryName(Application.ExecutablePath) +
+        Path.DirectorySeparatorChar;
+
+      if (!File.Exists(path + fileName)) {
+        MessageBox.Show("The following file could not be found: " + fileName + 
+          "\nPlease extract all files from the zip archive.", "Error",
+           MessageBoxButtons.OK, MessageBoxIcon.Error);
+        return false;
+      }
+      return true;      
+    }
+
+    private static bool AllRequiredFilesAvailable() {
+      if (!IsFileAvailable("Aga.Controls.dll"))
+        return false;
+
+      if (IntPtr.Size == 4) {
+        if (!IsFileAvailable("WinRing0.dll"))
+          return false;
+        if (!IsFileAvailable("WinRing0.sys"))
+          return false;
+      } else {
+        if (!IsFileAvailable("WinRing0x64.dll"))
+          return false;
+        if (!IsFileAvailable("WinRing0x64.sys"))
+          return false;
+      }
+      return true;
     }
 
     private static void ReportException(Exception e) {
