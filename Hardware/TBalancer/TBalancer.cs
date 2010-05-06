@@ -153,7 +153,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         if (miniNGFans[number * 2 + i] == null)
           miniNGFans[number * 2 + i] = 
             new Sensor("miniNG #" + (number + 1) + " Fan Channel " + (i + 1),
-            4 + number * 2 + i, maxRPM, SensorType.Fan, this);
+            4 + number * 2 + i, maxRPM, SensorType.Fan, this, null);
         
         Sensor sensor = miniNGFans[number * 2 + i];
 
@@ -251,8 +251,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       get { return "T-Balancer bigNG"; }
     }
 
-    public string Identifier {
-      get { return "/bigng/" + this.portIndex; }
+    public Identifier Identifier {
+      get { return new Identifier("bigng", this.portIndex.ToString()); }
     }
 
     public IHardware[] SubHardware {

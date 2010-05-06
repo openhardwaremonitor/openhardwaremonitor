@@ -37,28 +37,60 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
+  public class Identifier {
+    private string identifier;
 
-  public delegate void SensorEventHandler(ISensor sensor);
+    private static char SEPARATOR = '/';
 
-  public interface IHardware {
+    private void CheckIdentifiers(string[] identifiers) {
+      foreach (string s in identifiers)
+        if (s.Contains(" ") || s.Contains(SEPARATOR.ToString()))
+          throw new ArgumentException("Invalid identifier");
+    }
 
-    string Name { get; }
-    Identifier Identifier { get; }
+    public Identifier(params string[] identifiers) {
+      CheckIdentifiers(identifiers);
 
-    Image Icon { get; }
+      StringBuilder s = new StringBuilder();
+      for (int i = 0; i < identifiers.Length; i++) {
+        s.Append(SEPARATOR);
+        s.Append(identifiers[i]);
+      }
+      this.identifier = s.ToString();
+    }
 
-    string GetReport();
+    public Identifier(Identifier identifier, params string[] extensions) {
+      CheckIdentifiers(extensions);
 
-    void Update();
+      StringBuilder s = new StringBuilder();
+      s.Append(identifier.ToString());
+      for (int i = 0; i < extensions.Length; i++) {
+        s.Append(SEPARATOR);
+        s.Append(extensions[i]);
+      }
+      this.identifier = s.ToString();
+    }
 
-    IHardware[] SubHardware { get; }
+    public override string ToString() {
+      return identifier;
+    }
 
-    ISensor[] Sensors { get; }
+    public override bool Equals(System.Object obj) {
+      if (obj == null)
+        return false;
 
-    event SensorEventHandler SensorAdded;
-    event SensorEventHandler SensorRemoved;
+      Identifier id = obj as Identifier;
+      if (id == null)
+        return false;
+
+      return (identifier == id.identifier);
+    }
+
+    public override int GetHashCode() {
+      return identifier.GetHashCode();
+    }
   }
 }

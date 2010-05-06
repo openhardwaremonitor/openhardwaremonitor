@@ -75,7 +75,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           default: name = "GPU"; break;
         }
         temperatures[i] = new Sensor(name, i, sensor.DefaultMaxTemp,
-          SensorType.Temperature, this);
+          SensorType.Temperature, this, new ParameterDescription[0]);
         ActivateSensor(temperatures[i]);
       }
 
@@ -93,8 +93,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       get { return name; }
     }
 
-    public string Identifier {
-      get { return "/nvidiagpu/" + adapterIndex; }
+    public Identifier Identifier {
+      get { return new Identifier("nvidiagpu", adapterIndex.ToString()); }
     }
 
     public Image Icon {

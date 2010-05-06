@@ -69,7 +69,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
       this.temperature = 
         new Sensor("GPU Core", 0, SensorType.Temperature, this);
-      this.fan = new Sensor("GPU", 0, speedInfo.MaxRPM, SensorType.Fan, this);
+      this.fan = new Sensor("GPU", 0, speedInfo.MaxRPM, SensorType.Fan, this,
+        null);
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);
@@ -85,8 +86,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       get { return name; }
     }
 
-    public string Identifier {
-      get { return "/atigpu/" + adapterIndex; }
+    public Identifier Identifier {
+      get { return new Identifier("atigpu", adapterIndex.ToString()); }
     }
 
     public Image Icon {

@@ -68,8 +68,9 @@ namespace OpenHardwareMonitor.Hardware {
     public Parameter(ParameterDescription description, ISensor sensor) {
       this.sensor = sensor;
       this.description = description;
-      this.value = Utilities.Config.Get(Identifier, description.DefaultValue);
-      this.isDefault = !Utilities.Config.Contains(Identifier);
+      this.value = Utilities.Config.Get(Identifier.ToString(), 
+        description.DefaultValue);
+      this.isDefault = !Utilities.Config.Contains(Identifier.ToString());
     }
 
     public ISensor Sensor {
@@ -78,10 +79,10 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public string Identifier {
+    public Identifier Identifier {
       get {
-        return sensor.Identifier + "/parameter/" + 
-          Name.Replace(" ", "").ToLower();
+        return new Identifier(sensor.Identifier, "parameter", 
+          Name.Replace(" ", "").ToLower());
       }
     }
 
@@ -96,7 +97,7 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         this.isDefault = false;
         this.value = value;        
-        Utilities.Config.Set(Identifier, value);
+        Utilities.Config.Set(Identifier.ToString(), value);
       }
     }
 
@@ -110,7 +111,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.isDefault = value;
         if (value) {
           this.value = description.DefaultValue;
-          Utilities.Config.Remove(Identifier);
+          Utilities.Config.Remove(Identifier.ToString());
         }
       }
     }   

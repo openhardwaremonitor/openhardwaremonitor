@@ -46,6 +46,7 @@ namespace OpenHardwareMonitor.Hardware {
     private string defaultName;
     private string name;
     private int index;
+    private bool defaultHidden;
     private SensorType sensorType;
     private IHardware hardware;
     private ReadOnlyArray<IParameter> parameters;
@@ -64,31 +65,37 @@ namespace OpenHardwareMonitor.Hardware {
    
     public Sensor(string name, int index, SensorType sensorType,
       IHardware hardware) : this(name, index, null, sensorType, hardware, 
-      new ParameterDescription[0]) { }
+      null) { }
 
-    public Sensor(string name, int index, float? limit,
-      SensorType sensorType, IHardware hardware) : this(name, index, limit, 
-      sensorType, hardware, new ParameterDescription[0]) { }    
+    public Sensor(string name, int index, float? limit, SensorType sensorType,
+      IHardware hardware, ParameterDescription[] parameterDescriptions) :
+      this(name, index, false, limit, sensorType, hardware,
+        parameterDescriptions) { }
 
-    public Sensor(string name, int index, float? limit, SensorType sensorType, 
-      IHardware hardware, ParameterDescription[] parameterDescriptions) 
+    public Sensor(string name, int index, bool defaultHidden, 
+      float? limit, SensorType sensorType, IHardware hardware, 
+      ParameterDescription[] parameterDescriptions) 
     {
       this.defaultName = name;      
       this.index = index;
+      this.defaultHidden = defaultHidden;
       this.defaultLimit = limit;
       this.sensorType = sensorType;
       this.hardware = hardware;
-      Parameter[] parameters = new Parameter[parameterDescriptions.Length];
+      Parameter[] parameters = new Parameter[parameterDescriptions == null ?
+        0 : parameterDescriptions.Length];
       for (int i = 0; i < parameters.Length; i++ ) 
         parameters[i] = new Parameter(parameterDescriptions[i], this);
       this.parameters = parameters;
 
-      string configName = Config.Settings[Identifier + "/name"];
+      string configName = Config.Settings[
+        new Identifier(Identifier, "name").ToString()];
       if (configName != null)
         this.name = configName;
       else
         this.name = name;
-      string configLimit = Config.Settings[Identifier + "/limit"];
+      string configLimit = Config.Settings[
+        new Identifier(Identifier, "limit").ToString()];
       if (configLimit != null && configLimit != "")
         this.limit = float.Parse(configLimit);
       else
@@ -103,10 +110,10 @@ namespace OpenHardwareMonitor.Hardware {
       get { return sensorType; }
     }
 
-    public string Identifier {
+    public Identifier Identifier {
       get {
-        return hardware.Identifier + "/" + sensorType.ToString().ToLower() +
-          "/" + index;
+        return new Identifier(hardware.Identifier, 
+          sensorType.ToString().ToLower(), index.ToString());
       }
     }
 
@@ -119,12 +126,16 @@ namespace OpenHardwareMonitor.Hardware {
           name = value;          
         else 
           name = defaultName;
-        Config.Settings[Identifier + "/name"] = name;
+        Config.Settings[new Identifier(Identifier, "name").ToString()] = name;
       }
     }
 
     public int Index {
       get { return index; }
+    }
+
+    public bool IsDefaultHidden {
+      get { return defaultHidden; }
     }
 
     public IReadOnlyArray<IParameter> Parameters {
@@ -169,11 +180,11 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         if (value.HasValue) {
           limit = value;
-          Config.Settings[Identifier + "/limit"] =
+          Config.Settings[new Identifier(Identifier, "limit").ToString()] =
             limit.ToString();
         } else {
           limit = defaultLimit;
-          Config.Settings[Identifier + "/limit"] = "";          
+          Config.Settings[new Identifier(Identifier, "limit").ToString()] = "";          
         }        
       }
     }

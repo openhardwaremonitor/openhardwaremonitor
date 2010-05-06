@@ -85,6 +85,7 @@
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
     <Compile Include="Hardware\IComputer.cs" />
+    <Compile Include="Hardware\Identifier.cs" />
     <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Utilities\HexStringArray.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
     <Compile Include="Utilities\IReadOnlyArray.cs" />
+    <Compile Include="Utilities\ListSet.cs" />
     <Compile Include="Utilities\PInvokeDelegateFactory.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>

@@ -71,7 +71,8 @@ namespace OpenHardwareMonitor.GUI {
       if (sensor.SensorType == SensorType.Load) {
         defaultColor = Color.FromArgb(0xff, 0x70, 0x8c, 0xf1);
       }
-      Color = Config.Get(sensor.Identifier + "/traycolor", defaultColor);      
+      Color = Config.Get(new Identifier(sensor.Identifier, 
+        "traycolor").ToString(), defaultColor);      
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
       this.font = new Font(SystemFonts.MessageBoxFont.FontFamily, 9);
@@ -88,7 +89,8 @@ namespace OpenHardwareMonitor.GUI {
         dialog.Color = Color;
         if (dialog.ShowDialog() == DialogResult.OK) {
           Color = dialog.Color;
-          Config.Set(sensor.Identifier + "/traycolor", Color);
+          Config.Set(new Identifier(sensor.Identifier,
+            "traycolor").ToString(), Color);
         }
       };
       contextMenuStrip.Items.Add(colorItem);

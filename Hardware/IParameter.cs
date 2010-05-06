@@ -43,7 +43,7 @@ namespace OpenHardwareMonitor.Hardware {
   public interface IParameter {
 
     ISensor Sensor { get; }
-    string Identifier { get; }
+    Identifier Identifier { get; }
     
     string Name { get; }
     string Description { get; }
