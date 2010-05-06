@@ -73,7 +73,8 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SensorAdded(ISensor sensor) {
-      if (Config.Get(sensor.Identifier + "/tray", false)) 
+      if (Config.Get(new Identifier(sensor.Identifier, 
+        "tray").ToString(), false)) 
         Add(sensor, false);   
     }
 
@@ -104,7 +105,7 @@ namespace OpenHardwareMonitor.GUI {
         return;
       } else {        
         list.Add(new SensorNotifyIcon(this, sensor, balloonTip));
-        Config.Set(sensor.Identifier + "/tray", true);
+        Config.Set(new Identifier(sensor.Identifier, "tray").ToString(), true);
       }
     }
 
@@ -114,8 +115,10 @@ namespace OpenHardwareMonitor.GUI {
 
     private void Remove(ISensor sensor, bool deleteConfig) {
       if (deleteConfig) {
-        Config.Remove(sensor.Identifier + "/tray");
-        Config.Remove(sensor.Identifier + "/traycolor");
+        Config.Remove(
+          new Identifier(sensor.Identifier, "tray").ToString());
+        Config.Remove(
+          new Identifier(sensor.Identifier, "traycolor").ToString());
       }
       SensorNotifyIcon instance = null;
       foreach (SensorNotifyIcon icon in list)

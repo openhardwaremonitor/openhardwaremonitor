@@ -75,8 +75,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       get { return name; } 
     }
 
-    public string Identifier {
-      get { return "/mainboard"; }
+    public Identifier Identifier {
+      get { return new Identifier("mainboard"); }
     }
 
     public Image Icon {

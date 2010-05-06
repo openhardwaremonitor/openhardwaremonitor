@@ -60,9 +60,12 @@ namespace OpenHardwareMonitor.Hardware {
     IHardware Hardware { get; }
 
     SensorType SensorType { get; }
-    string Identifier { get; }
+    Identifier Identifier { get; }
+
     string Name { get; set; }
     int Index { get; }
+
+    bool IsDefaultHidden { get; }
 
     IReadOnlyArray<IParameter> Parameters { get; }
 

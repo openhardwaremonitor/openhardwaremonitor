@@ -103,8 +103,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return name; }
     }
 
-    public string Identifier {
-      get { return "/amdcpu/" + processorIndex; }
+    public Identifier Identifier {
+      get { return new Identifier("amdcpu", processorIndex.ToString()); }
     }
 
     public Image Icon {

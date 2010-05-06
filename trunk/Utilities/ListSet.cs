@@ -37,28 +37,34 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Text;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Utilities {
+  public class ListSet<T> {
 
-  public delegate void SensorEventHandler(ISensor sensor);
+    private List<T> list = new List<T>();
 
-  public interface IHardware {
+    public ListSet() { }
 
-    string Name { get; }
-    Identifier Identifier { get; }
+    public bool Add(T item) {
+      if (list.Contains(item))
+        return false;
 
-    Image Icon { get; }
+      list.Add(item);
+      return true;
+    }
 
-    string GetReport();
+    public bool Remove(T item) {
+      if (!list.Contains(item))
+        return false;
 
-    void Update();
+      list.Remove(item);
+      return true;
+    }
 
-    IHardware[] SubHardware { get; }
-
-    ISensor[] Sensors { get; }
-
-    event SensorEventHandler SensorAdded;
-    event SensorEventHandler SensorRemoved;
+    public bool Contains(T item) {
+      return list.Contains(item);
+    }
+   
   }
 }

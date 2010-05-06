@@ -69,8 +69,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return name; }
     }
 
-    public string Identifier {
-      get { return "/hdd/" + drive; }
+    public Identifier Identifier {
+      get { return new Identifier("hdd", drive.ToString()); }
     }
 
     public Image Icon {
