@@ -114,6 +114,12 @@ namespace OpenHardwareMonitor.Hardware {
           Utilities.Config.Remove(Identifier.ToString());
         }
       }
-    }   
+    }
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitParameter(this);
+    }
+
+    public void Traverse(IVisitor visitor) { }
   }
 }

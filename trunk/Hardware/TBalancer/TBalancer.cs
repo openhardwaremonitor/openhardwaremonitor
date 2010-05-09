@@ -341,5 +341,11 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitHardware(this);
+    }
+
+    public void Traverse(IVisitor visitor) { }
   }
 }

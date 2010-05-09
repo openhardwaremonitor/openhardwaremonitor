@@ -206,7 +206,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return value > 0 ? target | mask : target & ~mask;
     }
 
-    public void Update() {
+    public override void Update() {
 
       foreach (Sensor sensor in voltages) {
         if (sensor.Index < 7) {
@@ -300,7 +300,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
     }
 
-    public string GetReport() {
+    public override string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);

@@ -99,7 +99,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
     }
 
-    public string GetReport() {
+    public override string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);
@@ -123,7 +123,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return r.ToString();
     }
 
-    public void Update() {
+    public override void Update() {
 
       foreach (Sensor sensor in voltages) {
         int value = ReadByte((byte)(VOLTAGE_BASE_REG + sensor.Index));

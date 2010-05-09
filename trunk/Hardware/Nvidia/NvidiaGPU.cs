@@ -89,20 +89,16 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       }
     }
 
-    public string Name {
+    public override string Name {
       get { return name; }
     }
 
-    public Identifier Identifier {
+    public override Identifier Identifier {
       get { return new Identifier("nvidiagpu", adapterIndex.ToString()); }
     }
 
-    public Image Icon {
+    public override Image Icon {
       get { return icon; }
-    }
-
-    public string GetReport() {
-      return null;
     }
 
     private NvGPUThermalSettings GetThermalSettings() {
@@ -117,7 +113,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return settings;
     }
 
-    public void Update() {
+    public override void Update() {
       NvGPUThermalSettings settings = GetThermalSettings();
       foreach (Sensor sensor in temperatures) 
         sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;

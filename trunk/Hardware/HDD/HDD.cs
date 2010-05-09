@@ -110,6 +110,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     #pragma warning disable 67
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
+    #pragma warning restore 67    
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitHardware(this);
+    }
+
+    public void Traverse(IVisitor visitor) { }
   }
 }

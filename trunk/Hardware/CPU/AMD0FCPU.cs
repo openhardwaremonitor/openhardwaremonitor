@@ -117,23 +117,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Update();                   
     }
 
-    public string Name {
+    public override string Name {
       get { return name; }
     }
 
-    public Identifier Identifier {
+    public override Identifier Identifier {
       get { return new Identifier("amdcpu", processorIndex.ToString()); }
     }
 
-    public Image Icon {
+    public override Image Icon {
       get { return icon; }
     }
 
-    public string GetReport() {
-      return null;
-    }
-
-    public void Update() {
+    public override void Update() {
       if (pciAddress != 0xFFFFFFFF) {
         for (uint i = 0; i < coreTemperatures.Length; i++) {
           if (WinRing0.WritePciConfigDwordEx(

@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.Hardware {
     DateTime Time { get; }
   }
 
-  public interface ISensor {
+  public interface ISensor : IElement {
 
     IHardware Hardware { get; }
 

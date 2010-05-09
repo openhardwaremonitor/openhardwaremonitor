@@ -91,21 +91,6 @@ namespace OpenHardwareMonitor.Hardware {
       open = true;
     }
 
-    private void SubHardwareUpdate(IHardware hardware) {
-      foreach (IHardware subHardware in hardware.SubHardware) {
-        subHardware.Update();
-        SubHardwareUpdate(subHardware);
-      }
-    }
-
-    public void Update() {
-      foreach (IGroup group in groups)
-        foreach (IHardware hardware in group.Hardware) {
-          hardware.Update();
-          SubHardwareUpdate(hardware);
-        }
-    }
-
     public bool HDDEnabled {
       get { return hddEnabled; }
       set {
@@ -221,5 +206,15 @@ namespace OpenHardwareMonitor.Hardware {
 
     public event HardwareEventHandler HardwareAdded;
     public event HardwareEventHandler HardwareRemoved;
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitComputer(this);
+    }
+
+    public void Traverse(IVisitor visitor) {
+      foreach (IGroup group in groups)
+        foreach (IHardware hardware in group.Hardware) 
+          hardware.Accept(visitor);
+    }
   }
 }

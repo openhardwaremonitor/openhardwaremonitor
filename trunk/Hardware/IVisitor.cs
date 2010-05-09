@@ -37,20 +37,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public delegate void HardwareEventHandler(IHardware hardware);
-
-  public interface IComputer : IElement {
-
-    IHardware[] Hardware { get; }
-
-    bool HDDEnabled { get; set; }
-
-    string GetReport();
-
-    event HardwareEventHandler HardwareAdded;
-    event HardwareEventHandler HardwareRemoved;
+  public interface IVisitor {
+    void VisitComputer(IComputer computer);
+    void VisitHardware(IHardware hardware);
+    void VisitSensor(ISensor sensor);
+    void VisitParameter(IParameter parameter);
   }
+
 }

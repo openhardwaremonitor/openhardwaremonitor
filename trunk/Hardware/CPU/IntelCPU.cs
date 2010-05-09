@@ -233,15 +233,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Update();                   
     }
 
-    public string Name {
+    public override string Name {
       get { return name; }
     }
 
-    public Identifier Identifier {
+    public override Identifier Identifier {
       get { return new Identifier("intelcpu", processorIndex.ToString()); }
     }
 
-    public Image Icon {
+    public override Image Icon {
       get { return icon; }
     }
 
@@ -258,7 +258,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
     }
 
-    public string GetReport() {
+    public override string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("Intel CPU");
@@ -311,7 +311,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         (timeEnd - timeBegin);
     }
 
-    public void Update() {      
+    public override void Update() {      
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
         if (WinRing0.RdmsrTx(
