@@ -37,11 +37,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware {
-  public abstract class Hardware {
+  public abstract class Hardware : IHardware {
 
-    private List<ISensor> active = new List<ISensor>();
+    private ListSet<ISensor> active = new ListSet<ISensor>();
 
     public IHardware[] SubHardware {
       get { return new IHardware[0]; }
@@ -52,24 +54,39 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     protected void ActivateSensor(Sensor sensor) {
-      if (!active.Contains(sensor)) {
-        active.Add(sensor);
+      if (active.Add(sensor)) 
         if (SensorAdded != null)
           SensorAdded(sensor);
-      }
     }
 
     protected void DeactivateSensor(Sensor sensor) {
-      if (active.Contains(sensor)) {
-        active.Remove(sensor);
+      if (active.Remove(sensor))
         if (SensorRemoved != null)
-          SensorRemoved(sensor);
-      }
+          SensorRemoved(sensor);     
     }
 
     #pragma warning disable 67
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
     #pragma warning restore 67
+  
+    public abstract string Name { get; }
+    public abstract Identifier Identifier { get; }
+    public abstract Image Icon { get; }
+
+    public virtual string GetReport() {
+      return null;
+    }
+
+    public abstract void Update();
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitHardware(this);
+    }
+
+    public void Traverse(IVisitor visitor) {
+      foreach (ISensor sensor in active)
+        sensor.Accept(visitor);
+    }
   }
 }

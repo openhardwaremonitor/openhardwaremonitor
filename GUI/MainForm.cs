@@ -60,6 +60,8 @@ namespace OpenHardwareMonitor.GUI {
     private SensorSystemTray sensorSystemTray;
     private NotifyIcon notifyIcon;
     private StartupManager startupManager = new StartupManager();
+    private SensorProperties sensorProperties = new SensorProperties();
+    private UpdateVisitor updateVisitor = new UpdateVisitor();
 
     public MainForm() {      
       InitializeComponent();
@@ -241,7 +243,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void timer_Tick(object sender, EventArgs e) {
-      computer.Update();  
+      computer.Accept(updateVisitor);
       treeView.Invalidate();
       plotPanel.Invalidate();
       sensorSystemTray.Redraw();

@@ -47,7 +47,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private string name;
     private Image icon;
 
-    private LPCGroup lpcGroup;
+    private LPCIO lpcGroup;
 
     public Mainboard() {
       this.smbios = new SMBIOS();
@@ -68,7 +68,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
-      this.lpcGroup = new LPCGroup();
+      this.lpcGroup = new LPCIO();
     }
 
     public string Name {
@@ -97,9 +97,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public void Update() { }
 
-    public void Close() {
-      lpcGroup.Close();
-    }
+    public void Close() { }
 
     public IHardware[] SubHardware {
       get { return lpcGroup.Hardware; }
@@ -113,5 +111,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     public event SensorEventHandler SensorAdded;
     public event SensorEventHandler SensorRemoved;
     #pragma warning restore 67
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitHardware(this);
+    }
+
+    public void Traverse(IVisitor visitor) {
+      foreach (IHardware hardware in lpcGroup.Hardware)
+        hardware.Accept(visitor);     
+    }
   }
 }

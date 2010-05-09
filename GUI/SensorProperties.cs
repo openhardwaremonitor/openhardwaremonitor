@@ -37,20 +37,40 @@
 
 using System;
 using System.Collections.Generic;
+using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitor.Utilities;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.GUI {
+  public class SensorProperties {
 
-  public delegate void HardwareEventHandler(IHardware hardware);
+    private IDictionary<Identifier, Properties> properties = 
+      new Dictionary<Identifier, Properties>();
 
-  public interface IComputer : IElement {
+    private Properties GetProperties(ISensor sensor) {
+      Properties value;
+      if (!properties.TryGetValue(sensor.Identifier, out value)) {
+        value = new Properties(sensor.Identifier, sensor.IsDefaultHidden);
+        properties.Add(sensor.Identifier, value);
+      }
+      return value;
+    }
 
-    IHardware[] Hardware { get; }
+    public bool IsHidden(ISensor sensor) {
+      return GetProperties(sensor).IsHidden;
+    }
 
-    bool HDDEnabled { get; set; }
+    private class Properties {
+      private Identifier identifier;
+      private bool hidden;
 
-    string GetReport();
+      public Properties(Identifier identifier, bool defaultHidden) {
+        this.identifier = identifier;
 
-    event HardwareEventHandler HardwareAdded;
-    event HardwareEventHandler HardwareRemoved;
+        hidden = Config.Get(new Identifier(identifier, "hidden").ToString(), 
+          defaultHidden);    
+      }
+
+      public bool IsHidden { get { return hidden; } }
+    }
   }
 }

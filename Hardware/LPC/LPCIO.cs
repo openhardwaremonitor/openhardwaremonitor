@@ -41,7 +41,7 @@ using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class LPCGroup : IGroup {
+  public class LPCIO {
 
     private List<IHardware> hardware = new List<IHardware>();
     private StringBuilder report = new StringBuilder();
@@ -119,7 +119,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
     }
 
-    public LPCGroup() {
+    public LPCIO() {
       if (!WinRing0.IsAvailable)
         return;
 
@@ -394,7 +394,5 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       } else
         return null;
     }
-
-    public void Close() { }
   }
 }

@@ -205,5 +205,14 @@ namespace OpenHardwareMonitor.Hardware {
       public float Value { get { return value; } }
       public DateTime Time { get { return time; } }
     }
+
+    public void Accept(IVisitor visitor) {
+      visitor.VisitSensor(this);
+    }
+
+    public void Traverse(IVisitor visitor) {
+      foreach (IParameter parameter in parameters)
+        parameter.Accept(visitor);
+    }
   }
 }

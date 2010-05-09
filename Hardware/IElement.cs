@@ -37,20 +37,16 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
+  
+  public interface IElement {
+    // accept visitor on this element
+    void Accept(IVisitor visitor);
 
-  public delegate void HardwareEventHandler(IHardware hardware);
-
-  public interface IComputer : IElement {
-
-    IHardware[] Hardware { get; }
-
-    bool HDDEnabled { get; set; }
-
-    string GetReport();
-
-    event HardwareEventHandler HardwareAdded;
-    event HardwareEventHandler HardwareRemoved;
+    // call accept(visitor) on all child elements (called only from visitors)
+    void Traverse(IVisitor visitor);
   }
+
 }

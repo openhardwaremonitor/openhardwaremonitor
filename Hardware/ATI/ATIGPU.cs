@@ -82,23 +82,19 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public int DeviceNumber { get { return deviceNumber; } }
 
-    public string Name {
+    public override string Name {
       get { return name; }
     }
 
-    public Identifier Identifier {
+    public override Identifier Identifier {
       get { return new Identifier("atigpu", adapterIndex.ToString()); }
     }
 
-    public Image Icon {
+    public override Image Icon {
       get { return icon; }
     }
 
-    public string GetReport() {
-      return null;
-    }
-
-    public void Update() {
+    public override void Update() {
       ADLTemperature adlt = new ADLTemperature();
       if (ADL.ADL_Overdrive5_Temperature_Get(adapterIndex, 0, ref adlt)
         == ADL.ADL_OK) 

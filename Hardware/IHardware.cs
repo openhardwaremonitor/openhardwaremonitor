@@ -43,7 +43,7 @@ namespace OpenHardwareMonitor.Hardware {
 
   public delegate void SensorEventHandler(ISensor sensor);
 
-  public interface IHardware {
+  public interface IHardware : IElement {
 
     string Name { get; }
     Identifier Identifier { get; }

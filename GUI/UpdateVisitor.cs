@@ -37,20 +37,22 @@
 
 using System;
 using System.Collections.Generic;
+using OpenHardwareMonitor.Hardware;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.GUI {
+  public class UpdateVisitor : IVisitor {
+    public void VisitComputer(IComputer computer) {
+      computer.Traverse(this);
+    }
 
-  public delegate void HardwareEventHandler(IHardware hardware);
+    public void VisitHardware(IHardware hardware) {
+      hardware.Update();
+      foreach (IHardware subHardware in hardware.SubHardware)
+        subHardware.Accept(this);
+    }
 
-  public interface IComputer : IElement {
+    public void VisitSensor(ISensor sensor) { }
 
-    IHardware[] Hardware { get; }
-
-    bool HDDEnabled { get; set; }
-
-    string GetReport();
-
-    event HardwareEventHandler HardwareAdded;
-    event HardwareEventHandler HardwareRemoved;
+    public void VisitParameter(IParameter parameter) { }
   }
 }

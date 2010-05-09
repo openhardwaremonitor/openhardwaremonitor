@@ -36,11 +36,12 @@
 */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Utilities {
-  public class ListSet<T> {
+  public class ListSet<T> : IEnumerable<T> {
 
     private List<T> list = new List<T>();
 
@@ -65,6 +66,17 @@ namespace OpenHardwareMonitor.Utilities {
     public bool Contains(T item) {
       return list.Contains(item);
     }
-   
+
+    public T[] ToArray() {
+      return list.ToArray();
+    }
+
+    public IEnumerator<T> GetEnumerator() {
+      return list.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+      return list.GetEnumerator();
+    }
   }
 }

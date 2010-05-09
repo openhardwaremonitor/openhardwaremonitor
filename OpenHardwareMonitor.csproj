@@ -72,10 +72,12 @@
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\SensorNotifyIcon.cs" />
+    <Compile Include="GUI\SensorProperties.cs" />
     <Compile Include="GUI\SensorSystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
     <Compile Include="GUI\TaskScheduler.cs" />
     <Compile Include="GUI\TypeNode.cs" />
+    <Compile Include="GUI\UpdateVisitor.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
     <Compile Include="Hardware\CPU\CPUID.cs" />
@@ -86,6 +88,8 @@
     <Compile Include="Hardware\HDD\SMART.cs" />
     <Compile Include="Hardware\IComputer.cs" />
     <Compile Include="Hardware\Identifier.cs" />
+    <Compile Include="Hardware\IElement.cs" />
+    <Compile Include="Hardware\IVisitor.cs" />
     <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="Hardware\IHardware.cs" />
     <Compile Include="Hardware\ISensor.cs" />
     <Compile Include="Hardware\LPC\IT87XX.cs" />
-    <Compile Include="Hardware\LPC\LPCGroup.cs" />
+    <Compile Include="Hardware\LPC\LPCIO.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -73,15 +73,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
     }
 
-    public Identifier Identifier {
+    public override Identifier Identifier {
       get { return new Identifier("lpc", chip.ToString().ToLower()); }
     }
 
-    public Image Icon {
+    public override Image Icon {
       get { return icon; }
     }
 
-    public string Name {
+    public override string Name {
       get { return name; }
     }
   }

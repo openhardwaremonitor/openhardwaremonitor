@@ -40,7 +40,7 @@ using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public interface IParameter {
+  public interface IParameter : IElement {
 
     ISensor Sensor { get; }
     Identifier Identifier { get; }
