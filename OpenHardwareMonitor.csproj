@@ -34,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Merge|AnyCPU' ">
     <OutputPath>bin\Merge\</OutputPath>
@@ -65,6 +66,7 @@
     <Compile Include="GUI\CrashReportForm.Designer.cs">
       <DependentUpon>CrashReportForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\Node.cs" />
     <Compile Include="GUI\ParameterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -72,10 +74,10 @@
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\SensorNotifyIcon.cs" />
-    <Compile Include="GUI\SensorProperties.cs" />
     <Compile Include="GUI\SensorSystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
     <Compile Include="GUI\TaskScheduler.cs" />
+    <Compile Include="GUI\TreeModel.cs" />
     <Compile Include="GUI\TypeNode.cs" />
     <Compile Include="GUI\UpdateVisitor.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />

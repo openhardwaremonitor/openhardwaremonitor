@@ -37,14 +37,12 @@
 
 using System;
 using System.Collections.Generic;
-using Aga.Controls.Tree;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
   public class TypeNode : Node {
 
     private SensorType sensorType;
-    private bool visible = true;
 
     public TypeNode(SensorType sensorType) : base() {
       this.sensorType = sensorType;
@@ -75,16 +73,32 @@ namespace OpenHardwareMonitor.GUI {
           this.Text = "Flows";
           break;
       }
+
+      NodeAdded += new NodeEventHandler(TypeNode_NodeAdded);
+      NodeRemoved += new NodeEventHandler(TypeNode_NodeRemoved);
+    }
+
+    private void TypeNode_NodeRemoved(Node node) {
+      node.IsVisibleChanged -= new NodeEventHandler(node_IsVisibleChanged);
+      node_IsVisibleChanged(null);
+    }    
+
+    private void TypeNode_NodeAdded(Node node) {
+      node.IsVisibleChanged += new NodeEventHandler(node_IsVisibleChanged);
+      node_IsVisibleChanged(null);
+    }
+
+    private void node_IsVisibleChanged(Node node) {      
+      foreach (Node n in Nodes)
+        if (n.IsVisible) {
+          this.IsVisible = true;
+          return;
+        }
+      this.IsVisible = false;
     }
 
     public SensorType SensorType {
       get { return sensorType; }
     }
-
-    public bool IsVisible {      
-      get { return visible; }
-      set { visible = value; }
-    }
-
   }
 }

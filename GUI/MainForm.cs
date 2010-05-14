@@ -60,7 +60,6 @@ namespace OpenHardwareMonitor.GUI {
     private SensorSystemTray sensorSystemTray;
     private NotifyIcon notifyIcon;
     private StartupManager startupManager = new StartupManager();
-    private SensorProperties sensorProperties = new SensorProperties();
     private UpdateVisitor updateVisitor = new UpdateVisitor();
 
     public MainForm() {      
@@ -119,7 +118,7 @@ namespace OpenHardwareMonitor.GUI {
 
       timer.Enabled = true;
 
-      plotColorPalette = new Color[14];
+      plotColorPalette = new Color[13];
       plotColorPalette[0] = Color.Blue;
       plotColorPalette[1] = Color.OrangeRed;
       plotColorPalette[2] = Color.Green;
@@ -128,14 +127,16 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[5] = Color.DarkViolet;
       plotColorPalette[6] = Color.YellowGreen;
       plotColorPalette[7] = Color.SaddleBrown;
-      plotColorPalette[8] = Color.Gray;
-      plotColorPalette[9] = Color.RoyalBlue;
-      plotColorPalette[10] = Color.DeepPink;
-      plotColorPalette[11] = Color.MediumSeaGreen;
-      plotColorPalette[12] = Color.Olive;
-      plotColorPalette[13] = Color.Firebrick;
+      plotColorPalette[8] = Color.RoyalBlue;
+      plotColorPalette[9] = Color.DeepPink;
+      plotColorPalette[10] = Color.MediumSeaGreen;
+      plotColorPalette[11] = Color.Olive;
+      plotColorPalette[12] = Color.Firebrick;
 
+      hiddenMenuItem.Checked = Config.Get(hiddenMenuItem.Name, false);
       plotMenuItem.Checked = Config.Get(plotMenuItem.Name, false);
+
+      valueMenuItem.Checked = Config.Get(valueMenuItem.Name, true);
       minMenuItem.Checked = Config.Get(minMenuItem.Name, false);
       maxMenuItem.Checked = Config.Get(maxMenuItem.Name, true);
       limitMenuItem.Checked = Config.Get(limitMenuItem.Name, false);
@@ -143,14 +144,7 @@ namespace OpenHardwareMonitor.GUI {
       startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
       minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
       startupMenuItem.Checked = startupManager.Startup;
-      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
-
-      voltMenuItem.Checked = Config.Get(voltMenuItem.Name, true);
-      clocksMenuItem.Checked = Config.Get(clocksMenuItem.Name, true);
-      loadMenuItem.Checked = Config.Get(loadMenuItem.Name, true);
-      tempMenuItem.Checked = Config.Get(tempMenuItem.Name, true);
-      fansMenuItem.Checked = Config.Get(fansMenuItem.Name, true);
-      flowsMenuItem.Checked = Config.Get(flowsMenuItem.Name, true);    
+      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);   
 
       if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
@@ -196,15 +190,18 @@ namespace OpenHardwareMonitor.GUI {
         e.Text = sensorNode.ValueToString(sensorNode.Sensor.Limit);
     }
 
-    private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {
-      if (!plotMenuItem.Checked)
-        return;      
-
-      SensorNode sensorNode = e.Node.Tag as SensorNode;
-      if (sensorNode != null) {
+    private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {       
+      Node node = e.Node.Tag as Node;
+      if (node != null) {
         Color color;
-        if (sensorPlotColors.TryGetValue(sensorNode.Sensor, out color)) 
-          e.TextColor = color;        
+        if (node.IsVisible) {
+          SensorNode sensorNode = node as SensorNode;
+          if (plotMenuItem.Checked && sensorNode != null &&
+            sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
+            e.TextColor = color;
+        } else {
+          e.TextColor = Color.DarkGray;
+        }
       }
     }
 
@@ -250,22 +247,18 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-            
+      
+      Config.Set(hiddenMenuItem.Name, hiddenMenuItem.Checked);
       Config.Set(plotMenuItem.Name, plotMenuItem.Checked);
+
+      Config.Set(valueMenuItem.Name, valueMenuItem.Checked);
       Config.Set(minMenuItem.Name, minMenuItem.Checked);
       Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
       Config.Set(limitMenuItem.Name, limitMenuItem.Checked);
 
       Config.Set(startMinMenuItem.Name, startMinMenuItem.Checked);
       Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
-      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
-
-      Config.Set(voltMenuItem.Name, voltMenuItem.Checked);
-      Config.Set(clocksMenuItem.Name, clocksMenuItem.Checked);
-      Config.Set(loadMenuItem.Name, loadMenuItem.Checked);
-      Config.Set(tempMenuItem.Name, tempMenuItem.Checked);
-      Config.Set(fansMenuItem.Name, fansMenuItem.Checked);
-      Config.Set(flowsMenuItem.Name, flowsMenuItem.Checked);      
+      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);   
 
       if (WindowState != FormWindowState.Minimized) {
         Config.Set("mainForm.Location.X", Location.X);
@@ -292,27 +285,6 @@ namespace OpenHardwareMonitor.GUI {
       treeView.Invalidate();
     }
 
-    private void valueToolStripMenuItem_CheckedChanged(object sender, 
-      EventArgs e) 
-    {
-      treeView.Columns[1].IsVisible = valueToolStripMenuItem.Checked;
-    }
-
-    private void minToolStripMenuItem_CheckedChanged(object sender, EventArgs e) 
-    {
-      treeView.Columns[2].IsVisible = minMenuItem.Checked;
-    }
-
-    private void maxToolStripMenuItem_CheckedChanged(object sender, EventArgs e) 
-    {
-      treeView.Columns[3].IsVisible = maxMenuItem.Checked;
-    }
-
-    private void limitToolStripMenuItem_CheckedChanged(object sender, 
-      EventArgs e) {
-      treeView.Columns[4].IsVisible = limitMenuItem.Checked;
-    }
-
     private void treeView_Click(object sender, EventArgs e) {
       
       MouseEventArgs m = e as MouseEventArgs;
@@ -320,9 +292,7 @@ namespace OpenHardwareMonitor.GUI {
         return;
 
       NodeControlInfo info = treeView.GetNodeControlInfoAt(new Point(m.X, m.Y));
-      if (info.Control == null) {
-        columnsContextMenuStrip.Show(treeView, m.X, m.Y);
-      } else {
+      if (info.Control != null) {
         SensorNode node = info.Node.Tag as SensorNode;
         if (node != null && node.Sensor != null) {
 
@@ -334,6 +304,19 @@ namespace OpenHardwareMonitor.GUI {
             };
             sensorContextMenuStrip.Items.Add(item);
           }
+          if (node.IsVisible) {
+            ToolStripMenuItem item = new ToolStripMenuItem("Hide");
+            item.Click += delegate(object obj, EventArgs args) {
+              node.IsVisible = false;
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          } else {
+            ToolStripMenuItem item = new ToolStripMenuItem("Unhide");
+            item.Click += delegate(object obj, EventArgs args) {
+              node.IsVisible = true;
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          }         
           if (sensorSystemTray.Contains(node.Sensor)) {
             ToolStripMenuItem item = new ToolStripMenuItem("Remove From Tray");
             item.Click += delegate(object obj, EventArgs args) {
@@ -365,29 +348,7 @@ namespace OpenHardwareMonitor.GUI {
       EventArgs e) 
     {
       computer.HDDEnabled = hddMenuItem.Checked;
-      UpdateSensorTypeChecked(null, null);
       UpdatePlotSelection(null, null);      
-    }
-
-    private void UpdateSensorTypeVisible(Node node) {
-      HardwareNode hardwareNode = node as HardwareNode;
-      if (hardwareNode == null)
-        return;
-
-      hardwareNode.SetVisible(SensorType.Voltage, voltMenuItem.Checked);
-      hardwareNode.SetVisible(SensorType.Clock, clocksMenuItem.Checked);
-      hardwareNode.SetVisible(SensorType.Load, loadMenuItem.Checked);
-      hardwareNode.SetVisible(SensorType.Temperature, tempMenuItem.Checked);
-      hardwareNode.SetVisible(SensorType.Fan, fansMenuItem.Checked);
-      hardwareNode.SetVisible(SensorType.Flow, flowsMenuItem.Checked);
-
-      foreach (Node n in node.Nodes)
-        UpdateSensorTypeVisible(n);
-    }
-
-    private void UpdateSensorTypeChecked(object sender, EventArgs e) {          
-      foreach (HardwareNode node in root.Nodes) 
-        UpdateSensorTypeVisible(node);
     }
 
     private void SysTrayHideShow() {
@@ -447,6 +408,27 @@ namespace OpenHardwareMonitor.GUI {
 
     private void minTrayMenuItem_CheckedChanged(object sender, EventArgs e) {
       notifyIcon.Visible = minTrayMenuItem.Checked;
+    }
+
+    private void hiddenSensorsMenuItem_CheckedChanged(object sender, 
+      EventArgs e) {
+      treeModel.ForceVisible = hiddenMenuItem.Checked;
+    }
+
+    private void valueMenuItem_CheckedChanged(object sender, EventArgs e) {
+      treeView.Columns[1].IsVisible = valueMenuItem.Checked;
+    }
+
+    private void minMenuItem_CheckedChanged(object sender, EventArgs e) {
+      treeView.Columns[2].IsVisible = minMenuItem.Checked;
+    }
+
+    private void maxMenuItem_CheckedChanged(object sender, EventArgs e) {
+      treeView.Columns[3].IsVisible = maxMenuItem.Checked;
+    }
+
+    private void limitMenuItem_CheckedChanged(object sender, EventArgs e) {
+      treeView.Columns[4].IsVisible = limitMenuItem.Checked;
     }
   }
 }
