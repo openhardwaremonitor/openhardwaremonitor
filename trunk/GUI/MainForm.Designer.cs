@@ -75,25 +75,19 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMin = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxMax = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxLimit = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-      this.columnsContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-      this.valueToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.minMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.maxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.limitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.menuStrip = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.sensorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.voltMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.clocksMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.tempMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.loadMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.fansMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.flowsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+      this.hiddenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.plotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+      this.columnsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.valueMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.minMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.maxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.limitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.startMinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -111,7 +105,6 @@ namespace OpenHardwareMonitor.GUI {
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
-      this.columnsContextMenuStrip.SuspendLayout();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
@@ -239,56 +232,6 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxLimit.LeftMargin = 3;
       this.nodeTextBoxLimit.ParentColumn = this.limit;
       // 
-      // columnsContextMenuStrip
-      // 
-      this.columnsContextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.valueToolStripMenuItem,
-            this.minMenuItem,
-            this.maxMenuItem,
-            this.limitMenuItem});
-      this.columnsContextMenuStrip.Name = "columnsContextMenuStrip";
-      this.columnsContextMenuStrip.Size = new System.Drawing.Size(104, 92);
-      // 
-      // valueToolStripMenuItem
-      // 
-      this.valueToolStripMenuItem.Checked = true;
-      this.valueToolStripMenuItem.CheckOnClick = true;
-      this.valueToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.valueToolStripMenuItem.Name = "valueToolStripMenuItem";
-      this.valueToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-      this.valueToolStripMenuItem.Text = "Value";
-      this.valueToolStripMenuItem.CheckedChanged += new System.EventHandler(this.valueToolStripMenuItem_CheckedChanged);
-      // 
-      // minMenuItem
-      // 
-      this.minMenuItem.Checked = true;
-      this.minMenuItem.CheckOnClick = true;
-      this.minMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.minMenuItem.Name = "minMenuItem";
-      this.minMenuItem.Size = new System.Drawing.Size(103, 22);
-      this.minMenuItem.Text = "Min";
-      this.minMenuItem.CheckedChanged += new System.EventHandler(this.minToolStripMenuItem_CheckedChanged);
-      // 
-      // maxMenuItem
-      // 
-      this.maxMenuItem.Checked = true;
-      this.maxMenuItem.CheckOnClick = true;
-      this.maxMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.maxMenuItem.Name = "maxMenuItem";
-      this.maxMenuItem.Size = new System.Drawing.Size(103, 22);
-      this.maxMenuItem.Text = "Max";
-      this.maxMenuItem.CheckedChanged += new System.EventHandler(this.maxToolStripMenuItem_CheckedChanged);
-      // 
-      // limitMenuItem
-      // 
-      this.limitMenuItem.Checked = true;
-      this.limitMenuItem.CheckOnClick = true;
-      this.limitMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.limitMenuItem.Name = "limitMenuItem";
-      this.limitMenuItem.Size = new System.Drawing.Size(103, 22);
-      this.limitMenuItem.Text = "Limit";
-      this.limitMenuItem.CheckedChanged += new System.EventHandler(this.limitToolStripMenuItem_CheckedChanged);
-      // 
       // menuStrip
       // 
       this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -329,90 +272,21 @@ namespace OpenHardwareMonitor.GUI {
       // viewToolStripMenuItem
       // 
       this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.sensorsToolStripMenuItem,
+            this.hiddenMenuItem,
+            this.plotMenuItem,
             this.toolStripMenuItem1,
-            this.plotMenuItem});
+            this.columnsToolStripMenuItem});
       this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
       this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
       this.viewToolStripMenuItem.Text = "View";
       // 
-      // sensorsToolStripMenuItem
+      // hiddenMenuItem
       // 
-      this.sensorsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.voltMenuItem,
-            this.clocksMenuItem,
-            this.tempMenuItem,
-            this.loadMenuItem,
-            this.fansMenuItem,
-            this.flowsMenuItem});
-      this.sensorsToolStripMenuItem.Name = "sensorsToolStripMenuItem";
-      this.sensorsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
-      this.sensorsToolStripMenuItem.Text = "Sensors";
-      // 
-      // voltMenuItem
-      // 
-      this.voltMenuItem.Checked = true;
-      this.voltMenuItem.CheckOnClick = true;
-      this.voltMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.voltMenuItem.Name = "voltMenuItem";
-      this.voltMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.voltMenuItem.Text = "Voltages";
-      this.voltMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // clocksMenuItem
-      // 
-      this.clocksMenuItem.Checked = true;
-      this.clocksMenuItem.CheckOnClick = true;
-      this.clocksMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.clocksMenuItem.Name = "clocksMenuItem";
-      this.clocksMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.clocksMenuItem.Text = "Clocks";
-      this.clocksMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // tempMenuItem
-      // 
-      this.tempMenuItem.Checked = true;
-      this.tempMenuItem.CheckOnClick = true;
-      this.tempMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.tempMenuItem.Name = "tempMenuItem";
-      this.tempMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.tempMenuItem.Text = "Temperatures";
-      this.tempMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // loadMenuItem
-      // 
-      this.loadMenuItem.Checked = true;
-      this.loadMenuItem.CheckOnClick = true;
-      this.loadMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.loadMenuItem.Name = "loadMenuItem";
-      this.loadMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.loadMenuItem.Text = "Load";
-      this.loadMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // fansMenuItem
-      // 
-      this.fansMenuItem.Checked = true;
-      this.fansMenuItem.CheckOnClick = true;
-      this.fansMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.fansMenuItem.Name = "fansMenuItem";
-      this.fansMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.fansMenuItem.Text = "Fans";
-      this.fansMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // flowsMenuItem
-      // 
-      this.flowsMenuItem.Checked = true;
-      this.flowsMenuItem.CheckOnClick = true;
-      this.flowsMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.flowsMenuItem.Name = "flowsMenuItem";
-      this.flowsMenuItem.Size = new System.Drawing.Size(147, 22);
-      this.flowsMenuItem.Text = "Flows";
-      this.flowsMenuItem.CheckedChanged += new System.EventHandler(this.UpdateSensorTypeChecked);
-      // 
-      // toolStripMenuItem1
-      // 
-      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-      this.toolStripMenuItem1.Size = new System.Drawing.Size(111, 6);
+      this.hiddenMenuItem.CheckOnClick = true;
+      this.hiddenMenuItem.Name = "hiddenMenuItem";
+      this.hiddenMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.hiddenMenuItem.Text = "Show Hidden Sensors";
+      this.hiddenMenuItem.CheckedChanged += new System.EventHandler(this.hiddenSensorsMenuItem_CheckedChanged);
       // 
       // plotMenuItem
       // 
@@ -420,9 +294,65 @@ namespace OpenHardwareMonitor.GUI {
       this.plotMenuItem.CheckOnClick = true;
       this.plotMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.plotMenuItem.Name = "plotMenuItem";
-      this.plotMenuItem.Size = new System.Drawing.Size(114, 22);
-      this.plotMenuItem.Text = "Plot";
+      this.plotMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.plotMenuItem.Text = "Show Plot";
       this.plotMenuItem.CheckedChanged += new System.EventHandler(this.plotToolStripMenuItem_CheckedChanged);
+      // 
+      // toolStripMenuItem1
+      // 
+      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+      this.toolStripMenuItem1.Size = new System.Drawing.Size(185, 6);
+      // 
+      // columnsToolStripMenuItem
+      // 
+      this.columnsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.valueMenuItem,
+            this.minMenuItem,
+            this.maxMenuItem,
+            this.limitMenuItem});
+      this.columnsToolStripMenuItem.Name = "columnsToolStripMenuItem";
+      this.columnsToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.columnsToolStripMenuItem.Text = "Columns";
+      // 
+      // valueMenuItem
+      // 
+      this.valueMenuItem.Checked = true;
+      this.valueMenuItem.CheckOnClick = true;
+      this.valueMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.valueMenuItem.Name = "valueMenuItem";
+      this.valueMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.valueMenuItem.Text = "Value";
+      this.valueMenuItem.CheckedChanged += new System.EventHandler(this.valueMenuItem_CheckedChanged);
+      // 
+      // minMenuItem
+      // 
+      this.minMenuItem.Checked = true;
+      this.minMenuItem.CheckOnClick = true;
+      this.minMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.minMenuItem.Name = "minMenuItem";
+      this.minMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.minMenuItem.Text = "Min";
+      this.minMenuItem.CheckedChanged += new System.EventHandler(this.minMenuItem_CheckedChanged);
+      // 
+      // maxMenuItem
+      // 
+      this.maxMenuItem.Checked = true;
+      this.maxMenuItem.CheckOnClick = true;
+      this.maxMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.maxMenuItem.Name = "maxMenuItem";
+      this.maxMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.maxMenuItem.Text = "Max";
+      this.maxMenuItem.CheckedChanged += new System.EventHandler(this.maxMenuItem_CheckedChanged);
+      // 
+      // limitMenuItem
+      // 
+      this.limitMenuItem.Checked = true;
+      this.limitMenuItem.CheckOnClick = true;
+      this.limitMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+      this.limitMenuItem.Name = "limitMenuItem";
+      this.limitMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.limitMenuItem.Text = "Limit";
+      this.limitMenuItem.CheckedChanged += new System.EventHandler(this.limitMenuItem_CheckedChanged);
       // 
       // optionsToolStripMenuItem
       // 
@@ -578,7 +508,6 @@ namespace OpenHardwareMonitor.GUI {
       this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
       this.Text = "Open Hardware Monitor";
       this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
-      this.columnsContextMenuStrip.ResumeLayout(false);
       this.menuStrip.ResumeLayout(false);
       this.menuStrip.PerformLayout();
       this.splitContainer.Panel1.ResumeLayout(false);
@@ -614,21 +543,9 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     private Aga.Controls.Tree.TreeColumn limit;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxLimit;
-    private System.Windows.Forms.ContextMenuStrip columnsContextMenuStrip;
-    private System.Windows.Forms.ToolStripMenuItem minMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem maxMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem limitMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem valueToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem saveReportToolStripMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
     private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem sensorsToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem clocksMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem tempMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem fansMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem voltMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem loadMenuItem;
     private System.Windows.Forms.ContextMenuStrip notifyContextMenuStrip;
     private System.Windows.Forms.ToolStripMenuItem hideShowToolStripMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
@@ -637,10 +554,16 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
     private System.Windows.Forms.ContextMenuStrip sensorContextMenuStrip;
     private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem flowsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
     private System.Windows.Forms.SaveFileDialog saveFileDialog;
     private System.Windows.Forms.Timer timer;
+    private System.Windows.Forms.ToolStripMenuItem hiddenMenuItem;
+    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
+    private System.Windows.Forms.ToolStripMenuItem columnsToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem valueMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem minMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem maxMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem limitMenuItem;
   }
 }
 

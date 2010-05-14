@@ -37,8 +37,8 @@
 
 using System;
 using System.Collections.Generic;
-using Aga.Controls.Tree;
 using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
   public class SensorNode : Node {
@@ -54,7 +54,7 @@ namespace OpenHardwareMonitor.GUI {
         return "-";
     }
 
-    public SensorNode(ISensor sensor) {
+    public SensorNode(ISensor sensor) : base() {
       this.sensor = sensor;
       switch (sensor.SensorType) {
         case SensorType.Voltage: format = "{0:F2} V"; break;
@@ -63,13 +63,26 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Temperature: format = "{0:F1} °C"; break;
         case SensorType.Fan: format = "{0:F0} RPM"; break;
         case SensorType.Flow: format = "{0:F0} L/h"; break;
-      }      
+      }
+
+      bool hidden = Config.Get(new Identifier(sensor.Identifier, 
+        "hidden").ToString(), sensor.IsDefaultHidden);
+      IsVisible = !hidden;
     }
 
     public override string Text {
       get { return sensor.Name; }
       set { sensor.Name = value; }
-    }    
+    }
+
+    public override bool IsVisible {
+      get { return base.IsVisible; }
+      set { 
+        base.IsVisible = value;
+        Config.Set(new Identifier(sensor.Identifier,
+          "hidden").ToString(), !value);
+      }
+    }
 
     public bool Plot {
       get { return plot; }

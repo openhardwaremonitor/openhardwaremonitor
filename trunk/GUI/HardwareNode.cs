@@ -38,7 +38,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Aga.Controls.Tree;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
@@ -71,16 +70,8 @@ namespace OpenHardwareMonitor.GUI {
       get { return hardware; }
     }
 
-    public void SetVisible(SensorType sensorType, bool visible) {
-      foreach (TypeNode node in typeNodes)
-        if (node.SensorType == sensorType) {
-          node.IsVisible = visible;
-          UpdateNode(node);
-        }
-    }
-
-    private void UpdateNode(TypeNode node) {      
-      if (node.IsVisible && node.Nodes.Count > 0) {
+    private void UpdateNode(TypeNode node) {  
+      if (node.Nodes.Count > 0) {
         if (!Nodes.Contains(node)) {
           int i = 0;
           while (i < Nodes.Count &&
@@ -95,10 +86,16 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SensorRemoved(ISensor sensor) {
-      foreach (TypeNode node in typeNodes)
-        if (node.SensorType == sensor.SensorType) {
-          node.Nodes.Remove(new SensorNode(sensor));
-          UpdateNode(node);
+      foreach (TypeNode typeNode in typeNodes)
+        if (typeNode.SensorType == sensor.SensorType) { 
+          SensorNode sensorNode = null;
+          foreach (Node node in typeNode.Nodes) {
+            SensorNode n = node as SensorNode;
+            if (n != null && n.Sensor == sensor)
+              sensorNode = n;
+          }
+          typeNode.Nodes.Remove(sensorNode);
+          UpdateNode(typeNode);
         }
     }
 
@@ -107,15 +104,16 @@ namespace OpenHardwareMonitor.GUI {
       while (i < node.Nodes.Count &&
         ((SensorNode)node.Nodes[i]).Sensor.Index < sensor.Index)
         i++;
-      node.Nodes.Insert(i, new SensorNode(sensor));        
+      SensorNode sensorNode = new SensorNode(sensor);
+      node.Nodes.Insert(i, sensorNode);
     }
 
     private void SensorAdded(ISensor sensor) {
-      foreach (TypeNode node in typeNodes)
-        if (node.SensorType == sensor.SensorType) {
-          InsertSorted(node, sensor);
-          UpdateNode(node);
+      foreach (TypeNode typeNode in typeNodes)
+        if (typeNode.SensorType == sensor.SensorType) {
+          InsertSorted(typeNode, sensor);
+          UpdateNode(typeNode);          
         }
-    }
+    }    
   }
 }
