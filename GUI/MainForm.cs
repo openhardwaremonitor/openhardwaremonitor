@@ -96,7 +96,12 @@ namespace OpenHardwareMonitor.GUI {
 
       Width = Utilities.Config.Get("mainForm.Width", Width);
       Height = Utilities.Config.Get("mainForm.Height", Height);
-         
+
+      foreach (TreeColumn column in treeView.Columns) 
+        column.Width = Math.Max(20, Math.Min(400, 
+          Config.Get("treeView.Columns." + column.Header + ".Width",
+          column.Width)));
+
       treeModel = new TreeModel();
       root = new Node(System.Environment.MachineName);
       root.Image = Utilities.EmbeddedResources.GetImage("computer.png");
@@ -266,6 +271,10 @@ namespace OpenHardwareMonitor.GUI {
         Config.Set("mainForm.Width", Width);
         Config.Set("mainForm.Height", Height);
       }
+
+      foreach (TreeColumn column in treeView.Columns) 
+        Config.Set("treeView.Columns." + column.Header + ".Width", 
+          column.Width);
 
       timer.Enabled = false;
 
