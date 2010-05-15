@@ -67,7 +67,6 @@ namespace OpenHardwareMonitor.GUI {
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-      this.Font = new System.Drawing.Font("Segoe UI", 9F);
       this.Name = "PlotPanel";
       this.Size = new System.Drawing.Size(170, 168);
       this.ResumeLayout(false);

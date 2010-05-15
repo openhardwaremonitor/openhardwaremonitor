@@ -75,7 +75,7 @@ namespace OpenHardwareMonitor.GUI {
         "traycolor").ToString(), defaultColor);      
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
-      this.font = new Font(SystemFonts.MessageBoxFont.FontFamily, 9);
+      this.font = SystemFonts.MessageBoxFont;
 
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
       ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
@@ -98,8 +98,11 @@ namespace OpenHardwareMonitor.GUI {
 
       this.bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
       this.graphics = Graphics.FromImage(this.bitmap);
-      this.graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-      this.graphics.SmoothingMode = SmoothingMode.HighQuality;
+
+      if (Environment.OSVersion.Version.Major > 5) {
+        this.graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        this.graphics.SmoothingMode = SmoothingMode.HighQuality;
+      }
     }
 
     public ISensor Sensor {
@@ -137,7 +140,6 @@ namespace OpenHardwareMonitor.GUI {
       if (darkBrush != null)
         darkBrush.Dispose();
       pen.Dispose();
-      font.Dispose();
       graphics.Dispose();      
       bitmap.Dispose();      
     }
@@ -164,7 +166,7 @@ namespace OpenHardwareMonitor.GUI {
 
       graphics.Clear(Color.Black);
       TextRenderer.DrawText(graphics, GetString(), font,
-        new Point(-2, 0), Color.White, Color.Black);
+        new Point(-2, 0), Color.White, Color.Black);        
 
       BitmapData data = bitmap.LockBits(
         new Rectangle(0, 0, bitmap.Width, bitmap.Height),
