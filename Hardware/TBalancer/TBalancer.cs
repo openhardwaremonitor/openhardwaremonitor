@@ -53,6 +53,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private Sensor[] sensorhubTemperatures = new Sensor[6];
     private Sensor[] sensorhubFlows = new Sensor[2];
     private Sensor[] fans = new Sensor[4];
+    private Sensor[] controls = new Sensor[4];
     private Sensor[] miniNGTemperatures = new Sensor[4];
     private Sensor[] miniNGFans = new Sensor[4];
     private List<ISensor> active = new List<ISensor>();
@@ -90,19 +91,24 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           offset + i, null, SensorType.Temperature, this, parameter);
       offset += sensorhubTemperatures.Length;
 
-      for (int i = 0; i < sensorhubFlows.Length; i++)
-        sensorhubFlows[i] = new Sensor("Flowmeter " + (i + 1),
-          offset + i, null, SensorType.Flow, this, new ParameterDescription[] {
-            new ParameterDescription("Impulse Rate", 
-              "The impulse rate of the flowmeter in pulses/L", 509)
-          });
-      offset += sensorhubFlows.Length;
-
       for (int i = 0; i < miniNGTemperatures.Length; i++)
         miniNGTemperatures[i] = new Sensor("miniNG #" + (i / 2 + 1) +
           " Sensor " + (i % 2 + 1), offset + i, null, SensorType.Temperature, 
           this, parameter);
       offset += miniNGTemperatures.Length;
+
+      for (int i = 0; i < sensorhubFlows.Length; i++)
+        sensorhubFlows[i] = new Sensor("Flowmeter " + (i + 1),
+          i, null, SensorType.Flow, this, new ParameterDescription[] {
+            new ParameterDescription("Impulse Rate", 
+              "The impulse rate of the flowmeter in pulses/L", 509)
+          });
+
+      for (int i = 0; i < controls.Length; i++) {
+        controls[i] = new Sensor("Fan Channel " + i, i, null, 
+          SensorType.Control, this, null);
+        ActivateSensor(controls[i]);
+      }
 
       alternativeRequest = new MethodDelegate(DelayedAlternativeRequest);
 
@@ -226,11 +232,16 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
                   "Maximum revolutions per minute (RPM) of the fan.", maxRPM)
               });
 
-          if ((data[136] & (1 << i)) == 0) // pwm mode
-            fans[i].Value = fans[i].Parameters[0].Value * 0.02f * data[137 + i];
+          float value;
+          if ((data[136] & (1 << i)) == 0)  // pwm mode
+            value = 0.02f * data[137 + i];
           else // analog mode
-            fans[i].Value = fans[i].Parameters[0].Value * 0.01f * data[141 + i]; 
+            value = 0.01f * data[141 + i];
+          
+          fans[i].Value = fans[i].Parameters[0].Value * value;
           ActivateSensor(fans[i]);
+
+          controls[i].Value = 100 * value;          
         }
 
       } else if (data[1] == 253) { // miniNG #1
