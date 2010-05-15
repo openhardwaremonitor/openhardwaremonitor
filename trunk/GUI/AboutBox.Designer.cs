@@ -97,8 +97,7 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // label1
       // 
-      this.label1.AutoSize = true;
-      this.label1.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+      this.label1.AutoSize = true;      
       this.label1.Location = new System.Drawing.Point(85, 13);
       this.label1.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
       this.label1.Name = "label1";
@@ -183,8 +182,7 @@ namespace OpenHardwareMonitor.GUI {
       this.Controls.Add(this.label2);
       this.Controls.Add(this.label1);
       this.Controls.Add(this.pictureBox1);
-      this.Controls.Add(this.okButton);
-      this.Font = new System.Drawing.Font("Segoe UI", 9F);
+      this.Controls.Add(this.okButton);      
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
       this.MaximizeBox = false;
       this.MinimizeBox = false;

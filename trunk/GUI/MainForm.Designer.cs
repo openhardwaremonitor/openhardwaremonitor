@@ -122,8 +122,7 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.Columns.Add(this.limit);
       this.treeView.DefaultToolTipProvider = null;
       this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.treeView.DragDropMarkColor = System.Drawing.Color.Black;
-      this.treeView.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.treeView.DragDropMarkColor = System.Drawing.Color.Black;      
       this.treeView.FullRowSelect = true;
       this.treeView.GridLineStyle = Aga.Controls.Tree.GridLineStyle.Horizontal;
       this.treeView.LineColor = System.Drawing.SystemColors.ControlDark;
@@ -440,8 +439,7 @@ namespace OpenHardwareMonitor.GUI {
       // plotPanel
       // 
       this.plotPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.plotPanel.Font = new System.Drawing.Font("Segoe UI", 9F);
+      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;      
       this.plotPanel.Location = new System.Drawing.Point(0, 0);
       this.plotPanel.Name = "plotPanel";
       this.plotPanel.Size = new System.Drawing.Size(478, 198);
@@ -457,8 +455,7 @@ namespace OpenHardwareMonitor.GUI {
       this.notifyContextMenuStrip.Size = new System.Drawing.Size(137, 54);
       // 
       // hideShowToolStripMenuItem
-      // 
-      this.hideShowToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+      //       
       this.hideShowToolStripMenuItem.Name = "hideShowToolStripMenuItem";
       this.hideShowToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
       this.hideShowToolStripMenuItem.Text = "Hide/Show";
@@ -500,8 +497,7 @@ namespace OpenHardwareMonitor.GUI {
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(478, 792);
       this.Controls.Add(this.splitContainer);
-      this.Controls.Add(this.menuStrip);
-      this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this.Controls.Add(this.menuStrip);      
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.MainMenuStrip = this.menuStrip;
       this.Name = "MainForm";
