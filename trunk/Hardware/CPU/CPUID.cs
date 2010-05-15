@@ -104,11 +104,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       uint eax, ebx, ecx, edx;
 
+      if (thread >= 32)
+        throw new ArgumentException();
       UIntPtr mask = (UIntPtr)(1L << thread);
 
       if (WinRing0.CpuidTx(CPUID_0, 0,
           out eax, out ebx, out ecx, out edx, mask)) {
-        maxCpuid = eax;
+        if (eax > 0)
+          maxCpuid = eax;
+        else
+          return;
+
         StringBuilder vendorBuilder = new StringBuilder();
         AppendRegister(vendorBuilder, ebx);
         AppendRegister(vendorBuilder, edx);
@@ -127,14 +133,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
         eax = ebx = ecx = edx = 0;
         if (WinRing0.CpuidTx(CPUID_EXT, 0,
-          out eax, out ebx, out ecx, out edx, mask))
-          maxCpuidExt = eax - CPUID_EXT;
+          out eax, out ebx, out ecx, out edx, mask)) {
+          if (eax > CPUID_EXT)
+            maxCpuidExt = eax - CPUID_EXT;
+          else
+            return;
+        }
       } else {
         throw new ArgumentException();
       }
 
-      if (maxCpuid == 0 || maxCpuidExt == 0)
-        return;
+      maxCpuid = Math.Min(maxCpuid, 1024);
+      maxCpuidExt = Math.Min(maxCpuidExt, 1024);   
 
       cpuidData = new uint[maxCpuid + 1, 4];
       for (uint i = 0; i < (maxCpuid + 1); i++)
