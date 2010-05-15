@@ -227,16 +227,22 @@ namespace OpenHardwareMonitor.GUI {
 
       string format = "";
       switch (sensor.SensorType) {
-        case SensorType.Voltage: format = "{0}\n{1}: {2:F2} V"; break;
-        case SensorType.Clock: format = "{0}\n{1}: {2:F0} MHz"; break;
-        case SensorType.Load: format = "{0}\n{1}: {2:F1} %"; break;
-        case SensorType.Temperature: format = "{0}\n{1}: {2:F1} °C"; break;
-        case SensorType.Fan: format = "{0}\n{1}: {2:F0} RPM"; break;
-        case SensorType.Flow: format = "{0}\n{1}: {2:F0} L/h"; break;
+        case SensorType.Voltage: format = "\n{0}: {1:F2} V"; break;
+        case SensorType.Clock: format = "\n{0}: {1:F0} MHz"; break;
+        case SensorType.Load: format = "\n{0}: {1:F1} %"; break;
+        case SensorType.Temperature: format = "\n{0}: {1:F1} °C"; break;
+        case SensorType.Fan: format = "\n{0}: {1:F0} RPM"; break;
+        case SensorType.Flow: format = "\n{0}: {1:F0} L/h"; break;
       }
+      string formattedValue = string.Format(format, sensor.Name, sensor.Value);
+      string hardwareName = sensor.Hardware.Name;
+      hardwareName = hardwareName.Substring(0, 
+        Math.Min(63 - formattedValue.Length, hardwareName.Length));
+      string text = hardwareName + formattedValue;
+      if (text.Length > 63)
+        text = null;
 
-      notifyIcon.Text = string.Format(format, sensor.Hardware.Name, sensor.Name,
-        sensor.Value);    
+      notifyIcon.Text = text;
       notifyIcon.Visible = true;         
     }
   }
