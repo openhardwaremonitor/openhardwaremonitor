@@ -151,13 +151,15 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Clock:
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
         case SensorType.Load: 
-          return string.Format("{0:F0}", sensor.Value < 99 ? sensor.Value : 99);
+          return string.Format("{0:F0}", sensor.Value);
         case SensorType.Temperature: 
           return string.Format("{0:F0}", sensor.Value);
         case SensorType.Fan: 
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
         case SensorType.Flow:
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
+        case SensorType.Control:
+          return string.Format("{0:F0}", sensor.Value);
       }
       return "-";
     }
@@ -235,6 +237,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Temperature: format = "\n{0}: {1:F1} °C"; break;
         case SensorType.Fan: format = "\n{0}: {1:F0} RPM"; break;
         case SensorType.Flow: format = "\n{0}: {1:F0} L/h"; break;
+        case SensorType.Control: format = "\n{0}: {1:F1} %"; break;
       }
       string formattedValue = string.Format(format, sensor.Name, sensor.Value);
       string hardwareName = sensor.Hardware.Name;

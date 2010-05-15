@@ -200,6 +200,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\mainboard.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\control.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
