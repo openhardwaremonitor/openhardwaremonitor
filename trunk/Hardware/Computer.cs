@@ -171,6 +171,15 @@ namespace OpenHardwareMonitor.Hardware {
         w.WriteLine();
 
         NewSection(w);
+        w.Write("Common Language Runtime: ");
+        w.WriteLine(Environment.Version.ToString());
+        w.Write("Operating System: ");
+        w.WriteLine(Environment.OSVersion.ToString());
+        w.Write("Process Type: ");
+        w.WriteLine(IntPtr.Size == 4 ? "32-Bit" : "64-Bit");
+        w.WriteLine();
+
+        NewSection(w);
         foreach (IGroup group in groups) {
           foreach (IHardware hardware in group.Hardware)
             ReportHardwareTree(hardware, w, "");
