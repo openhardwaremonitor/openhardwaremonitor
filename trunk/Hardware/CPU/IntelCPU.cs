@@ -131,8 +131,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 } break;
               case 0x17: // Intel Core (45nm)
                 tjMax = Floats(100); break;
-              case 0x1C: // Intel Atom 
-                tjMax = Floats(90); break;
+              case 0x1C: // Intel Atom (45nm)
+                switch (stepping) {
+                  case 0x02: // C0
+                    tjMax = Floats(90); break;
+                  case 0x0A: // A0, B0
+                    tjMax = Floats(100); break;
+                  default:
+                    tjMax = Floats(90); break;
+                } break;                
               case 0x1A: // Intel Core i7 LGA1366 (45nm)
               case 0x1E: // Intel Core i5, i7 LGA1156 (45nm)
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
