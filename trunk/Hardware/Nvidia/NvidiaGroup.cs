@@ -55,7 +55,13 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
       NvPhysicalGpuHandle[] handles = 
         new NvPhysicalGpuHandle[NVAPI.MAX_PHYSICAL_GPUS];
-  
+
+      if (NVAPI.NvAPI_EnumPhysicalGPUs == null) {
+        report.AppendLine("Error: NvAPI_EnumPhysicalGPUs not available");
+        report.AppendLine();
+        return;
+      }
+
       int count;
       if (NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count) != NvStatus.OK)
         return;
