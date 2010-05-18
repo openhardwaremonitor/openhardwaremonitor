@@ -66,8 +66,12 @@ namespace OpenHardwareMonitor.GUI {
           startup = task != null;
         } catch (IOException) {
           startup = false;
+        } catch (UnauthorizedAccessException) {
+          scheduler = null;
         }
-      } else {
+      } 
+            
+      if (scheduler == null) {
         RegistryKey key = Registry.CurrentUser.OpenSubKey(REGISTRY_RUN);
         startup = false;
         if (key != null) {
