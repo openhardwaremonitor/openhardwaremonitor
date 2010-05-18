@@ -236,6 +236,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       try {
         GetDelegate(0x0150E828, out NvAPI_Initialize);
       } catch (DllNotFoundException) { return; } 
+        catch (EntryPointNotFoundException) { return; } 
         catch (ArgumentNullException) { return; }
 
       if (NvAPI_Initialize() == NvStatus.OK) {
