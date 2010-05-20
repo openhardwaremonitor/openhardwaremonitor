@@ -73,7 +73,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < temperatures.Length; i++)
         temperatures[i] = new Sensor("Temperature #" + (i + 1), i, null,
           SensorType.Temperature, this, new ParameterDescription[] {
-            new ParameterDescription("Offset", "Temperature offset.", 0)
+            new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           });
 
       fans = new Sensor[chip == Chip.F71882 ? 4 : 3];

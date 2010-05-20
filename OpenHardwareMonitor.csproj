@@ -79,6 +79,7 @@
     <Compile Include="GUI\TaskScheduler.cs" />
     <Compile Include="GUI\TreeModel.cs" />
     <Compile Include="GUI\TypeNode.cs" />
+    <Compile Include="GUI\UnitManager.cs" />
     <Compile Include="GUI\UpdateVisitor.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />

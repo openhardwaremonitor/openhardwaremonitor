@@ -87,7 +87,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0, null,
         SensorType.Temperature, this, new ParameterDescription[] {
-            new ParameterDescription("Offset", "Temperature offset.", 0)
+            new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           });
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,

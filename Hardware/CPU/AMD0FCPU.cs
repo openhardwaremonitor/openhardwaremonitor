@@ -90,7 +90,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           coreTemperatures[i] =
             new Sensor("Core #" + (i + 1), i, null, SensorType.Temperature,
               this, new ParameterDescription[] { 
-                new ParameterDescription("Offset", 
+                new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", offset)
           });

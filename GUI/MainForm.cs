@@ -149,7 +149,11 @@ namespace OpenHardwareMonitor.GUI {
       startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
       minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
       startupMenuItem.Checked = startupManager.Startup;
-      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);   
+      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
+
+      celciusToolStripMenuItem.Checked = 
+        UnitManager.TemperatureUnit == TemperatureUnit.Celcius;
+      fahrenheitToolStripMenuItem.Checked = !celciusToolStripMenuItem.Checked;
 
       if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
@@ -438,6 +442,18 @@ namespace OpenHardwareMonitor.GUI {
 
     private void limitMenuItem_CheckedChanged(object sender, EventArgs e) {
       treeView.Columns[4].IsVisible = limitMenuItem.Checked;
+    }
+
+    private void celciusToolStripMenuItem_Click(object sender, EventArgs e) {
+      celciusToolStripMenuItem.Checked = true;
+      fahrenheitToolStripMenuItem.Checked = false;
+      UnitManager.TemperatureUnit = TemperatureUnit.Celcius;
+    }
+
+    private void fahrenheitToolStripMenuItem_Click(object sender, EventArgs e) {
+      celciusToolStripMenuItem.Checked = false;
+      fahrenheitToolStripMenuItem.Checked = true;
+      UnitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }
   }
 }

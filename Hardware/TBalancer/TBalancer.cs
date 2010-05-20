@@ -73,7 +73,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       this.protocolVersion = protocolVersion;
 
       ParameterDescription[] parameter = new ParameterDescription[] {
-        new ParameterDescription("Offset", "Temperature offset.", 0)
+        new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
       };
       int offset = 0;
       for (int i = 0; i < digitalTemperatures.Length; i++)
