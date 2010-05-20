@@ -112,7 +112,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       available = IsWinbondVendor();
 
       ParameterDescription[] parameter = new ParameterDescription[] {
-        new ParameterDescription("Offset", "Temperature offset.", 0)
+        new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
       };
       List<Sensor> list = new List<Sensor>();
       switch (chip) {

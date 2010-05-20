@@ -48,9 +48,14 @@ namespace OpenHardwareMonitor.GUI {
     private bool plot = false;
 
     public string ValueToString(float? value) {
-      if (value.HasValue)
-        return string.Format(format, value);
-      else
+      if (value.HasValue) {
+        if (sensor.SensorType == SensorType.Temperature && 
+          UnitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
+          return string.Format("{0:F1} °F", value * 1.8 + 32);
+        } else {
+          return string.Format(format, value);
+        }                
+      } else
         return "-";
     }
 

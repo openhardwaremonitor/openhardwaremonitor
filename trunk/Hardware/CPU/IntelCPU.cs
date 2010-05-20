@@ -175,10 +175,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax[i],
             SensorType.Temperature, this, new ParameterDescription[] { 
               new ParameterDescription(
-                "TjMax", "TjMax temperature of the core.\n" + 
+                "TjMax [°C]", "TjMax temperature of the core.\n" + 
                 "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
-              new ParameterDescription(
-                "TSlope", "Temperature slope of the digital thermal sensor.\n" + 
+              new ParameterDescription("TSlope [°C]", 
+                "Temperature slope of the digital thermal sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", 1)});
         }
       } else {
