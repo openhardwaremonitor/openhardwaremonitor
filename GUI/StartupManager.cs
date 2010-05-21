@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Principal;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using OpenHardwareMonitor.TaskScheduler;
@@ -51,25 +52,39 @@ namespace OpenHardwareMonitor.GUI {
     private const string REGISTRY_RUN =
       @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-    public StartupManager() {
+    private bool IsAdministrator() {
       try {
-        scheduler = new TaskSchedulerClass();
-        scheduler.Connect(null, null, null, null);
+        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+        WindowsPrincipal principal = new WindowsPrincipal(identity);
+        return principal.IsInRole(WindowsBuiltInRole.Administrator);
       } catch {
-        scheduler = null;
+        return false;
       }
+    }
 
-      if (scheduler != null) {
+    public StartupManager() {
+      if (IsAdministrator()) {
         try {
-          ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
-          IRegisteredTask task = folder.GetTask("Startup");
-          startup = task != null;
-        } catch (IOException) {
-          startup = false;
-        } catch (UnauthorizedAccessException) {
+          scheduler = new TaskSchedulerClass();
+          scheduler.Connect(null, null, null, null);
+        } catch {
           scheduler = null;
         }
-      } 
+
+        if (scheduler != null) {
+          try {
+            ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
+            IRegisteredTask task = folder.GetTask("Startup");
+            startup = task != null;
+          } catch (IOException) {
+            startup = false;
+          } catch (UnauthorizedAccessException) {
+            scheduler = null;
+          }
+        } 
+      } else {
+        scheduler = null;
+      }
             
       if (scheduler == null) {
         RegistryKey key = Registry.CurrentUser.OpenSubKey(REGISTRY_RUN);
