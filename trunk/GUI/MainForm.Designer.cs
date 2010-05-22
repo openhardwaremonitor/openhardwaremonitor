@@ -92,7 +92,7 @@ namespace OpenHardwareMonitor.GUI {
       this.startMinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+      this.separatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
       this.temperatureUnitsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.celciusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.fahrenheitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -362,7 +362,7 @@ namespace OpenHardwareMonitor.GUI {
             this.startMinMenuItem,
             this.minTrayMenuItem,
             this.startupMenuItem,
-            this.toolStripMenuItem3,
+            this.separatorMenuItem,
             this.temperatureUnitsToolStripMenuItem,
             this.toolStripMenuItem4,
             this.hddMenuItem});
@@ -395,8 +395,8 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // toolStripMenuItem3
       // 
-      this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-      this.toolStripMenuItem3.Size = new System.Drawing.Size(204, 6);
+      this.separatorMenuItem.Name = "toolStripMenuItem3";
+      this.separatorMenuItem.Size = new System.Drawing.Size(204, 6);
       // 
       // temperatureUnitsToolStripMenuItem
       // 
@@ -580,7 +580,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
     private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem1;
     private System.Windows.Forms.ToolStripMenuItem minTrayMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+    private System.Windows.Forms.ToolStripSeparator separatorMenuItem;
     private System.Windows.Forms.ContextMenuStrip sensorContextMenuStrip;
     private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
     private System.Windows.Forms.ToolStripMenuItem startupMenuItem;

@@ -101,6 +101,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public CPUGroup() {
+      // No implementation for cpuid on Unix systems
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) 
+        return;
+      
       if (!WinRing0.IsCpuid())
         return;
 
@@ -158,7 +163,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public string GetReport() {
-
+      if (threads == null)
+        return null;
+      
       StringBuilder r = new StringBuilder();
       
       r.AppendLine("CPUID");
