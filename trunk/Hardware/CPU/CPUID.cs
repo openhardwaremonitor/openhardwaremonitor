@@ -51,16 +51,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private int thread;
 
-    private uint maxCpuid = 0;
-    private uint maxCpuidExt = 0;
+    private Vendor vendor = Vendor.Unknown;
 
-    private Vendor vendor;
+    private string cpuBrandString = "";
+    private string name = "";
 
-    private string cpuBrandString;
-    private string name;
-
-    private uint[,] cpuidData;
-    private uint[,] cpuidExtData;
+    private uint[,] cpuidData = new uint[0, 0];
+    private uint[,] cpuidExtData = new uint[0, 0];
 
     private uint family;
     private uint model;
@@ -102,6 +99,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public CPUID(int thread) {
       this.thread = thread;
 
+      uint maxCpuid = 0;
+      uint maxCpuidExt = 0;
+
       uint eax, ebx, ecx, edx;
 
       if (thread >= 32)
@@ -138,6 +138,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             maxCpuidExt = eax - CPUID_EXT;
           else
             return;
+        } else {
+          throw new ArgumentException();
         }
       } else {
         throw new ArgumentException();
@@ -234,14 +236,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public int Thread {
       get { return thread; }
-    }
-
-    public uint MaxCPUID {
-      get { return maxCpuid; }
-    }
-
-    public uint MaxCpuidExt {
-      get { return maxCpuidExt; }
     }
 
     public Vendor Vendor {
