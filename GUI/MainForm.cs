@@ -158,10 +158,8 @@ namespace OpenHardwareMonitor.GUI {
       // Hide the system tray and auto startup menu items on Unix
       int p = (int)System.Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
-        startMinMenuItem.Visible = false;
         minTrayMenuItem.Visible = false;
         startupMenuItem.Visible = false;
-        separatorMenuItem.Visible = false;
       }
       
       if (startMinMenuItem.Checked) {

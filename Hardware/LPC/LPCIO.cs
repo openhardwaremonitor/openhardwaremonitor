@@ -119,7 +119,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
     }
 
-    public LPCIO() {
+    public LPCIO(Mainboard.Manufacturer mainboardManufacturer, 
+      Mainboard.Model mainboardModel) 
+    {
       if (!WinRing0.IsAvailable)
         return;
 
@@ -351,7 +353,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             return;
           }
 
-          IT87XX it87 = new IT87XX(chip, address);
+          IT87XX it87 = new IT87XX(chip, address, mainboardManufacturer, 
+            mainboardModel);
           if (it87.IsAvailable)
             hardware.Add(it87);
 

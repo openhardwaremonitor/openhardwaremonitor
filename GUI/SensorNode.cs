@@ -73,7 +73,7 @@ namespace OpenHardwareMonitor.GUI {
 
       bool hidden = Config.Get(new Identifier(sensor.Identifier, 
         "hidden").ToString(), sensor.IsDefaultHidden);
-      IsVisible = !hidden;
+      base.IsVisible = !hidden;
     }
 
     public override string Text {

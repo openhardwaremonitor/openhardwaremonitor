@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       if (smbios.Board != null) {
         if (smbios.Board.ProductName != null
           && smbios.Board.ProductName != "") {
-          if (smbios.Board.Manufacturer == Manufacturer.Unkown)
+          if (smbios.Board.Manufacturer == Manufacturer.Unknown)
             this.name = smbios.Board.ProductName;
           else
             this.name = smbios.Board.Manufacturer + " " +
@@ -64,11 +64,13 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           this.name = smbios.Board.Manufacturer.ToString();
         }
       } else {
-        this.name = Manufacturer.Unkown.ToString();
+        this.name = Manufacturer.Unknown.ToString();
       }
 
       this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
-      this.lpcGroup = new LPCIO();
+      this.lpcGroup = new LPCIO(
+        smbios.Board != null ? smbios.Board.Manufacturer : Manufacturer.Unknown,
+        smbios.Board != null ? smbios.Board.Model : Model.Unknown);
     }
 
     public string Name {

@@ -47,7 +47,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     Gigabyte,
     IBM,
     MSI,
-    Unkown    
+    Unknown    
   }
 
 }
