@@ -193,6 +193,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       private string version;
       private string serialNumber;
       private Manufacturer manufacturer;
+      private Model model;
 
       public BaseBoardInformation(byte type, ushort handle, byte[] data,
         string[] strings)
@@ -219,7 +220,22 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "MICRO-STAR INTERNATIONAL CO.,LTD":
             manufacturer = Manufacturer.MSI; break;
           default:
-            manufacturer = Manufacturer.Unkown; break;
+            manufacturer = Manufacturer.Unknown; break;
+        }
+
+        switch (productName) {
+          case "LP BI P45-T2RS Elite":
+            model = Model.LP_BI_P45_T2RS_Elite; break;
+          case "LP DK P55-T3eH9":
+            model = Model.LP_DK_P55_T3eH9; break;
+          case "EP45-DS3R":
+            model = Model.EP45_DS3R; break;
+          case "GA-MA785GMT-UD2H":
+            model = Model.GA_MA785GMT_UD2H; break;
+          case "P35-DS3":
+            model = Model.P35_DS3; break;
+          default:
+            model = Model.Unknown; break;
         }
       }
 
@@ -232,6 +248,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       public string SerialNumber { get { return serialNumber; } }
 
       public Manufacturer Manufacturer { get { return manufacturer; } }
+
+      public Model Model { get { return model; } }
 
     }
   }

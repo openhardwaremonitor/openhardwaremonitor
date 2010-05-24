@@ -99,6 +99,7 @@
     <Compile Include="Hardware\LPC\LPCHardware.cs" />
     <Compile Include="Hardware\Mainboard\Mainboard.cs" />
     <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
+    <Compile Include="Hardware\Mainboard\Model.cs" />
     <Compile Include="Hardware\Mainboard\Manufacturer.cs" />
     <Compile Include="Hardware\Parameter.cs" />
     <Compile Include="Hardware\Mainboard\SMBIOS.cs" />

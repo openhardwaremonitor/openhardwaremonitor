@@ -135,7 +135,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           ActivateSensor(coreVoltage);
         }
 
-        coreLoad.Value = adlp.ActivityPercent;                        
+        coreLoad.Value = Math.Min(adlp.ActivityPercent, 100);                        
         ActivateSensor(coreLoad);
       } else {
         DeactivateSensor(coreClock);
