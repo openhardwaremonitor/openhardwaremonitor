@@ -60,7 +60,7 @@ namespace OpenHardwareMonitor.Utilities {
         System.Configuration.ConfigurationUserLevel.None);
     }
 
-    ~Config() {
+    private void SaveConfig() {
       string tempName = Path.ChangeExtension(fileName, ".tmp");
 
       if (File.Exists(tempName))
@@ -71,6 +71,10 @@ namespace OpenHardwareMonitor.Utilities {
           File.Delete(fileName);
         File.Move(tempName, fileName);
       } catch (System.Configuration.ConfigurationErrorsException) { }
+    }
+
+    public static void Save() {
+      instance.SaveConfig();
     }
 
     public static Config Settings {
