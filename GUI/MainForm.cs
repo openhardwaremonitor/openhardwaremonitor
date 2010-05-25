@@ -173,8 +173,14 @@ namespace OpenHardwareMonitor.GUI {
 
       // Create a handle, otherwise calling Close() does not fire FormClosed     
       IntPtr handle = Handle;
-    }
 
+      // Make sure the settings are saved when the user logs off
+      Microsoft.Win32.SystemEvents.SessionEnded +=
+        delegate(object sender, Microsoft.Win32.SessionEndedEventArgs e) {
+          SaveConfiguration();
+        };
+    }
+    
     private void SubHardwareAdded(IHardware hardware, Node node) {
       Node hardwareNode = new HardwareNode(hardware);
       node.Nodes.Add(hardwareNode);
@@ -262,8 +268,7 @@ namespace OpenHardwareMonitor.GUI {
       sensorSystemTray.Redraw();
     }
 
-    private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-      
+    private void SaveConfiguration() {
       Config.Set(hiddenMenuItem.Name, hiddenMenuItem.Checked);
       Config.Set(plotMenuItem.Name, plotMenuItem.Checked);
 
@@ -274,7 +279,7 @@ namespace OpenHardwareMonitor.GUI {
 
       Config.Set(startMinMenuItem.Name, startMinMenuItem.Checked);
       Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
-      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);   
+      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
 
       if (WindowState != FormWindowState.Minimized) {
         Config.Set("mainForm.Location.X", Location.X);
@@ -283,12 +288,17 @@ namespace OpenHardwareMonitor.GUI {
         Config.Set("mainForm.Height", Height);
       }
 
-      foreach (TreeColumn column in treeView.Columns) 
-        Config.Set("treeView.Columns." + column.Header + ".Width", 
+      foreach (TreeColumn column in treeView.Columns)
+        Config.Set("treeView.Columns." + column.Header + ".Width",
           column.Width);
 
-      timer.Enabled = false;
+      Config.Save();
+    }
 
+    private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
+      SaveConfiguration();
+
+      timer.Enabled = false;
       sensorSystemTray.Dispose();
       notifyIcon.Dispose();
       computer.Close();
