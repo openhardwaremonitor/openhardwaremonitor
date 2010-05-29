@@ -75,7 +75,17 @@ namespace OpenHardwareMonitor.GUI {
           try {
             ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
             IRegisteredTask task = folder.GetTask("Startup");
-            startup = task != null;
+            startup = (task != null) && 
+              (task.Definition.Triggers.Count > 0) &&
+              (task.Definition.Triggers[1].Type == 
+                TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON) &&
+              (task.Definition.Actions.Count > 0) &&
+              (task.Definition.Actions[1].Type ==
+                TASK_ACTION_TYPE.TASK_ACTION_EXEC) &&
+              (task.Definition.Actions[1] as IExecAction != null) &&
+              ((task.Definition.Actions[1] as IExecAction).Path ==
+                Application.ExecutablePath);
+              
           } catch (IOException) {
             startup = false;
           } catch (UnauthorizedAccessException) {
