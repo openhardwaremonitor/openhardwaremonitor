@@ -43,7 +43,7 @@ using System.Threading;
 namespace OpenHardwareMonitor.Hardware.LPC {
   public class LPCIO {
 
-    private List<IHardware> hardware = new List<IHardware>();
+    private List<ISuperIO> superIOs = new List<ISuperIO>();
     private StringBuilder report = new StringBuilder();
 
     private Chip chip = Chip.Unknown;
@@ -87,7 +87,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0x55);
     }
 
-    internal void IT87Exit() {
+    private void IT87Exit() {
       WinRing0.WriteIoPortByte(registerPort, CONFIGURATION_CONTROL_REGISTER);
       WinRing0.WriteIoPortByte(valuePort, 0x02);
     }
@@ -119,9 +119,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
     }
 
-    public LPCIO(Mainboard.Manufacturer mainboardManufacturer, 
-      Mainboard.Model mainboardModel) 
-    {
+    public LPCIO() {
       if (!WinRing0.IsAvailable)
         return;
 
@@ -289,9 +287,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             case Chip.W83667HG:
             case Chip.W83667HGB:
             case Chip.W83687THF:
-              W836XX w836XX = new W836XX(chip, revision, address);
-              if (w836XX.IsAvailable)
-                hardware.Add(w836XX);
+              superIOs.Add(new W836XX(chip, revision, address));
               break;
             case Chip.F71858:
             case Chip.F71862:
@@ -309,7 +305,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 report.AppendLine();
                 return;
               }
-              hardware.Add(new F718XX(chip, address));
+              superIOs.Add(new F718XX(chip, address));
               break;
             default: break;
           }
@@ -353,10 +349,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             return;
           }
 
-          IT87XX it87 = new IT87XX(chip, address, mainboardManufacturer, 
-            mainboardModel);
-          if (it87.IsAvailable)
-            hardware.Add(it87);
+         superIOs.Add(new IT87XX(chip, address));
 
           return;
         }
@@ -383,9 +376,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }   
     }
 
-    public IHardware[] Hardware {
+    public ISuperIO[] SuperIO {
       get {
-        return hardware.ToArray();
+        return superIOs.ToArray();
       }
     }
 

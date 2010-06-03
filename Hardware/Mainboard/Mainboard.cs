@@ -47,7 +47,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private string name;
     private Image icon;
 
-    private LPCIO lpcGroup;
+    private LPCIO lpcio;
+    private IHardware[] superIOHardware;
 
     public Mainboard() {
       this.smbios = new SMBIOS();
@@ -68,9 +69,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
-      this.lpcGroup = new LPCIO(
-        smbios.Board != null ? smbios.Board.Manufacturer : Manufacturer.Unknown,
-        smbios.Board != null ? smbios.Board.Model : Model.Unknown);
+      this.lpcio = new LPCIO(); 
+      ISuperIO[] superIO = lpcio.SuperIO;
+      superIOHardware = new IHardware[superIO.Length];
+      for (int i = 0; i < superIO.Length; i++)
+        superIOHardware[i] = new SuperIOHardware(superIO[i], 
+          smbios.Board != null ? smbios.Board.Manufacturer : 
+          Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model : 
+          Model.Unknown);
     }
 
     public string Name {
@@ -92,7 +98,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       r.AppendLine();           
       r.Append(smbios.GetReport());
 
-      r.Append(lpcGroup.GetReport());
+      r.Append(lpcio.GetReport());
 
       return r.ToString();
     }
@@ -102,7 +108,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     public void Close() { }
 
     public IHardware[] SubHardware {
-      get { return lpcGroup.Hardware; }
+      get { return superIOHardware; }
     }
 
     public ISensor[] Sensors {
@@ -119,7 +125,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     }
 
     public void Traverse(IVisitor visitor) {
-      foreach (IHardware hardware in lpcGroup.Hardware)
+      foreach (IHardware hardware in superIOHardware)
         hardware.Accept(visitor);     
     }
   }

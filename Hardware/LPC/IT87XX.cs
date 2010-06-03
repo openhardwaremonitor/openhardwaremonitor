@@ -41,17 +41,17 @@ using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class IT87XX : LPCHardware, IHardware {
-        
-    private bool available = false;
+  public class IT87XX : ISuperIO {
+       
     private ushort address;
+    private Chip chip;
 
     private readonly ushort addressReg;
     private readonly ushort dataReg;
 
-    private List<Sensor> voltages = new List<Sensor>(9);    
-    private List<Sensor> temperatures = new List<Sensor>(3);    
-    private Sensor[] fans;
+    private float?[] voltages = new float?[0];
+    private float?[] temperatures = new float?[0];
+    private float?[] fans = new float?[0];
    
     // Consts
     private const byte ITE_VENDOR_ID = 0x90;
@@ -78,10 +78,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return value;
     }
 
-    public IT87XX(Chip chip, ushort address, Mainboard.Manufacturer 
-      mainboardManufacturer, Mainboard.Model mainboardModel) : base (chip) {
+    public IT87XX(Chip chip, ushort address) {
       
       this.address = address;
+      this.chip = chip;
       this.addressReg = (ushort)(address + ADDRESS_REGISTER_OFFSET);
       this.dataReg = (ushort)(address + DATA_REGISTER_OFFSET);
       
@@ -97,140 +97,22 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (!valid)
         return;
 
-      string[] temperatureLabels;
-      List<Voltage> voltageConfigs = new List<Voltage>();
-      switch (mainboardManufacturer) {
-        case Mainboard.Manufacturer.DFI:
-          switch (mainboardModel) {
-            case Mainboard.Model.LP_BI_P45_T2RS_Elite:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("FSB VTT", 1));
-              voltageConfigs.Add(new Voltage("+3.3V", 2));
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("+12V", 4, 30, 10, 0));
-              voltageConfigs.Add(new Voltage("NB Core", 5));
-              voltageConfigs.Add(new Voltage("VDIMM", 6));
-              voltageConfigs.Add(new Voltage("+5VSB", 7, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("VBat", 8));
-              temperatureLabels = new string[] {
-                "CPU", "System", "Chipset" };
-              break;
-            case Mainboard.Model.LP_DK_P55_T3eH9:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("VTT", 1));
-              voltageConfigs.Add(new Voltage("+3.3V", 2));
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("+12V", 4, 30, 10, 0));
-              voltageConfigs.Add(new Voltage("CPU PLL", 5));
-              voltageConfigs.Add(new Voltage("DRAM", 6));
-              voltageConfigs.Add(new Voltage("+5VSB", 7, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("VBat", 8));
-              temperatureLabels = new string[] {
-                "Chipset", "CPU PWM", "CPU" };
-              break;
-            default:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("VTT", 1, true));
-              voltageConfigs.Add(new Voltage("+3.3V", 2, true));
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0, true));
-              voltageConfigs.Add(new Voltage("+12V", 4, 30, 10, 0, true));
-              voltageConfigs.Add(new Voltage("Voltage #6", 5, true));
-              voltageConfigs.Add(new Voltage("DRAM", 6, true));
-              voltageConfigs.Add(new Voltage("+5VSB", 7, 6.8f, 10, 0, true));
-              voltageConfigs.Add(new Voltage("VBat", 8));
-              temperatureLabels = new string[] {
-                "Temperature #1", "Temperature #2", "Temperature #3" };
-              break;
-          }
-          break;
-
-        case Mainboard.Manufacturer.Gigabyte:
-          switch (mainboardModel) {            
-            case Mainboard.Model.EP45_DS3R:
-            case Mainboard.Model.P35_DS3:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("DRAM", 1));
-              voltageConfigs.Add(new Voltage("+3.3V", 2));
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("+12V", 7, 27, 9.1f, 0));
-              voltageConfigs.Add(new Voltage("VBat", 8));    
-              break;
-            case Mainboard.Model.GA_MA785GMT_UD2H:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("DRAM", 1));
-              voltageConfigs.Add(new Voltage("+3.3V", 2));
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
-              voltageConfigs.Add(new Voltage("+12V", 4, 27, 9.1f, 0));
-              voltageConfigs.Add(new Voltage("VBat", 8));   
-              break;
-            default:
-              voltageConfigs.Add(new Voltage("CPU VCore", 0));
-              voltageConfigs.Add(new Voltage("DRAM", 1, true));
-              voltageConfigs.Add(new Voltage("+3.3V", 2, true));              
-              voltageConfigs.Add(new Voltage("+5V", 3, 6.8f, 10, 0, true));
-              voltageConfigs.Add(new Voltage("Voltage #5", 4, true));
-              voltageConfigs.Add(new Voltage("Voltage #6", 5, true));
-              voltageConfigs.Add(new Voltage("Voltage #7", 6, true));
-              voltageConfigs.Add(new Voltage("+12V", 7, 27, 9.1f, 0, true));
-              voltageConfigs.Add(new Voltage("VBat", 8));              
-              break;
-          }
-          temperatureLabels = new string[] { "System", "CPU" };
-          break; 
-
-        default:
-          voltageConfigs.Add(new Voltage("CPU VCore", 0));
-          voltageConfigs.Add(new Voltage("Voltage #2", 1, true));
-          voltageConfigs.Add(new Voltage("Voltage #3", 2, true));
-          voltageConfigs.Add(new Voltage("Voltage #4", 3, true));
-          voltageConfigs.Add(new Voltage("Voltage #5", 4, true));
-          voltageConfigs.Add(new Voltage("Voltage #6", 5, true));
-          voltageConfigs.Add(new Voltage("Voltage #7", 6, true));
-          voltageConfigs.Add(new Voltage("Voltage #8", 7, true));
-          voltageConfigs.Add(new Voltage("VBat", 8));
-          temperatureLabels = new string[] {
-            "Temperature #1", "Temperature #2", "Temperature #3" };
-          break;
-      }
-
-      string formula = "Voltage = value + (value - Vf) * Ri / Rf.";
-      foreach (Voltage voltage in voltageConfigs)
-        voltages.Add(new Sensor(voltage.Name, voltage.Index, voltage.Hidden, 
-          null, SensorType.Voltage, this, new ParameterDescription[] {
-          new ParameterDescription("Ri [kΩ]", "Input resistance.\n" + 
-            formula, voltage.Ri),
-          new ParameterDescription("Rf [kΩ]", "Reference resistance.\n" + 
-            formula, voltage.Rf),
-          new ParameterDescription("Vf [V]", "Reference voltage.\n" + 
-            formula, voltage.Vf)
-          }));  
-
-      for (int i = 0; i < temperatureLabels.Length; i++)
-        if (temperatureLabels[i] != null) {
-          temperatures.Add(new Sensor(temperatureLabels[i], i, null,
-            SensorType.Temperature, this, new ParameterDescription[] {
-            new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
-          }));
-        }
-
-      fans = new Sensor[5];
-      for (int i = 0; i < fans.Length; i++)
-        fans[i] = new Sensor("Fan #" + (i + 1), i, SensorType.Fan, this);           
-
-      available = true;
+      voltages = new float?[9];
+      temperatures = new float?[3];
+      fans = new float?[5];
     }
 
-    public bool IsAvailable {
-      get { return available; } 
-    }
+    public Chip Chip { get { return chip; } }
+    public float?[] Voltages { get { return voltages; } }
+    public float?[] Temperatures { get { return temperatures; } }
+    public float?[] Fans { get { return fans; } }
 
-    public override string GetReport() {
+    public string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);
       r.AppendLine();
       r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
-      r.Append("Chip Name: "); r.AppendLine(name);
       r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
       r.AppendLine("Environment Controller Registers");
@@ -256,79 +138,48 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return r.ToString();
     }
 
-    public override void Update() {
+    public void Update() {
 
-      foreach (Sensor sensor in voltages) {
+      for (int i = 0; i < voltages.Length; i++) {
         bool valid;
         float value = 0.001f * ((int)ReadByte(
-          (byte)(VOLTAGE_BASE_REG + sensor.Index), out valid) << 4);
+          (byte)(VOLTAGE_BASE_REG + i), out valid) << 4);
         if (!valid)
           continue;
-
-        sensor.Value = value + (value - sensor.Parameters[2].Value) *
-          sensor.Parameters[0].Value / sensor.Parameters[1].Value;
         if (value > 0)
-          ActivateSensor(sensor);        
+          voltages[i] = value;  
+        else
+          voltages[i] = null;
       }
 
-      foreach (Sensor sensor in temperatures) {
+      for (int i = 0; i < temperatures.Length; i++) {
         bool valid;
         sbyte value = (sbyte)ReadByte(
-          (byte)(TEMPERATURE_BASE_REG + sensor.Index), out valid);
+          (byte)(TEMPERATURE_BASE_REG + i), out valid);
         if (!valid)
           continue;
 
-        sensor.Value = value + sensor.Parameters[0].Value;
         if (value < sbyte.MaxValue && value > 0)
-          ActivateSensor(sensor);        
+          temperatures[i] = value;
+        else
+          temperatures[i] = null;       
       }
 
-      foreach (Sensor sensor in fans) {
+      for (int i = 0; i < fans.Length; i++) {
         bool valid;
-        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index], out valid);
+        int value = ReadByte(FAN_TACHOMETER_REG[i], out valid);
         if (!valid) 
           continue;
-        value |= ReadByte(FAN_TACHOMETER_EXT_REG[sensor.Index], out valid) << 8;
+        value |= ReadByte(FAN_TACHOMETER_EXT_REG[i], out valid) << 8;
         if (!valid)
           continue;
 
         if (value > 0x3f) {
-          sensor.Value = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
-          if (sensor.Value > 0)
-            ActivateSensor(sensor);
+          fans[i] = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
         } else {
-          sensor.Value = null;
+          fans[i] = null;
         }
       }      
     }
-
-    private class Voltage {
-      public readonly string Name;
-      public readonly int Index;
-      public readonly float Ri;
-      public readonly float Rf;
-      public readonly float Vf;
-      public readonly bool Hidden;
-
-      public Voltage(string name, int index) :
-        this(name, index, 0, 1, 0, false) { }
-
-      public Voltage(string name, int index, bool hidden) :
-        this(name, index, 0, 1, 0, hidden) { }
-
-      public Voltage(string name, int index, float ri, float rf, float vf) :
-        this(name, index, ri, rf, vf, false) { }
-
-      public Voltage(string name, int index, float ri, float rf, float vf, 
-        bool hidden) 
-      {
-        this.Name = name;
-        this.Index = index;
-        this.Ri = ri;
-        this.Rf = rf;
-        this.Vf = vf;
-        this.Hidden = hidden;
-      }
-    }
-  }
+  } 
 }
