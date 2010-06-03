@@ -37,18 +37,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class F718XX : LPCHardware, IHardware {
+  public class F718XX : ISuperIO {
 
     private ushort address;
+    private Chip chip;
 
-    private Sensor[] temperatures;
-    private Sensor[] fans;
-    private Sensor[] voltages;
-    private float[] voltageGains;
+    private float?[] voltages;
+    private float?[] temperatures;
+    private float?[] fans;
 
     // Hardware Monitor
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
@@ -66,40 +66,21 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
     } 
 
-    public F718XX(Chip chip, ushort address) : base(chip) {
+    public F718XX(Chip chip, ushort address) {
       this.address = address;
+      this.chip = chip;
 
-      temperatures = new Sensor[3];
-      for (int i = 0; i < temperatures.Length; i++)
-        temperatures[i] = new Sensor("Temperature #" + (i + 1), i, null,
-          SensorType.Temperature, this, new ParameterDescription[] {
-            new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
-          });
-
-      fans = new Sensor[chip == Chip.F71882 ? 4 : 3];
-      for (int i = 0; i < fans.Length; i++)
-        fans[i] = new Sensor("Fan #" + (i + 1), i, SensorType.Fan, this);
-
-      switch (chip) {
-        case Chip.F71858:
-          voltageGains = new float[] { 1, 1, 1 };
-          voltages = new Sensor[3];
-          voltages[0] = new Sensor("VCC3V", 0, SensorType.Voltage, this);
-          voltages[1] = new Sensor("VSB3V", 1, SensorType.Voltage, this);
-          voltages[2] = new Sensor("Battery", 2, SensorType.Voltage, this);
-          break;
-        default:
-          voltageGains = new float[] { 1, 0.5f, 1, 1, 1, 1, 1, 1, 1 };
-          voltages = new Sensor[4];
-          voltages[0] = new Sensor("VCC3V", 0, SensorType.Voltage, this);
-          voltages[1] = new Sensor("CPU VCore", 1, SensorType.Voltage, this);
-          voltages[2] = new Sensor("VSB3V", 7, SensorType.Voltage, this);
-          voltages[3] = new Sensor("Battery", 8, SensorType.Voltage, this);
-          break;
-      }
+      voltages = new float?[chip == Chip.F71858 ? 3 : 9];
+      temperatures = new float?[3];
+      fans = new float?[chip == Chip.F71882 || chip == Chip.F71858? 4 : 3];
     }
 
-    public override string GetReport() {
+    public Chip Chip { get { return chip; } }
+    public float?[] Voltages { get { return voltages; } }
+    public float?[] Temperatures { get { return temperatures; } }
+    public float?[] Fans { get { return fans; } }
+
+    public string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);
@@ -123,23 +104,21 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return r.ToString();
     }
 
-    public override void Update() {
+    public void Update() {
 
-      foreach (Sensor sensor in voltages) {
-        int value = ReadByte((byte)(VOLTAGE_BASE_REG + sensor.Index));
-        sensor.Value = voltageGains[sensor.Index] * 0.001f * (value << 4);
-        if (sensor.Value > 0)
-          ActivateSensor(sensor);
+      for (int i = 0; i < voltages.Length; i++) {
+        int value = ReadByte((byte)(VOLTAGE_BASE_REG + i));
+        voltages[i] = 0.001f * (value << 4);
       }
      
-      foreach (Sensor sensor in temperatures) {
+      for (int i = 0; i < temperatures.Length; i++) {
         switch (chip) {
           case Chip.F71858: {
               int tableMode = 0x3 & ReadByte((byte)(TEMPERATURE_CONFIG_REG));
               int high = 
-                ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * sensor.Index));
+                ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * i));
               int low =
-                ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * sensor.Index + 1));              
+                ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * i + 1));              
               if (high != 0xbb && high != 0xcc) {
                 int bits = 0;
                 switch (tableMode) {
@@ -151,33 +130,30 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 bits |= high << 7;
                 bits |= (low & 0xe0) >> 1;
                 short value = (short)(bits & 0xfff0);
-                sensor.Value = value / 128.0f;
-                ActivateSensor(sensor);
+                temperatures[i] = value / 128.0f;
               } else {
-                sensor.Value = null;
+                temperatures[i] = null;
               }
           } break;
           default: {
             sbyte value = (sbyte)ReadByte((byte)(
-              TEMPERATURE_BASE_REG + 2 * (sensor.Index + 1)));
-            sensor.Value = value + sensor.Parameters[0].Value;
+              TEMPERATURE_BASE_REG + 2 * (i + 1)));            
             if (value < sbyte.MaxValue && value > 0)
-              ActivateSensor(sensor);
+              temperatures[i] = value;
+            else
+              temperatures[i] = null;
           } break;
         }
       }
 
-      foreach (Sensor sensor in fans) {
-        int value = ReadByte(FAN_TACHOMETER_REG[sensor.Index]) << 8;
-        value |= ReadByte((byte)(FAN_TACHOMETER_REG[sensor.Index] + 1));
+      for (int i = 0; i < fans.Length; i++) {
+        int value = ReadByte(FAN_TACHOMETER_REG[i]) << 8;
+        value |= ReadByte((byte)(FAN_TACHOMETER_REG[i] + 1));
 
-        if (value > 0) {
-          sensor.Value = (value < 0x0fff) ? 1.5e6f / value : 0;
-          if (sensor.Value > 0)
-            ActivateSensor(sensor);
-        } else {
-          sensor.Value = null;
-        }
+        if (value > 0) 
+          fans[i] = (value < 0x0fff) ? 1.5e6f / value : 0;
+        else 
+          fans[i] = null;        
       }      
     }
   }

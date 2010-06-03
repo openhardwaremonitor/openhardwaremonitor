@@ -224,16 +224,24 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         }
 
         switch (productName) {
+          case "P5W DH Deluxe":
+            model = Model.P5W_DH_Deluxe; break;
           case "LP BI P45-T2RS Elite":
             model = Model.LP_BI_P45_T2RS_Elite; break;
           case "LP DK P55-T3eH9":
             model = Model.LP_DK_P55_T3eH9; break;
+          case "965P-S3":
+            model = Model._965P_S3; break;
           case "EP45-DS3R":
             model = Model.EP45_DS3R; break;
+          case "EP45-UD3R":
+            model = Model.EP45_UD3R; break;
           case "GA-MA785GMT-UD2H":
             model = Model.GA_MA785GMT_UD2H; break;
           case "P35-DS3":
             model = Model.P35_DS3; break;
+          case "X38-DS5":
+            model = Model.X38_DS5; break;
           default:
             model = Model.Unknown; break;
         }

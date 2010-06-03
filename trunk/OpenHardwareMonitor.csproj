@@ -52,10 +52,12 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GUI\CrashReportForm.cs">
@@ -94,7 +96,8 @@
     <Compile Include="Hardware\IParameter.cs" />
     <Compile Include="Hardware\LPC\Chip.cs" />
     <Compile Include="Hardware\LPC\F718XX.cs" />
-    <Compile Include="Hardware\LPC\LPCHardware.cs" />
+    <Compile Include="Hardware\LPC\ISuperIO.cs" />
+    <Compile Include="Hardware\Mainboard\SuperIOHardware.cs" />
     <Compile Include="Hardware\Mainboard\Mainboard.cs" />
     <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
     <Compile Include="Hardware\Mainboard\Model.cs" />

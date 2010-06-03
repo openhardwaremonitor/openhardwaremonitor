@@ -37,23 +37,24 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class W836XX : LPCHardware, IHardware {
+  public class W836XX : ISuperIO {
 
     private ushort address;
     private byte revision;
 
-    private bool available;
+    private Chip chip;
 
-    private Sensor[] temperatures;
-    private Sensor[] fans;
-    private Sensor[] voltages;
+    private float?[] voltages = new float?[0];
+    private float?[] temperatures = new float?[0];    
+    private float?[] fans = new float?[0];
 
-    private float[] voltageGains;
-    private string[] fanNames;
+    private bool[] peciTemperature = new bool[0];
+    private byte[] voltageRegister = new byte[0];
+    private byte[] voltageBank = new byte[0];
+    private float voltageGain = 0.008f;
 
     // Consts 
     private const ushort WINBOND_VENDOR_ID = 0x5CA3;
@@ -64,13 +65,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte DATA_REGISTER_OFFSET = 0x06;
 
     // Hardware Monitor Registers
-    private const byte VOLTAGE_BASE_REG = 0x20;
+    private const byte VOLTAGE_VBAT_REG = 0x51;
     private const byte BANK_SELECT_REGISTER = 0x4E;
     private const byte VENDOR_ID_REGISTER = 0x4F;
     private const byte TEMPERATURE_SOURCE_SELECT_REG = 0x49;
 
-    private string[] TEMPERATURE_NAME = 
-      new string[] {"CPU", "Auxiliary", "System"};
     private byte[] TEMPERATURE_REG = new byte[] { 0x50, 0x50, 0x27 };
     private byte[] TEMPERATURE_BANK = new byte[] { 1, 2, 0 };
 
@@ -90,7 +89,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
          (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte(
         (ushort)(address + DATA_REGISTER_OFFSET));
-    }
+    } 
 
     private void WriteByte(byte bank, byte register, byte value) {
       WinRing0.WriteIoPortByte(
@@ -103,90 +102,73 @@ namespace OpenHardwareMonitor.Hardware.LPC {
          (ushort)(address + DATA_REGISTER_OFFSET), value); 
     }
    
-    public W836XX(Chip chip, byte revision, ushort address) 
-      : base(chip)
-    {
+    public W836XX(Chip chip, byte revision, ushort address) {
       this.address = address;
       this.revision = revision;
+      this.chip = chip;
 
-      available = IsWinbondVendor();
-
-      ParameterDescription[] parameter = new ParameterDescription[] {
-        new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
-      };
-      List<Sensor> list = new List<Sensor>();
+      if (!IsWinbondVendor())
+        return;
+      
+      temperatures = new float?[3];
+      peciTemperature = new bool[3];
       switch (chip) {
         case Chip.W83667HG:
         case Chip.W83667HGB:
-          // do not add temperature sensor registers that read PECI
+          // note temperature sensor registers that read PECI
           byte flag = ReadByte(0, TEMPERATURE_SOURCE_SELECT_REG);
-          if ((flag & 0x04) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[0], 0, null,
-              SensorType.Temperature, this, parameter));
-          if ((flag & 0x40) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[1], 1, null,
-              SensorType.Temperature, this, parameter));
-          list.Add(new Sensor(TEMPERATURE_NAME[2], 2, null,
-            SensorType.Temperature, this, parameter));
+          peciTemperature[0] = (flag & 0x04) != 0;
+          peciTemperature[1] = (flag & 0x40) != 0;
+          peciTemperature[2] = false;
           break;
         case Chip.W83627DHG:        
         case Chip.W83627DHGP:
           // do not add temperature sensor registers that read PECI
           byte sel = ReadByte(0, TEMPERATURE_SOURCE_SELECT_REG);
-          if ((sel & 0x07) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[0], 0, null,
-              SensorType.Temperature, this, parameter));
-          if ((sel & 0x70) == 0)
-            list.Add(new Sensor(TEMPERATURE_NAME[1], 1, null,
-              SensorType.Temperature, this, parameter));
-          list.Add(new Sensor(TEMPERATURE_NAME[2], 2, null,
-            SensorType.Temperature, this, parameter));
+          peciTemperature[0] = (sel & 0x07) != 0;
+          peciTemperature[1] = (sel & 0x70) != 0;
+          peciTemperature[2] = false;
           break;
         default:
-          // no PECI support, add all sensors
-          for (int i = 0; i < TEMPERATURE_NAME.Length; i++)
-            list.Add(new Sensor(TEMPERATURE_NAME[i], i, null,
-              SensorType.Temperature, this, parameter));
+          // no PECI support
+          peciTemperature[0] = false;
+          peciTemperature[1] = false;
+          peciTemperature[2] = false;
           break;
       }
-      temperatures = list.ToArray();
 
       switch (chip) {
-        case Chip.W83627DHG:
-        case Chip.W83627DHGP:
         case Chip.W83627EHF:
+          voltages = new float?[10];
+          voltageRegister = new byte[] { 
+            0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x50, 0x51, 0x52 };
+          voltageBank = new byte[] { 0, 0, 0, 0, 0, 0, 0, 5, 5, 5 };
+          voltageGain = 0.008f;
+          fans = new float?[5];
+          break;
+        case Chip.W83627DHG:
+        case Chip.W83627DHGP:        
         case Chip.W83667HG:
-        case Chip.W83667HGB: 
-          fanNames = new string[] { "System", "CPU", "Auxiliary", 
-            "CPU #2", "Auxiliary #2" };
-          voltageGains = new float[] { 1, 1, 1, 2, 1, 1, 1, 2 };
-          voltages = new Sensor[3];
-          voltages[0] = new Sensor("CPU VCore", 0, SensorType.Voltage, this);
-          voltages[1] = new Sensor("+3.3V", 3, SensorType.Voltage, this);
-          voltages[2] = new Sensor("Battery", 7, SensorType.Voltage, this);
+        case Chip.W83667HGB:
+          voltages = new float?[9];
+          voltageRegister = new byte[] { 
+            0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x50, 0x51 };
+          voltageBank = new byte[] { 0, 0, 0, 0, 0, 0, 0, 5, 5 };
+          voltageGain = 0.008f;
+          fans = new float?[5];
           break;
         case Chip.W83627HF:
         case Chip.W83627THF:
         case Chip.W83687THF:
-          fanNames = new string[] { "System", "CPU", "Auxiliary" };
-          voltageGains = new float[] { 2, 1, 2, 1, 1, 1, 1, 2 };
-          voltages = new Sensor[3];
-          voltages[0] = new Sensor("CPU VCore", 0, SensorType.Voltage, this);
-          voltages[1] = new Sensor("+3.3V", 2, SensorType.Voltage, this);
-          voltages[2] = new Sensor("Battery", 7, SensorType.Voltage, this);
-          break;
-        default: fanNames = new string[0];
+          voltages = new float?[7];
+          voltageRegister = new byte[] { 
+            0x20, 0x21, 0x22, 0x23, 0x24, 0x50, 0x51 };
+          voltageBank = new byte[] { 0, 0, 0, 0, 0, 5, 5 };
+          voltageGain = 0.016f;
+          fans = new float?[3];         
           break;
       }
-      
-      fans = new Sensor[fanNames.Length];
-      for (int i = 0; i < fanNames.Length; i++)
-        fans[i] = new Sensor(fanNames[i], i, SensorType.Fan, this);
-    }
-
-    public bool IsAvailable {
-      get { return available; }
-    }        
+    }    
 
     private bool IsWinbondVendor() {
       ushort vendorId =
@@ -206,52 +188,57 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return value > 0 ? target | mask : target & ~mask;
     }
 
-    public override void Update() {
+    public Chip Chip { get { return chip; } }
+    public float?[] Voltages { get { return voltages; } }
+    public float?[] Temperatures { get { return temperatures; } }
+    public float?[] Fans { get { return fans; } }
 
-      foreach (Sensor sensor in voltages) {
-        if (sensor.Index < 7) {
+    public void Update() {
+
+      for (int i = 0; i < voltages.Length; i++) {
+        if (voltageRegister[i] != VOLTAGE_VBAT_REG) {
           // two special VCore measurement modes for W83627THF
+          float fvalue;
           if ((chip == Chip.W83627HF || chip == Chip.W83627THF || 
-            chip == Chip.W83687THF) && sensor.Index == 0) 
+            chip == Chip.W83687THF) && i == 0) 
           {
             byte vrmConfiguration = ReadByte(0, 0x18);
-            int value = ReadByte(0, VOLTAGE_BASE_REG);
+            int value = ReadByte(voltageBank[i], voltageRegister[i]);
             if ((vrmConfiguration & 0x01) == 0)
-              sensor.Value = 0.016f * value; // VRM8 formula
+              fvalue = 0.016f * value; // VRM8 formula
             else
-              sensor.Value = 0.00488f * value + 0.69f; // VRM9 formula
+              fvalue = 0.00488f * value + 0.69f; // VRM9 formula
           } else {
-            int value = ReadByte(0, (byte)(VOLTAGE_BASE_REG + sensor.Index));
-            sensor.Value = 0.008f * voltageGains[sensor.Index] * value;
+            int value = ReadByte(voltageBank[i], voltageRegister[i]);
+            fvalue = voltageGain * value;
           }
-          if (sensor.Value > 0)
-            ActivateSensor(sensor);
+          if (fvalue > 0)
+            voltages[i] = fvalue;
+          else
+            voltages[i] = null;
         } else {
           // Battery voltage
           bool valid = (ReadByte(0, 0x5D) & 0x01) > 0;
           if (valid) {
-            sensor.Value =
-              0.008f * voltageGains[sensor.Index] * ReadByte(5, 0x51);
-            ActivateSensor(sensor);
+            voltages[i] = voltageGain * ReadByte(5, VOLTAGE_VBAT_REG);
           } else {
-            sensor.Value = null;
+            voltages[i] = null;
           }
         }
       }
 
-      foreach (Sensor sensor in temperatures) {
-        int value = ((sbyte)ReadByte(TEMPERATURE_BANK[sensor.Index],
-          TEMPERATURE_REG[sensor.Index])) << 1;
-        if (TEMPERATURE_BANK[sensor.Index] > 0) 
-          value |= ReadByte(TEMPERATURE_BANK[sensor.Index],
-            (byte)(TEMPERATURE_REG[sensor.Index] + 1)) >> 7;
+      for (int i = 0; i < temperatures.Length; i++) {
+        int value = ((sbyte)ReadByte(TEMPERATURE_BANK[i], 
+          TEMPERATURE_REG[i])) << 1;
+        if (TEMPERATURE_BANK[i] > 0) 
+          value |= ReadByte(TEMPERATURE_BANK[i],
+            (byte)(TEMPERATURE_REG[i] + 1)) >> 7;
 
         float temperature = value / 2.0f;
-        if (temperature <= 125 && temperature >= -55) {
-          sensor.Value = temperature + sensor.Parameters[0].Value;
-          ActivateSensor(sensor);
+        if (temperature <= 125 && temperature >= -55 && !peciTemperature[i]) {
+          temperatures[i] = temperature;
         } else {
-          sensor.Value = null;
+          temperatures[i] = null;
         }
       }
 
@@ -259,21 +246,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < FAN_BIT_REG.Length; i++)
         bits = (bits << 8) | ReadByte(0, FAN_BIT_REG[i]);
       ulong newBits = bits;
-      foreach (Sensor sensor in fans) {
-        int count = ReadByte(FAN_TACHO_BANK[sensor.Index], 
-          FAN_TACHO_REG[sensor.Index]);
+      for (int i = 0; i < fans.Length; i++) {
+        int count = ReadByte(FAN_TACHO_BANK[i], FAN_TACHO_REG[i]);
         
         // assemble fan divisor
         int divisorBits = (int)(
-          (((bits >> FAN_DIV_BIT2[sensor.Index]) & 1) << 2) |
-          (((bits >> FAN_DIV_BIT1[sensor.Index]) & 1) << 1) |
-           ((bits >> FAN_DIV_BIT0[sensor.Index]) & 1));
+          (((bits >> FAN_DIV_BIT2[i]) & 1) << 2) |
+          (((bits >> FAN_DIV_BIT1[i]) & 1) << 1) |
+           ((bits >> FAN_DIV_BIT0[i]) & 1));
         int divisor = 1 << divisorBits;
        
         float value = (count < 0xff) ? 1.35e6f / (count * divisor) : 0;
-        sensor.Value = value;
-        if (value > 0)
-          ActivateSensor(sensor);
+        fans[i] = value;
 
         // update fan divisor
         if (count > 192 && divisorBits < 7) 
@@ -281,12 +265,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if (count < 96 && divisorBits > 0)
           divisorBits--;
 
-        newBits = SetBit(newBits, FAN_DIV_BIT2[sensor.Index], 
-          (divisorBits >> 2) & 1);
-        newBits = SetBit(newBits, FAN_DIV_BIT1[sensor.Index], 
-          (divisorBits >> 1) & 1);
-        newBits = SetBit(newBits, FAN_DIV_BIT0[sensor.Index], 
-          divisorBits & 1);
+        newBits = SetBit(newBits, FAN_DIV_BIT2[i], (divisorBits >> 2) & 1);
+        newBits = SetBit(newBits, FAN_DIV_BIT1[i], (divisorBits >> 1) & 1);
+        newBits = SetBit(newBits, FAN_DIV_BIT0[i], divisorBits & 1);
       }
      
       // write new fan divisors 
@@ -300,7 +281,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
     }
 
-    public override string GetReport() {
+    public string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("LPC " + this.GetType().Name);
@@ -337,5 +318,5 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       return r.ToString();
     }
-  }
+  } 
 }
