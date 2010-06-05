@@ -64,7 +64,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(
         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
       return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
-    } 
+    }
 
     public F718XX(Chip chip, ushort address) {
       this.address = address;
@@ -108,7 +108,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       for (int i = 0; i < voltages.Length; i++) {
         int value = ReadByte((byte)(VOLTAGE_BASE_REG + i));
-        voltages[i] = 0.001f * (value << 4);
+        voltages[i] = 0.008f * value;
       }
      
       for (int i = 0; i < temperatures.Length; i++) {

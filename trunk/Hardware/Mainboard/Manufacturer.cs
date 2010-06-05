@@ -35,15 +35,13 @@
  
 */
 
-using System;
-using System.Collections.Generic;
-
 namespace OpenHardwareMonitor.Hardware.Mainboard {
   
   public enum Manufacturer {
     ASUS,
     DFI,
     EPoX,
+    EVGA,
     Gigabyte,
     IBM,
     MSI,
