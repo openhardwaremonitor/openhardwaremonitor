@@ -44,14 +44,36 @@ using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
-  public class SensorSystemTray : IDisposable {
+  public class SystemTray : IDisposable {
     private IComputer computer;
     private List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
+    private bool mainIconEnabled = false;
+    private NotifyIcon mainIcon;
 
-    public SensorSystemTray(IComputer computer) {
+    public SystemTray(IComputer computer) {
       this.computer = computer;
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
+
+      this.mainIcon = new NotifyIcon();
+
+      ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
+      ToolStripMenuItem hideShowItem = new ToolStripMenuItem("Hide/Show");
+      hideShowItem.Click += delegate(object obj, EventArgs args) {
+        SendHideShowCommand();
+      };
+      contextMenuStrip.Items.Add(hideShowItem);
+      contextMenuStrip.Items.Add(new ToolStripSeparator());      
+      ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
+      exitItem.Click += delegate(object obj, EventArgs args) {
+        SendExitCommand();
+      };
+      contextMenuStrip.Items.Add(exitItem);
+      this.mainIcon.ContextMenuStrip = contextMenuStrip;
+      this.mainIcon.DoubleClick += delegate(object obj, EventArgs args) {
+        SendHideShowCommand();
+      };
+      this.mainIcon.Icon = EmbeddedResources.GetIcon("smallicon.ico");
     }
 
     private void HardwareRemoved(IHardware hardware) {
@@ -86,6 +108,7 @@ namespace OpenHardwareMonitor.GUI {
     public void Dispose() {
       foreach (SensorNotifyIcon icon in list)
         icon.Dispose();
+      mainIcon.Dispose();
     }
 
     public void Redraw() {
@@ -105,6 +128,7 @@ namespace OpenHardwareMonitor.GUI {
         return;
       } else {        
         list.Add(new SensorNotifyIcon(this, sensor, balloonTip));
+        UpdateMainIconVisibilty();
         Config.Set(new Identifier(sensor.Identifier, "tray").ToString(), true);
       }
     }
@@ -126,9 +150,41 @@ namespace OpenHardwareMonitor.GUI {
           instance = icon;
       if (instance != null) {
         list.Remove(instance);
-        instance.Dispose();
+        UpdateMainIconVisibilty();
+        instance.Dispose();        
       }
     }
 
+    public event EventHandler HideShowCommand;
+
+    public void SendHideShowCommand() {
+      if (HideShowCommand != null)
+        HideShowCommand(this, null);
+    }
+
+    public event EventHandler ExitCommand;
+
+    public void SendExitCommand() {
+      if (ExitCommand != null)
+        ExitCommand(this, null);
+    }
+
+    private void UpdateMainIconVisibilty() {
+      if (mainIconEnabled) {
+        mainIcon.Visible = list.Count == 0;
+      } else {
+        mainIcon.Visible = false;
+      }
+    }
+
+    public bool IsMainIconEnabled {
+      get { return mainIconEnabled; }
+      set {
+        if (mainIconEnabled != value) {
+          mainIconEnabled = value;
+          UpdateMainIconVisibilty();
+        }
+      }
+    }
   }
 }

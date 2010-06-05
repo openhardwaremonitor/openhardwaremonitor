@@ -90,6 +90,44 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.IT8720F:
         case Chip.IT8726F:
           switch (manufacturer) {
+            case Manufacturer.ASUS:
+              switch (model) {
+                case Model.Crosshair_III_Formula:
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("CPU", 0));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+                case Model.M2N_SLI_DELUXE:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("+3.3V", 1));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
+                  v.Add(new Voltage("+12V", 4, 30, 10, 0));
+                  v.Add(new Voltage("+5VSB", 7, 6.8f, 10, 0));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Motherboard", 1));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("Chassis Fan #1", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  break;
+                default:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Voltage #8", 7, true));
+                  v.Add(new Voltage("VBat", 8));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
             case Manufacturer.DFI:
               switch (model) {
                 case Model.LP_BI_P45_T2RS_Elite:
@@ -160,7 +198,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
                 case Model.EP45_DS3R:
                 case Model.EP45_UD3R: 
-                case Model.X38_DS5:
+                case Model.X38_DS5:                
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -174,7 +212,21 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
+                case Model.EX58_EXTREME:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));
+                  t.Add(new Temperature("MCH", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #2", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("System Fan #1", 3));
+                  break;
                 case Model.P35_DS3:
+                case Model.P35_DS3L:
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));

@@ -226,6 +226,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         }
 
         switch (productName) {
+          case "Crosshair III Formula":
+            model = Model.Crosshair_III_Formula; break;
+          case "M2N-SLI DELUXE":
+            model = Model.M2N_SLI_DELUXE; break;
           case "P5W DH Deluxe":
             model = Model.P5W_DH_Deluxe; break;
           case "LP BI P45-T2RS Elite":
@@ -240,10 +244,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.EP45_DS3R; break;
           case "EP45-UD3R":
             model = Model.EP45_UD3R; break;
+          case "EX58-EXTREME":
+            model = Model.EX58_EXTREME; break;
           case "GA-MA785GMT-UD2H":
             model = Model.GA_MA785GMT_UD2H; break;
           case "P35-DS3":
             model = Model.P35_DS3; break;
+          case "P35-DS3L":
+            model = Model.P35_DS3L; break;
           case "X38-DS5":
             model = Model.X38_DS5; break;
           default:
