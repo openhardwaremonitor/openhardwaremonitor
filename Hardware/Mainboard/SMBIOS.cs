@@ -212,6 +212,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             manufacturer = Manufacturer.DFI; break;
           case "EPoX COMPUTER CO., LTD":
             manufacturer = Manufacturer.EPoX; break;
+          case "EVGA":
+            manufacturer = Manufacturer.EVGA; break;
           case "Gigabyte Technology Co., Ltd.":
             manufacturer = Manufacturer.Gigabyte; break;
           case "IBM":
@@ -230,6 +232,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.LP_BI_P45_T2RS_Elite; break;
           case "LP DK P55-T3eH9":
             model = Model.LP_DK_P55_T3eH9; break;
+          case "X58 SLI Classified":
+            model = Model.X58_SLI_Classified; break;
           case "965P-S3":
             model = Model._965P_S3; break;
           case "EP45-DS3R":

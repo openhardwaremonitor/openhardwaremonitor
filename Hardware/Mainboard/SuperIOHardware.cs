@@ -238,9 +238,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           break;
           
         case Chip.F71858:
-          v.Add(new Voltage("VCC3V", 0));
-          v.Add(new Voltage("VSB3V", 1));
-          v.Add(new Voltage("Battery", 2));
+          v.Add(new Voltage("VCC3V", 0, 150, 150, 0));
+          v.Add(new Voltage("VSB3V", 1, 150, 150, 0));
+          v.Add(new Voltage("Battery", 2, 150, 150, 0));
           for (int i = 0; i < superIO.Temperatures.Length; i++)
             t.Add(new Temperature("Temperature #" + (i + 1), i));
           for (int i = 0; i < superIO.Fans.Length; i++)
@@ -251,19 +251,59 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.F71882:
         case Chip.F71889ED: 
         case Chip.F71889F:
-          v.Add(new Voltage("VCC3V", 0));
-          v.Add(new Voltage("CPU VCore", 1));
-          v.Add(new Voltage("Voltage #3", 2, true));
-          v.Add(new Voltage("Voltage #4", 3, true));
-          v.Add(new Voltage("Voltage #5", 4, true));
-          v.Add(new Voltage("Voltage #6", 5, true));
-          v.Add(new Voltage("Voltage #7", 6, true));
-          v.Add(new Voltage("VSB3V", 7));
-          v.Add(new Voltage("Battery", 8));
-          for (int i = 0; i < superIO.Temperatures.Length; i++)
-            t.Add(new Temperature("Temperature #" + (i + 1), i));
-          for (int i = 0; i < superIO.Fans.Length; i++)
-            f.Add(new Fan("Fan #" + (i + 1), i));
+          switch (manufacturer) {
+            case Manufacturer.EVGA:
+              switch (model) {
+                case Model.X58_SLI_Classified:
+                  v.Add(new Voltage("VCC3V", 0, 150, 150, 0));
+                  v.Add(new Voltage("CPU VCore", 1, 47, 100, 0));
+                  v.Add(new Voltage("DIMM", 2, 47, 100, 0));
+                  v.Add(new Voltage("CPU VTT", 3, 24, 100, 0));
+                  v.Add(new Voltage("IOH Vcore", 4, 24, 100, 0));
+                  v.Add(new Voltage("+5V", 5, 51, 12, 0));
+                  v.Add(new Voltage("+12V", 6, 56, 6.8f, 0));
+                  v.Add(new Voltage("3VSB", 7, 150, 150, 0));
+                  v.Add(new Voltage("VBat", 8, 150, 150, 0));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("VREG", 1));
+                  t.Add(new Temperature("System", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("Power Fan", 1));
+                  f.Add(new Fan("Chassis Fan", 2));
+                  break;
+                default:
+                  v.Add(new Voltage("VCC3V", 0, 150, 150, 0));
+                  v.Add(new Voltage("CPU VCore", 1));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("VSB3V", 7, 150, 150, 0));
+                  v.Add(new Voltage("VBat", 8, 150, 150, 0));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
+            default:
+              v.Add(new Voltage("VCC3V", 0, 150, 150, 0));
+              v.Add(new Voltage("CPU VCore", 1));
+              v.Add(new Voltage("Voltage #3", 2, true));
+              v.Add(new Voltage("Voltage #4", 3, true));
+              v.Add(new Voltage("Voltage #5", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("VSB3V", 7, 150, 150, 0));
+              v.Add(new Voltage("VBat", 8, 150, 150, 0));
+              for (int i = 0; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature("Temperature #" + (i + 1), i));
+              for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
+              break;
+          }
           break;
 
         case Chip.W83627EHF:          
