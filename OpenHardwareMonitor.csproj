@@ -74,7 +74,7 @@
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\SensorNotifyIcon.cs" />
-    <Compile Include="GUI\SensorSystemTray.cs" />
+    <Compile Include="GUI\SystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
     <Compile Include="GUI\TaskScheduler.cs" />
     <Compile Include="GUI\TreeModel.cs" />

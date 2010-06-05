@@ -61,7 +61,7 @@ namespace OpenHardwareMonitor.GUI {
     private Pen pen;
     private Font font;
 
-    public SensorNotifyIcon(SensorSystemTray sensorSystemTray, ISensor sensor,
+    public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor,
       bool balloonTip) 
     {
       this.sensor = sensor;
@@ -78,7 +78,13 @@ namespace OpenHardwareMonitor.GUI {
       this.font = SystemFonts.MessageBoxFont;
 
       ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
-      ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove");
+      ToolStripMenuItem hideShowItem = new ToolStripMenuItem("Hide/Show");
+      hideShowItem.Click += delegate(object obj, EventArgs args) {
+        sensorSystemTray.SendHideShowCommand();
+      };
+      contextMenuStrip.Items.Add(hideShowItem);
+      contextMenuStrip.Items.Add(new ToolStripSeparator());
+      ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove Sensor");
       removeItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.Remove(this.sensor);
       };
@@ -94,7 +100,16 @@ namespace OpenHardwareMonitor.GUI {
         }
       };
       contextMenuStrip.Items.Add(colorItem);
+      contextMenuStrip.Items.Add(new ToolStripSeparator());
+      ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
+      exitItem.Click += delegate(object obj, EventArgs args) {
+        sensorSystemTray.SendExitCommand();
+      };
+      contextMenuStrip.Items.Add(exitItem);
       this.notifyIcon.ContextMenuStrip = contextMenuStrip;
+      this.notifyIcon.DoubleClick += delegate(object obj, EventArgs args) {
+        sensorSystemTray.SendHideShowCommand();
+      };
 
       this.bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
       this.graphics = Graphics.FromImage(this.bitmap);
