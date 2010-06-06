@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -48,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private Image icon;
 
     private LPCIO lpcio;
+    private LMSensors lmSensors;
     private IHardware[] superIOHardware;
 
     public Mainboard() {
@@ -69,8 +70,16 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
-      this.lpcio = new LPCIO(); 
-      ISuperIO[] superIO = lpcio.SuperIO;
+      ISuperIO[] superIO;
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) {
+        this.lmSensors = new LMSensors();
+        superIO = lmSensors.SuperIO;
+      } else {
+        this.lpcio = new LPCIO();       
+        superIO = lpcio.SuperIO;
+      }
+      
       superIOHardware = new IHardware[superIO.Length];
       for (int i = 0; i < superIO.Length; i++)
         superIOHardware[i] = new SuperIOHardware(superIO[i], 
@@ -105,7 +114,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public void Update() { }
 
-    public void Close() { }
+    public void Close() {
+      if (lmSensors != null)
+        lmSensors.Close();
+    }
 
     public IHardware[] SubHardware {
       get { return superIOHardware; }

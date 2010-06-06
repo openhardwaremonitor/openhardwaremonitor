@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -77,6 +77,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.W83667HG: this.name = "Winbond W83667HG"; break;
         case Chip.W83667HGB: this.name = "Winbond W83667HG-B"; break;
         case Chip.W83687THF: this.name = "Winbond W83687THF"; break;
+        case Chip.Unknown: this.name = "Unkown"; break;
       }
 
       List<Voltage> v = new List<Voltage>();
