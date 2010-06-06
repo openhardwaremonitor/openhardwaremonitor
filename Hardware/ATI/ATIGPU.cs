@@ -69,8 +69,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
       this.temperature = 
         new Sensor("GPU Core", 0, SensorType.Temperature, this);
-      this.fan = new Sensor("GPU", 0, speedInfo.MaxRPM, SensorType.Fan, this,
-        null);
+      this.fan = new Sensor("GPU", 0, SensorType.Fan, this, null);
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);

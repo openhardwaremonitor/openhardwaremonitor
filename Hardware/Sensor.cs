@@ -53,8 +53,6 @@ namespace OpenHardwareMonitor.Hardware {
     private float? value;
     private float? min;
     private float? max;
-    private float? limit;
-    private float? defaultLimit;
     private Queue<ISensorEntry> entries = 
       new Queue<ISensorEntry>(MAX_MINUTES * 15);
     
@@ -64,22 +62,21 @@ namespace OpenHardwareMonitor.Hardware {
     private const int MAX_MINUTES = 120;
    
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware) : this(name, index, null, sensorType, hardware, 
+      IHardware hardware) : this(name, index, sensorType, hardware, 
       null) { }
 
-    public Sensor(string name, int index, float? limit, SensorType sensorType,
+    public Sensor(string name, int index, SensorType sensorType,
       IHardware hardware, ParameterDescription[] parameterDescriptions) :
-      this(name, index, false, limit, sensorType, hardware,
+      this(name, index, false, sensorType, hardware,
         parameterDescriptions) { }
 
     public Sensor(string name, int index, bool defaultHidden, 
-      float? limit, SensorType sensorType, IHardware hardware, 
+      SensorType sensorType, IHardware hardware, 
       ParameterDescription[] parameterDescriptions) 
     {
       this.defaultName = name;      
       this.index = index;
       this.defaultHidden = defaultHidden;
-      this.defaultLimit = limit;
       this.sensorType = sensorType;
       this.hardware = hardware;
       Parameter[] parameters = new Parameter[parameterDescriptions == null ?
@@ -94,12 +91,6 @@ namespace OpenHardwareMonitor.Hardware {
         this.name = configName;
       else
         this.name = name;
-      string configLimit = Config.Settings[
-        new Identifier(Identifier, "limit").ToString()];
-      if (configLimit != null && configLimit != "")
-        this.limit = float.Parse(configLimit);
-      else
-        this.limit = limit;
     }
 
     public IHardware Hardware {
@@ -171,23 +162,6 @@ namespace OpenHardwareMonitor.Hardware {
 
     public float? Min { get { return min; } }
     public float? Max { get { return max; } }
-
-    public float? Limit {
-      get {
-        return limit;
-      }
-
-      set {
-        if (value.HasValue) {
-          limit = value;
-          Config.Settings[new Identifier(Identifier, "limit").ToString()] =
-            limit.ToString();
-        } else {
-          limit = defaultLimit;
-          Config.Settings[new Identifier(Identifier, "limit").ToString()] = "";          
-        }        
-      }
-    }
 
     public IEnumerable<ISensorEntry> Plot {
       get { return entries; }

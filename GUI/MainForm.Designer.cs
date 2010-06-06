@@ -67,14 +67,12 @@ namespace OpenHardwareMonitor.GUI {
       this.value = new Aga.Controls.Tree.TreeColumn();
       this.min = new Aga.Controls.Tree.TreeColumn();
       this.max = new Aga.Controls.Tree.TreeColumn();
-      this.limit = new Aga.Controls.Tree.TreeColumn();
       this.nodeImage = new Aga.Controls.Tree.NodeControls.NodeIcon();
       this.nodeCheckBox = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
       this.nodeTextBoxText = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxValue = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxMin = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxMax = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-      this.nodeTextBoxLimit = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.menuStrip = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -87,7 +85,6 @@ namespace OpenHardwareMonitor.GUI {
       this.valueMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.minMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.maxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.limitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.startMinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -118,7 +115,6 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.Columns.Add(this.value);
       this.treeView.Columns.Add(this.min);
       this.treeView.Columns.Add(this.max);
-      this.treeView.Columns.Add(this.limit);
       this.treeView.DefaultToolTipProvider = null;
       this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
       this.treeView.DragDropMarkColor = System.Drawing.Color.Black;
@@ -134,7 +130,6 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.NodeControls.Add(this.nodeTextBoxValue);
       this.treeView.NodeControls.Add(this.nodeTextBoxMin);
       this.treeView.NodeControls.Add(this.nodeTextBoxMax);
-      this.treeView.NodeControls.Add(this.nodeTextBoxLimit);
       this.treeView.RowHeight = 18;
       this.treeView.SelectedNode = null;
       this.treeView.Size = new System.Drawing.Size(410, 488);
@@ -171,13 +166,6 @@ namespace OpenHardwareMonitor.GUI {
       this.max.SortOrder = System.Windows.Forms.SortOrder.None;
       this.max.TooltipText = null;
       this.max.Width = 100;
-      // 
-      // limit
-      // 
-      this.limit.Header = "Limit";
-      this.limit.SortOrder = System.Windows.Forms.SortOrder.None;
-      this.limit.TooltipText = null;
-      this.limit.Width = 100;
       // 
       // nodeImage
       // 
@@ -221,14 +209,6 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMax.IncrementalSearchEnabled = true;
       this.nodeTextBoxMax.LeftMargin = 3;
       this.nodeTextBoxMax.ParentColumn = this.max;
-      // 
-      // nodeTextBoxLimit
-      // 
-      this.nodeTextBoxLimit.DataPropertyName = "Limit";
-      this.nodeTextBoxLimit.EditEnabled = true;
-      this.nodeTextBoxLimit.IncrementalSearchEnabled = true;
-      this.nodeTextBoxLimit.LeftMargin = 3;
-      this.nodeTextBoxLimit.ParentColumn = this.limit;
       // 
       // menuStrip
       // 
@@ -305,8 +285,7 @@ namespace OpenHardwareMonitor.GUI {
       this.columnsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.valueMenuItem,
             this.minMenuItem,
-            this.maxMenuItem,
-            this.limitMenuItem});
+            this.maxMenuItem});
       this.columnsToolStripMenuItem.Name = "columnsToolStripMenuItem";
       this.columnsToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
       this.columnsToolStripMenuItem.Text = "Columns";
@@ -317,7 +296,7 @@ namespace OpenHardwareMonitor.GUI {
       this.valueMenuItem.CheckOnClick = true;
       this.valueMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.valueMenuItem.Name = "valueMenuItem";
-      this.valueMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.valueMenuItem.Size = new System.Drawing.Size(152, 22);
       this.valueMenuItem.Text = "Value";
       this.valueMenuItem.CheckedChanged += new System.EventHandler(this.valueMenuItem_CheckedChanged);
       // 
@@ -327,7 +306,7 @@ namespace OpenHardwareMonitor.GUI {
       this.minMenuItem.CheckOnClick = true;
       this.minMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.minMenuItem.Name = "minMenuItem";
-      this.minMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.minMenuItem.Size = new System.Drawing.Size(152, 22);
       this.minMenuItem.Text = "Min";
       this.minMenuItem.CheckedChanged += new System.EventHandler(this.minMenuItem_CheckedChanged);
       // 
@@ -337,19 +316,9 @@ namespace OpenHardwareMonitor.GUI {
       this.maxMenuItem.CheckOnClick = true;
       this.maxMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.maxMenuItem.Name = "maxMenuItem";
-      this.maxMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.maxMenuItem.Size = new System.Drawing.Size(152, 22);
       this.maxMenuItem.Text = "Max";
       this.maxMenuItem.CheckedChanged += new System.EventHandler(this.maxMenuItem_CheckedChanged);
-      // 
-      // limitMenuItem
-      // 
-      this.limitMenuItem.Checked = true;
-      this.limitMenuItem.CheckOnClick = true;
-      this.limitMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.limitMenuItem.Name = "limitMenuItem";
-      this.limitMenuItem.Size = new System.Drawing.Size(103, 22);
-      this.limitMenuItem.Text = "Limit";
-      this.limitMenuItem.CheckedChanged += new System.EventHandler(this.limitMenuItem_CheckedChanged);
       // 
       // optionsToolStripMenuItem
       // 
@@ -476,7 +445,7 @@ namespace OpenHardwareMonitor.GUI {
       // sensorContextMenuStrip
       // 
       this.sensorContextMenuStrip.Name = "sensorContextMenuStrip";
-      this.sensorContextMenuStrip.Size = new System.Drawing.Size(153, 26);
+      this.sensorContextMenuStrip.Size = new System.Drawing.Size(61, 4);
       // 
       // saveFileDialog
       // 
@@ -536,8 +505,6 @@ namespace OpenHardwareMonitor.GUI {
     private Aga.Controls.Tree.NodeControls.NodeCheckBox nodeCheckBox;
     private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-    private Aga.Controls.Tree.TreeColumn limit;
-    private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxLimit;
     private System.Windows.Forms.ToolStripMenuItem saveReportToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
@@ -554,7 +521,6 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem valueMenuItem;
     private System.Windows.Forms.ToolStripMenuItem minMenuItem;
     private System.Windows.Forms.ToolStripMenuItem maxMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem limitMenuItem;
     private System.Windows.Forms.ToolStripMenuItem temperatureUnitsToolStripMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
     private System.Windows.Forms.ToolStripMenuItem celciusToolStripMenuItem;

@@ -172,7 +172,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
-          coreTemperatures[i] = new Sensor(CoreString(i), i, tjMax[i],
+          coreTemperatures[i] = new Sensor(CoreString(i), i,
             SensorType.Temperature, this, new ParameterDescription[] { 
               new ParameterDescription(
                 "TjMax [°C]", "TjMax temperature of the core.\n" + 
