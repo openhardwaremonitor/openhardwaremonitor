@@ -111,18 +111,6 @@ namespace OpenHardwareMonitor.GUI {
       get { return ValueToString(sensor.Max); }
     }
 
-    public String Limit {
-      get {
-        return sensor.Limit.ToString();
-      }
-      set {
-        if (value != "")
-          sensor.Limit = float.Parse(value);
-        else
-          sensor.Limit = null;
-      }
-    }
-
     public override bool Equals(System.Object obj) {
       if (obj == null) 
         return false;

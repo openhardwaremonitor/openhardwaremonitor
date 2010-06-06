@@ -74,8 +74,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           case NvThermalTarget.UNKNOWN: name = "GPU Unknown"; break;
           default: name = "GPU"; break;
         }
-        temperatures[i] = new Sensor(name, i, sensor.DefaultMaxTemp,
-          SensorType.Temperature, this, new ParameterDescription[0]);
+        temperatures[i] = new Sensor(name, i, SensorType.Temperature, this, 
+          new ParameterDescription[0]);
         ActivateSensor(temperatures[i]);
       }
 

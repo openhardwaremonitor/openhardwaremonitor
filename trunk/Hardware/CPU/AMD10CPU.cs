@@ -85,7 +85,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       
       // AMD family 10h processors support only one temperature sensor
       coreTemperature = new Sensor(
-        "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0, null,
+        "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
         SensorType.Temperature, this, new ParameterDescription[] {
             new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           });

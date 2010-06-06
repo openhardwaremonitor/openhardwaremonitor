@@ -73,7 +73,6 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxValue.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMin.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
-      nodeTextBoxLimit.DrawText += nodeTextBoxLimit_DrawText;
 
       if (Utilities.Config.Contains("mainForm.Location.X")) {
         int x = Utilities.Config.Get("mainForm.Location.X", Location.X);
@@ -131,7 +130,6 @@ namespace OpenHardwareMonitor.GUI {
       valueMenuItem.Checked = Config.Get(valueMenuItem.Name, true);
       minMenuItem.Checked = Config.Get(minMenuItem.Name, false);
       maxMenuItem.Checked = Config.Get(maxMenuItem.Name, true);
-      limitMenuItem.Checked = Config.Get(limitMenuItem.Name, false);
 
       startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
       minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
@@ -191,12 +189,6 @@ namespace OpenHardwareMonitor.GUI {
       }
       foreach (Node node in nodesToRemove)
         root.Nodes.Remove(node);
-    }
-
-    private void nodeTextBoxLimit_DrawText(object sender, DrawEventArgs e) {
-      SensorNode sensorNode = e.Node.Tag as SensorNode;
-      if (sensorNode != null) 
-        e.Text = sensorNode.ValueToString(sensorNode.Sensor.Limit);
     }
 
     private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {       
@@ -262,7 +254,6 @@ namespace OpenHardwareMonitor.GUI {
       Config.Set(valueMenuItem.Name, valueMenuItem.Checked);
       Config.Set(minMenuItem.Name, minMenuItem.Checked);
       Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
-      Config.Set(limitMenuItem.Name, limitMenuItem.Checked);
 
       Config.Set(startMinMenuItem.Name, startMinMenuItem.Checked);
       Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
@@ -441,10 +432,6 @@ namespace OpenHardwareMonitor.GUI {
 
     private void maxMenuItem_CheckedChanged(object sender, EventArgs e) {
       treeView.Columns[3].IsVisible = maxMenuItem.Checked;
-    }
-
-    private void limitMenuItem_CheckedChanged(object sender, EventArgs e) {
-      treeView.Columns[4].IsVisible = limitMenuItem.Checked;
     }
 
     private void celciusToolStripMenuItem_Click(object sender, EventArgs e) {

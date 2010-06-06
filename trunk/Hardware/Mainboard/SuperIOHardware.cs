@@ -431,7 +431,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       foreach (Voltage voltage in v) 
         if (voltage.Index < superIO.Voltages.Length) {
           Sensor sensor = new Sensor(voltage.Name, voltage.Index, 
-            voltage.Hidden, null, SensorType.Voltage, this, 
+            voltage.Hidden, SensorType.Voltage, this, 
             new ParameterDescription[] {
             new ParameterDescription("Ri [kΩ]", "Input resistance.\n" + 
               formula, voltage.Ri),
@@ -445,7 +445,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
       foreach (Temperature temperature in t) 
         if (temperature.Index < superIO.Temperatures.Length) {
-        Sensor sensor = new Sensor(temperature.Name, temperature.Index, null,
+        Sensor sensor = new Sensor(temperature.Name, temperature.Index,
           SensorType.Temperature, this, new ParameterDescription[] {
           new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
         });
@@ -454,7 +454,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
       foreach (Fan fan in f)
         if (fan.Index < superIO.Fans.Length) {
-          Sensor sensor = new Sensor(fan.Name, fan.Index, null, SensorType.Fan,
+          Sensor sensor = new Sensor(fan.Name, fan.Index, SensorType.Fan,
             this, null);
           fans.Add(sensor);
         }

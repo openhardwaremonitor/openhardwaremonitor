@@ -72,8 +72,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     float? Value { get; }
     float? Min { get; }
-    float? Max { get; }
-    float? Limit { get; set; }
+    float? Max { get; }    
 
     IEnumerable<ISensorEntry> Plot { get; }
   }
