@@ -56,6 +56,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private Sensor[] controls = new Sensor[4];
     private Sensor[] miniNGTemperatures = new Sensor[4];
     private Sensor[] miniNGFans = new Sensor[4];
+    private Sensor[] miniNGControls = new Sensor[4];
     private List<ISensor> active = new List<ISensor>();
     private List<ISensor> deactivating = new List<ISensor>();
     private int[] primaryData = new int[0];
@@ -105,9 +106,13 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           });
 
       for (int i = 0; i < controls.Length; i++) {
-        controls[i] = new Sensor("Fan Channel " + i, i, 
-          SensorType.Control, this, null);
-        ActivateSensor(controls[i]);
+        controls[i] = new Sensor("Fan Channel " + i, i, SensorType.Control, 
+          this, null);
+      }
+
+      for (int i = 0; i < miniNGControls.Length; i++) {
+        miniNGControls[i] = new Sensor("miniNG #" + (i / 2 + 1) +
+          " Fan Channel " + (i % 2 + 1), 4 + i, SensorType.Control, this, null);
       }
 
       alternativeRequest = new MethodDelegate(DelayedAlternativeRequest);
@@ -166,13 +171,19 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         sensor.Value = 20.0f * data[offset + 43 + 2 * i];
         ActivateSensor(sensor);
       }
+
+      for (int i = 0; i < 2; i++) {
+        Sensor sensor = miniNGControls[number * 2 + i];
+        sensor.Value = data[offset + 15 + i];
+        ActivateSensor(sensor);
+      }
     }
 
     private void ReadData() {
       int[] data = new int[285];
       for (int i = 0; i < data.Length; i++)
         data[i] = FTD2XX.ReadByte(handle);
-
+      
       if (data[0] != STARTFLAG) {
         FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_RX);   
         return;
@@ -241,7 +252,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           fans[i].Value = fans[i].Parameters[0].Value * value;
           ActivateSensor(fans[i]);
 
-          controls[i].Value = 100 * value;          
+          controls[i].Value = 100 * value;
+          ActivateSensor(controls[i]);
         }
 
       } else if (data[1] == 253) { // miniNG #1
@@ -249,7 +261,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         ReadminiNG(data, 0);        
               
-        if (data[66] == 252)  // miniNG #2
+        if (data[66] == 253)  // miniNG #2
           ReadminiNG(data, 1);
       } 
     }
