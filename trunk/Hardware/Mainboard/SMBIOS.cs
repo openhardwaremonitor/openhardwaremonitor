@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Management;
 using System.Text;
 
@@ -44,76 +45,104 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
   public class SMBIOS {
 
+    private byte[] raw;
     private Structure[] table;
 
     private BIOSInformation biosInformation = null;
     private BaseBoardInformation baseBoardInformation = null;
 
+    private string ReadSysFS(string path) {
+      try {
+        if (File.Exists(path)) {
+          using (StreamReader reader = new StreamReader(path)) 
+            return reader.ReadLine();
+        } else {
+          return null;
+        }
+      } catch {
+        return null;
+      }
+    }
+    
     public SMBIOS() {
       int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
-        return;
-      
-      List<Structure> structureList = new List<Structure>();
+      if ((p == 4) || (p == 128)) {
+        this.raw = null;
+        this.table = null;
+        
+        string boardVendor = ReadSysFS("/sys/class/dmi/id/board_vendor");
+        string boardName = ReadSysFS("/sys/class/dmi/id/board_name");        
+        string boardVersion = ReadSysFS("/sys/class/dmi/id/board_version");        
+        this.baseBoardInformation = new BaseBoardInformation(
+          boardVendor, boardName, boardVersion, null);
+        
+        string biosVendor = ReadSysFS("/sys/class/dmi/id/bios_vendor");
+        string biosVersion = ReadSysFS("/sys/class/dmi/id/bios_version");
+        this.biosInformation = new BIOSInformation(biosVendor, biosVersion);
+        
+      } else {              
+        List<Structure> structureList = new List<Structure>();
 
-      byte[] raw = null;
-      try {
-        ManagementObjectCollection collection = new ManagementObjectSearcher(
-          "root\\WMI", "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables").Get();
-       
-        foreach (ManagementObject mo in collection) {
-          raw = (byte[])mo["SMBiosData"];
-          break;
-        }
-      } catch { }      
-
-      if (raw != null && raw.Length > 0) {
-        int offset = 0;
-        byte type = raw[offset];
-        while (offset + 4 < raw.Length && type != 127) {
-
-          type = raw[offset];
-          int length = raw[offset + 1];
-          ushort handle = (ushort)((raw[offset + 2] << 8) | raw[offset + 3]);
-
-          if (offset + length > raw.Length)
+        raw = null;
+        try {
+          ManagementObjectCollection collection = 
+            new ManagementObjectSearcher("root\\WMI", 
+              "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables").Get();
+         
+          foreach (ManagementObject mo in collection) {
+            raw = (byte[])mo["SMBiosData"];
             break;
-          byte[] data = new byte[length];
-          Array.Copy(raw, offset, data, 0, length);
-          offset += length;
-
-          List<string> stringsList = new List<string>();
-          if (offset < raw.Length && raw[offset] == 0)
-            offset++;
-
-          while (offset < raw.Length && raw[offset] != 0) {
-            StringBuilder sb = new StringBuilder();
+          }
+        } catch { }
+  
+        if (raw != null && raw.Length > 0) {
+          int offset = 0;
+          byte type = raw[offset];
+          while (offset + 4 < raw.Length && type != 127) {
+  
+            type = raw[offset];
+            int length = raw[offset + 1];
+            ushort handle = (ushort)((raw[offset + 2] << 8) | raw[offset + 3]);
+  
+            if (offset + length > raw.Length)
+              break;
+            byte[] data = new byte[length];
+            Array.Copy(raw, offset, data, 0, length);
+            offset += length;
+  
+            List<string> stringsList = new List<string>();
+            if (offset < raw.Length && raw[offset] == 0)
+              offset++;
+  
             while (offset < raw.Length && raw[offset] != 0) {
-              sb.Append((char)raw[offset]); offset++;
+              StringBuilder sb = new StringBuilder();
+              while (offset < raw.Length && raw[offset] != 0) {
+                sb.Append((char)raw[offset]); offset++;
+              }
+              offset++;
+              stringsList.Add(sb.ToString());
             }
             offset++;
-            stringsList.Add(sb.ToString());
-          }
-          offset++;
-          switch (type) {
-            case 0x00:
-              this.biosInformation = new BIOSInformation(
-                type, handle, data, stringsList.ToArray());
-              structureList.Add(this.biosInformation); break;
-            case 0x02: this.baseBoardInformation = new BaseBoardInformation(
-                type, handle, data, stringsList.ToArray());
-              structureList.Add(this.baseBoardInformation); break;
-            default: structureList.Add(new Structure(
-              type, handle, data, stringsList.ToArray())); break;
+            switch (type) {
+              case 0x00:
+                this.biosInformation = new BIOSInformation(
+                  type, handle, data, stringsList.ToArray());
+                structureList.Add(this.biosInformation); break;
+              case 0x02: this.baseBoardInformation = new BaseBoardInformation(
+                  type, handle, data, stringsList.ToArray());
+                structureList.Add(this.baseBoardInformation); break;
+              default: structureList.Add(new Structure(
+                type, handle, data, stringsList.ToArray())); break;
+            }
           }
         }
+              
+        table = structureList.ToArray();
       }
-            
-      table = structureList.ToArray();
     }
 
     public string GetReport() {
-      StringBuilder r = new StringBuilder();      
+      StringBuilder r = new StringBuilder();
 
       if (biosInformation != null) {
         r.Append("BIOS Vendor: "); r.AppendLine(biosInformation.Vendor);
@@ -122,13 +151,31 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       if (baseBoardInformation != null) {
-        r.Append("Mainboard Manufacturer: "); 
+        r.Append("Mainboard Manufacturer: ");
         r.AppendLine(baseBoardInformation.ManufacturerName);
-        r.Append("Mainboard Name: "); 
+        r.Append("Mainboard Name: ");
         r.AppendLine(baseBoardInformation.ProductName);
         r.AppendLine();
       }
-     
+
+      if (raw != null) {
+        string base64 = Convert.ToBase64String(raw);
+        r.AppendLine("SMBIOS Table");
+        r.AppendLine();
+
+        for (int i = 0; i < Math.Ceiling(base64.Length / 64.0); i++) {
+          r.Append(" ");
+          for (int j = 0; j < 0x40; j++) {
+            int index = (i << 6) | j;
+            if (index < base64.Length) {              
+              r.Append(base64[index]);
+            }
+          }
+          r.AppendLine();
+        }
+        r.AppendLine();
+      }
+
       return r.ToString();
     }
 
@@ -167,16 +214,23 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
       public ushort Handle { get { return handle; } }
     }
-
+      
     public class BIOSInformation : Structure {
 
       private string vendor;
       private string version;
-
+      
+      public BIOSInformation(string vendor, string version) 
+        : base (0x00, 0, null, null) 
+      {
+        this.vendor = vendor;
+        this.version = version;
+      }
+      
       public BIOSInformation(byte type, ushort handle, byte[] data,
         string[] strings)
-        : base(type, handle, data, strings) {
-
+        : base(type, handle, data, strings) 
+      {
         this.vendor = GetString(0x04);
         this.version = GetString(0x05);
       }
@@ -195,15 +249,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       private Manufacturer manufacturer;
       private Model model;
 
-      public BaseBoardInformation(byte type, ushort handle, byte[] data,
-        string[] strings)
-        : base(type, handle, data, strings) {
-
-        this.manufacturerName = GetString(0x04).Trim();
-        this.productName = GetString(0x05).Trim();
-        this.version = GetString(0x06).Trim();
-        this.serialNumber = GetString(0x07).Trim();
-
+      private void SetManufacturerName(string manufacturerName) {
+        this.manufacturerName = manufacturerName;
+        
         switch (manufacturerName) {
           case "ASUSTeK Computer INC.":
             manufacturer = Manufacturer.ASUS; break;
@@ -224,7 +272,11 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           default:
             manufacturer = Manufacturer.Unknown; break;
         }
-
+      }
+      
+      private void SetProductName(string productName) {
+        this.productName = productName;
+        
         switch (productName) {
           case "Crosshair III Formula":
             model = Model.Crosshair_III_Formula; break;
@@ -258,7 +310,27 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.Unknown; break;
         }
       }
+      
+      public BaseBoardInformation(string manufacturerName, string productName, 
+        string version, string serialNumber) 
+        : base(0x02, 0, null, null) 
+      {        
+        SetManufacturerName(manufacturerName);
+        SetProductName(productName);
+        this.version = version;
+        this.serialNumber = serialNumber;
+      }
+      
+      public BaseBoardInformation(byte type, ushort handle, byte[] data,
+        string[] strings)
+        : base(type, handle, data, strings) {
 
+        SetManufacturerName(GetString(0x04).Trim());
+        SetProductName(GetString(0x05).Trim());
+        this.version = GetString(0x06).Trim();
+        this.serialNumber = GetString(0x07).Trim();               
+      }
+      
       public string ManufacturerName { get { return manufacturerName; } }
 
       public string ProductName { get { return productName; } }

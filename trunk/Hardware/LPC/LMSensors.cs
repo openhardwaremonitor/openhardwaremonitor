@@ -44,8 +44,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
   public class LMSensors {
 
     private List<LMChip> lmChips = new List<LMChip>();
-    
-    public LMSensors () {
+
+    public LMSensors() {
       string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
       foreach (string path in devicePaths) {
         string name = null;
@@ -55,137 +55,137 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           reader.Close();
         } catch (IOException) { }
         switch (name) {
-          case "f71858fg": 
-            lmChips.Add(new LMChip(Chip.F71858, path + "/device")); break; 
-          case "f71862fg": 
-            lmChips.Add(new LMChip(Chip.F71862, path + "/device")); break; 
-          case "f71882fg": 
-            lmChips.Add(new LMChip(Chip.F71882, path + "/device")); break; 
-          case "f71889fg": 
-            lmChips.Add(new LMChip(Chip.F71889F, path + "/device")); break; 
-        
-          case "it8712": 
-            lmChips.Add(new LMChip(Chip.IT8712F, path + "/device")); break; 
-          case "it8716": 
-            lmChips.Add(new LMChip(Chip.IT8716F, path + "/device")); break; 
-          case "it8718": 
-            lmChips.Add(new LMChip(Chip.IT8718F, path + "/device")); break; 
-          case "it8720": 
-            lmChips.Add(new LMChip(Chip.IT8720F, path + "/device")); break; 
-          
-          case "w83627ehf": 
-            lmChips.Add(new LMChip(Chip.W83627EHF, path + "/device")); break;                               
-          case "w83627dhg": 
-            lmChips.Add(new LMChip(Chip.W83627DHG, path + "/device")); break;     
-          case "w83667hg": 
-            lmChips.Add(new LMChip(Chip.W83667HG, path + "/device")); break;               
-          case "w83627hf": 
+          case "f71858fg":
+            lmChips.Add(new LMChip(Chip.F71858, path + "/device")); break;
+          case "f71862fg":
+            lmChips.Add(new LMChip(Chip.F71862, path + "/device")); break;
+          case "f71882fg":
+            lmChips.Add(new LMChip(Chip.F71882, path + "/device")); break;
+          case "f71889fg":
+            lmChips.Add(new LMChip(Chip.F71889F, path + "/device")); break;
+
+          case "it8712":
+            lmChips.Add(new LMChip(Chip.IT8712F, path + "/device")); break;
+          case "it8716":
+            lmChips.Add(new LMChip(Chip.IT8716F, path + "/device")); break;
+          case "it8718":
+            lmChips.Add(new LMChip(Chip.IT8718F, path + "/device")); break;
+          case "it8720":
+            lmChips.Add(new LMChip(Chip.IT8720F, path + "/device")); break;
+
+          case "w83627ehf":
+            lmChips.Add(new LMChip(Chip.W83627EHF, path + "/device")); break;
+          case "w83627dhg":
+            lmChips.Add(new LMChip(Chip.W83627DHG, path + "/device")); break;
+          case "w83667hg":
+            lmChips.Add(new LMChip(Chip.W83667HG, path + "/device")); break;
+          case "w83627hf":
             lmChips.Add(new LMChip(Chip.W83627HF, path + "/device")); break;
-          case "w83627thf": 
-            lmChips.Add(new LMChip(Chip.W83627THF, path + "/device")); break;   
-          case "w83687thf": 
-            lmChips.Add(new LMChip(Chip.W83687THF, path + "/device")); break;             
+          case "w83627thf":
+            lmChips.Add(new LMChip(Chip.W83627THF, path + "/device")); break;
+          case "w83687thf":
+            lmChips.Add(new LMChip(Chip.W83687THF, path + "/device")); break;
         }
       }
     }
-    
+
     public void Close() {
       foreach (LMChip lmChip in lmChips)
         lmChip.Close();
     }
-    
+
     public ISuperIO[] SuperIO {
       get {
         return lmChips.ToArray();
       }
     }
-    
+
     private class LMChip : ISuperIO {
-      
+
       private string path;
       private Chip chip;
-      
+
       private float?[] voltages;
-      private float?[] temperatures ;
+      private float?[] temperatures;
       private float?[] fans;
-      
+
       private StreamReader[] voltageReaders;
       private StreamReader[] temperatureReaders;
       private StreamReader[] fanReaders;
-      
+
       public Chip Chip { get { return chip; } }
       public float?[] Voltages { get { return voltages; } }
       public float?[] Temperatures { get { return temperatures; } }
       public float?[] Fans { get { return fans; } }
-      
-      
+
+
       public LMChip(Chip chip, string path) {
         this.path = path;
         this.chip = chip;
-        
-        string[] voltagePaths = Directory.GetFiles(path, "in*_input");        
+
+        string[] voltagePaths = Directory.GetFiles(path, "in*_input");
         this.voltages = new float?[voltagePaths.Length];
         this.voltageReaders = new StreamReader[voltagePaths.Length];
-        for (int i = 0; i < voltagePaths.Length; i++) 
-         voltageReaders[i] = new StreamReader(voltagePaths[i]); 
-        
-        string[] temperaturePaths = Directory.GetFiles(path, "temp*_input");        
+        for (int i = 0; i < voltagePaths.Length; i++)
+          voltageReaders[i] = new StreamReader(voltagePaths[i]);
+
+        string[] temperaturePaths = Directory.GetFiles(path, "temp*_input");
         this.temperatures = new float?[temperaturePaths.Length];
         this.temperatureReaders = new StreamReader[temperaturePaths.Length];
-        for (int i = 0; i < temperaturePaths.Length; i++) 
-         temperatureReaders[i] = new StreamReader(temperaturePaths[i]);    
-        
-        string[] fanPaths = Directory.GetFiles(path, "fan*_input");        
+        for (int i = 0; i < temperaturePaths.Length; i++)
+          temperatureReaders[i] = new StreamReader(temperaturePaths[i]);
+
+        string[] fanPaths = Directory.GetFiles(path, "fan*_input");
         this.fans = new float?[fanPaths.Length];
         this.fanReaders = new StreamReader[fanPaths.Length];
-        for (int i = 0; i < fanPaths.Length; i++) 
-         fanReaders[i] = new StreamReader(fanPaths[i]);    
+        for (int i = 0; i < fanPaths.Length; i++)
+          fanReaders[i] = new StreamReader(fanPaths[i]);
       }
-      
+
       public string GetReport() {
         return null;
       }
-      
+
       public void Update() {
         for (int i = 0; i < voltages.Length; i++) {
           voltageReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = voltageReaders[i].ReadLine();  
+          string s = voltageReaders[i].ReadLine();
           try {
             voltages[i] = 0.001f * long.Parse(s);
           } catch {
             voltages[i] = null;
           }
         }
-        
+
         for (int i = 0; i < temperatures.Length; i++) {
           temperatureReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = temperatureReaders[i].ReadLine();  
+          string s = temperatureReaders[i].ReadLine();
           try {
-            temperatures[i] = 0.001f * long.Parse(s);           
+            temperatures[i] = 0.001f * long.Parse(s);
           } catch {
-            temperatures[i] = null; 
+            temperatures[i] = null;
           }
         }
-        
+
         for (int i = 0; i < fans.Length; i++) {
           fanReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = fanReaders[i].ReadLine();  
+          string s = fanReaders[i].ReadLine();
           try {
-            fans[i] = long.Parse(s);           
+            fans[i] = long.Parse(s);
           } catch {
-            fans[i] = null; 
+            fans[i] = null;
           }
         }
       }
-      
+
       public void Close() {
         foreach (StreamReader reader in voltageReaders)
           reader.Close();
         foreach (StreamReader reader in temperatureReaders)
-          reader.Close();        
+          reader.Close();
         foreach (StreamReader reader in fanReaders)
           reader.Close();
-      }      
+      }
     }
   }
 }
