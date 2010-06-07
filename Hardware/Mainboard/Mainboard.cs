@@ -107,7 +107,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       r.AppendLine();           
       r.Append(smbios.GetReport());
 
-      r.Append(lpcio.GetReport());
+      if (lpcio != null)
+        r.Append(lpcio.GetReport());
 
       return r.ToString();
     }
