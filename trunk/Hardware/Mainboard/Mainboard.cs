@@ -85,7 +85,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         superIOHardware[i] = new SuperIOHardware(superIO[i], 
           smbios.Board != null ? smbios.Board.Manufacturer : 
           Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model : 
-          Model.Unknown);      
+          Model.Unknown);
     }
 
     public string Name {

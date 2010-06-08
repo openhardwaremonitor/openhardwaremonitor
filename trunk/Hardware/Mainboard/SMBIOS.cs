@@ -306,6 +306,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.P35_DS3L; break;
           case "X38-DS5":
             model = Model.X38_DS5; break;
+          case "X58A-UD3R":
+            model = Model.X58A_UD3R; break;
           default:
             model = Model.Unknown; break;
         }
