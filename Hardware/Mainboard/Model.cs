@@ -59,6 +59,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     P35_DS3,
     P35_DS3L,
     X38_DS5,
+    X58A_UD3R,
 
     // Unknown
     Unknown    

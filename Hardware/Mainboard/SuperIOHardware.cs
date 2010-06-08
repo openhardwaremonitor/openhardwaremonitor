@@ -199,7 +199,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
                 case Model.EP45_DS3R:
                 case Model.EP45_UD3R: 
-                case Model.X38_DS5:                
+                case Model.X38_DS5:    
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -220,7 +220,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
-                  t.Add(new Temperature("MCH", 2));
+                  t.Add(new Temperature("Northbridge", 2));
                   f.Add(new Fan("CPU Fan", 0));
                   f.Add(new Fan("System Fan #2", 1));
                   f.Add(new Fan("Power Fan", 2));
@@ -253,6 +253,21 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("CPU Fan", 0));
                   f.Add(new Fan("System Fan", 1));
                   f.Add(new Fan("NB Fan", 2));
+                  break;
+                case Model.X58A_UD3R:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
+                  v.Add(new Voltage("+12V", 5, 27, 9.1f, 0));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));
+                  t.Add(new Temperature("Northbridge", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #2", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("System Fan #1", 3));
                   break;
                 default:
                   v.Add(new Voltage("CPU VCore", 0));
