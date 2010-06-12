@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -73,6 +74,9 @@ namespace OpenHardwareMonitor.GUI {
 
         if (scheduler != null) {
           try {
+            // check if the taskscheduler is running
+            IRunningTaskCollection collection = scheduler.GetRunningTasks(0);            
+
             ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
             IRegisteredTask task = folder.GetTask("Startup");
             startup = (task != null) && 
@@ -89,6 +93,8 @@ namespace OpenHardwareMonitor.GUI {
           } catch (IOException) {
             startup = false;
           } catch (UnauthorizedAccessException) {
+            scheduler = null;
+          } catch (COMException) {
             scheduler = null;
           }
         } 
