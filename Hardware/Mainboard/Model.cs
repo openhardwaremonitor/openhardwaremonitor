@@ -41,6 +41,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     // ASUS
     Crosshair_III_Formula,
     M2N_SLI_DELUXE,
+    M4A79XTD_EVO,
     P5W_DH_Deluxe,    
 
     // DFI

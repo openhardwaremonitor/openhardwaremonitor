@@ -76,7 +76,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       byte value = WinRing0.ReadIoPortByte(dataReg);
       valid = register == WinRing0.ReadIoPortByte(addressReg);
       return value;
-    }
+    } 
 
     public IT87XX(Chip chip, ushort address) {
       
