@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Principal;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -49,6 +50,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private TaskSchedulerClass scheduler;
     private bool startup;
+    private bool isAvailable;
 
     private const string REGISTRY_RUN =
       @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -64,6 +66,13 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public StartupManager() {
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) {
+        scheduler = null;        
+        isAvailable = false;
+        return;
+      }
+
       if (IsAdministrator()) {
         try {
           scheduler = new TaskSchedulerClass();
@@ -101,15 +110,24 @@ namespace OpenHardwareMonitor.GUI {
       } else {
         scheduler = null;
       }
-            
+
       if (scheduler == null) {
-        RegistryKey key = Registry.CurrentUser.OpenSubKey(REGISTRY_RUN);
-        startup = false;
-        if (key != null) {
-          string value = (string)key.GetValue("OpenHardwareMonitor");
-          if (value != null)
-            startup = value == Application.ExecutablePath;
+        try {
+          using (RegistryKey key =
+            Registry.CurrentUser.OpenSubKey(REGISTRY_RUN)) {
+            startup = false;
+            if (key != null) {
+              string value = (string)key.GetValue("OpenHardwareMonitor");
+              if (value != null)
+                startup = value == Application.ExecutablePath;
+            }            
+          }
+          isAvailable = true;
+        } catch (SecurityException) {
+          isAvailable = false;
         }
+      } else {
+        isAvailable = true;
       }
     }
 
@@ -165,6 +183,10 @@ namespace OpenHardwareMonitor.GUI {
       key.DeleteValue("OpenHardwareMonitor");
     }
 
+    public bool IsAvailable {
+      get { return isAvailable; }
+    }
+
     public bool Startup {
       get {
         return startup;
@@ -172,24 +194,22 @@ namespace OpenHardwareMonitor.GUI {
       set {
         if (startup != value) {
           startup = value;
-          if (scheduler != null) {
-            if (startup)
-              CreateSchedulerTask();
-            else
-              DeleteSchedulerTask();
-          } else {
-            if (startup)
-              CreateRegistryRun();
-            else
-              DeleteRegistryRun();
+          if (isAvailable) {
+            if (scheduler != null) {
+              if (startup)
+                CreateSchedulerTask();
+              else
+                DeleteSchedulerTask();
+            } else {
+              if (startup)
+                CreateRegistryRun();
+              else
+                DeleteRegistryRun();
+            }
           }
         }
       }
     }
   }
-
- 
-
- 
 
 }

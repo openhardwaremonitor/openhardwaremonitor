@@ -141,11 +141,7 @@ namespace OpenHardwareMonitor.GUI {
         UnitManager.TemperatureUnit == TemperatureUnit.Celcius;
       fahrenheitToolStripMenuItem.Checked = !celciusToolStripMenuItem.Checked;
 
-      // Hide the auto startup menu item on Unix
-      int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
-        startupMenuItem.Visible = false;
-      }
+      startupMenuItem.Visible = startupManager.IsAvailable;
       
       if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
