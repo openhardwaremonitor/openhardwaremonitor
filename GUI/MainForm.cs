@@ -73,6 +73,7 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxValue.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMin.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
+      nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
       if (Utilities.Config.Contains("mainForm.Location.X")) {
         int x = Utilities.Config.Get("mainForm.Location.X", Location.X);
@@ -227,6 +228,12 @@ namespace OpenHardwareMonitor.GUI {
       plotPanel.SetSensors(selected, colors);
     }
 
+    private void nodeTextBoxText_EditorShowing(object sender, CancelEventArgs e) 
+    {
+      e.Cancel = !(treeView.CurrentNode != null &&
+        treeView.CurrentNode.Tag is SensorNode);
+    }
+
     private void nodeCheckBox_IsVisibleValueNeeded(object sender, 
       NodeControlValueEventArgs e) {
       SensorNode node = e.Node.Tag as SensorNode;
@@ -310,6 +317,14 @@ namespace OpenHardwareMonitor.GUI {
             };
             sensorContextMenuStrip.Items.Add(item);
           }
+          EditableControl control = info.Control as EditableControl;
+          if (control != null) {
+            ToolStripMenuItem item = new ToolStripMenuItem("Rename");
+            item.Click += delegate(object obj, EventArgs args) {
+              control.BeginEdit();
+            };
+            sensorContextMenuStrip.Items.Add(item);
+          }          
           if (node.IsVisible) {
             ToolStripMenuItem item = new ToolStripMenuItem("Hide");
             item.Click += delegate(object obj, EventArgs args) {
