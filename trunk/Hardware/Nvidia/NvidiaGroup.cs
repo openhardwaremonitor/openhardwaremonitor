@@ -53,25 +53,68 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       report.AppendLine("NVAPI");
       report.AppendLine();
 
+      string version;
+      if (NVAPI.NvAPI_GetInterfaceVersionString(out version) == NvStatus.OK) {
+        report.Append("Version: ");
+        report.AppendLine(version);
+      }
+
       NvPhysicalGpuHandle[] handles = 
         new NvPhysicalGpuHandle[NVAPI.MAX_PHYSICAL_GPUS];
-
+      int count;
       if (NVAPI.NvAPI_EnumPhysicalGPUs == null) {
         report.AppendLine("Error: NvAPI_EnumPhysicalGPUs not available");
         report.AppendLine();
         return;
+      } else {        
+        NvStatus status = NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count);
+        if (status != NvStatus.OK) {
+          report.AppendLine("Status: " + status.ToString());
+          report.AppendLine();
+          return;
+        }
       }
 
-      int count;
-      if (NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count) != NvStatus.OK)
-        return;
+      IDictionary<NvPhysicalGpuHandle, NvDisplayHandle> displayHandles =
+        new Dictionary<NvPhysicalGpuHandle, NvDisplayHandle>();
+
+      if (NVAPI.NvAPI_EnumNvidiaDisplayHandle != null &&
+        NVAPI.NvAPI_GetPhysicalGPUsFromDisplay != null) 
+      {
+        NvStatus status = NvStatus.OK;
+        int i = 0;
+        while (status == NvStatus.OK) {
+          NvDisplayHandle displayHandle = new NvDisplayHandle();
+          status = NVAPI.NvAPI_EnumNvidiaDisplayHandle(i, ref displayHandle);
+          i++;
+
+          if (status == NvStatus.OK) {
+            NvPhysicalGpuHandle[] handlesFromDisplay =
+              new NvPhysicalGpuHandle[NVAPI.MAX_PHYSICAL_GPUS];
+            uint countFromDisplay;
+            if (NVAPI.NvAPI_GetPhysicalGPUsFromDisplay(displayHandle,
+              handlesFromDisplay, out countFromDisplay) == NvStatus.OK) {
+              for (int j = 0; j < countFromDisplay; j++) {
+                if (!displayHandles.ContainsKey(handlesFromDisplay[j]))
+                  displayHandles.Add(handlesFromDisplay[j], displayHandle);
+              }
+            }
+          }
+        }
+      }
 
       report.Append("Number of GPUs: ");
-      report.AppendLine(count.ToString());
-      report.AppendLine();
+      report.AppendLine(count.ToString());      
+      
+      for (int i = 0; i < count; i++) {    
+        NvDisplayHandle displayHandle;
+        if (displayHandles.TryGetValue(handles[i], out displayHandle))
+          hardware.Add(new NvidiaGPU(i, handles[i], displayHandle));                            
+        else
+          hardware.Add(new NvidiaGPU(i, handles[i], null));   
+      }
 
-      for (int i = 0; i < count; i++) 
-        hardware.Add(new NvidiaGPU(i, handles[i]));
+      report.AppendLine();
     }
 
     public IHardware[] Hardware {
@@ -84,7 +127,6 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return report.ToString();
     }
 
-    public void Close() {
-    }
+    public void Close() { }
   }
 }
