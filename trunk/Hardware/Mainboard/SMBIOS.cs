@@ -282,6 +282,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.Crosshair_III_Formula; break;
           case "M2N-SLI DELUXE":
             model = Model.M2N_SLI_DELUXE; break;
+          case "M4A79XTD EVO":
+            model = Model.M4A79XTD_EVO; break;
           case "P5W DH Deluxe":
             model = Model.P5W_DH_Deluxe; break;
           case "LP BI P45-T2RS Elite":
