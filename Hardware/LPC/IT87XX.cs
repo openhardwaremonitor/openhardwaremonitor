@@ -45,6 +45,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
        
     private ushort address;
     private Chip chip;
+    private byte version;
 
     private readonly ushort addressReg;
     private readonly ushort dataReg;
@@ -78,10 +79,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return value;
     } 
 
-    public IT87XX(Chip chip, ushort address) {
+    public IT87XX(Chip chip, ushort address, byte version) {
       
       this.address = address;
       this.chip = chip;
+      this.version = version;
       this.addressReg = (ushort)(address + ADDRESS_REGISTER_OFFSET);
       this.dataReg = (ushort)(address + DATA_REGISTER_OFFSET);
       
@@ -113,6 +115,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine("LPC " + this.GetType().Name);
       r.AppendLine();
       r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
+      r.Append("Chip Version: 0x"); r.AppendLine(version.ToString("X"));
       r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
       r.AppendLine("Environment Controller Registers");
