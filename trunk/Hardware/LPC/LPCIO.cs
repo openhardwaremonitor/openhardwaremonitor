@@ -78,7 +78,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     // ITE
-    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;    
+    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
+    private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
     private void IT87Enter() {
       WinRing0.WriteIoPortByte(registerPort, 0x87);
@@ -332,11 +333,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             report.AppendLine(chipID.ToString("X"));
             report.AppendLine();
           }
-        } else {
+        } else {          
           Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+
+          byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
 
           IT87Exit();
 
@@ -349,7 +352,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             return;
           }
 
-         superIOs.Add(new IT87XX(chip, address));
+         superIOs.Add(new IT87XX(chip, address, version));
 
           return;
         }
