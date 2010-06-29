@@ -112,11 +112,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Chassis Fan #1", 1));
                   f.Add(new Fan("Power Fan", 2));
                   break;
-                case Model.M4A79XTD_EVO:
-                  v.Add(new Voltage("+3.3V", 1, 18, 16, 0));
-                  v.Add(new Voltage("CPU VCore", 2, 12, 15, 0));                  
+                case Model.M4A79XTD_EVO:              
                   v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
-                  v.Add(new Voltage("+12V", 4, 5.6f, 2.7f, 0));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("CPU", 0));
                   t.Add(new Temperature("Motherboard", 1));
