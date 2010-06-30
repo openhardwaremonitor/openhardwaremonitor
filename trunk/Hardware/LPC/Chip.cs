@@ -16,7 +16,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     W83627DHGP = 0xB070,
     W83627EHF = 0x8800,    
     W83627HF = 0x5200,
-    W83627THF = 0x8283,
+    W83627THF = 0x8280,
     W83667HG = 0xA510,
     W83667HGB = 0xB350,
     W83687THF = 0x8541,

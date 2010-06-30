@@ -185,8 +185,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 break;             
             } break;
           case 0x82:
-            switch (revision) {
-              case 0x83:
+            switch (revision & 0xF0) {
+              case 0x80:
                 chip = Chip.W83627THF;
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
