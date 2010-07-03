@@ -125,25 +125,52 @@ namespace OpenHardwareMonitor.Hardware {
       writer.WriteLine();
     }
 
-    private void ReportHardwareTree(IHardware hardware, TextWriter w,
+    private int CompareSensor(ISensor a, ISensor b) {
+      int c = a.SensorType.CompareTo(b.SensorType);
+      if (c == 0)
+        return a.Index.CompareTo(b.Index);
+      else
+        return c;
+    }
+
+    private void ReportHardwareSensorTree(IHardware hardware, TextWriter w,
       string space) {
       w.WriteLine("{0}|", space);
       w.WriteLine("{0}+-+ {1} ({2})",
         space, hardware.Name, hardware.Identifier);
-      foreach (ISensor sensor in hardware.Sensors) {
-        w.WriteLine("{0}|   +- {1} : {2} : {3} : {4}",
-          space, sensor.SensorType, sensor.Index, sensor.Name,
+      ISensor[] sensors = hardware.Sensors;
+      Array.Sort<ISensor>(sensors, CompareSensor);
+      foreach (ISensor sensor in sensors) {
+        w.WriteLine("{0}|   +- {1}[{2}] : {3} : {4}",
+          space, sensor.SensorType, sensor.Index, 
             string.Format(CultureInfo.InvariantCulture, "{0} : {1} : {2}",
-            sensor.Value, sensor.Min, sensor.Max));
-        foreach (IParameter parameter in sensor.Parameters) {
-          w.WriteLine("{0}|      +- {1} : {2} : {3}",
-            space, parameter.Name, parameter.IsDefault,
-            string.Format(CultureInfo.InvariantCulture, "{0} : {1}",
-              parameter.DefaultValue, parameter.Value));
+            sensor.Value, sensor.Min, sensor.Max), sensor.Name);
+      }
+      foreach (IHardware subHardware in hardware.SubHardware)
+        ReportHardwareSensorTree(subHardware, w, "|   ");
+    }
+
+    private void ReportHardwareParameterTree(IHardware hardware, TextWriter w,
+      string space) {
+      w.WriteLine("{0}|", space);
+      w.WriteLine("{0}+-+ {1} ({2})",
+        space, hardware.Name, hardware.Identifier);
+      ISensor[] sensors = hardware.Sensors;
+      Array.Sort<ISensor>(sensors, CompareSensor);
+      foreach (ISensor sensor in sensors) {
+        if (sensor.Parameters.Length > 0) {
+          w.WriteLine("{0}|   +- {1}[{2}] : {3}",
+            space, sensor.SensorType, sensor.Index, sensor.Name);
+          foreach (IParameter parameter in sensor.Parameters) {
+            w.WriteLine("{0}|      +- {1} : {2}",
+              space, parameter.Name,
+              string.Format(CultureInfo.InvariantCulture, "{0} : {1}",
+                parameter.DefaultValue, parameter.Value));
+          }
         }
       }
       foreach (IHardware subHardware in hardware.SubHardware)
-        ReportHardwareTree(subHardware, w, "|   ");
+        ReportHardwareParameterTree(subHardware, w, "|   ");
     }
 
     private void ReportHardware(IHardware hardware, TextWriter w) {
@@ -180,9 +207,20 @@ namespace OpenHardwareMonitor.Hardware {
         w.WriteLine();
 
         NewSection(w);
+        w.WriteLine("Sensors");
+        w.WriteLine();
         foreach (IGroup group in groups) {
           foreach (IHardware hardware in group.Hardware)
-            ReportHardwareTree(hardware, w, "");
+            ReportHardwareSensorTree(hardware, w, "");
+        }
+        w.WriteLine();
+
+        NewSection(w);
+        w.WriteLine("Parameters");
+        w.WriteLine();
+        foreach (IGroup group in groups) {
+          foreach (IHardware hardware in group.Hardware)
+            ReportHardwareParameterTree(hardware, w, "");
         }
         w.WriteLine();
 
