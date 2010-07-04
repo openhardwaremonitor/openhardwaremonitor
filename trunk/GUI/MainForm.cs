@@ -462,5 +462,10 @@ namespace OpenHardwareMonitor.GUI {
       form.Report = computer.GetReport();
       form.ShowDialog();      
     }
+
+    private void resetMinMaxMenuItem_Click(object sender, EventArgs e) {
+      IVisitor visitor = new ResetMinMaxVisitor();
+      computer.Accept(visitor);
+    }
   }
 }

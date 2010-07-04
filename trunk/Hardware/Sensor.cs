@@ -163,6 +163,14 @@ namespace OpenHardwareMonitor.Hardware {
     public float? Min { get { return min; } }
     public float? Max { get { return max; } }
 
+    public void ResetMin() {
+      min = null;
+    }
+
+    public void ResetMax() {
+      max = null;
+    }
+
     public IEnumerable<ISensorEntry> Plot {
       get { return entries; }
     }
