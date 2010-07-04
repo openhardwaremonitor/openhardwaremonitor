@@ -76,6 +76,8 @@ namespace OpenHardwareMonitor.GUI {
       this.menuStrip = new System.Windows.Forms.MenuStrip();
       this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.saveReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.sumbitReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
       this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.hiddenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -102,8 +104,8 @@ namespace OpenHardwareMonitor.GUI {
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
-      this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-      this.sumbitReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
+      this.resetMinMaxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
@@ -243,6 +245,18 @@ namespace OpenHardwareMonitor.GUI {
       this.saveReportToolStripMenuItem.Text = "Save Report...";
       this.saveReportToolStripMenuItem.Click += new System.EventHandler(this.saveReportToolStripMenuItem_Click);
       // 
+      // sumbitReportToolStripMenuItem
+      // 
+      this.sumbitReportToolStripMenuItem.Name = "sumbitReportToolStripMenuItem";
+      this.sumbitReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+      this.sumbitReportToolStripMenuItem.Text = "Submit Report...";
+      this.sumbitReportToolStripMenuItem.Click += new System.EventHandler(this.sumbitReportToolStripMenuItem_Click);
+      // 
+      // toolStripMenuItem2
+      // 
+      this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+      this.toolStripMenuItem2.Size = new System.Drawing.Size(156, 6);
+      // 
       // exitToolStripMenuItem
       // 
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -253,6 +267,8 @@ namespace OpenHardwareMonitor.GUI {
       // viewToolStripMenuItem
       // 
       this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.resetMinMaxMenuItem,
+            this.toolStripMenuItem3,
             this.hiddenMenuItem,
             this.plotMenuItem,
             this.toolStripMenuItem1,
@@ -464,17 +480,17 @@ namespace OpenHardwareMonitor.GUI {
       this.timer.Interval = 1000;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
-      // toolStripMenuItem2
+      // toolStripMenuItem3
       // 
-      this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(156, 6);
+      this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+      this.toolStripMenuItem3.Size = new System.Drawing.Size(185, 6);
       // 
-      // sumbitReportToolStripMenuItem
+      // resetMinMaxMenuItem
       // 
-      this.sumbitReportToolStripMenuItem.Name = "sumbitReportToolStripMenuItem";
-      this.sumbitReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-      this.sumbitReportToolStripMenuItem.Text = "Submit Report...";
-      this.sumbitReportToolStripMenuItem.Click += new System.EventHandler(this.sumbitReportToolStripMenuItem_Click);
+      this.resetMinMaxMenuItem.Name = "resetMinMaxMenuItem";
+      this.resetMinMaxMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.resetMinMaxMenuItem.Text = "Reset Min/Max";
+      this.resetMinMaxMenuItem.Click += new System.EventHandler(this.resetMinMaxMenuItem_Click);
       // 
       // MainForm
       // 
@@ -543,6 +559,8 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem fahrenheitToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem sumbitReportToolStripMenuItem;
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
+    private System.Windows.Forms.ToolStripMenuItem resetMinMaxMenuItem;
+    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
   }
 }
 
