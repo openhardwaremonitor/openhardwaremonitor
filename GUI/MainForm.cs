@@ -455,5 +455,12 @@ namespace OpenHardwareMonitor.GUI {
       fahrenheitToolStripMenuItem.Checked = true;
       UnitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }
+
+    private void sumbitReportToolStripMenuItem_Click(object sender, EventArgs e) 
+    {
+      ReportForm form = new ReportForm();
+      form.Report = computer.GetReport();
+      form.ShowDialog();      
+    }
   }
 }

@@ -36,7 +36,7 @@
 */
 
 namespace OpenHardwareMonitor.GUI {
-  partial class CrashReportForm {
+  partial class CrashForm {
     /// <summary>
     /// Required designer variable.
     /// </summary>

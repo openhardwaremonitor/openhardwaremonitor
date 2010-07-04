@@ -46,11 +46,11 @@ using System.Web;
 using System.Windows.Forms;
 
 namespace OpenHardwareMonitor.GUI {
-  public partial class CrashReportForm : Form {
+  public partial class CrashForm : Form {
 
     private Exception exception;
 
-    public CrashReportForm() {
+    public CrashForm() {
       InitializeComponent();
     }
 
@@ -59,7 +59,7 @@ namespace OpenHardwareMonitor.GUI {
       set {
         exception = value;
         StringBuilder s = new StringBuilder();
-        Version version = typeof(CrashReportForm).Assembly.GetName().Version;
+        Version version = typeof(CrashForm).Assembly.GetName().Version;
         s.Append("Version: "); s.AppendLine(version.ToString());        
         s.AppendLine();
         s.AppendLine(exception.ToString());
@@ -80,7 +80,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private void sendButton_Click(object sender, EventArgs e) {
       try {
-        Version version = typeof(CrashReportForm).Assembly.GetName().Version;
+        Version version = typeof(CrashForm).Assembly.GetName().Version;
         WebRequest request = WebRequest.Create(
           "http://openhardwaremonitor.org/report.php");
         request.Method = "POST";
@@ -88,6 +88,7 @@ namespace OpenHardwareMonitor.GUI {
         request.ContentType = "application/x-www-form-urlencoded";
 
         string report =
+          "type=crash&" + 
           "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
           "report=" + HttpUtility.UrlEncode(reportTextBox.Text) + "&" +
           "comment=" + HttpUtility.UrlEncode(commentTextBox.Text) + "&" +

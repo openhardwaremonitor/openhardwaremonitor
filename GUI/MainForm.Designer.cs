@@ -102,6 +102,8 @@ namespace OpenHardwareMonitor.GUI {
       this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
+      this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+      this.sumbitReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
@@ -227,6 +229,8 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveReportToolStripMenuItem,
+            this.sumbitReportToolStripMenuItem,
+            this.toolStripMenuItem2,
             this.exitToolStripMenuItem});
       this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
       this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -235,14 +239,14 @@ namespace OpenHardwareMonitor.GUI {
       // saveReportToolStripMenuItem
       // 
       this.saveReportToolStripMenuItem.Name = "saveReportToolStripMenuItem";
-      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
       this.saveReportToolStripMenuItem.Text = "Save Report...";
       this.saveReportToolStripMenuItem.Click += new System.EventHandler(this.saveReportToolStripMenuItem_Click);
       // 
       // exitToolStripMenuItem
       // 
       this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-      this.exitToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+      this.exitToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
       this.exitToolStripMenuItem.Text = "Exit";
       this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitClick);
       // 
@@ -296,7 +300,7 @@ namespace OpenHardwareMonitor.GUI {
       this.valueMenuItem.CheckOnClick = true;
       this.valueMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.valueMenuItem.Name = "valueMenuItem";
-      this.valueMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.valueMenuItem.Size = new System.Drawing.Size(103, 22);
       this.valueMenuItem.Text = "Value";
       this.valueMenuItem.CheckedChanged += new System.EventHandler(this.valueMenuItem_CheckedChanged);
       // 
@@ -306,7 +310,7 @@ namespace OpenHardwareMonitor.GUI {
       this.minMenuItem.CheckOnClick = true;
       this.minMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.minMenuItem.Name = "minMenuItem";
-      this.minMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.minMenuItem.Size = new System.Drawing.Size(103, 22);
       this.minMenuItem.Text = "Min";
       this.minMenuItem.CheckedChanged += new System.EventHandler(this.minMenuItem_CheckedChanged);
       // 
@@ -316,7 +320,7 @@ namespace OpenHardwareMonitor.GUI {
       this.maxMenuItem.CheckOnClick = true;
       this.maxMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
       this.maxMenuItem.Name = "maxMenuItem";
-      this.maxMenuItem.Size = new System.Drawing.Size(152, 22);
+      this.maxMenuItem.Size = new System.Drawing.Size(103, 22);
       this.maxMenuItem.Text = "Max";
       this.maxMenuItem.CheckedChanged += new System.EventHandler(this.maxMenuItem_CheckedChanged);
       // 
@@ -460,6 +464,18 @@ namespace OpenHardwareMonitor.GUI {
       this.timer.Interval = 1000;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
+      // toolStripMenuItem2
+      // 
+      this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+      this.toolStripMenuItem2.Size = new System.Drawing.Size(156, 6);
+      // 
+      // sumbitReportToolStripMenuItem
+      // 
+      this.sumbitReportToolStripMenuItem.Name = "sumbitReportToolStripMenuItem";
+      this.sumbitReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+      this.sumbitReportToolStripMenuItem.Text = "Submit Report...";
+      this.sumbitReportToolStripMenuItem.Click += new System.EventHandler(this.sumbitReportToolStripMenuItem_Click);
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -525,6 +541,8 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
     private System.Windows.Forms.ToolStripMenuItem celciusToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem fahrenheitToolStripMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem sumbitReportToolStripMenuItem;
+    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
   }
 }
 
