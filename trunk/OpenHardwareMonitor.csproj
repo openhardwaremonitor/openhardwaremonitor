@@ -61,11 +61,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GUI\CrashReportForm.cs">
+    <Compile Include="GUI\ReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\CrashReportForm.Designer.cs">
-      <DependentUpon>CrashReportForm.cs</DependentUpon>
+    <Compile Include="GUI\ReportForm.Designer.cs">
+      <DependentUpon>ReportForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\CrashForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\CrashForm.Designer.cs">
+      <DependentUpon>CrashForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\Node.cs" />
     <Compile Include="GUI\ParameterForm.cs">
@@ -200,12 +206,15 @@
     <EmbeddedResource Include="Resources\flow.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="GUI\CrashReportForm.resx">
-      <DependentUpon>CrashReportForm.cs</DependentUpon>
+    <EmbeddedResource Include="GUI\CrashForm.resx">
+      <DependentUpon>CrashForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\mainboard.png" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="GUI\ReportForm.resx">
+      <DependentUpon>ReportForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Resources\control.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
