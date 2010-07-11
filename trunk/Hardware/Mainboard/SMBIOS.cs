@@ -255,6 +255,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         switch (manufacturerName) {
           case "ASUSTeK Computer INC.":
             manufacturer = Manufacturer.ASUS; break;
+          case "Dell Inc.":
+            manufacturer = Manufacturer.Dell; break;
           case "DFI":
           case "DFI Inc.":            
             manufacturer = Manufacturer.DFI; break;
@@ -262,13 +264,21 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             manufacturer = Manufacturer.EPoX; break;
           case "EVGA":
             manufacturer = Manufacturer.EVGA; break;
+          case "First International Computer, Inc.":
+            manufacturer = Manufacturer.FIC; break;
           case "Gigabyte Technology Co., Ltd.":
             manufacturer = Manufacturer.Gigabyte; break;
+          case "Hewlett-Packard":
+            manufacturer = Manufacturer.HP; break;
           case "IBM":
             manufacturer = Manufacturer.IBM; break;
           case "MICRO-STAR INTERNATIONAL CO., LTD":
           case "MICRO-STAR INTERNATIONAL CO.,LTD":
             manufacturer = Manufacturer.MSI; break;
+          case "XFX":
+            manufacturer = Manufacturer.XFX; break;
+          case "To be filled by O.E.M.":
+            manufacturer = Manufacturer.Unknown; break;
           default:
             manufacturer = Manufacturer.Unknown; break;
         }
@@ -286,6 +296,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.M4A79XTD_EVO; break;
           case "P5W DH Deluxe":
             model = Model.P5W_DH_Deluxe; break;
+          case "P6X58D-E":
+            model = Model.P6X58D_E; break;
           case "LP BI P45-T2RS Elite":
             model = Model.LP_BI_P45_T2RS_Elite; break;
           case "LP DK P55-T3eH9":
@@ -312,6 +324,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.X38_DS5; break;
           case "X58A-UD3R":
             model = Model.X58A_UD3R; break;
+          case "To be filled by O.E.M.":
+            model = Model.Unknown; break;
           default:
             model = Model.Unknown; break;
         }

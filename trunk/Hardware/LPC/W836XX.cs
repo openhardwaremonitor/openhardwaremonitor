@@ -123,7 +123,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           break;
         case Chip.W83627DHG:        
         case Chip.W83627DHGP:
-          // do not add temperature sensor registers that read PECI
+          // note temperature sensor registers that read PECI
           byte sel = ReadByte(0, TEMPERATURE_SOURCE_SELECT_REG);
           peciTemperature[0] = (sel & 0x07) != 0;
           peciTemperature[1] = (sel & 0x70) != 0;
