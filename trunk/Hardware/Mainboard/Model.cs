@@ -38,6 +38,9 @@
 namespace OpenHardwareMonitor.Hardware.Mainboard {
 
   public enum Model {
+    // ASRock
+    _880GMH_USB3,
+
     // ASUS
     Crosshair_III_Formula,
     M2N_SLI_DELUXE,
