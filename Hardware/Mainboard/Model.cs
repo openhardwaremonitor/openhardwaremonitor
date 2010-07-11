@@ -43,6 +43,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     M2N_SLI_DELUXE,
     M4A79XTD_EVO,
     P5W_DH_Deluxe,    
+    P6X58D_E,
 
     // DFI
     LP_BI_P45_T2RS_Elite,

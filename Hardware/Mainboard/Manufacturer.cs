@@ -39,12 +39,16 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
   
   public enum Manufacturer {
     ASUS,
+    Dell,
     DFI,
     EPoX,
     EVGA,
+    FIC,
     Gigabyte,
+    HP,
     IBM,
     MSI,
+    XFX,
     Unknown    
   }
 
