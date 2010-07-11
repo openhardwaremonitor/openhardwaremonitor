@@ -253,6 +253,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         this.manufacturerName = manufacturerName;
         
         switch (manufacturerName) {
+          case "ASRock":
+            manufacturer = Manufacturer.ASRock; break;
           case "ASUSTeK Computer INC.":
             manufacturer = Manufacturer.ASUS; break;
           case "Dell Inc.":
@@ -288,6 +290,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         this.productName = productName;
         
         switch (productName) {
+          case "880GMH/USB3":
+            model = Model._880GMH_USB3; break;
           case "Crosshair III Formula":
             model = Model.Crosshair_III_Formula; break;
           case "M2N-SLI DELUXE":
