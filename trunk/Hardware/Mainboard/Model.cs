@@ -60,6 +60,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     EP45_DS3R,
     EP45_UD3R,
     EX58_EXTREME,
+    GA_MA770T_UD3,
     GA_MA785GMT_UD2H,
     P35_DS3,
     P35_DS3L,

@@ -316,6 +316,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.EP45_UD3R; break;
           case "EX58-EXTREME":
             model = Model.EX58_EXTREME; break;
+          case "GA-MA770T-UD3":
+            model = Model.GA_MA770T_UD3; break;
           case "GA-MA785GMT-UD2H":
             model = Model.GA_MA785GMT_UD2H; break;
           case "P35-DS3":
