@@ -236,7 +236,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #1", 3));
                   break;
                 case Model.P35_DS3:
-                case Model.P35_DS3L:                
+                case Model.P35_DS3L:
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -250,7 +250,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #2", 2));
                   f.Add(new Fan("Power Fan", 3));
                   break;
-                case Model.P55_UD4:
+                case Model.P55_UD4:                
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -263,6 +263,20 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #2", 1));
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
+                  break;
+                case Model.GA_MA770T_UD3:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
+                  v.Add(new Voltage("+12V", 4, 27, 9.1f, 0));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #1", 1));
+                  f.Add(new Fan("System Fan #2", 2));
+                  f.Add(new Fan("Power Fan", 3));
                   break;
                 case Model.GA_MA785GMT_UD2H:
                   v.Add(new Voltage("CPU VCore", 0));
