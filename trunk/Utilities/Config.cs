@@ -58,6 +58,18 @@ namespace OpenHardwareMonitor.Utilities {
       config = System.Configuration.ConfigurationManager.
         OpenMappedExeConfiguration(fileMap, 
         System.Configuration.ConfigurationUserLevel.None);
+      try {
+        // try to load the settings
+        System.Configuration.KeyValueConfigurationCollection collection =
+          config.AppSettings.Settings;        
+      } catch {
+        // if an exception is thrown, start with a new config file
+        if (File.Exists(fileName))
+          File.Delete(fileName);
+        config = System.Configuration.ConfigurationManager.
+          OpenMappedExeConfiguration(fileMap,
+          System.Configuration.ConfigurationUserLevel.None);
+      }
     }
 
     private void SaveConfig() {
