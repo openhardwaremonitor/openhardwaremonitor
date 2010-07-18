@@ -73,40 +73,39 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxValue = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxMin = new Aga.Controls.Tree.NodeControls.NodeTextBox();
       this.nodeTextBoxMax = new Aga.Controls.Tree.NodeControls.NodeTextBox();
-      this.menuStrip = new System.Windows.Forms.MenuStrip();
-      this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.saveReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.sumbitReportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-      this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.hiddenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.plotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-      this.columnsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.valueMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.minMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.maxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.startMinMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.separatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
-      this.temperatureUnitsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.celciusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.fahrenheitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator();
-      this.hddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this.mainMenu = new System.Windows.Forms.MainMenu(this.components);
+      this.fileMenuItem = new System.Windows.Forms.MenuItem();
+      this.saveReportMenuItem = new System.Windows.Forms.MenuItem();
+      this.sumbitReportMenuItem = new System.Windows.Forms.MenuItem();
+      this.MenuItem2 = new System.Windows.Forms.MenuItem();
+      this.exitMenuItem = new System.Windows.Forms.MenuItem();
+      this.viewMenuItem = new System.Windows.Forms.MenuItem();
+      this.resetMinMaxMenuItem = new System.Windows.Forms.MenuItem();
+      this.MenuItem3 = new System.Windows.Forms.MenuItem();
+      this.hiddenMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotMenuItem = new System.Windows.Forms.MenuItem();
+      this.MenuItem1 = new System.Windows.Forms.MenuItem();
+      this.columnsMenuItem = new System.Windows.Forms.MenuItem();
+      this.valueMenuItem = new System.Windows.Forms.MenuItem();
+      this.minMenuItem = new System.Windows.Forms.MenuItem();
+      this.maxMenuItem = new System.Windows.Forms.MenuItem();
+      this.optionsMenuItem = new System.Windows.Forms.MenuItem();
+      this.startMinMenuItem = new System.Windows.Forms.MenuItem();
+      this.minTrayMenuItem = new System.Windows.Forms.MenuItem();
+      this.startupMenuItem = new System.Windows.Forms.MenuItem();
+      this.separatorMenuItem = new System.Windows.Forms.MenuItem();
+      this.temperatureUnitsMenuItem = new System.Windows.Forms.MenuItem();
+      this.celciusMenuItem = new System.Windows.Forms.MenuItem();
+      this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
+      this.MenuItem4 = new System.Windows.Forms.MenuItem();
+      this.hddMenuItem = new System.Windows.Forms.MenuItem();
+      this.helpMenuItem = new System.Windows.Forms.MenuItem();
+      this.aboutMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer = new System.Windows.Forms.SplitContainer();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
-      this.sensorContextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+      this.sensorContextMenu = new System.Windows.Forms.ContextMenu();
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
-      this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator();
-      this.resetMinMaxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-      this.menuStrip.SuspendLayout();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
@@ -136,7 +135,7 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.NodeControls.Add(this.nodeTextBoxMax);
       this.treeView.RowHeight = 18;
       this.treeView.SelectedNode = null;
-      this.treeView.Size = new System.Drawing.Size(410, 488);
+      this.treeView.Size = new System.Drawing.Size(386, 488);
       this.treeView.TabIndex = 0;
       this.treeView.Text = "treeView";
       this.treeView.UseColumns = true;
@@ -214,229 +213,188 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMax.LeftMargin = 3;
       this.nodeTextBoxMax.ParentColumn = this.max;
       // 
-      // menuStrip
+      // mainMenu
       // 
-      this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.viewToolStripMenuItem,
-            this.optionsToolStripMenuItem,
-            this.helpToolStripMenuItem});
-      this.menuStrip.Location = new System.Drawing.Point(0, 0);
-      this.menuStrip.Name = "menuStrip";
-      this.menuStrip.Size = new System.Drawing.Size(410, 24);
-      this.menuStrip.TabIndex = 1;
-      this.menuStrip.Text = "menuStrip1";
+      this.mainMenu.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.fileMenuItem,
+            this.viewMenuItem,
+            this.optionsMenuItem,
+            this.helpMenuItem});
       // 
-      // fileToolStripMenuItem
+      // fileMenuItem
       // 
-      this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.saveReportToolStripMenuItem,
-            this.sumbitReportToolStripMenuItem,
-            this.toolStripMenuItem2,
-            this.exitToolStripMenuItem});
-      this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-      this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
-      this.fileToolStripMenuItem.Text = "File";
+      this.fileMenuItem.Index = 0;
+      this.fileMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.saveReportMenuItem,
+            this.sumbitReportMenuItem,
+            this.MenuItem2,
+            this.exitMenuItem});
+      this.fileMenuItem.Text = "File";
       // 
-      // saveReportToolStripMenuItem
+      // saveReportMenuItem
       // 
-      this.saveReportToolStripMenuItem.Name = "saveReportToolStripMenuItem";
-      this.saveReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-      this.saveReportToolStripMenuItem.Text = "Save Report...";
-      this.saveReportToolStripMenuItem.Click += new System.EventHandler(this.saveReportToolStripMenuItem_Click);
+      this.saveReportMenuItem.Index = 0;
+      this.saveReportMenuItem.Text = "Save Report...";
+      this.saveReportMenuItem.Click += new System.EventHandler(this.saveReportMenuItem_Click);
       // 
-      // sumbitReportToolStripMenuItem
+      // sumbitReportMenuItem
       // 
-      this.sumbitReportToolStripMenuItem.Name = "sumbitReportToolStripMenuItem";
-      this.sumbitReportToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-      this.sumbitReportToolStripMenuItem.Text = "Submit Report...";
-      this.sumbitReportToolStripMenuItem.Click += new System.EventHandler(this.sumbitReportToolStripMenuItem_Click);
+      this.sumbitReportMenuItem.Index = 1;
+      this.sumbitReportMenuItem.Text = "Submit Report...";
+      this.sumbitReportMenuItem.Click += new System.EventHandler(this.sumbitReportMenuItem_Click);
       // 
-      // toolStripMenuItem2
+      // MenuItem2
       // 
-      this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-      this.toolStripMenuItem2.Size = new System.Drawing.Size(156, 6);
+      this.MenuItem2.Index = 2;
+      this.MenuItem2.Text = "-";
       // 
-      // exitToolStripMenuItem
+      // exitMenuItem
       // 
-      this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-      this.exitToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-      this.exitToolStripMenuItem.Text = "Exit";
-      this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitClick);
+      this.exitMenuItem.Index = 3;
+      this.exitMenuItem.Text = "Exit";
+      this.exitMenuItem.Click += new System.EventHandler(this.exitClick);
       // 
-      // viewToolStripMenuItem
+      // viewMenuItem
       // 
-      this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+      this.viewMenuItem.Index = 1;
+      this.viewMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.resetMinMaxMenuItem,
-            this.toolStripMenuItem3,
+            this.MenuItem3,
             this.hiddenMenuItem,
             this.plotMenuItem,
-            this.toolStripMenuItem1,
-            this.columnsToolStripMenuItem});
-      this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-      this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-      this.viewToolStripMenuItem.Text = "View";
+            this.MenuItem1,
+            this.columnsMenuItem});
+      this.viewMenuItem.Text = "View";
+      // 
+      // resetMinMaxMenuItem
+      // 
+      this.resetMinMaxMenuItem.Index = 0;
+      this.resetMinMaxMenuItem.Text = "Reset Min/Max";
+      this.resetMinMaxMenuItem.Click += new System.EventHandler(this.resetMinMaxMenuItem_Click);
+      // 
+      // MenuItem3
+      // 
+      this.MenuItem3.Index = 1;
+      this.MenuItem3.Text = "-";
       // 
       // hiddenMenuItem
       // 
-      this.hiddenMenuItem.CheckOnClick = true;
-      this.hiddenMenuItem.Name = "hiddenMenuItem";
-      this.hiddenMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.hiddenMenuItem.Index = 2;
       this.hiddenMenuItem.Text = "Show Hidden Sensors";
-      this.hiddenMenuItem.CheckedChanged += new System.EventHandler(this.hiddenSensorsMenuItem_CheckedChanged);
       // 
       // plotMenuItem
       // 
-      this.plotMenuItem.Checked = true;
-      this.plotMenuItem.CheckOnClick = true;
-      this.plotMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.plotMenuItem.Name = "plotMenuItem";
-      this.plotMenuItem.Size = new System.Drawing.Size(188, 22);
+      this.plotMenuItem.Index = 3;
       this.plotMenuItem.Text = "Show Plot";
-      this.plotMenuItem.CheckedChanged += new System.EventHandler(this.plotToolStripMenuItem_CheckedChanged);
       // 
-      // toolStripMenuItem1
+      // MenuItem1
       // 
-      this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-      this.toolStripMenuItem1.Size = new System.Drawing.Size(185, 6);
+      this.MenuItem1.Index = 4;
+      this.MenuItem1.Text = "-";
       // 
-      // columnsToolStripMenuItem
+      // columnsMenuItem
       // 
-      this.columnsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+      this.columnsMenuItem.Index = 5;
+      this.columnsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.valueMenuItem,
             this.minMenuItem,
             this.maxMenuItem});
-      this.columnsToolStripMenuItem.Name = "columnsToolStripMenuItem";
-      this.columnsToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
-      this.columnsToolStripMenuItem.Text = "Columns";
+      this.columnsMenuItem.Text = "Columns";
       // 
       // valueMenuItem
       // 
-      this.valueMenuItem.Checked = true;
-      this.valueMenuItem.CheckOnClick = true;
-      this.valueMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.valueMenuItem.Name = "valueMenuItem";
-      this.valueMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.valueMenuItem.Index = 0;
       this.valueMenuItem.Text = "Value";
-      this.valueMenuItem.CheckedChanged += new System.EventHandler(this.valueMenuItem_CheckedChanged);
       // 
       // minMenuItem
       // 
-      this.minMenuItem.Checked = true;
-      this.minMenuItem.CheckOnClick = true;
-      this.minMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.minMenuItem.Name = "minMenuItem";
-      this.minMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.minMenuItem.Index = 1;
       this.minMenuItem.Text = "Min";
-      this.minMenuItem.CheckedChanged += new System.EventHandler(this.minMenuItem_CheckedChanged);
       // 
       // maxMenuItem
       // 
-      this.maxMenuItem.Checked = true;
-      this.maxMenuItem.CheckOnClick = true;
-      this.maxMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-      this.maxMenuItem.Name = "maxMenuItem";
-      this.maxMenuItem.Size = new System.Drawing.Size(103, 22);
+      this.maxMenuItem.Index = 2;
       this.maxMenuItem.Text = "Max";
-      this.maxMenuItem.CheckedChanged += new System.EventHandler(this.maxMenuItem_CheckedChanged);
       // 
-      // optionsToolStripMenuItem
+      // optionsMenuItem
       // 
-      this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+      this.optionsMenuItem.Index = 2;
+      this.optionsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.startMinMenuItem,
             this.minTrayMenuItem,
             this.startupMenuItem,
             this.separatorMenuItem,
-            this.temperatureUnitsToolStripMenuItem,
-            this.toolStripMenuItem4,
+            this.temperatureUnitsMenuItem,
+            this.MenuItem4,
             this.hddMenuItem});
-      this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-      this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
-      this.optionsToolStripMenuItem.Text = "Options";
+      this.optionsMenuItem.Text = "Options";
       // 
       // startMinMenuItem
       // 
-      this.startMinMenuItem.CheckOnClick = true;
-      this.startMinMenuItem.Name = "startMinMenuItem";
-      this.startMinMenuItem.Size = new System.Drawing.Size(207, 22);
+      this.startMinMenuItem.Index = 0;
       this.startMinMenuItem.Text = "Start Minimized";
       // 
       // minTrayMenuItem
       // 
-      this.minTrayMenuItem.CheckOnClick = true;
-      this.minTrayMenuItem.Name = "minTrayMenuItem";
-      this.minTrayMenuItem.Size = new System.Drawing.Size(207, 22);
+      this.minTrayMenuItem.Index = 1;
       this.minTrayMenuItem.Text = "Minimize To Tray";
-      this.minTrayMenuItem.CheckedChanged += new System.EventHandler(this.minTrayMenuItem_CheckedChanged);
       // 
       // startupMenuItem
       // 
-      this.startupMenuItem.CheckOnClick = true;
-      this.startupMenuItem.Name = "startupMenuItem";
-      this.startupMenuItem.Size = new System.Drawing.Size(207, 22);
+      this.startupMenuItem.Index = 2;
       this.startupMenuItem.Text = "Run On Windows Startup";
-      this.startupMenuItem.CheckedChanged += new System.EventHandler(this.runOnWindowsStartupToolStripMenuItem_CheckedChanged);
       // 
       // separatorMenuItem
       // 
-      this.separatorMenuItem.Name = "separatorMenuItem";
-      this.separatorMenuItem.Size = new System.Drawing.Size(204, 6);
+      this.separatorMenuItem.Index = 3;
+      this.separatorMenuItem.Text = "-";
       // 
-      // temperatureUnitsToolStripMenuItem
+      // temperatureUnitsMenuItem
       // 
-      this.temperatureUnitsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.celciusToolStripMenuItem,
-            this.fahrenheitToolStripMenuItem});
-      this.temperatureUnitsToolStripMenuItem.Name = "temperatureUnitsToolStripMenuItem";
-      this.temperatureUnitsToolStripMenuItem.Size = new System.Drawing.Size(207, 22);
-      this.temperatureUnitsToolStripMenuItem.Text = "Temperature Unit";
+      this.temperatureUnitsMenuItem.Index = 4;
+      this.temperatureUnitsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.celciusMenuItem,
+            this.fahrenheitMenuItem});
+      this.temperatureUnitsMenuItem.Text = "Temperature Unit";
       // 
-      // celciusToolStripMenuItem
+      // celciusMenuItem
       // 
-      this.celciusToolStripMenuItem.Name = "celciusToolStripMenuItem";
-      this.celciusToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-      this.celciusToolStripMenuItem.Text = "Celcius";
-      this.celciusToolStripMenuItem.Click += new System.EventHandler(this.celciusToolStripMenuItem_Click);
+      this.celciusMenuItem.Index = 0;
+      this.celciusMenuItem.Text = "Celcius";
+      this.celciusMenuItem.Click += new System.EventHandler(this.celciusMenuItem_Click);
       // 
-      // fahrenheitToolStripMenuItem
+      // fahrenheitMenuItem
       // 
-      this.fahrenheitToolStripMenuItem.Name = "fahrenheitToolStripMenuItem";
-      this.fahrenheitToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
-      this.fahrenheitToolStripMenuItem.Text = "Fahrenheit";
-      this.fahrenheitToolStripMenuItem.Click += new System.EventHandler(this.fahrenheitToolStripMenuItem_Click);
+      this.fahrenheitMenuItem.Index = 1;
+      this.fahrenheitMenuItem.Text = "Fahrenheit";
+      this.fahrenheitMenuItem.Click += new System.EventHandler(this.fahrenheitMenuItem_Click);
       // 
-      // toolStripMenuItem4
+      // MenuItem4
       // 
-      this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-      this.toolStripMenuItem4.Size = new System.Drawing.Size(204, 6);
+      this.MenuItem4.Index = 5;
+      this.MenuItem4.Text = "-";
       // 
       // hddMenuItem
       // 
-      this.hddMenuItem.CheckOnClick = true;
-      this.hddMenuItem.Name = "hddMenuItem";
-      this.hddMenuItem.Size = new System.Drawing.Size(207, 22);
+      this.hddMenuItem.Index = 6;
       this.hddMenuItem.Text = "Read HDD sensors";
-      this.hddMenuItem.CheckedChanged += new System.EventHandler(this.hddsensorsToolStripMenuItem_CheckedChanged);
       // 
-      // helpToolStripMenuItem
+      // helpMenuItem
       // 
-      this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
-      this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-      this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-      this.helpToolStripMenuItem.Text = "Help";
+      this.helpMenuItem.Index = 3;
+      this.helpMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.aboutMenuItem});
+      this.helpMenuItem.Text = "Help";
       // 
-      // aboutToolStripMenuItem
+      // aboutMenuItem
       // 
-      this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-      this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
-      this.aboutToolStripMenuItem.Text = "About";
-      this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+      this.aboutMenuItem.Index = 0;
+      this.aboutMenuItem.Text = "About";
+      this.aboutMenuItem.Click += new System.EventHandler(this.aboutMenuItem_Click);
       // 
       // splitContainer
       // 
-      this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.splitContainer.Location = new System.Drawing.Point(0, 24);
+      this.splitContainer.Location = new System.Drawing.Point(12, 12);
       this.splitContainer.Name = "splitContainer";
       this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
       // 
@@ -448,7 +406,7 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.splitContainer.Panel2.Controls.Add(this.plotPanel);
       this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
-      this.splitContainer.Size = new System.Drawing.Size(410, 662);
+      this.splitContainer.Size = new System.Drawing.Size(386, 662);
       this.splitContainer.SplitterDistance = 488;
       this.splitContainer.SplitterWidth = 3;
       this.splitContainer.TabIndex = 3;
@@ -459,13 +417,8 @@ namespace OpenHardwareMonitor.GUI {
       this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
       this.plotPanel.Location = new System.Drawing.Point(0, 0);
       this.plotPanel.Name = "plotPanel";
-      this.plotPanel.Size = new System.Drawing.Size(410, 171);
+      this.plotPanel.Size = new System.Drawing.Size(386, 171);
       this.plotPanel.TabIndex = 0;
-      // 
-      // sensorContextMenuStrip
-      // 
-      this.sensorContextMenuStrip.Name = "sensorContextMenuStrip";
-      this.sensorContextMenuStrip.Size = new System.Drawing.Size(61, 4);
       // 
       // saveFileDialog
       // 
@@ -480,47 +433,31 @@ namespace OpenHardwareMonitor.GUI {
       this.timer.Interval = 1000;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
-      // toolStripMenuItem3
-      // 
-      this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-      this.toolStripMenuItem3.Size = new System.Drawing.Size(185, 6);
-      // 
-      // resetMinMaxMenuItem
-      // 
-      this.resetMinMaxMenuItem.Name = "resetMinMaxMenuItem";
-      this.resetMinMaxMenuItem.Size = new System.Drawing.Size(188, 22);
-      this.resetMinMaxMenuItem.Text = "Reset Min/Max";
-      this.resetMinMaxMenuItem.Click += new System.EventHandler(this.resetMinMaxMenuItem_Click);
-      // 
       // MainForm
       // 
+      this.Menu = this.mainMenu;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.ClientSize = new System.Drawing.Size(410, 686);
       this.Controls.Add(this.splitContainer);
-      this.Controls.Add(this.menuStrip);
-      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-      this.MainMenuStrip = this.menuStrip;
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));      
       this.Name = "MainForm";
       this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
       this.Text = "Open Hardware Monitor";
       this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
-      this.menuStrip.ResumeLayout(false);
-      this.menuStrip.PerformLayout();
       this.splitContainer.Panel1.ResumeLayout(false);
       this.splitContainer.Panel2.ResumeLayout(false);
       this.splitContainer.ResumeLayout(false);
       this.ResumeLayout(false);
-      this.PerformLayout();
 
     }
 
     #endregion
 
     private Aga.Controls.Tree.TreeViewAdv treeView;
-    private System.Windows.Forms.MenuStrip menuStrip;
-    private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+    private System.Windows.Forms.MainMenu mainMenu;
+    private System.Windows.Forms.MenuItem fileMenuItem;
+    private System.Windows.Forms.MenuItem exitMenuItem;
     private Aga.Controls.Tree.TreeColumn sensor;
     private Aga.Controls.Tree.TreeColumn value;
     private Aga.Controls.Tree.TreeColumn min;
@@ -532,35 +469,35 @@ namespace OpenHardwareMonitor.GUI {
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMax;
     private System.Windows.Forms.SplitContainer splitContainer;
     private PlotPanel plotPanel;
-    private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem plotMenuItem;
+    private System.Windows.Forms.MenuItem viewMenuItem;
+    private System.Windows.Forms.MenuItem plotMenuItem;
     private Aga.Controls.Tree.NodeControls.NodeCheckBox nodeCheckBox;
-    private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem saveReportToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem minTrayMenuItem;
-    private System.Windows.Forms.ToolStripSeparator separatorMenuItem;
-    private System.Windows.Forms.ContextMenuStrip sensorContextMenuStrip;
-    private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
+    private System.Windows.Forms.MenuItem helpMenuItem;
+    private System.Windows.Forms.MenuItem aboutMenuItem;
+    private System.Windows.Forms.MenuItem saveReportMenuItem;
+    private System.Windows.Forms.MenuItem optionsMenuItem;
+    private System.Windows.Forms.MenuItem hddMenuItem;
+    private System.Windows.Forms.MenuItem minTrayMenuItem;
+    private System.Windows.Forms.MenuItem separatorMenuItem;
+    private System.Windows.Forms.ContextMenu sensorContextMenu;
+    private System.Windows.Forms.MenuItem startMinMenuItem;
+    private System.Windows.Forms.MenuItem startupMenuItem;
     private System.Windows.Forms.SaveFileDialog saveFileDialog;
     private System.Windows.Forms.Timer timer;
-    private System.Windows.Forms.ToolStripMenuItem hiddenMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
-    private System.Windows.Forms.ToolStripMenuItem columnsToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem valueMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem minMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem maxMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem temperatureUnitsToolStripMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem4;
-    private System.Windows.Forms.ToolStripMenuItem celciusToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem fahrenheitToolStripMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem sumbitReportToolStripMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
-    private System.Windows.Forms.ToolStripMenuItem resetMinMaxMenuItem;
-    private System.Windows.Forms.ToolStripSeparator toolStripMenuItem3;
+    private System.Windows.Forms.MenuItem hiddenMenuItem;
+    private System.Windows.Forms.MenuItem MenuItem1;
+    private System.Windows.Forms.MenuItem columnsMenuItem;
+    private System.Windows.Forms.MenuItem valueMenuItem;
+    private System.Windows.Forms.MenuItem minMenuItem;
+    private System.Windows.Forms.MenuItem maxMenuItem;
+    private System.Windows.Forms.MenuItem temperatureUnitsMenuItem;
+    private System.Windows.Forms.MenuItem MenuItem4;
+    private System.Windows.Forms.MenuItem celciusMenuItem;
+    private System.Windows.Forms.MenuItem fahrenheitMenuItem;
+    private System.Windows.Forms.MenuItem sumbitReportMenuItem;
+    private System.Windows.Forms.MenuItem MenuItem2;
+    private System.Windows.Forms.MenuItem resetMinMaxMenuItem;
+    private System.Windows.Forms.MenuItem MenuItem3;
   }
 }
 

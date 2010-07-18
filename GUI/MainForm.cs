@@ -61,8 +61,22 @@ namespace OpenHardwareMonitor.GUI {
     private StartupManager startupManager = new StartupManager();
     private UpdateVisitor updateVisitor = new UpdateVisitor();
 
+    private UserOption showHiddenSensors;
+    private UserOption showPlot;
+    private UserOption showValue;
+    private UserOption showMin;
+    private UserOption showMax;
+    private UserOption startMinimized;
+    private UserOption minimizeToTray;
+    private UserOption autoStart;
+    private UserOption readHddSensors;
+
     public MainForm() {      
       InitializeComponent();
+
+      // set the DockStyle here, to avoid conflicts with the MainMenu
+      this.splitContainer.Dock = DockStyle.Fill;
+      
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
       plotPanel.Font = SystemFonts.MessageBoxFont;
@@ -85,8 +99,9 @@ namespace OpenHardwareMonitor.GUI {
         StartPosition = FormStartPosition.CenterScreen;
       }
 
-      Width = Utilities.Config.Get("mainForm.Width", Width);
-      Height = Utilities.Config.Get("mainForm.Height", Height);
+      ClientSize = new Size(
+        Utilities.Config.Get("mainForm.Width", ClientSize.Width),
+        Utilities.Config.Get("mainForm.Height", ClientSize.Height));
 
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(20, Math.Min(400, 
@@ -125,21 +140,53 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[11] = Color.Olive;
       plotColorPalette[12] = Color.Firebrick;
 
-      hiddenMenuItem.Checked = Config.Get(hiddenMenuItem.Name, false);
-      plotMenuItem.Checked = Config.Get(plotMenuItem.Name, false);
+      showHiddenSensors = new UserOption("hiddenMenuItem", false, hiddenMenuItem);
+      showHiddenSensors.Changed += delegate(object sender, EventArgs e) {
+        treeModel.ForceVisible = showHiddenSensors.Value;
+      };
 
-      valueMenuItem.Checked = Config.Get(valueMenuItem.Name, true);
-      minMenuItem.Checked = Config.Get(minMenuItem.Name, false);
-      maxMenuItem.Checked = Config.Get(maxMenuItem.Name, true);
+      showPlot = new UserOption("plotMenuItem", false, plotMenuItem);
+      showPlot.Changed += delegate(object sender, EventArgs e) {
+        splitContainer.Panel2Collapsed = !showPlot.Value;
+        treeView.Invalidate();
+      };
 
-      startMinMenuItem.Checked = Config.Get(startMinMenuItem.Name, false); 
-      minTrayMenuItem.Checked = Config.Get(minTrayMenuItem.Name, true);
-      startupMenuItem.Checked = startupManager.Startup;
-      hddMenuItem.Checked = Config.Get(hddMenuItem.Name, true);
+      showValue = new UserOption("valueMenuItem", true, valueMenuItem);
+      showValue.Changed += delegate(object sender, EventArgs e) {
+        treeView.Columns[1].IsVisible = showValue.Value;
+      };
 
-      celciusToolStripMenuItem.Checked = 
+      showMin = new UserOption("minMenuItem", false, minMenuItem);
+      showMin.Changed += delegate(object sender, EventArgs e) {
+        treeView.Columns[2].IsVisible = showMin.Value;
+      };
+
+      showMax = new UserOption("maxMenuItem", true, maxMenuItem);
+      showMax.Changed += delegate(object sender, EventArgs e) {
+        treeView.Columns[3].IsVisible = showMax.Value;
+      };
+
+      startMinimized = new UserOption("startMinMenuItem", false, startMinMenuItem);
+
+      minimizeToTray = new UserOption("minTrayMenuItem", true, minTrayMenuItem);
+      minimizeToTray.Changed += delegate(object sender, EventArgs e) {
+        systemTray.IsMainIconEnabled = minimizeToTray.Value;
+      };
+
+      autoStart = new UserOption(null, startupManager.Startup, startupMenuItem);
+      autoStart.Changed += delegate(object sender, EventArgs e) {
+        startupManager.Startup = autoStart.Value; ;
+      };
+
+      readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem);
+      readHddSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.HDDEnabled = readHddSensors.Value;
+        UpdatePlotSelection(null, null);
+      };
+
+      celciusMenuItem.Checked = 
         UnitManager.TemperatureUnit == TemperatureUnit.Celcius;
-      fahrenheitToolStripMenuItem.Checked = !celciusToolStripMenuItem.Checked;
+      fahrenheitMenuItem.Checked = !celciusMenuItem.Checked;
 
       startupMenuItem.Visible = startupManager.IsAvailable;
       
@@ -250,22 +297,11 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SaveConfiguration() {
-      Config.Set(hiddenMenuItem.Name, hiddenMenuItem.Checked);
-      Config.Set(plotMenuItem.Name, plotMenuItem.Checked);
-
-      Config.Set(valueMenuItem.Name, valueMenuItem.Checked);
-      Config.Set(minMenuItem.Name, minMenuItem.Checked);
-      Config.Set(maxMenuItem.Name, maxMenuItem.Checked);
-
-      Config.Set(startMinMenuItem.Name, startMinMenuItem.Checked);
-      Config.Set(minTrayMenuItem.Name, minTrayMenuItem.Checked);
-      Config.Set(hddMenuItem.Name, hddMenuItem.Checked);
-
       if (WindowState != FormWindowState.Minimized) {
         Config.Set("mainForm.Location.X", Location.X);
         Config.Set("mainForm.Location.Y", Location.Y);
-        Config.Set("mainForm.Width", Width);
-        Config.Set("mainForm.Height", Height);
+        Config.Set("mainForm.Width", ClientSize.Width);
+        Config.Set("mainForm.Height", ClientSize.Height);
       }
 
       foreach (TreeColumn column in treeView.Columns)
@@ -276,6 +312,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
+      Visible = false;
       SaveConfiguration();
 
       timer.Enabled = false;
@@ -283,15 +320,8 @@ namespace OpenHardwareMonitor.GUI {
       computer.Close();
     }
 
-    private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
+    private void aboutMenuItem_Click(object sender, EventArgs e) {
       new AboutBox().ShowDialog();
-    }
-
-    private void plotToolStripMenuItem_CheckedChanged(object sender, 
-      EventArgs e) 
-    {
-      splitContainer.Panel2Collapsed = !plotMenuItem.Checked;
-      treeView.Invalidate();
     }
 
     private void treeView_Click(object sender, EventArgs e) {
@@ -301,71 +331,63 @@ namespace OpenHardwareMonitor.GUI {
         return;
 
       NodeControlInfo info = treeView.GetNodeControlInfoAt(new Point(m.X, m.Y));
-      if (info.Control != null) {
+      treeView.SelectedNode = info.Node;
+      if (info.Node != null) {
         SensorNode node = info.Node.Tag as SensorNode;
         if (node != null && node.Sensor != null) {
-
-          sensorContextMenuStrip.Items.Clear();
+          sensorContextMenu.MenuItems.Clear();
           if (node.Sensor.Parameters.Length > 0) {
-            ToolStripMenuItem item = new ToolStripMenuItem("Parameters...");
+            MenuItem item = new MenuItem("Parameters...");
             item.Click += delegate(object obj, EventArgs args) {
               ShowParameterForm(node.Sensor);
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           }
-          EditableControl control = info.Control as EditableControl;
-          if (control != null) {
-            ToolStripMenuItem item = new ToolStripMenuItem("Rename");
+          if (nodeTextBoxText.EditEnabled) {
+            MenuItem item = new MenuItem("Rename");
             item.Click += delegate(object obj, EventArgs args) {
-              control.BeginEdit();
+              nodeTextBoxText.BeginEdit();
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           }          
           if (node.IsVisible) {
-            ToolStripMenuItem item = new ToolStripMenuItem("Hide");
+            MenuItem item = new MenuItem("Hide");
             item.Click += delegate(object obj, EventArgs args) {
               node.IsVisible = false;
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           } else {
-            ToolStripMenuItem item = new ToolStripMenuItem("Unhide");
+            MenuItem item = new MenuItem("Unhide");
             item.Click += delegate(object obj, EventArgs args) {
               node.IsVisible = true;
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           }         
           if (systemTray.Contains(node.Sensor)) {
-            ToolStripMenuItem item = new ToolStripMenuItem("Remove From Tray");
+            MenuItem item = new MenuItem("Remove From Tray");
             item.Click += delegate(object obj, EventArgs args) {
               systemTray.Remove(node.Sensor);
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           } else {
-            ToolStripMenuItem item = new ToolStripMenuItem("Add To Tray");
+            MenuItem item = new MenuItem("Add To Tray");
             item.Click += delegate(object obj, EventArgs args) {
               systemTray.Add(node.Sensor, true);
             };
-            sensorContextMenuStrip.Items.Add(item);
+            sensorContextMenu.MenuItems.Add(item);
           }
-          sensorContextMenuStrip.Show(treeView, m.X, m.Y);
+          sensorContextMenu.Show(treeView, new Point(m.X, m.Y));
         }
       }
     }
 
-    private void saveReportToolStripMenuItem_Click(object sender, EventArgs e) {
+    private void saveReportMenuItem_Click(object sender, EventArgs e) {
       string report = computer.GetReport();
       if (saveFileDialog.ShowDialog() == DialogResult.OK) {
         using (TextWriter w = new StreamWriter(saveFileDialog.FileName)) {
           w.Write(report);
         }
       }
-    }
-
-    private void hddsensorsToolStripMenuItem_CheckedChanged(object sender, 
-      EventArgs e) 
-    {
-      computer.HDDEnabled = hddMenuItem.Checked;
-      UpdatePlotSelection(null, null);      
     }
 
     private void SysTrayHideShow() {
@@ -377,7 +399,7 @@ namespace OpenHardwareMonitor.GUI {
     protected override void WndProc(ref Message m) {
       const int WM_SYSCOMMAND = 0x112;
       const int SC_MINIMIZE = 0xF020;
-      if (minTrayMenuItem.Checked && 
+      if (minimizeToTray.Value && 
         m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
         SysTrayHideShow();
       } else {      
@@ -389,12 +411,12 @@ namespace OpenHardwareMonitor.GUI {
       SysTrayHideShow();
     }
 
-    private void removeToolStripMenuItem_Click(object sender, EventArgs e) {
-      ToolStripMenuItem item = sender as ToolStripMenuItem;
+    private void removeMenuItem_Click(object sender, EventArgs e) {
+      MenuItem item = sender as MenuItem;
       if (item == null)
         return;
 
-      ISensor sensor = item.Owner.Tag as ISensor;
+      ISensor sensor = item.Parent.Tag as ISensor;
       if (sensor == null)
         return;
 
@@ -417,46 +439,19 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private void runOnWindowsStartupToolStripMenuItem_CheckedChanged(
-      object sender, EventArgs e) 
-    {
-      startupManager.Startup = startupMenuItem.Checked;
-    }
-
-    private void minTrayMenuItem_CheckedChanged(object sender, EventArgs e) {
-      systemTray.IsMainIconEnabled = minTrayMenuItem.Checked;
-    }
-
-    private void hiddenSensorsMenuItem_CheckedChanged(object sender, 
-      EventArgs e) {
-      treeModel.ForceVisible = hiddenMenuItem.Checked;
-    }
-
-    private void valueMenuItem_CheckedChanged(object sender, EventArgs e) {
-      treeView.Columns[1].IsVisible = valueMenuItem.Checked;
-    }
-
-    private void minMenuItem_CheckedChanged(object sender, EventArgs e) {
-      treeView.Columns[2].IsVisible = minMenuItem.Checked;
-    }
-
-    private void maxMenuItem_CheckedChanged(object sender, EventArgs e) {
-      treeView.Columns[3].IsVisible = maxMenuItem.Checked;
-    }
-
-    private void celciusToolStripMenuItem_Click(object sender, EventArgs e) {
-      celciusToolStripMenuItem.Checked = true;
-      fahrenheitToolStripMenuItem.Checked = false;
+    private void celciusMenuItem_Click(object sender, EventArgs e) {
+      celciusMenuItem.Checked = true;
+      fahrenheitMenuItem.Checked = false;
       UnitManager.TemperatureUnit = TemperatureUnit.Celcius;
     }
 
-    private void fahrenheitToolStripMenuItem_Click(object sender, EventArgs e) {
-      celciusToolStripMenuItem.Checked = false;
-      fahrenheitToolStripMenuItem.Checked = true;
+    private void fahrenheitMenuItem_Click(object sender, EventArgs e) {
+      celciusMenuItem.Checked = false;
+      fahrenheitMenuItem.Checked = true;
       UnitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }
 
-    private void sumbitReportToolStripMenuItem_Click(object sender, EventArgs e) 
+    private void sumbitReportMenuItem_Click(object sender, EventArgs e) 
     {
       ReportForm form = new ReportForm();
       form.Report = computer.GetReport();

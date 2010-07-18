@@ -57,19 +57,19 @@ namespace OpenHardwareMonitor.GUI {
 
       this.mainIcon = new NotifyIcon();
 
-      ContextMenuStrip contextMenuStrip = new ContextMenuStrip();
-      ToolStripMenuItem hideShowItem = new ToolStripMenuItem("Hide/Show");
+      ContextMenu contextMenu = new ContextMenu();
+      MenuItem hideShowItem = new MenuItem("Hide/Show");
       hideShowItem.Click += delegate(object obj, EventArgs args) {
         SendHideShowCommand();
       };
-      contextMenuStrip.Items.Add(hideShowItem);
-      contextMenuStrip.Items.Add(new ToolStripSeparator());      
-      ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
+      contextMenu.MenuItems.Add(hideShowItem);
+      contextMenu.MenuItems.Add(new MenuItem("-"));      
+      MenuItem exitItem = new MenuItem("Exit");
       exitItem.Click += delegate(object obj, EventArgs args) {
         SendExitCommand();
       };
-      contextMenuStrip.Items.Add(exitItem);
-      this.mainIcon.ContextMenuStrip = contextMenuStrip;
+      contextMenu.MenuItems.Add(exitItem);
+      this.mainIcon.ContextMenu = contextMenu;
       this.mainIcon.DoubleClick += delegate(object obj, EventArgs args) {
         SendHideShowCommand();
       };
