@@ -62,7 +62,6 @@ namespace OpenHardwareMonitor.GUI {
     private void InitializeComponent() {
       this.components = new System.ComponentModel.Container();
       System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-      this.treeView = new Aga.Controls.Tree.TreeViewAdv();
       this.sensor = new Aga.Controls.Tree.TreeColumn();
       this.value = new Aga.Controls.Tree.TreeColumn();
       this.min = new Aga.Controls.Tree.TreeColumn();
@@ -101,46 +100,16 @@ namespace OpenHardwareMonitor.GUI {
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
       this.aboutMenuItem = new System.Windows.Forms.MenuItem();
-      this.splitContainer = new System.Windows.Forms.SplitContainer();
-      this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.sensorContextMenu = new System.Windows.Forms.ContextMenu();
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
+      this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
+      this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+      this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
-      // 
-      // treeView
-      // 
-      this.treeView.BackColor = System.Drawing.SystemColors.Window;
-      this.treeView.Columns.Add(this.sensor);
-      this.treeView.Columns.Add(this.value);
-      this.treeView.Columns.Add(this.min);
-      this.treeView.Columns.Add(this.max);
-      this.treeView.DefaultToolTipProvider = null;
-      this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.treeView.DragDropMarkColor = System.Drawing.Color.Black;
-      this.treeView.FullRowSelect = true;
-      this.treeView.GridLineStyle = Aga.Controls.Tree.GridLineStyle.Horizontal;
-      this.treeView.LineColor = System.Drawing.SystemColors.ControlDark;
-      this.treeView.Location = new System.Drawing.Point(0, 0);
-      this.treeView.Model = null;
-      this.treeView.Name = "treeView";
-      this.treeView.NodeControls.Add(this.nodeImage);
-      this.treeView.NodeControls.Add(this.nodeCheckBox);
-      this.treeView.NodeControls.Add(this.nodeTextBoxText);
-      this.treeView.NodeControls.Add(this.nodeTextBoxValue);
-      this.treeView.NodeControls.Add(this.nodeTextBoxMin);
-      this.treeView.NodeControls.Add(this.nodeTextBoxMax);
-      this.treeView.RowHeight = 18;
-      this.treeView.SelectedNode = null;
-      this.treeView.Size = new System.Drawing.Size(386, 488);
-      this.treeView.TabIndex = 0;
-      this.treeView.Text = "treeView";
-      this.treeView.UseColumns = true;
-      this.treeView.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseDoubleClick);
-      this.treeView.Click += new System.EventHandler(this.treeView_Click);
       // 
       // sensor
       // 
@@ -392,34 +361,6 @@ namespace OpenHardwareMonitor.GUI {
       this.aboutMenuItem.Text = "About";
       this.aboutMenuItem.Click += new System.EventHandler(this.aboutMenuItem_Click);
       // 
-      // splitContainer
-      // 
-      this.splitContainer.Location = new System.Drawing.Point(12, 12);
-      this.splitContainer.Name = "splitContainer";
-      this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
-      // 
-      // splitContainer.Panel1
-      // 
-      this.splitContainer.Panel1.Controls.Add(this.treeView);
-      // 
-      // splitContainer.Panel2
-      // 
-      this.splitContainer.Panel2.Controls.Add(this.plotPanel);
-      this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
-      this.splitContainer.Size = new System.Drawing.Size(386, 662);
-      this.splitContainer.SplitterDistance = 488;
-      this.splitContainer.SplitterWidth = 3;
-      this.splitContainer.TabIndex = 3;
-      // 
-      // plotPanel
-      // 
-      this.plotPanel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.plotPanel.Location = new System.Drawing.Point(0, 0);
-      this.plotPanel.Name = "plotPanel";
-      this.plotPanel.Size = new System.Drawing.Size(386, 171);
-      this.plotPanel.TabIndex = 0;
-      // 
       // saveFileDialog
       // 
       this.saveFileDialog.DefaultExt = "txt";
@@ -433,14 +374,76 @@ namespace OpenHardwareMonitor.GUI {
       this.timer.Interval = 1000;
       this.timer.Tick += new System.EventHandler(this.timer_Tick);
       // 
+      // splitContainer
+      // 
+      this.splitContainer.Border3DStyle = System.Windows.Forms.Border3DStyle.Raised;
+      this.splitContainer.Color = System.Drawing.SystemColors.Control;
+      this.splitContainer.Cursor = System.Windows.Forms.Cursors.Default;
+      this.splitContainer.Location = new System.Drawing.Point(12, 12);
+      this.splitContainer.Name = "splitContainer";
+      this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
+      // 
+      // splitContainer.Panel1
+      // 
+      this.splitContainer.Panel1.Controls.Add(this.treeView);
+      // 
+      // splitContainer.Panel2
+      // 
+      this.splitContainer.Panel2.Controls.Add(this.plotPanel);
+      this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
+      this.splitContainer.Size = new System.Drawing.Size(386, 483);
+      this.splitContainer.SplitterDistance = 354;
+      this.splitContainer.SplitterWidth = 5;
+      this.splitContainer.TabIndex = 3;
+      // 
+      // treeView
+      // 
+      this.treeView.BackColor = System.Drawing.SystemColors.Window;
+      this.treeView.BorderStyle = System.Windows.Forms.BorderStyle.None;
+      this.treeView.Columns.Add(this.sensor);
+      this.treeView.Columns.Add(this.value);
+      this.treeView.Columns.Add(this.min);
+      this.treeView.Columns.Add(this.max);
+      this.treeView.DefaultToolTipProvider = null;
+      this.treeView.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.treeView.DragDropMarkColor = System.Drawing.Color.Black;
+      this.treeView.FullRowSelect = true;
+      this.treeView.GridLineStyle = Aga.Controls.Tree.GridLineStyle.Horizontal;
+      this.treeView.LineColor = System.Drawing.SystemColors.ControlDark;
+      this.treeView.Location = new System.Drawing.Point(0, 0);
+      this.treeView.Model = null;
+      this.treeView.Name = "treeView";
+      this.treeView.NodeControls.Add(this.nodeImage);
+      this.treeView.NodeControls.Add(this.nodeCheckBox);
+      this.treeView.NodeControls.Add(this.nodeTextBoxText);
+      this.treeView.NodeControls.Add(this.nodeTextBoxValue);
+      this.treeView.NodeControls.Add(this.nodeTextBoxMin);
+      this.treeView.NodeControls.Add(this.nodeTextBoxMax);
+      this.treeView.RowHeight = 18;
+      this.treeView.SelectedNode = null;
+      this.treeView.Size = new System.Drawing.Size(386, 354);
+      this.treeView.TabIndex = 0;
+      this.treeView.Text = "treeView";
+      this.treeView.UseColumns = true;
+      this.treeView.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseDoubleClick);
+      this.treeView.Click += new System.EventHandler(this.treeView_Click);
+      // 
+      // plotPanel
+      // 
+      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.plotPanel.Location = new System.Drawing.Point(0, 0);
+      this.plotPanel.Name = "plotPanel";
+      this.plotPanel.Size = new System.Drawing.Size(386, 124);
+      this.plotPanel.TabIndex = 0;
+      // 
       // MainForm
       // 
-      this.Menu = this.mainMenu;
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(410, 686);
+      this.ClientSize = new System.Drawing.Size(418, 596);
       this.Controls.Add(this.splitContainer);
-      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));      
+      this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+      this.Menu = this.mainMenu;
       this.Name = "MainForm";
       this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
       this.Text = "Open Hardware Monitor";
@@ -467,7 +470,7 @@ namespace OpenHardwareMonitor.GUI {
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxValue;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMin;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMax;
-    private System.Windows.Forms.SplitContainer splitContainer;
+    private SplitContainerAdv splitContainer;
     private PlotPanel plotPanel;
     private System.Windows.Forms.MenuItem viewMenuItem;
     private System.Windows.Forms.MenuItem plotMenuItem;
