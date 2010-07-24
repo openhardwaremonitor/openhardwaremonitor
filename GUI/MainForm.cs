@@ -100,8 +100,8 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       ClientSize = new Size(
-        Utilities.Config.Get("mainForm.Width", ClientSize.Width),
-        Utilities.Config.Get("mainForm.Height", ClientSize.Height));
+        Utilities.Config.Get("mainForm.Width", 470),
+        Utilities.Config.Get("mainForm.Height", 640));
 
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(20, Math.Min(400, 

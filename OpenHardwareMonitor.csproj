@@ -61,6 +61,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\PlotPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="GUI\ReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +85,9 @@
     </Compile>
     <Compile Include="GUI\ResetMinMaxVisitor.cs" />
     <Compile Include="GUI\SensorNotifyIcon.cs" />
+    <Compile Include="GUI\SplitContainerAdv.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GUI\SystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
     <Compile Include="GUI\TaskScheduler.cs" />
@@ -148,12 +154,6 @@
     <Compile Include="Utilities\IReadOnlyArray.cs" />
     <Compile Include="Utilities\ListSet.cs" />
     <Compile Include="Utilities\PInvokeDelegateFactory.cs" />
-    <Compile Include="GUI\PlotPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="GUI\PlotPanel.Designer.cs">
-      <DependentUpon>PlotPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Hardware\CPU\IntelCPU.cs" />
     <Compile Include="Hardware\CPU\CPUGroup.cs" />
@@ -168,10 +168,6 @@
   <ItemGroup>
     <EmbeddedResource Include="GUI\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GUI\PlotPanel.resx">
-      <DependentUpon>PlotPanel.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">

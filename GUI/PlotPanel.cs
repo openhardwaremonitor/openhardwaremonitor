@@ -1,4 +1,4 @@
-/*
+﻿/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -44,7 +44,7 @@ using System.Windows.Forms;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
-  public partial class PlotPanel : UserControl {
+  public class PlotPanel : UserControl {
 
     private DateTime now;
     private List<ISensor> clocks = new List<ISensor>();
@@ -61,11 +61,9 @@ namespace OpenHardwareMonitor.GUI {
     public PlotPanel() {
       this.SetStyle(ControlStyles.DoubleBuffer |
         ControlStyles.UserPaint |
-        ControlStyles.AllPaintingInWmPaint | 
+        ControlStyles.AllPaintingInWmPaint |
         ControlStyles.ResizeRedraw, true);
       this.UpdateStyles();
-
-      InitializeComponent();
 
       centerlower = new StringFormat();
       centerlower.Alignment = StringAlignment.Center;
@@ -103,9 +101,9 @@ namespace OpenHardwareMonitor.GUI {
 
       float maxTemp = (float)Math.Ceiling(maxTempNullable.Value / 10) * 10;
       float minTemp = (float)Math.Floor(minTempNullable.Value / 10) * 10;
-      if (maxTemp == minTemp) 
-        maxTemp += 10;   
-     
+      if (maxTemp == minTemp)
+        maxTemp += 10;
+
       int countTempMax = 4;
       float deltaTemp = maxTemp - minTemp;
       int countTemp = (int)Math.Round(deltaTemp / 2);
@@ -125,9 +123,9 @@ namespace OpenHardwareMonitor.GUI {
 
     private List<float> GetTimeGrid() {
 
-      float maxTime = 5;      
+      float maxTime = 5;
       if (temperatures.Count > 0) {
-        IEnumerator<ISensorEntry> enumerator = 
+        IEnumerator<ISensorEntry> enumerator =
           temperatures[0].Plot.GetEnumerator();
         if (enumerator.MoveNext()) {
           maxTime = (float)(now - enumerator.Current.Time).TotalMinutes;
@@ -174,7 +172,7 @@ namespace OpenHardwareMonitor.GUI {
 
       float leftScaleSpace = 5;
       float bottomScaleSpace = 5;
-      
+
       g.Clear(Color.White);
 
       if (w > 0 && h > 0) {
@@ -212,32 +210,31 @@ namespace OpenHardwareMonitor.GUI {
 
         g.SmoothingMode = SmoothingMode.None;
         g.FillRectangle(Brushes.White, 0, 0, x0, r.Height);
-        g.FillRectangle(Brushes.White, x0 + w + 1, 0, r.Width - x0 - w, 
+        g.FillRectangle(Brushes.White, x0 + w + 1, 0, r.Width - x0 - w,
           r.Height);
 
         for (int i = 1; i < timeGrid.Count; i++) {
-          float x = x0 + (timeGrid.Count - 1 - i) * w / (timeGrid.Count - 1);  
-          g.DrawString(timeGrid[i].ToString(), Font, Brushes.Black, x, 
+          float x = x0 + (timeGrid.Count - 1 - i) * w / (timeGrid.Count - 1);
+          g.DrawString(timeGrid[i].ToString(), Font, Brushes.Black, x,
             y0 + h + bottomScaleSpace, centerlower);
         }
 
         for (int i = 0; i < tempGrid.Count - 1; i++) {
           float y = y0 + (tempGrid.Count - 1 - i) * h / (tempGrid.Count - 1);
-          g.DrawString(tempGrid[i].ToString(), Font, Brushes.Black, 
+          g.DrawString(tempGrid[i].ToString(), Font, Brushes.Black,
             x0 - leftScaleSpace, y, centerleft);
         }
 
         g.SmoothingMode = SmoothingMode.HighQuality;
         g.DrawString("[°C]", Font, Brushes.Black, x0 - leftScaleSpace, y0,
-          lowerleft);        
+          lowerleft);
         g.DrawString("[min]", Font, Brushes.Black, x0 + w,
-          y0 + h + bottomScaleSpace, lowerleft);        
+          y0 + h + bottomScaleSpace, lowerleft);
       }
     }
 
-    public void SetSensors(List<ISensor> sensors, 
-      IDictionary<ISensor, Color> colors) 
-    {
+    public void SetSensors(List<ISensor> sensors,
+      IDictionary<ISensor, Color> colors) {
       this.colors = colors;
       List<ISensor> clocks = new List<ISensor>();
       List<ISensor> temperatures = new List<ISensor>();
