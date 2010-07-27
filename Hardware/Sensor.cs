@@ -53,8 +53,8 @@ namespace OpenHardwareMonitor.Hardware {
     private float? value;
     private float? min;
     private float? max;
-    private Queue<ISensorEntry> entries = 
-      new Queue<ISensorEntry>(MAX_MINUTES * 15);
+    private Queue<SensorValue> values =
+      new Queue<SensorValue>(MAX_MINUTES * 15);
     
     private float sum = 0;
     private int count = 0;
@@ -138,15 +138,15 @@ namespace OpenHardwareMonitor.Hardware {
         return value; 
       }
       set {
-        while (entries.Count > 0 && 
-          (DateTime.Now - entries.Peek().Time).TotalMinutes > MAX_MINUTES)
-          entries.Dequeue();
+        while (values.Count > 0 && 
+          (DateTime.Now - values.Peek().Time).TotalMinutes > MAX_MINUTES)
+          values.Dequeue();
 
         if (value.HasValue) {
           sum += value.Value;
           count++;
           if (count == 4) {
-            entries.Enqueue(new Entry(sum / count, DateTime.Now));
+            values.Enqueue(new SensorValue(sum / count, DateTime.Now));
             sum = 0;
             count = 0;
           }
@@ -171,22 +171,9 @@ namespace OpenHardwareMonitor.Hardware {
       max = null;
     }
 
-    public IEnumerable<ISensorEntry> Plot {
-      get { return entries; }
-    }
-
-    public struct Entry : ISensorEntry {
-      private float value;
-      private DateTime time;
-
-      public Entry(float value, DateTime time) {
-        this.value = value;
-        this.time = time;
-      }
-
-      public float Value { get { return value; } }
-      public DateTime Time { get { return time; } }
-    }
+    public IEnumerable<SensorValue> Values {
+      get { return values; }
+    }    
 
     public void Accept(IVisitor visitor) {
       visitor.VisitSensor(this);
