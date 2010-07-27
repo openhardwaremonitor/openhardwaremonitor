@@ -86,12 +86,12 @@ namespace OpenHardwareMonitor.GUI {
       float? minTempNullable = null;
       float? maxTempNullable = null;
       foreach (ISensor sensor in temperatures) {
-        IEnumerable<ISensorEntry> graph = sensor.Plot;
-        foreach (ISensorEntry entry in graph) {
-          if (!minTempNullable.HasValue || minTempNullable > entry.Value)
-            minTempNullable = entry.Value;
-          if (!maxTempNullable.HasValue || maxTempNullable < entry.Value)
-            maxTempNullable = entry.Value;
+        IEnumerable<SensorValue> values = sensor.Values;
+        foreach (SensorValue value in values) {
+          if (!minTempNullable.HasValue || minTempNullable > value.Value)
+            minTempNullable = value.Value;
+          if (!maxTempNullable.HasValue || maxTempNullable < value.Value)
+            maxTempNullable = value.Value;
         }
       }
       if (!minTempNullable.HasValue) {
@@ -125,8 +125,8 @@ namespace OpenHardwareMonitor.GUI {
 
       float maxTime = 5;
       if (temperatures.Count > 0) {
-        IEnumerator<ISensorEntry> enumerator =
-          temperatures[0].Plot.GetEnumerator();
+        IEnumerator<SensorValue> enumerator =
+          temperatures[0].Values.GetEnumerator();
         if (enumerator.MoveNext()) {
           maxTime = (float)(now - enumerator.Current.Time).TotalMinutes;
         }
@@ -193,13 +193,13 @@ namespace OpenHardwareMonitor.GUI {
         float deltaTime = timeGrid[timeGrid.Count - 1];
         foreach (ISensor sensor in temperatures) {
           using (Pen pen = new Pen(colors[sensor])) {
-            IEnumerable<ISensorEntry> graph = sensor.Plot;
+            IEnumerable<SensorValue> values = sensor.Values;
             PointF last = new PointF();
             bool first = true;
-            foreach (ISensorEntry entry in graph) {
+            foreach (SensorValue value in values) {
               PointF point = new PointF(
-                  x0 + w - w * (float)(now - entry.Time).TotalMinutes / deltaTime,
-                  y0 + h - h * (entry.Value - tempGrid[0]) / deltaTemp);
+                  x0 + w - w * (float)(now - value.Time).TotalMinutes / deltaTime,
+                  y0 + h - h * (value.Value - tempGrid[0]) / deltaTemp);
               if (!first)
                 g.DrawLine(pen, last, point);
               last = point;

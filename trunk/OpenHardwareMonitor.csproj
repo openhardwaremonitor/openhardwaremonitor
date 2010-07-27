@@ -83,7 +83,7 @@
     <Compile Include="GUI\ParameterForm.Designer.cs">
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="GUI\ResetMinMaxVisitor.cs" />
+    <Compile Include="Hardware\SensorVisitor.cs" />
     <Compile Include="GUI\SensorNotifyIcon.cs" />
     <Compile Include="GUI\SplitContainerAdv.cs">
       <SubType>Component</SubType>

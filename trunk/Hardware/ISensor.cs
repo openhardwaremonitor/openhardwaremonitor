@@ -51,9 +51,17 @@ namespace OpenHardwareMonitor.Hardware {
     Control
   }
 
-  public interface ISensorEntry {
-    float Value { get; }
-    DateTime Time { get; }
+  public struct SensorValue {
+    private float value;
+    private DateTime time;
+
+    public SensorValue(float value, DateTime time) {
+      this.value = value;
+      this.time = time;
+    }
+
+    public float Value { get { return value; } }
+    public DateTime Time { get { return time; } }
   }
 
   public interface ISensor : IElement {
@@ -77,7 +85,7 @@ namespace OpenHardwareMonitor.Hardware {
     void ResetMin();
     void ResetMax();
 
-    IEnumerable<ISensorEntry> Plot { get; }
+    IEnumerable<SensorValue> Values { get; }
   }
 
 }

@@ -77,6 +77,15 @@ namespace OpenHardwareMonitor.GUI {
       // set the DockStyle here, to avoid conflicts with the MainMenu
       this.splitContainer.Dock = DockStyle.Fill;
       
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) {
+        splitContainer.BorderStyle = BorderStyle.None;
+        splitContainer.Border3DStyle = Border3DStyle.Adjust;
+        splitContainer.SplitterWidth = 4;
+        treeView.BorderStyle = BorderStyle.Fixed3D;
+        plotPanel.BorderStyle = BorderStyle.Fixed3D;
+      }
+      
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
       plotPanel.Font = SystemFonts.MessageBoxFont;
@@ -459,8 +468,10 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void resetMinMaxMenuItem_Click(object sender, EventArgs e) {
-      IVisitor visitor = new ResetMinMaxVisitor();
-      computer.Accept(visitor);
+      computer.Accept(new SensorVisitor(delegate(ISensor sensor) {
+        sensor.ResetMin();
+        sensor.ResetMax();
+      }));
     }
   }
 }
