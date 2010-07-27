@@ -56,6 +56,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       } catch (DllNotFoundException) { return; } 
         catch (ArgumentNullException) { return; }
         catch (EntryPointNotFoundException) { return; }
+        catch (BadImageFormatException) { return; }
      
       FT_DEVICE_INFO_NODE[] info = new FT_DEVICE_INFO_NODE[numDevices];
       FTD2XX.FT_GetDeviceInfoList(info, ref numDevices);

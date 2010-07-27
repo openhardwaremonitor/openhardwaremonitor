@@ -226,12 +226,16 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public static int ADL_Main_Control_Create(int enumConnectedAdapters) {
       try {
-        return _ADL_Main_Control_Create(Main_Memory_Alloc,
-          enumConnectedAdapters);
-      } catch (DllNotFoundException) {
-        CreateDelegates("atiadlxy");
-        return _ADL_Main_Control_Create(Main_Memory_Alloc,
-          enumConnectedAdapters);
+        try {
+          return _ADL_Main_Control_Create(Main_Memory_Alloc,
+            enumConnectedAdapters);
+        } catch {
+          CreateDelegates("atiadlxy");
+          return _ADL_Main_Control_Create(Main_Memory_Alloc,
+            enumConnectedAdapters);
+        }
+      } catch {
+        return ADL.ADL_ERR;
       }
     }
 
