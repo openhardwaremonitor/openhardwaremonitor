@@ -118,9 +118,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.Append("Chip Version: 0x"); r.AppendLine(version.ToString("X"));
       r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
+
+      if (!WinRing0.WaitIsaBusMutex())
+        return r.ToString();
+
       r.AppendLine("Environment Controller Registers");
       r.AppendLine();
-
       r.AppendLine("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
       for (int i = 0; i <= 0xA; i++) {
@@ -138,10 +141,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
       r.AppendLine();
 
+      WinRing0.ReleaseIsaBusMutex();
+
       return r.ToString();
     }
 
     public void Update() {
+      if (!WinRing0.WaitIsaBusMutex())
+        return;
 
       for (int i = 0; i < voltages.Length; i++) {
         bool valid;
@@ -182,7 +189,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         } else {
           fans[i] = null;
         }
-      }      
+      }
+
+      WinRing0.ReleaseIsaBusMutex();
     }
   } 
 }
