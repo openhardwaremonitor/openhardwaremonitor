@@ -39,7 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -56,6 +56,7 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private static bool available = false;
+    public static Mutex isaBusMutex;
 
     private static string GetDllName() {   
       int p = (int)System.Environment.OSVersion.Platform;
@@ -103,20 +104,22 @@ namespace OpenHardwareMonitor.Hardware {
     private static InitializeOlsDelegate InitializeOls;
     private static DeinitializeOlsDelegate DeinitializeOls;
 
-    public static GetDllStatusDelegate GetDllStatus;
-    public static IsCpuidDelegate IsCpuid;
-    public static CpuidDelegate Cpuid;
-    public static CpuidTxDelegate CpuidTx;
-    public static RdmsrDelegate Rdmsr;
-    public static RdmsrTxDelegate RdmsrTx;
-    public static ReadIoPortByteDelegate ReadIoPortByte;
-    public static WriteIoPortByteDelegate WriteIoPortByte;
-    public static SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
-    public static FindPciDeviceByIdDelegate FindPciDeviceById;
-    public static ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
-    public static WritePciConfigDwordExDelegate WritePciConfigDwordEx;
-    public static RdtscTxDelegate RdtscTx;
-    public static RdtscDelegate Rdtsc;
+    public static readonly GetDllStatusDelegate GetDllStatus;
+    public static readonly IsCpuidDelegate IsCpuid;
+    public static readonly CpuidDelegate Cpuid;
+    public static readonly CpuidTxDelegate CpuidTx;
+    public static readonly RdmsrDelegate Rdmsr;
+    public static readonly RdmsrTxDelegate RdmsrTx;
+    public static readonly ReadIoPortByteDelegate ReadIoPortByte;
+    public static readonly WriteIoPortByteDelegate WriteIoPortByte;
+    public static readonly SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
+    public static readonly FindPciDeviceByIdDelegate FindPciDeviceById;
+    public static readonly ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
+    public static readonly WritePciConfigDwordExDelegate WritePciConfigDwordEx;
+    public static readonly RdtscTxDelegate RdtscTx;
+    public static readonly RdtscDelegate Rdtsc;
+
+    
 
     private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
       where T : class 
@@ -150,11 +153,23 @@ namespace OpenHardwareMonitor.Hardware {
       try {
         if (InitializeOls != null && InitializeOls())
           available = true;
-      } catch (DllNotFoundException) { }       
+      } catch (DllNotFoundException) { }
+
+      isaBusMutex = new Mutex(false, "Access_ISABUS.HTP.Method");
     }
     
     public static bool IsAvailable {
       get { return available; }
+    }
+
+    public static bool WaitIsaBusMutex() {
+      try {
+        return isaBusMutex.WaitOne(10);
+      } catch { return false; }
+    }
+
+    public static void ReleaseIsaBusMutex() {
+      isaBusMutex.ReleaseMutex();
     }
 
     private static Deinitializer deinitializer = new Deinitializer();
@@ -162,6 +177,8 @@ namespace OpenHardwareMonitor.Hardware {
       ~Deinitializer() {
         if (available)
           DeinitializeOls();
+        
+        isaBusMutex.Close();
       }
     }
   }
