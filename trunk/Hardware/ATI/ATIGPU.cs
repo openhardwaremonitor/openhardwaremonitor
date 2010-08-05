@@ -38,10 +38,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
-  public class ATIGPU : Hardware, IHardware {
+  public class ATIGPU : Hardware {
 
     private string name;
     private Image icon;
@@ -54,6 +53,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private Sensor memoryClock;
     private Sensor coreVoltage;
     private Sensor coreLoad;
+    private Sensor fanControl;
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber) 
@@ -64,16 +64,14 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.busNumber = busNumber;
       this.deviceNumber = deviceNumber;
 
-      ADLFanSpeedInfo speedInfo = new ADLFanSpeedInfo();
-      ADL.ADL_Overdrive5_FanSpeedInfo_Get(adapterIndex, 0, ref speedInfo);
-
       this.temperature = 
         new Sensor("GPU Core", 0, SensorType.Temperature, this);
-      this.fan = new Sensor("GPU", 0, SensorType.Fan, this, null);
+      this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, null);
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);
       this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this);
+      this.fanControl = new Sensor("GPU Fan", 0, SensorType.Control, this);
       Update();                   
     }
 
@@ -101,7 +99,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         temperature.Value = 0.001f * adlt.Temperature;
         ActivateSensor(temperature);
       } else {
-        DeactivateSensor(temperature);
+        temperature.Value = null;
       }
 
       ADLFanSpeedValue adlf = new ADLFanSpeedValue();
@@ -112,7 +110,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         fan.Value = adlf.FanSpeed;
         ActivateSensor(fan);
       } else {
-        DeactivateSensor(fan);
+        fan.Value = null;
+      }
+
+      adlf = new ADLFanSpeedValue();
+      adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+      if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
+        == ADL.ADL_OK) {
+        fanControl.Value = adlf.FanSpeed;
+        ActivateSensor(fanControl);
+      } else {
+        fanControl.Value = null;
       }
 
       ADLPMActivity adlp = new ADLPMActivity();
@@ -137,10 +145,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         coreLoad.Value = Math.Min(adlp.ActivityPercent, 100);                        
         ActivateSensor(coreLoad);
       } else {
-        DeactivateSensor(coreClock);
-        DeactivateSensor(memoryClock);
-        DeactivateSensor(coreVoltage);
-        DeactivateSensor(coreLoad);
+        coreClock.Value = null;
+        memoryClock.Value = null;
+        coreVoltage.Value = null;
+        coreLoad.Value = null;
       }
     }
   }
