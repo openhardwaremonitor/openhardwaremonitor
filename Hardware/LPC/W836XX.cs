@@ -194,7 +194,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Fans { get { return fans; } }
 
     public void Update() {
-      if (!WinRing0.WaitIsaBusMutex())
+      if (!WinRing0.WaitIsaBusMutex(10))
         return;
 
       for (int i = 0; i < voltages.Length; i++) {
@@ -295,7 +295,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.Append("Base Adress: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
 
-      if (!WinRing0.WaitIsaBusMutex())
+      if (!WinRing0.WaitIsaBusMutex(100))
         return r.ToString();
 
       r.AppendLine("Hardware Monitor Registers");

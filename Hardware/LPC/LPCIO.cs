@@ -120,9 +120,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
     }
 
-    public LPCIO() {
-      if (!WinRing0.IsAvailable)
-        return;
+    private void Detect() {
 
       for (int i = 0; i < REGISTER_PORTS.Length; i++) {
         registerPort = REGISTER_PORTS[i];
@@ -145,35 +143,35 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               case 0x41:
                 chip = Chip.F71882;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;              
+                break;
             } break;
           case 0x06:
-            switch (revision) {             
+            switch (revision) {
               case 0x01:
                 chip = Chip.F71862;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;              
+                break;
             } break;
           case 0x07:
             switch (revision) {
               case 0x23:
                 chip = Chip.F71889F;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;              
+                break;
             } break;
           case 0x08:
             switch (revision) {
               case 0x14:
                 chip = Chip.F71869;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;              
+                break;
             } break;
           case 0x09:
             switch (revision) {
               case 0x09:
                 chip = Chip.F71889ED;
                 logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;              
+                break;
             } break;
           case 0x52:
             switch (revision) {
@@ -182,7 +180,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               case 0x41:
                 chip = Chip.W83627HF;
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;             
+                break;
             } break;
           case 0x82:
             switch (revision & 0xF0) {
@@ -208,10 +206,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             } break;
           case 0xA0:
             switch (revision & 0xF0) {
-              case 0x20: 
+              case 0x20:
                 chip = Chip.W83627DHG;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;  
-                break;             
+                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+                break;
             } break;
           case 0xA5:
             switch (revision & 0xF0) {
@@ -225,7 +223,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               case 0x70:
                 chip = Chip.W83627DHGP;
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;             
+                break;
             } break;
           case 0xB3:
             switch (revision & 0xF0) {
@@ -233,20 +231,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 chip = Chip.W83667HGB;
                 logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
                 break;
-            } break; 
+            } break;
         }
         if (chip == Chip.Unknown) {
           if (id != 0 && id != 0xff) {
             WinbondFintekExit();
 
-            report.Append("Chip ID: Unknown Winbond / Fintek with ID 0x"); 
+            report.Append("Chip ID: Unknown Winbond / Fintek with ID 0x");
             report.AppendLine(((id << 8) | revision).ToString("X"));
             report.AppendLine();
           }
         } else {
 
           Select(logicalDeviceNumber);
-          ushort address = ReadWord(BASE_ADDRESS_REGISTER);          
+          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
           ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
 
@@ -254,10 +252,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           WinbondFintekExit();
 
-          if (address != verify) {            
-            report.Append("Chip ID: 0x"); 
+          if (address != verify) {
+            report.Append("Chip ID: 0x");
             report.AppendLine(chip.ToString("X"));
-            report.Append("Chip revision: 0x"); 
+            report.Append("Chip revision: 0x");
             report.AppendLine(revision.ToString("X"));
             report.AppendLine("Error: Address verification failed");
             report.AppendLine();
@@ -268,7 +266,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           if ((address & 0x07) == 0x05)
             address &= 0xFFF8;
 
-          if (address < 0x100 || (address & 0xF007) != 0) {            
+          if (address < 0x100 || (address & 0xF007) != 0) {
             report.Append("Chip ID: 0x");
             report.AppendLine(chip.ToString("X"));
             report.Append("Chip revision: 0x");
@@ -310,7 +308,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               break;
             default: break;
           }
-          
+
           return;
         }
 
@@ -322,7 +320,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case 0x8716: chip = Chip.IT8716F; break;
           case 0x8718: chip = Chip.IT8718F; break;
           case 0x8720: chip = Chip.IT8720F; break;
-          case 0x8726: chip = Chip.IT8726F; break; 
+          case 0x8726: chip = Chip.IT8726F; break;
           default: chip = Chip.Unknown; break;
         }
         if (chip == Chip.Unknown) {
@@ -333,7 +331,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             report.AppendLine(chipID.ToString("X"));
             report.AppendLine();
           }
-        } else {          
+        } else {
           Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
           ushort address = ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
@@ -345,14 +343,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
             report.Append("Chip ID: 0x");
-            report.AppendLine(chip.ToString("X"));            
+            report.AppendLine(chip.ToString("X"));
             report.Append("Error: Invalid address 0x");
             report.AppendLine(address.ToString("X"));
             report.AppendLine();
             return;
           }
 
-         superIOs.Add(new IT87XX(chip, address, version));
+          superIOs.Add(new IT87XX(chip, address, version));
 
           return;
         }
@@ -376,7 +374,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           return;
         }
-      }   
+      }  
+    }
+
+    public LPCIO() {
+      if (!WinRing0.IsAvailable)
+        return;
+
+      if (!WinRing0.WaitIsaBusMutex(100))
+        return;
+
+      Detect();
+
+      WinRing0.ReleaseIsaBusMutex();      
     }
 
     public ISuperIO[] SuperIO {
