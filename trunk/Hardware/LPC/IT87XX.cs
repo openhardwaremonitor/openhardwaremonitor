@@ -119,7 +119,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
       r.AppendLine();
 
-      if (!WinRing0.WaitIsaBusMutex())
+      if (!WinRing0.WaitIsaBusMutex(100))
         return r.ToString();
 
       r.AppendLine("Environment Controller Registers");
@@ -147,7 +147,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public void Update() {
-      if (!WinRing0.WaitIsaBusMutex())
+      if (!WinRing0.WaitIsaBusMutex(10))
         return;
 
       for (int i = 0; i < voltages.Length; i++) {

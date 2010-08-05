@@ -162,9 +162,9 @@ namespace OpenHardwareMonitor.Hardware {
       get { return available; }
     }
 
-    public static bool WaitIsaBusMutex() {
+    public static bool WaitIsaBusMutex(int millisecondsTimeout) {
       try {
-        return isaBusMutex.WaitOne(10);
+        return isaBusMutex.WaitOne(millisecondsTimeout);
       } catch { return false; }
     }
 
