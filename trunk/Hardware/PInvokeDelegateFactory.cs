@@ -43,7 +43,7 @@ using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public sealed class PInvokeDelegateFactory {
+  internal sealed class PInvokeDelegateFactory {
 
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;

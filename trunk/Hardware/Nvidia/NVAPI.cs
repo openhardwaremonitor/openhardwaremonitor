@@ -42,7 +42,7 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
 
-  public enum NvStatus {
+  internal enum NvStatus {
     OK = 0,
     ERROR = -1,
     LIBRARY_NOT_FOUND = -2,
@@ -94,9 +94,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     INVALID_CALL = -134,
     D3D10_1_LIBRARY_NOT_FOUND = -135,
     FUNCTION_NOT_FOUND = -136
-  }  
+  }
 
-  public enum NvThermalController {
+  internal enum NvThermalController {
     NONE = 0,
     GPU_INTERNAL,  
     ADM1032,
@@ -110,9 +110,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     VBIOSEVT,  
     OS,    
     UNKNOWN = -1,
-  } 
+  }
 
-  public enum NvThermalTarget {
+  internal enum NvThermalTarget {
     NONE = 0,
     GPU = 1,
     MEMORY = 2,
@@ -123,7 +123,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   };
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvSensor {
+  internal struct NvSensor {
     public NvThermalController Controller;
     public uint DefaultMinTemp;
     public uint DefaultMaxTemp;
@@ -132,7 +132,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvGPUThermalSettings {
+  internal struct NvGPUThermalSettings {
     public uint Version;
     public uint Count;
     [MarshalAs(UnmanagedType.ByValArray, 
@@ -141,30 +141,30 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct NvDisplayHandle {
+  internal struct NvDisplayHandle {
     private IntPtr ptr;
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct NvPhysicalGpuHandle {
+  internal struct NvPhysicalGpuHandle {
     private IntPtr ptr;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvClocks {
+  internal struct NvClocks {
     public uint Version;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_CLOCKS_PER_GPU)]
     public uint[] Clock;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvPState {
+  internal struct NvPState {
     public bool Present;
     public int Percentage;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvPStates {
+  internal struct NvPStates {
     public uint Version;
     public uint Flags;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_PSTATES_PER_GPU)]
@@ -172,14 +172,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvUsages {
+  internal struct NvUsages {
     public uint Version;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_USAGES_PER_GPU)]
     public uint[] Usage;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvCooler {
+  internal struct NvCooler {
     public int Type;
     public int Controller;
     public int DefaultMin;
@@ -195,7 +195,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvGPUCoolerSettings {
+  internal struct NvGPUCoolerSettings {
     public uint Version;
     public uint Count;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_COOLER_PER_GPU)]
@@ -203,7 +203,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvMemoryInfo {
+  internal struct NvMemoryInfo {
     public uint Version;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 
       NVAPI.MAX_MEMORY_VALUES_PER_GPU)]
@@ -211,7 +211,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  public struct NvDisplayDriverVersion {
+  internal struct NvDisplayDriverVersion {
     public uint Version;
     public uint DriverVersion;
     public uint BldChangeListNum;
@@ -219,9 +219,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public string BuildBranch;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = NVAPI.SHORT_STRING_MAX)]
     public string Adapter;
-  } 
+  }
 
-  public class NVAPI {
+  internal class NVAPI {
 
     public const int MAX_PHYSICAL_GPUS = 64;
     public const int SHORT_STRING_MAX = 64;

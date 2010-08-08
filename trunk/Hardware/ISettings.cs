@@ -37,25 +37,16 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace OpenHardwareMonitor.Utilities {
-  public class HexStringArray {
+namespace OpenHardwareMonitor.Hardware {
+  public interface ISettings {
 
-    private byte[] array;
-
-    public HexStringArray(string input) {
-      List<byte> list = new List<byte>();
-      foreach (string str in input.Split(' ')) {
-        string s = str.Trim();
-        if (s.Length > 0)
-          list.Add(Convert.ToByte(s, 16));
-      }
-      array = list.ToArray();
-    }
-
-    public byte this[int i] {
-      get { return array[i]; }
-    }
+    bool Contains(string name);
+    
+    void Set(string name, string value);
+    
+    string Get(string name, string value);
+    
+    void Remove(string name);
   }
 }

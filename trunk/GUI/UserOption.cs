@@ -46,13 +46,15 @@ namespace OpenHardwareMonitor.GUI {
     private bool value;
     private MenuItem menuItem;
     private event EventHandler changed;
+    private PersistentSettings settings;
 
     public UserOption(string name, bool value,
-      MenuItem menuItem) {
+      MenuItem menuItem, PersistentSettings settings) {
 
+      this.settings = settings;
       this.name = name;
       if (name != null)
-        this.value = Config.Get(name, value);
+        this.value = settings.Get(name, value);
       else
         this.value = value;
       this.menuItem = menuItem;
@@ -70,7 +72,7 @@ namespace OpenHardwareMonitor.GUI {
         if (this.value != value) {
           this.value = value;
           if (this.name != null)
-            Config.Set(name, value);
+            settings.Set(name, value);
           this.menuItem.Checked = value;
           if (changed != null)
             changed(this, null);

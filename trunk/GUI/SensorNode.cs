@@ -44,13 +44,15 @@ namespace OpenHardwareMonitor.GUI {
   public class SensorNode : Node {
     
     private ISensor sensor;
+    private PersistentSettings settings;
+    private UnitManager unitManager;
     private string format;
-    private bool plot = false;
+    private bool plot = false;       
 
     public string ValueToString(float? value) {
       if (value.HasValue) {
         if (sensor.SensorType == SensorType.Temperature && 
-          UnitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
+          unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
           return string.Format("{0:F1} °F", value * 1.8 + 32);
         } else {
           return string.Format(format, value);
@@ -59,8 +61,11 @@ namespace OpenHardwareMonitor.GUI {
         return "-";
     }
 
-    public SensorNode(ISensor sensor) : base() {
+    public SensorNode(ISensor sensor, PersistentSettings settings, 
+      UnitManager unitManager) : base() {      
       this.sensor = sensor;
+      this.settings = settings;
+      this.unitManager = unitManager;
       switch (sensor.SensorType) {
         case SensorType.Voltage: format = "{0:F2} V"; break;
         case SensorType.Clock: format = "{0:F0} MHz"; break;
@@ -71,7 +76,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Control: format = "{0:F1} %"; break;
       }
 
-      bool hidden = Config.Get(new Identifier(sensor.Identifier, 
+      bool hidden = settings.Get(new Identifier(sensor.Identifier, 
         "hidden").ToString(), sensor.IsDefaultHidden);
       base.IsVisible = !hidden;
     }
@@ -85,7 +90,7 @@ namespace OpenHardwareMonitor.GUI {
       get { return base.IsVisible; }
       set { 
         base.IsVisible = value;
-        Config.Set(new Identifier(sensor.Identifier,
+        settings.Set(new Identifier(sensor.Identifier,
           "hidden").ToString(), !value);
       }
     }

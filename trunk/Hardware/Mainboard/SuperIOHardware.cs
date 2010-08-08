@@ -37,25 +37,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using OpenHardwareMonitor.Hardware.LPC;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
-  public class SuperIOHardware : Hardware {
+  internal class SuperIOHardware : Hardware {
 
     private ISuperIO superIO;
-    private Image icon;
     protected readonly string name;
 
     private List<Sensor> voltages = new List<Sensor>();
     private List<Sensor> temperatures = new List<Sensor>();
     private List<Sensor> fans = new List<Sensor>();  
 
-    public SuperIOHardware(ISuperIO superIO, Manufacturer manufacturer, 
-      Model model) 
+    public SuperIOHardware(ISuperIO superIO, Manufacturer manufacturer,
+      Model model, ISettings settings) 
     {
       this.superIO = superIO;
-      this.icon = Utilities.EmbeddedResources.GetImage("chip.png");
 
       switch (superIO.Chip) {
         case Chip.F71858: name = "Fintek F71858"; break;
@@ -574,7 +571,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               formula, voltage.Rf),
             new ParameterDescription("Vf [V]", "Reference voltage.\n" + 
               formula, voltage.Vf)
-            });
+            }, settings);
           voltages.Add(sensor);
       }
 
@@ -583,14 +580,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         Sensor sensor = new Sensor(temperature.Name, temperature.Index,
           SensorType.Temperature, this, new ParameterDescription[] {
           new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
-        });
+        }, settings);
         temperatures.Add(sensor);
       }
 
       foreach (Fan fan in f)
         if (fan.Index < superIO.Fans.Length) {
           Sensor sensor = new Sensor(fan.Name, fan.Index, SensorType.Fan,
-            this, null);
+            this, settings);
           fans.Add(sensor);
         }
     }
@@ -599,8 +596,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       get { return new Identifier("lpc", superIO.Chip.ToString().ToLower()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.SuperIO; }
     }
 
     public override string Name {

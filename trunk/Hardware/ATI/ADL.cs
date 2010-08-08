@@ -42,7 +42,7 @@ using System.Runtime.InteropServices;
 namespace OpenHardwareMonitor.Hardware.ATI {
   
   [StructLayout(LayoutKind.Sequential)]
-  public struct ADLAdapterInfo {
+  internal struct ADLAdapterInfo {
     public int Size;
     public int AdapterIndex;
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ADL.ADL_MAX_PATH)]
@@ -67,7 +67,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct ADLPMActivity {
+  internal struct ADLPMActivity {
     public int Size;
     public int EngineClock;
     public int MemoryClock;
@@ -81,13 +81,13 @@ namespace OpenHardwareMonitor.Hardware.ATI {
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct ADLTemperature {
+  internal struct ADLTemperature {
     public int Size;
     public int Temperature;
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct ADLFanSpeedValue {
+  internal struct ADLFanSpeedValue {
     public int Size;
     public int SpeedType;
     public int FanSpeed;
@@ -95,7 +95,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct ADLFanSpeedInfo {
+  internal struct ADLFanSpeedInfo {
     public int Size;
     public int Flags;
     public int MinPercent;
@@ -104,7 +104,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public int MaxRPM;
   }
 
-  public class ADL {
+  internal class ADL {
     public const int ADL_MAX_PATH = 256;
     public const int ADL_MAX_ADAPTERS = 40;
     public const int ADL_MAX_DISPLAYS = 40;

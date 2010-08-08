@@ -38,10 +38,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class F718XX : ISuperIO {
+  internal class F718XX : ISuperIO {
 
     private ushort address;
     private Chip chip;

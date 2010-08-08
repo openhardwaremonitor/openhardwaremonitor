@@ -64,13 +64,23 @@ namespace OpenHardwareMonitor.Hardware {
     private ParameterDescription description;
     private float value;
     private bool isDefault;
+    private ISettings settings;
 
-    public Parameter(ParameterDescription description, ISensor sensor) {
+    public Parameter(ParameterDescription description, ISensor sensor, 
+      ISettings settings) 
+    {
       this.sensor = sensor;
       this.description = description;
-      this.value = Utilities.Config.Get(Identifier.ToString(), 
-        description.DefaultValue);
-      this.isDefault = !Utilities.Config.Contains(Identifier.ToString());
+      this.settings = settings;
+      this.isDefault = !settings.Contains(Identifier.ToString());
+      this.value = description.DefaultValue;
+      if (!this.isDefault) {
+        if (!float.TryParse(settings.Get(Identifier.ToString(), "0"),
+          System.Globalization.NumberStyles.Float,
+          System.Globalization.CultureInfo.InvariantCulture,
+          out this.value))
+          this.value = description.DefaultValue;
+      }
     }
 
     public ISensor Sensor {
@@ -96,8 +106,9 @@ namespace OpenHardwareMonitor.Hardware {
       }
       set {
         this.isDefault = false;
-        this.value = value;        
-        Utilities.Config.Set(Identifier.ToString(), value);
+        this.value = value;
+        this.settings.Set(Identifier.ToString(), value.ToString(
+          System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
       }
     }
 
@@ -111,7 +122,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.isDefault = value;
         if (value) {
           this.value = description.DefaultValue;
-          Utilities.Config.Remove(Identifier.ToString());
+          this.settings.Remove(Identifier.ToString());
         }
       }
     }

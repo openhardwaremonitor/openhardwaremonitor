@@ -37,10 +37,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  public class HDD : IHardware {
+  internal class HDD : IHardware {
 
     private const int UPDATE_DIVIDER = 30; // update only every 30s
 
@@ -48,19 +47,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private IntPtr handle;
     private int drive;
     private int attribute;    
-    private Image icon;
     private Sensor temperature;
     private int count;
     
 
-    public HDD(string name, IntPtr handle, int drive, int attribute) {
+    public HDD(string name, IntPtr handle, int drive, int attribute, 
+      ISettings settings) 
+    {
       this.name = name;
       this.handle = handle;
       this.drive = drive;
       this.attribute = attribute;
       this.count = 0;
-      this.icon = Utilities.EmbeddedResources.GetImage("hdd.png");
-      this.temperature = new Sensor("HDD", 0, SensorType.Temperature, this);
+      this.temperature = new Sensor("HDD", 0, SensorType.Temperature, this, 
+        settings);
       Update();
     }
 
@@ -73,8 +73,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return new Identifier("hdd", drive.ToString()); }
     }
 
-    public Image Icon {
-      get { return icon; }
+    public HardwareType HardwareType {
+      get { return HardwareType.HDD; }
     }
 
     public IHardware[] SubHardware {

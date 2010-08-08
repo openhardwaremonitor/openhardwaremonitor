@@ -37,7 +37,6 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
 
@@ -48,18 +47,20 @@ namespace OpenHardwareMonitor.GUI {
 
   public class UnitManager {
 
-    private static TemperatureUnit temperatureUnit;
+    private PersistentSettings settings;
+    private TemperatureUnit temperatureUnit;
 
-    static UnitManager () {
-      temperatureUnit = (TemperatureUnit)Config.Get("TemperatureUnit",
+    public UnitManager(PersistentSettings settings) {
+      this.settings = settings;
+      this.temperatureUnit = (TemperatureUnit)settings.Get("TemperatureUnit",
         (int)TemperatureUnit.Celcius);
     }
 
-    public static TemperatureUnit TemperatureUnit {
+    public TemperatureUnit TemperatureUnit {
       get { return temperatureUnit; }
       set {
-        temperatureUnit = value;
-        Config.Set("TemperatureUnit", (int)temperatureUnit);
+        this.temperatureUnit = value;
+        this.settings.Set("TemperatureUnit", (int)temperatureUnit);
       }
     }
   }

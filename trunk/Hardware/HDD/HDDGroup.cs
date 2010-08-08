@@ -39,13 +39,13 @@ using System;
 using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  public class HDDGroup : IGroup {
+  internal class HDDGroup : IGroup {
 
     private const int MAX_DRIVES = 32;
 
     private List<HDD> hardware = new List<HDD>();
 
-    public HDDGroup() {
+    public HDDGroup(ISettings settings) {
 
       int p = (int)System.Environment.OSVersion.Platform;
       if ((p != 4) && (p != 128)) {
@@ -87,7 +87,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
                   }
 
               if (attribute >= 0) {
-                hardware.Add(new HDD(name, handle, drive, attribute));
+                hardware.Add(new HDD(name, handle, drive, attribute, settings));
                 continue;
               }
             }

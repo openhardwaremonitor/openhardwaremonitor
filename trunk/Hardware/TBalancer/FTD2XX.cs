@@ -41,7 +41,7 @@ using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
 
-  public enum FT_DEVICE : uint {
+  internal enum FT_DEVICE : uint {
     FT_DEVICE_BM,
     FT_DEVICE_AM,
     FT_DEVICE_100AX,
@@ -52,7 +52,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     FT_DEVICE_4232H
   }
 
-  public enum FT_STATUS {
+  internal enum FT_STATUS {
     FT_OK,
     FT_INVALID_HANDLE,
     FT_DEVICE_NOT_FOUND,
@@ -73,26 +73,26 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     FT_OTHER_ERROR
   }
 
-  public enum FT_FLOW_CONTROL : ushort {
+  internal enum FT_FLOW_CONTROL : ushort {
     FT_FLOW_DTR_DSR = 512,
     FT_FLOW_NONE = 0,
     FT_FLOW_RTS_CTS = 256,
     FT_FLOW_XON_XOFF = 1024,
   }
 
-  public enum FT_PURGE : uint {
+  internal enum FT_PURGE : uint {
     FT_PURGE_RX = 1,
     FT_PURGE_TX = 2,
     FT_PURGE_ALL = 3,
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct FT_HANDLE {
+  internal struct FT_HANDLE {
     private uint handle;
   }
 
   [StructLayout(LayoutKind.Sequential)]
-  public struct FT_DEVICE_INFO_NODE {    
+  internal struct FT_DEVICE_INFO_NODE {    
     public uint Flags;
     public FT_DEVICE Type; 
     public uint ID; 
@@ -104,7 +104,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public FT_HANDLE Handle;
   }
 
-  public class FTD2XX {
+  internal class FTD2XX {
 
     public delegate FT_STATUS FT_CreateDeviceInfoListDelegate(
       out uint numDevices);

@@ -41,7 +41,7 @@ using System.IO;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
 
-  public class LMSensors {
+  internal class LMSensors {
 
     private List<LMChip> lmChips = new List<LMChip>();
 

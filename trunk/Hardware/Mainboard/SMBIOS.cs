@@ -43,7 +43,7 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
 
-  public class SMBIOS {
+  internal class SMBIOS {
 
     private byte[] raw;
     private Structure[] table;

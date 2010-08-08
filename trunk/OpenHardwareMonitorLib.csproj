@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B0397530-545A-471D-BB74-027AE456DF1A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OpenHardwareMonitor</RootNamespace>
+    <AssemblyName>OpenHardwareMonitorLib</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkSubset>
+    </TargetFrameworkSubset>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Management" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Hardware\ATI\ADL.cs" />
+    <Compile Include="Hardware\ATI\ATIGPU.cs" />
+    <Compile Include="Hardware\ATI\ATIGroup.cs" />
+    <Compile Include="Hardware\Computer.cs" />
+    <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
+    <Compile Include="Hardware\CPU\AMD10CPU.cs" />
+    <Compile Include="Hardware\CPU\CPUGroup.cs" />
+    <Compile Include="Hardware\CPU\CPUID.cs" />
+    <Compile Include="Hardware\CPU\CPULoad.cs" />
+    <Compile Include="Hardware\CPU\IntelCPU.cs" />
+    <Compile Include="Hardware\Hardware.cs" />
+    <Compile Include="Hardware\HDD\HDD.cs" />
+    <Compile Include="Hardware\HDD\HDDGroup.cs" />
+    <Compile Include="Hardware\HDD\SMART.cs" />
+    <Compile Include="Hardware\IComputer.cs" />
+    <Compile Include="Hardware\Identifier.cs" />
+    <Compile Include="Hardware\IElement.cs" />
+    <Compile Include="Hardware\IGroup.cs" />
+    <Compile Include="Hardware\IHardware.cs" />
+    <Compile Include="Hardware\IParameter.cs" />
+    <Compile Include="Hardware\ISensor.cs" />
+    <Compile Include="Hardware\IVisitor.cs" />
+    <Compile Include="Hardware\LPC\Chip.cs" />
+    <Compile Include="Hardware\LPC\F718XX.cs" />
+    <Compile Include="Hardware\LPC\ISuperIO.cs" />
+    <Compile Include="Hardware\LPC\IT87XX.cs" />
+    <Compile Include="Hardware\LPC\LMSensors.cs" />
+    <Compile Include="Hardware\LPC\LPCIO.cs" />
+    <Compile Include="Hardware\LPC\W836XX.cs" />
+    <Compile Include="Hardware\Mainboard\Mainboard.cs" />
+    <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
+    <Compile Include="Hardware\Mainboard\Manufacturer.cs" />
+    <Compile Include="Hardware\Mainboard\Model.cs" />
+    <Compile Include="Hardware\Mainboard\SMBIOS.cs" />
+    <Compile Include="Hardware\Mainboard\SuperIOHardware.cs" />
+    <Compile Include="Hardware\Nvidia\NVAPI.cs" />
+    <Compile Include="Hardware\Nvidia\NvidiaGPU.cs" />
+    <Compile Include="Hardware\Nvidia\NvidiaGroup.cs" />
+    <Compile Include="Hardware\Parameter.cs" />
+    <Compile Include="Hardware\Sensor.cs" />
+    <Compile Include="Hardware\SensorVisitor.cs" />
+    <Compile Include="Hardware\TBalancer\FTD2XX.cs" />
+    <Compile Include="Hardware\TBalancer\TBalancer.cs" />
+    <Compile Include="Hardware\TBalancer\TBalancerGroup.cs" />
+    <Compile Include="Hardware\WinRing0.cs" />
+    <Compile Include="Hardware\ISettings.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Hardware\HexStringArray.cs" />
+    <Compile Include="Collections\IReadOnlyArray.cs" />
+    <Compile Include="Collections\ListSet.cs" />
+    <Compile Include="Hardware\PInvokeDelegateFactory.cs" />
+    <Compile Include="Collections\ReadOnlyArray.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

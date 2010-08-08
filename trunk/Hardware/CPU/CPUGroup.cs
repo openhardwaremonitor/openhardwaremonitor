@@ -42,7 +42,7 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
 
-  public class CPUGroup : IGroup { 
+  internal class CPUGroup : IGroup { 
     private List<IHardware> hardware = new List<IHardware>();
 
     private CPUID[][][] threads;
@@ -100,7 +100,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return coreThreads;
     }
 
-    public CPUGroup() {
+    public CPUGroup(ISettings settings) {
       // No implementation for cpuid on Unix systems
       int p = (int)System.Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) 
@@ -123,15 +123,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         switch (threads[0].Vendor) {
           case Vendor.Intel:
-            hardware.Add(new IntelCPU(index, coreThreads));
+            hardware.Add(new IntelCPU(index, coreThreads, settings));
             break;
           case Vendor.AMD:
             switch (threads[0].Family) {
               case 0x0F:
-                hardware.Add(new AMD0FCPU(index, coreThreads));
+                hardware.Add(new AMD0FCPU(index, coreThreads, settings));
                 break;
               case 0x10:
-                hardware.Add(new AMD10CPU(index, coreThreads));
+                hardware.Add(new AMD10CPU(index, coreThreads, settings));
                 break;
               default:
                 break;

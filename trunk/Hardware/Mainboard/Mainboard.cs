@@ -37,21 +37,19 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 using OpenHardwareMonitor.Hardware.LPC;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
-  public class Mainboard : IHardware {
+  internal class Mainboard : IHardware {
     private SMBIOS smbios;
     private string name;
-    private Image icon;
 
     private LPCIO lpcio;
     private LMSensors lmSensors;
     private IHardware[] superIOHardware;
 
-    public Mainboard() {
+    public Mainboard(ISettings settings) {
       this.smbios = new SMBIOS();
      
       if (smbios.Board != null) {
@@ -69,7 +67,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         this.name = Manufacturer.Unknown.ToString();
       }
 
-      this.icon = Utilities.EmbeddedResources.GetImage("mainboard.png");
       ISuperIO[] superIO;
       int p = (int)System.Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
@@ -84,8 +81,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       for (int i = 0; i < superIO.Length; i++)
         superIOHardware[i] = new SuperIOHardware(superIO[i], 
           smbios.Board != null ? smbios.Board.Manufacturer : 
-          Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model : 
-          Model.Unknown);
+          Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model :
+          Model.Unknown, settings);
     }
 
     public string Name {
@@ -96,8 +93,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       get { return new Identifier("mainboard"); }
     }
 
-    public Image Icon {
-      get { return icon; }
+    public HardwareType HardwareType {
+      get { return HardwareType.Mainboard; }
     }
 
     public string GetReport() {
