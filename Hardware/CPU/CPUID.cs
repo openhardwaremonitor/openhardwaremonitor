@@ -40,14 +40,14 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  
-  public enum Vendor {
+
+  internal enum Vendor {
     Unknown,
     Intel,
     AMD,
   }
-  
-  public class CPUID {
+
+  internal class CPUID {
 
     private int thread;
 

@@ -38,7 +38,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OpenHardwareMonitor.Utilities {
+namespace OpenHardwareMonitor.Collections {
 
   public interface IReadOnlyArray<T> : IEnumerable<T> {
 

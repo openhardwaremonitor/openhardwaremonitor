@@ -37,16 +37,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Diagnostics;
 using System.Text;
 
-
 namespace OpenHardwareMonitor.Hardware.CPU {
-  public class AMD0FCPU : Hardware, IHardware {
+  internal class AMD0FCPU : Hardware, IHardware {
 
     private string name;
-    private Image icon;
 
     private int processorIndex;
     private uint pciAddress;
@@ -64,15 +60,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
 
-    public AMD0FCPU(int processorIndex, CPUID[][] cpuid) {
+    public AMD0FCPU(int processorIndex, CPUID[][] cpuid, ISettings settings) {
 
       this.processorIndex = processorIndex;
       this.name = cpuid[0][0].Name;
-      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
-      int coreCount = cpuid.Length;      
+      int coreCount = cpuid.Length;
 
-      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this, settings);
         
       float offset = -49.0f;
 
@@ -93,7 +88,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", offset)
-          });
+          }, settings);
         }
       } else {
         coreTemperatures = new Sensor[0];
@@ -102,7 +97,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreCount; i++) 
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
-          SensorType.Load, this);     
+          SensorType.Load, this, settings);     
 
       cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
@@ -125,8 +120,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return new Identifier("amdcpu", processorIndex.ToString()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.CPU; }
     }
 
     public override void Update() {

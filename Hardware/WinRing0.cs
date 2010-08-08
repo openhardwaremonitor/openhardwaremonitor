@@ -43,7 +43,7 @@ using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public class WinRing0 {
+  internal class WinRing0 {
     
     public enum OlsDllStatus{
       OLS_DLL_NO_ERROR                        = 0,

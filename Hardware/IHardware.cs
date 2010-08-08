@@ -37,18 +37,26 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace OpenHardwareMonitor.Hardware {
 
   public delegate void SensorEventHandler(ISensor sensor);
+
+  public enum HardwareType {    
+    CPU,
+    GPU,
+    HDD,
+    Mainboard,
+    SuperIO,
+    TBalancer
+  }
 
   public interface IHardware : IElement {
 
     string Name { get; }
     Identifier Identifier { get; }
 
-    Image Icon { get; }
+    HardwareType HardwareType { get; }
 
     string GetReport();
 

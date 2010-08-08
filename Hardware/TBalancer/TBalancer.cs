@@ -38,15 +38,14 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
-  public class TBalancer : IHardware {
+  internal class TBalancer : IHardware {
 
+    private ISettings settings;
     private int portIndex;
     private FT_HANDLE handle;
-    private Image icon;
     private byte protocolVersion;
     private Sensor[] digitalTemperatures = new Sensor[8];
     private Sensor[] analogTemperatures = new Sensor[4];
@@ -68,9 +67,10 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private delegate void MethodDelegate();
     private MethodDelegate alternativeRequest;    
 
-    public TBalancer(int portIndex, byte protocolVersion) {
+    public TBalancer(int portIndex, byte protocolVersion, ISettings settings) {
+      this.settings = settings;
+
       this.portIndex = portIndex;
-      this.icon = Utilities.EmbeddedResources.GetImage("bigng.png");
       this.protocolVersion = protocolVersion;
 
       ParameterDescription[] parameter = new ParameterDescription[] {
@@ -79,23 +79,23 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       int offset = 0;
       for (int i = 0; i < digitalTemperatures.Length; i++)
         digitalTemperatures[i] = new Sensor("Digital Sensor " + i,
-          offset + i, SensorType.Temperature, this, parameter);
+          offset + i, SensorType.Temperature, this, parameter, settings);
       offset += digitalTemperatures.Length;
 
       for (int i = 0; i < analogTemperatures.Length; i++)
         analogTemperatures[i] = new Sensor("Analog Sensor " + (i + 1),
-          offset + i, SensorType.Temperature, this, parameter);
+          offset + i, SensorType.Temperature, this, parameter, settings);
       offset += analogTemperatures.Length;
 
       for (int i = 0; i < sensorhubTemperatures.Length; i++)
         sensorhubTemperatures[i] = new Sensor("Sensorhub Sensor " + i,
-          offset + i, SensorType.Temperature, this, parameter);
+          offset + i, SensorType.Temperature, this, parameter, settings);
       offset += sensorhubTemperatures.Length;
 
       for (int i = 0; i < miniNGTemperatures.Length; i++)
         miniNGTemperatures[i] = new Sensor("miniNG #" + (i / 2 + 1) +
-          " Sensor " + (i % 2 + 1), offset + i, SensorType.Temperature, 
-          this, parameter);
+          " Sensor " + (i % 2 + 1), offset + i, SensorType.Temperature,
+          this, parameter, settings);
       offset += miniNGTemperatures.Length;
 
       for (int i = 0; i < sensorhubFlows.Length; i++)
@@ -103,16 +103,17 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
           i, SensorType.Flow, this, new ParameterDescription[] {
             new ParameterDescription("Impulse Rate", 
               "The impulse rate of the flowmeter in pulses/L", 509)
-          });
+          }, settings);
 
       for (int i = 0; i < controls.Length; i++) {
         controls[i] = new Sensor("Fan Channel " + i, i, SensorType.Control, 
-          this, null);
+          this, settings);
       }
 
       for (int i = 0; i < miniNGControls.Length; i++) {
         miniNGControls[i] = new Sensor("miniNG #" + (i / 2 + 1) +
-          " Fan Channel " + (i % 2 + 1), 4 + i, SensorType.Control, this, null);
+          " Fan Channel " + (i % 2 + 1), 4 + i, SensorType.Control, this, 
+          settings);
       }
 
       alternativeRequest = new MethodDelegate(DelayedAlternativeRequest);
@@ -164,7 +165,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         if (miniNGFans[number * 2 + i] == null)
           miniNGFans[number * 2 + i] = 
             new Sensor("miniNG #" + (number + 1) + " Fan Channel " + (i + 1),
-            4 + number * 2 + i, SensorType.Fan, this, null);
+            4 + number * 2 + i, SensorType.Fan, this, settings);
         
         Sensor sensor = miniNGFans[number * 2 + i];
 
@@ -241,7 +242,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
               this, new ParameterDescription[] {
                 new ParameterDescription("MaxRPM", 
                   "Maximum revolutions per minute (RPM) of the fan.", maxRPM)
-              });
+              }, settings);
 
           float value;
           if ((data[136] & (1 << i)) == 0)  // pwm mode
@@ -266,8 +267,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       } 
     }
 
-    public Image Icon {
-      get { return icon; }
+    public HardwareType HardwareType {
+      get { return HardwareType.TBalancer; }
     }
 
     public string Name {

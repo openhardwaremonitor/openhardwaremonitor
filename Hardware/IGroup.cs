@@ -40,7 +40,7 @@ using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public interface IGroup {
+  internal interface IGroup {
 
     IHardware[] Hardware { get; }
 

@@ -37,10 +37,9 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public interface ISuperIO {
+  internal interface ISuperIO {
 
     Chip Chip { get; }
 

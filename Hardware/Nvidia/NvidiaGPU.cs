@@ -37,14 +37,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
-  public class NvidiaGPU : Hardware, IHardware {
+  internal class NvidiaGPU : Hardware, IHardware {
 
     private string name;
-    private Image icon;
     private int adapterIndex;
     private NvPhysicalGpuHandle handle;
     private NvDisplayHandle? displayHandle;
@@ -57,7 +55,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private Sensor memoryLoad;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle, 
-      NvDisplayHandle? displayHandle) 
+      NvDisplayHandle? displayHandle, ISettings settings) 
     {
       string gpuName;
       if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
@@ -65,15 +63,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       } else {
         this.name = "NVIDIA";
       }
-      this.icon = Utilities.EmbeddedResources.GetImage("nvidia.png");
       this.adapterIndex = adapterIndex;
       this.handle = handle;
       this.displayHandle = displayHandle;
 
-      NvGPUThermalSettings settings = GetThermalSettings();
-      temperatures = new Sensor[settings.Count];
+      NvGPUThermalSettings thermalSettings = GetThermalSettings();
+      temperatures = new Sensor[thermalSettings.Count];
       for (int i = 0; i < temperatures.Length; i++) {
-        NvSensor sensor = settings.Sensor[i];
+        NvSensor sensor = thermalSettings.Sensor[i];
         string name;
         switch (sensor.Target) {
           case NvThermalTarget.BOARD: name = "GPU Board"; break;
@@ -83,8 +80,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           case NvThermalTarget.UNKNOWN: name = "GPU Unknown"; break;
           default: name = "GPU"; break;
         }
-        temperatures[i] = new Sensor(name, i, SensorType.Temperature, this, 
-          new ParameterDescription[0]);
+        temperatures[i] = new Sensor(name, i, SensorType.Temperature, this,
+          new ParameterDescription[0], settings);
         ActivateSensor(temperatures[i]);
       }
 
@@ -92,25 +89,25 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       if (NVAPI.NvAPI_GPU_GetTachReading != null &&
         NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
         if (value > 0) {
-          fan = new Sensor("GPU", 0, SensorType.Fan, this);
+          fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
           ActivateSensor(fan);
         }
       }
 
       clocks = new Sensor[3];
-      clocks[0] = new Sensor("GPU Core", 0, SensorType.Clock, this);
-      clocks[1] = new Sensor("GPU Memory", 1, SensorType.Clock, this);
-      clocks[2] = new Sensor("GPU Shader", 2, SensorType.Clock, this);
+      clocks[0] = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
+      clocks[1] = new Sensor("GPU Memory", 1, SensorType.Clock, this, settings);
+      clocks[2] = new Sensor("GPU Shader", 2, SensorType.Clock, this, settings);
       for (int i = 0; i < clocks.Length; i++)
         ActivateSensor(clocks[i]);
 
       loads = new Sensor[3];
-      loads[0] = new Sensor("GPU Core", 0, SensorType.Load, this);
-      loads[1] = new Sensor("GPU Memory Controller", 1, SensorType.Load, this);
-      loads[2] = new Sensor("GPU Video Engine", 2, SensorType.Load, this);
-      memoryLoad = new Sensor("GPU Memory", 3, SensorType.Load, this);
+      loads[0] = new Sensor("GPU Core", 0, SensorType.Load, this, settings);
+      loads[1] = new Sensor("GPU Memory Controller", 1, SensorType.Load, this, settings);
+      loads[2] = new Sensor("GPU Video Engine", 2, SensorType.Load, this, settings);
+      memoryLoad = new Sensor("GPU Memory", 3, SensorType.Load, this, settings);
 
-      control = new Sensor("GPU Fan", 0, SensorType.Control, this);
+      control = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
     }
 
     public override string Name {
@@ -121,8 +118,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       get { return new Identifier("nvidiagpu", adapterIndex.ToString()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.GPU; }
     }
 
     private NvGPUThermalSettings GetThermalSettings() {

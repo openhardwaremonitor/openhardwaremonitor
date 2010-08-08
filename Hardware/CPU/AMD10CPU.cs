@@ -37,15 +37,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Diagnostics;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  
-  public class AMD10CPU : Hardware, IHardware {
+
+  internal class AMD10CPU : Hardware, IHardware {
     private string name;
-    private Image icon;
 
     private int processorIndex;
     private uint pciAddress;
@@ -61,20 +59,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID = 0x1303;
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
-    public AMD10CPU(int processorIndex, CPUID[][] cpuid) {
+    public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings) {
 
       this.processorIndex = processorIndex;
       this.name = cpuid[0][0].Name;
-      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
       int coreCount = cpuid.Length;
 
-      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
+      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this, settings);
 
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreCount; i++) 
         coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
-          SensorType.Load, this);
+          SensorType.Load, this, settings);
 
       cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
@@ -88,7 +85,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
         SensorType.Temperature, this, new ParameterDescription[] {
             new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
-          });
+          }, settings);
 
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
         PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
@@ -107,8 +104,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return new Identifier("amdcpu", processorIndex.ToString()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.CPU; }
     }
 
     public override void Update() {

@@ -36,35 +36,26 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
-namespace OpenHardwareMonitor.Utilities {
+namespace OpenHardwareMonitor.Hardware {
+  internal class HexStringArray {
 
-  public class ReadOnlyArray<T> : IReadOnlyArray<T> {
+    private byte[] array;
 
-    private T[] array;
-
-    public ReadOnlyArray(T[] array) {
-      this.array = array;
+    public HexStringArray(string input) {
+      List<byte> list = new List<byte>();
+      foreach (string str in input.Split(' ')) {
+        string s = str.Trim();
+        if (s.Length > 0)
+          list.Add(Convert.ToByte(s, 16));
+      }
+      array = list.ToArray();
     }
 
-    public T this[int index] {
-      get { return array[index]; }
-    }
-
-    public int Length { get { return array.Length; } }
-
-    public IEnumerator<T> GetEnumerator() {
-      return ((IEnumerable<T>)array).GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator() {
-      return array.GetEnumerator();
-    }
-
-    public static implicit operator ReadOnlyArray<T>(T[] array) {
-      return new ReadOnlyArray<T>(array);
+    public byte this[int i] {
+      get { return array[i]; }
     }
   }
 }

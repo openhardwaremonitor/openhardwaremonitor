@@ -37,11 +37,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class IT87XX : ISuperIO {
+  internal class IT87XX : ISuperIO {
        
     private ushort address;
     private Chip chip;

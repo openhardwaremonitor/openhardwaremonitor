@@ -50,8 +50,19 @@ namespace OpenHardwareMonitor.Hardware {
 
     private bool open = false;
     private bool hddEnabled = false;
+    private ISettings settings;
 
-    public Computer() { }
+    public Computer() {
+      this.settings = new Settings();
+    }
+
+    public Computer(ISettings settings) {
+      if (settings != null)
+        this.settings = settings;
+      else {
+        this.settings = new Settings();
+      }
+    }
 
     private void Add(IGroup group) {
       if (groups.Contains(group))
@@ -79,14 +90,14 @@ namespace OpenHardwareMonitor.Hardware {
       if (open)
         return;
 
-      Add(new Mainboard.MainboardGroup());
-      Add(new CPU.CPUGroup());
-      Add(new ATI.ATIGroup());
-      Add(new Nvidia.NvidiaGroup());
-      Add(new TBalancer.TBalancerGroup());
+      Add(new Mainboard.MainboardGroup(settings));
+      Add(new CPU.CPUGroup(settings));
+      Add(new ATI.ATIGroup(settings));
+      Add(new Nvidia.NvidiaGroup(settings));
+      Add(new TBalancer.TBalancerGroup(settings));
 
       if (hddEnabled)
-        Add(new HDD.HDDGroup());
+        Add(new HDD.HDDGroup(settings));
 
       open = true;
     }
@@ -95,7 +106,7 @@ namespace OpenHardwareMonitor.Hardware {
       get { return hddEnabled; }
       set {
         if (open && value && !hddEnabled) {
-          Add(new HDD.HDDGroup());
+          Add(new HDD.HDDGroup(settings));
         } else if (open && !value && hddEnabled) {
           List<IGroup> list = new List<IGroup>();
           foreach (IGroup group in groups)
@@ -262,6 +273,21 @@ namespace OpenHardwareMonitor.Hardware {
       foreach (IGroup group in groups)
         foreach (IHardware hardware in group.Hardware) 
           hardware.Accept(visitor);
+    }
+
+    private class Settings : ISettings {
+
+      public bool Contains(string name) {
+        return false;
+      }
+
+      public void Set(string name, string value) { }
+
+      public string Get(string name, string value) {
+        return value;
+      }
+
+      public void Remove(string name) { }
     }
   }
 }

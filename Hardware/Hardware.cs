@@ -37,11 +37,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {
-  public abstract class Hardware : IHardware {
+  internal abstract class Hardware : IHardware {
 
     private ListSet<ISensor> active = new ListSet<ISensor>();
 
@@ -72,7 +71,7 @@ namespace OpenHardwareMonitor.Hardware {
   
     public abstract string Name { get; }
     public abstract Identifier Identifier { get; }
-    public abstract Image Icon { get; }
+    public abstract HardwareType HardwareType { get; }
 
     public virtual string GetReport() {
       return null;

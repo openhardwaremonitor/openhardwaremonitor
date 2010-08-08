@@ -36,8 +36,8 @@
 */
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
-  
-  public enum Manufacturer {
+
+  internal enum Manufacturer {
     ASRock,
     ASUS,
     Dell,

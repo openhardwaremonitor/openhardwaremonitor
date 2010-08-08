@@ -43,14 +43,41 @@ using OpenHardwareMonitor.Hardware;
 namespace OpenHardwareMonitor.GUI {
   public class HardwareNode : Node {
 
+    private PersistentSettings settings;
+    private UnitManager unitManager;
     private IHardware hardware;
 
     private List<TypeNode> typeNodes = new List<TypeNode>();
 
-    public HardwareNode(IHardware hardware) : base(hardware.Name) {
-      
+    public HardwareNode(IHardware hardware, PersistentSettings settings, 
+      UnitManager unitManager) : base(hardware.Name) 
+    {
+      this.settings = settings;
+      this.unitManager = unitManager;
       this.hardware = hardware;
-      this.Image = hardware.Icon;
+      switch (hardware.HardwareType) {
+        case HardwareType.CPU: 
+          this.Image = Utilities.EmbeddedResources.GetImage("cpu.png");
+          break;
+        case HardwareType.GPU:
+          if (hardware.Identifier.ToString().Contains("nvidia"))
+            this.Image = Utilities.EmbeddedResources.GetImage("nvidia.png");
+          else
+            this.Image = Utilities.EmbeddedResources.GetImage("ati.png");
+          break;
+        case HardwareType.HDD: 
+          this.Image = Utilities.EmbeddedResources.GetImage("hdd.png");
+          break;
+        case HardwareType.Mainboard: 
+          this.Image = Utilities.EmbeddedResources.GetImage("mainboard.png");
+          break;
+        case HardwareType.SuperIO: 
+          this.Image = Utilities.EmbeddedResources.GetImage("chip.png");
+          break;
+        case HardwareType.TBalancer: 
+          this.Image = Utilities.EmbeddedResources.GetImage("bigng.png");
+          break;
+      }
 
       typeNodes.Add(new TypeNode(SensorType.Voltage));
       typeNodes.Add(new TypeNode(SensorType.Clock));      
@@ -105,7 +132,7 @@ namespace OpenHardwareMonitor.GUI {
       while (i < node.Nodes.Count &&
         ((SensorNode)node.Nodes[i]).Sensor.Index < sensor.Index)
         i++;
-      SensorNode sensorNode = new SensorNode(sensor);
+      SensorNode sensorNode = new SensorNode(sensor, settings, unitManager);
       node.Nodes.Insert(i, sensorNode);
     }
 

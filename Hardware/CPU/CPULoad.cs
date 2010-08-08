@@ -41,7 +41,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  public class CPULoad {
+  internal class CPULoad {
 
     [StructLayout(LayoutKind.Sequential)]
     private struct SystemProcessorPerformanceInformation {

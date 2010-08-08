@@ -51,7 +51,9 @@ using OpenHardwareMonitor.Utilities;
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
 
-    private Computer computer = new Computer();
+    private PersistentSettings settings;
+    private UnitManager unitManager;
+    private Computer computer;
     private Node root;
     private TreeModel treeModel;
     private IDictionary<ISensor, Color> sensorPlotColors = 
@@ -73,6 +75,12 @@ namespace OpenHardwareMonitor.GUI {
 
     public MainForm() {      
       InitializeComponent();
+
+      this.settings = new PersistentSettings();      
+      this.settings.Load(Path.ChangeExtension(
+        System.Windows.Forms.Application.ExecutablePath, ".config"));
+
+      this.unitManager = new UnitManager(settings);
 
       // set the DockStyle here, to avoid conflicts with the MainMenu
       this.splitContainer.Dock = DockStyle.Fill;
@@ -98,10 +106,10 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
-      if (Utilities.Config.Contains("mainForm.Location.X")) {
-        int x = Utilities.Config.Get("mainForm.Location.X", Location.X);
+      if (settings.Contains("mainForm.Location.X")) {
+        int x = settings.Get("mainForm.Location.X", Location.X);
         x = x < 0 ? 0 : x;
-        int y = Utilities.Config.Get("mainForm.Location.Y", Location.Y);
+        int y = settings.Get("mainForm.Location.Y", Location.Y);
         y = y < 0 ? 0 : y;
         this.Location = new Point(x, y);
       } else {
@@ -109,12 +117,12 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       ClientSize = new Size(
-        Utilities.Config.Get("mainForm.Width", 470),
-        Utilities.Config.Get("mainForm.Height", 640));
+        settings.Get("mainForm.Width", 470),
+        settings.Get("mainForm.Height", 640));
 
       foreach (TreeColumn column in treeView.Columns) 
-        column.Width = Math.Max(20, Math.Min(400, 
-          Config.Get("treeView.Columns." + column.Header + ".Width",
+        column.Width = Math.Max(20, Math.Min(400,
+          settings.Get("treeView.Columns." + column.Header + ".Width",
           column.Width)));
 
       treeModel = new TreeModel();
@@ -122,9 +130,11 @@ namespace OpenHardwareMonitor.GUI {
       root.Image = Utilities.EmbeddedResources.GetImage("computer.png");
       
       treeModel.Nodes.Add(root);
-      treeView.Model = treeModel;     
+      treeView.Model = treeModel;
 
-      systemTray = new SystemTray(computer);
+      this.computer = new Computer(settings);
+
+      systemTray = new SystemTray(computer, settings);
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
@@ -149,52 +159,52 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[11] = Color.Olive;
       plotColorPalette[12] = Color.Firebrick;
 
-      showHiddenSensors = new UserOption("hiddenMenuItem", false, hiddenMenuItem);
+      showHiddenSensors = new UserOption("hiddenMenuItem", false, hiddenMenuItem, settings);
       showHiddenSensors.Changed += delegate(object sender, EventArgs e) {
         treeModel.ForceVisible = showHiddenSensors.Value;
       };
 
-      showPlot = new UserOption("plotMenuItem", false, plotMenuItem);
+      showPlot = new UserOption("plotMenuItem", false, plotMenuItem, settings);
       showPlot.Changed += delegate(object sender, EventArgs e) {
         splitContainer.Panel2Collapsed = !showPlot.Value;
         treeView.Invalidate();
       };
 
-      showValue = new UserOption("valueMenuItem", true, valueMenuItem);
+      showValue = new UserOption("valueMenuItem", true, valueMenuItem, settings);
       showValue.Changed += delegate(object sender, EventArgs e) {
         treeView.Columns[1].IsVisible = showValue.Value;
       };
 
-      showMin = new UserOption("minMenuItem", false, minMenuItem);
+      showMin = new UserOption("minMenuItem", false, minMenuItem, settings);
       showMin.Changed += delegate(object sender, EventArgs e) {
         treeView.Columns[2].IsVisible = showMin.Value;
       };
 
-      showMax = new UserOption("maxMenuItem", true, maxMenuItem);
+      showMax = new UserOption("maxMenuItem", true, maxMenuItem, settings);
       showMax.Changed += delegate(object sender, EventArgs e) {
         treeView.Columns[3].IsVisible = showMax.Value;
       };
 
-      startMinimized = new UserOption("startMinMenuItem", false, startMinMenuItem);
+      startMinimized = new UserOption("startMinMenuItem", false, startMinMenuItem, settings);
 
-      minimizeToTray = new UserOption("minTrayMenuItem", true, minTrayMenuItem);
+      minimizeToTray = new UserOption("minTrayMenuItem", true, minTrayMenuItem, settings);
       minimizeToTray.Changed += delegate(object sender, EventArgs e) {
         systemTray.IsMainIconEnabled = minimizeToTray.Value;
       };
 
-      autoStart = new UserOption(null, startupManager.Startup, startupMenuItem);
+      autoStart = new UserOption(null, startupManager.Startup, startupMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
         startupManager.Startup = autoStart.Value; ;
       };
 
-      readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem);
+      readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem, settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
         UpdatePlotSelection(null, null);
       };
 
       celciusMenuItem.Checked = 
-        UnitManager.TemperatureUnit == TemperatureUnit.Celcius;
+        unitManager.TemperatureUnit == TemperatureUnit.Celcius;
       fahrenheitMenuItem.Checked = !celciusMenuItem.Checked;
 
       startupMenuItem.Visible = startupManager.IsAvailable;
@@ -219,14 +229,14 @@ namespace OpenHardwareMonitor.GUI {
     }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
-      Node hardwareNode = new HardwareNode(hardware);
+      Node hardwareNode = new HardwareNode(hardware, settings, unitManager);
       node.Nodes.Add(hardwareNode);
       foreach (IHardware subHardware in hardware.SubHardware)
         SubHardwareAdded(subHardware, hardwareNode);  
     }
 
     private void HardwareAdded(IHardware hardware) {
-      Node hardwareNode = new HardwareNode(hardware);
+      Node hardwareNode = new HardwareNode(hardware, settings, unitManager);
       root.Nodes.Add(hardwareNode);
       foreach (IHardware subHardware in hardware.SubHardware)
         SubHardwareAdded(subHardware, hardwareNode);     
@@ -307,17 +317,18 @@ namespace OpenHardwareMonitor.GUI {
 
     private void SaveConfiguration() {
       if (WindowState != FormWindowState.Minimized) {
-        Config.Set("mainForm.Location.X", Location.X);
-        Config.Set("mainForm.Location.Y", Location.Y);
-        Config.Set("mainForm.Width", ClientSize.Width);
-        Config.Set("mainForm.Height", ClientSize.Height);
+        settings.Set("mainForm.Location.X", Location.X);
+        settings.Set("mainForm.Location.Y", Location.Y);
+        settings.Set("mainForm.Width", ClientSize.Width);
+        settings.Set("mainForm.Height", ClientSize.Height);
       }
 
       foreach (TreeColumn column in treeView.Columns)
-        Config.Set("treeView.Columns." + column.Header + ".Width",
+        settings.Set("treeView.Columns." + column.Header + ".Width",
           column.Width);
 
-      Config.Save();
+      settings.Save(Path.ChangeExtension(
+        System.Windows.Forms.Application.ExecutablePath, ".config"));
     }
 
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -451,13 +462,13 @@ namespace OpenHardwareMonitor.GUI {
     private void celciusMenuItem_Click(object sender, EventArgs e) {
       celciusMenuItem.Checked = true;
       fahrenheitMenuItem.Checked = false;
-      UnitManager.TemperatureUnit = TemperatureUnit.Celcius;
+      unitManager.TemperatureUnit = TemperatureUnit.Celcius;
     }
 
     private void fahrenheitMenuItem_Click(object sender, EventArgs e) {
       celciusMenuItem.Checked = false;
       fahrenheitMenuItem.Checked = true;
-      UnitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
+      unitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }
 
     private void sumbitReportMenuItem_Click(object sender, EventArgs e) 

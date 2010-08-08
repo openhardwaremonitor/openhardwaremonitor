@@ -46,12 +46,14 @@ using OpenHardwareMonitor.Utilities;
 namespace OpenHardwareMonitor.GUI {
   public class SystemTray : IDisposable {
     private IComputer computer;
+    private PersistentSettings settings;
     private List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
     private bool mainIconEnabled = false;
     private NotifyIcon mainIcon;
 
-    public SystemTray(IComputer computer) {
+    public SystemTray(IComputer computer, PersistentSettings settings) {
       this.computer = computer;
+      this.settings = settings;
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
 
@@ -95,7 +97,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SensorAdded(ISensor sensor) {
-      if (Config.Get(new Identifier(sensor.Identifier, 
+      if (settings.Get(new Identifier(sensor.Identifier, 
         "tray").ToString(), false)) 
         Add(sensor, false);   
     }
@@ -127,9 +129,9 @@ namespace OpenHardwareMonitor.GUI {
       if (Contains(sensor)) {
         return;
       } else {        
-        list.Add(new SensorNotifyIcon(this, sensor, balloonTip));
+        list.Add(new SensorNotifyIcon(this, sensor, balloonTip, settings));
         UpdateMainIconVisibilty();
-        Config.Set(new Identifier(sensor.Identifier, "tray").ToString(), true);
+        settings.Set(new Identifier(sensor.Identifier, "tray").ToString(), true);
       }
     }
 
@@ -139,9 +141,9 @@ namespace OpenHardwareMonitor.GUI {
 
     private void Remove(ISensor sensor, bool deleteConfig) {
       if (deleteConfig) {
-        Config.Remove(
+        settings.Remove(
           new Identifier(sensor.Identifier, "tray").ToString());
-        Config.Remove(
+        settings.Remove(
           new Identifier(sensor.Identifier, "traycolor").ToString());
       }
       SensorNotifyIcon instance = null;

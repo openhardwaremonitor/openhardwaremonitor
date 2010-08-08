@@ -5,7 +5,7 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
 
-  public enum Chip : ushort {
+  internal enum Chip : ushort {
     Unknown = 0,
     IT8712F = 0x8712,
     IT8716F = 0x8716,

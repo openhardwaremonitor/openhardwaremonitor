@@ -35,40 +35,36 @@
  
 */
 
-namespace OpenHardwareMonitor.Hardware.Mainboard {
+using System;
+using System.Collections;
+using System.Collections.Generic;
 
-  internal enum Model {
-    // ASRock
-    _880GMH_USB3,
+namespace OpenHardwareMonitor.Collections {
 
-    // ASUS
-    Crosshair_III_Formula,
-    M2N_SLI_DELUXE,
-    M4A79XTD_EVO,
-    P5W_DH_Deluxe,    
-    P6X58D_E,
+  public class ReadOnlyArray<T> : IReadOnlyArray<T> {
 
-    // DFI
-    LP_BI_P45_T2RS_Elite,
-    LP_DK_P55_T3eH9,
+    private T[] array;
 
-    // EVGA
-    X58_SLI_Classified,
+    public ReadOnlyArray(T[] array) {
+      this.array = array;
+    }
 
-    // Gigabyte
-    _965P_S3,
-    EP45_DS3R,
-    EP45_UD3R,
-    EX58_EXTREME,
-    GA_MA770T_UD3,
-    GA_MA785GMT_UD2H,
-    P35_DS3,
-    P35_DS3L,
-    P55_UD4,
-    X38_DS5,
-    X58A_UD3R,
+    public T this[int index] {
+      get { return array[index]; }
+    }
 
-    // Unknown
-    Unknown    
+    public int Length { get { return array.Length; } }
+
+    public IEnumerator<T> GetEnumerator() {
+      return ((IEnumerable<T>)array).GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator() {
+      return array.GetEnumerator();
+    }
+
+    public static implicit operator ReadOnlyArray<T>(T[] array) {
+      return new ReadOnlyArray<T>(array);
+    }
   }
 }

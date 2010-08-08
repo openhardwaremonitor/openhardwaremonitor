@@ -40,12 +40,12 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
-  public class ATIGroup : IGroup {
+  internal class ATIGroup : IGroup {
 
     private List<ATIGPU> hardware = new List<ATIGPU>();
     private StringBuilder report = new StringBuilder();
 
-    public ATIGroup() {
+    public ATIGroup(ISettings settings) {
       try {
         int status = ADL.ADL_Main_Control_Create(1);
 
@@ -113,7 +113,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       adapterInfo[i].AdapterName.Trim(),
                       adapterInfo[i].AdapterIndex,
                       adapterInfo[i].BusNumber,
-                      adapterInfo[i].DeviceNumber));
+                      adapterInfo[i].DeviceNumber, settings));
                 }
 
                 report.AppendLine();

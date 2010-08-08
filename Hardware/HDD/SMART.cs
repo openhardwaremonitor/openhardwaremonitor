@@ -40,8 +40,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-    
-  public class SMART {
+
+  internal class SMART {
 
     [Flags]
     public enum Status : ushort {

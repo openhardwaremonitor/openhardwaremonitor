@@ -37,13 +37,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
-  public class ATIGPU : Hardware {
+  internal class ATIGPU : Hardware {
 
     private string name;
-    private Image icon;
     private int adapterIndex;
     private int busNumber;
     private int deviceNumber;
@@ -56,22 +54,20 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private Sensor fanControl;
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
-      int deviceNumber) 
+      int deviceNumber, ISettings settings) 
     {
       this.name = name;
-      this.icon = Utilities.EmbeddedResources.GetImage("ati.png");
       this.adapterIndex = adapterIndex;
       this.busNumber = busNumber;
       this.deviceNumber = deviceNumber;
 
-      this.temperature = 
-        new Sensor("GPU Core", 0, SensorType.Temperature, this);
-      this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, null);
-      this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this);
-      this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this);
-      this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this);
-      this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this);
-      this.fanControl = new Sensor("GPU Fan", 0, SensorType.Control, this);
+      this.temperature = new Sensor("GPU Core", 0, SensorType.Temperature, this, settings);
+      this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, settings);
+      this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
+      this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this, settings);
+      this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this, settings);
+      this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this, settings);
+      this.fanControl = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
       Update();                   
     }
 
@@ -87,8 +83,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       get { return new Identifier("atigpu", adapterIndex.ToString()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.GPU; }
     }
 
     public override void Update() {

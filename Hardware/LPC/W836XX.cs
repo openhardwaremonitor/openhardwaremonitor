@@ -40,7 +40,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class W836XX : ISuperIO {
+  internal class W836XX : ISuperIO {
 
     private ushort address;
     private byte revision;

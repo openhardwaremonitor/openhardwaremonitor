@@ -48,7 +48,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
@@ -83,7 +82,6 @@
     <Compile Include="GUI\ParameterForm.Designer.cs">
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Hardware\SensorVisitor.cs" />
     <Compile Include="GUI\SensorNotifyIcon.cs" />
     <Compile Include="GUI\SplitContainerAdv.cs">
       <SubType>Component</SubType>
@@ -96,32 +94,7 @@
     <Compile Include="GUI\UnitManager.cs" />
     <Compile Include="GUI\UpdateVisitor.cs" />
     <Compile Include="GUI\UserOption.cs" />
-    <Compile Include="Hardware\CPU\AMD10CPU.cs" />
-    <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
-    <Compile Include="Hardware\CPU\CPUID.cs" />
-    <Compile Include="Hardware\CPU\CPULoad.cs" />
-    <Compile Include="Hardware\Hardware.cs" />
-    <Compile Include="Hardware\HDD\HDD.cs" />
-    <Compile Include="Hardware\HDD\HDDGroup.cs" />
-    <Compile Include="Hardware\HDD\SMART.cs" />
-    <Compile Include="Hardware\IComputer.cs" />
-    <Compile Include="Hardware\Identifier.cs" />
-    <Compile Include="Hardware\IElement.cs" />
-    <Compile Include="Hardware\IVisitor.cs" />
-    <Compile Include="Hardware\IParameter.cs" />
-    <Compile Include="Hardware\LPC\Chip.cs" />
-    <Compile Include="Hardware\LPC\F718XX.cs" />
-    <Compile Include="Hardware\LPC\ISuperIO.cs" />
-    <Compile Include="Hardware\Mainboard\SuperIOHardware.cs" />
-    <Compile Include="Hardware\Mainboard\Mainboard.cs" />
-    <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
-    <Compile Include="Hardware\Mainboard\Model.cs" />
-    <Compile Include="Hardware\Mainboard\Manufacturer.cs" />
-    <Compile Include="Hardware\Parameter.cs" />
-    <Compile Include="Hardware\Mainboard\SMBIOS.cs" />
-    <Compile Include="Hardware\LPC\W836XX.cs" />
-    <Compile Include="Hardware\Computer.cs" />
-    <Compile Include="Hardware\TBalancer\FTD2XX.cs" />
+    <Compile Include="Utilities\PersistentSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\AboutBox.cs">
       <SubType>Form</SubType>
@@ -129,41 +102,17 @@
     <Compile Include="GUI\AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Hardware\ATI\ADL.cs" />
-    <Compile Include="Hardware\ATI\ATIGroup.cs" />
-    <Compile Include="Hardware\ATI\ATIGPU.cs" />
-    <Compile Include="Utilities\Config.cs" />
-    <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="GUI\HardwareNode.cs" />
-    <Compile Include="Hardware\IGroup.cs" />
-    <Compile Include="Hardware\IHardware.cs" />
-    <Compile Include="Hardware\ISensor.cs" />
-    <Compile Include="Hardware\LPC\IT87XX.cs" />
-    <Compile Include="Hardware\LPC\LPCIO.cs" />
     <Compile Include="GUI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Hardware\Nvidia\NVAPI.cs" />
-    <Compile Include="Hardware\Nvidia\NvidiaGPU.cs" />
-    <Compile Include="Hardware\Nvidia\NvidiaGroup.cs" />
-    <Compile Include="Utilities\HexStringArray.cs" />
-    <Compile Include="Utilities\IconFactory.cs" />
-    <Compile Include="Utilities\IReadOnlyArray.cs" />
-    <Compile Include="Utilities\ListSet.cs" />
-    <Compile Include="Utilities\PInvokeDelegateFactory.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Hardware\CPU\IntelCPU.cs" />
-    <Compile Include="Hardware\CPU\CPUGroup.cs" />
-    <Compile Include="Hardware\Sensor.cs" />
     <Compile Include="GUI\SensorNode.cs" />
-    <Compile Include="Hardware\TBalancer\TBalancer.cs" />
-    <Compile Include="Hardware\TBalancer\TBalancerGroup.cs" />
-    <Compile Include="Hardware\WinRing0.cs" />
-    <Compile Include="Utilities\ReadOnlyArray.cs" />
-    <Compile Include="Hardware\LPC\LMSensors.cs" />
+    <Compile Include="Utilities\EmbeddedResources.cs" />
+    <Compile Include="Utilities\IconFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GUI\AboutBox.resx">
@@ -213,6 +162,12 @@
       <DependentUpon>ReportForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\control.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="OpenHardwareMonitorLib.csproj">
+      <Project>{B0397530-545A-471D-BB74-027AE456DF1A}</Project>
+      <Name>OpenHardwareMonitorLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

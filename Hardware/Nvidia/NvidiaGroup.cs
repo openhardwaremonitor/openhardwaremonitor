@@ -41,12 +41,12 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
 
-  public class NvidiaGroup : IGroup {
+  internal class NvidiaGroup : IGroup {
    
     private List<IHardware> hardware = new List<IHardware>();
     private StringBuilder report = new StringBuilder();
 
-    public NvidiaGroup() {
+    public NvidiaGroup(ISettings settings) {
       if (!NVAPI.IsAvailable)
         return;
 
@@ -109,9 +109,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       for (int i = 0; i < count; i++) {    
         NvDisplayHandle displayHandle;
         if (displayHandles.TryGetValue(handles[i], out displayHandle))
-          hardware.Add(new NvidiaGPU(i, handles[i], displayHandle));                            
+          hardware.Add(new NvidiaGPU(i, handles[i], displayHandle, settings));                            
         else
-          hardware.Add(new NvidiaGPU(i, handles[i], null));   
+          hardware.Add(new NvidiaGPU(i, handles[i], null, settings));   
       }
 
       report.AppendLine();

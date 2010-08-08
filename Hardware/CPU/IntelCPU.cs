@@ -37,7 +37,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -46,14 +45,13 @@ using System.Threading;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  public class IntelCPU : Hardware, IHardware {
+  internal class IntelCPU : Hardware, IHardware {
 
     private int processorIndex;
     private CPUID[][] cpuid;
     private int coreCount;
     
     private string name;
-    private Image icon;
 
     private uint family;
     private uint model;
@@ -94,13 +92,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return result;
     }
 
-    public IntelCPU(int processorIndex, CPUID[][] cpuid) {
+    public IntelCPU(int processorIndex, CPUID[][] cpuid, ISettings settings) {
 
       this.processorIndex = processorIndex;
       this.cpuid = cpuid;
       this.coreCount = cpuid.Length;
       this.name = cpuid[0][0].Name;
-      this.icon = Utilities.EmbeddedResources.GetImage("cpu.png");
 
       this.family = cpuid[0][0].Family;
       this.model = cpuid[0][0].Model;
@@ -179,7 +176,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
               new ParameterDescription("TSlope [°C]", 
                 "Temperature slope of the digital thermal sensor.\n" + 
-                "Temperature = TjMax - TSlope * Value.", 1)});
+                "Temperature = TjMax - TSlope * Value.", 1)}, settings);
           ActivateSensor(coreTemperatures[i]);
         }
       } else {
@@ -187,13 +184,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       if (coreCount > 1)
-        totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this);
+        totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this, settings);
       else
         totalLoad = null;
       coreLoads = new Sensor[coreCount];
       for (int i = 0; i < coreLoads.Length; i++)
         coreLoads[i] = new Sensor(CoreString(i), i + 1,
-          SensorType.Load, this);     
+          SensorType.Load, this, settings);     
       cpuLoad = new CPULoad(cpuid);
       if (cpuLoad.IsAvailable) {
         foreach (Sensor sensor in coreLoads)
@@ -229,11 +226,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       lastTimeStampCount = 0;
       lastTime = 0;
-      busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this);      
+      busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);      
       coreClocks = new Sensor[coreCount];
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] =
-          new Sensor(CoreString(i), i + 1, SensorType.Clock, this);
+          new Sensor(CoreString(i), i + 1, SensorType.Clock, this, settings);
         if (hasTSC)
           ActivateSensor(coreClocks[i]);
       }
@@ -249,8 +246,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return new Identifier("intelcpu", processorIndex.ToString()); }
     }
 
-    public override Image Icon {
-      get { return icon; }
+    public override HardwareType HardwareType {
+      get { return HardwareType.CPU; }
     }
 
     private void AppendMSRData(StringBuilder r, uint msr, int thread) {

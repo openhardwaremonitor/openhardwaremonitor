@@ -37,11 +37,11 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public class Sensor : ISensor {
+  internal class Sensor : ISensor {
 
     private string defaultName;
     private string name;
@@ -55,6 +55,7 @@ namespace OpenHardwareMonitor.Hardware {
     private float? max;
     private Queue<SensorValue> values =
       new Queue<SensorValue>(MAX_MINUTES * 15);
+    private ISettings settings;
     
     private float sum = 0;
     private int count = 0;
@@ -62,19 +63,19 @@ namespace OpenHardwareMonitor.Hardware {
     private const int MAX_MINUTES = 120;
    
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware) : this(name, index, sensorType, hardware, 
-      null) { }
+      IHardware hardware, ISettings settings) : 
+      this(name, index, sensorType, hardware, null, settings) { }
 
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware, ParameterDescription[] parameterDescriptions) :
+      IHardware hardware, ParameterDescription[] parameterDescriptions, 
+      ISettings settings) :
       this(name, index, false, sensorType, hardware,
-        parameterDescriptions) { }
+        parameterDescriptions, settings) { }
 
     public Sensor(string name, int index, bool defaultHidden, 
       SensorType sensorType, IHardware hardware, 
-      ParameterDescription[] parameterDescriptions) 
-    {
-      this.defaultName = name;      
+      ParameterDescription[] parameterDescriptions, ISettings settings) 
+    {           
       this.index = index;
       this.defaultHidden = defaultHidden;
       this.sensorType = sensorType;
@@ -82,15 +83,13 @@ namespace OpenHardwareMonitor.Hardware {
       Parameter[] parameters = new Parameter[parameterDescriptions == null ?
         0 : parameterDescriptions.Length];
       for (int i = 0; i < parameters.Length; i++ ) 
-        parameters[i] = new Parameter(parameterDescriptions[i], this);
+        parameters[i] = new Parameter(parameterDescriptions[i], this, settings);
       this.parameters = parameters;
 
-      string configName = Config.Settings[
-        new Identifier(Identifier, "name").ToString()];
-      if (configName != null)
-        this.name = configName;
-      else
-        this.name = name;
+      this.settings = settings;
+      this.defaultName = name; 
+      this.name = settings.Get(
+        new Identifier(Identifier, "name").ToString(), name);
     }
 
     public IHardware Hardware {
@@ -117,7 +116,7 @@ namespace OpenHardwareMonitor.Hardware {
           name = value;          
         else 
           name = defaultName;
-        Config.Settings[new Identifier(Identifier, "name").ToString()] = name;
+        settings.Set(new Identifier(Identifier, "name").ToString(), name);
       }
     }
 

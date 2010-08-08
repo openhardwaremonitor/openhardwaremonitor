@@ -39,13 +39,13 @@ using System;
 using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
-  public class MainboardGroup : IGroup {
+  internal class MainboardGroup : IGroup {
 
     private Mainboard[] mainboards;
 
-    public MainboardGroup() {
+    public MainboardGroup(ISettings settings) {
       mainboards = new Mainboard[1];
-      mainboards[0] = new Mainboard();
+      mainboards[0] = new Mainboard(settings);
     }
 
     public void Close() {

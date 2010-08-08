@@ -43,12 +43,12 @@ using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
-  public class TBalancerGroup : IGroup {
+  internal class TBalancerGroup : IGroup {
 
     private List<TBalancer> hardware = new List<TBalancer>();
     private StringBuilder report = new StringBuilder();
 
-    public TBalancerGroup() {
+    public TBalancerGroup(ISettings settings) {
 
       uint numDevices;
       try {
@@ -129,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         if (isValid) {
           report.AppendLine("Status: OK");
-          hardware.Add(new TBalancer(i, protocolVersion));
+          hardware.Add(new TBalancer(i, protocolVersion, settings));
           return;
         }
         report.AppendLine();

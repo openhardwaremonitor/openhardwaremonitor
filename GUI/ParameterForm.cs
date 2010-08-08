@@ -41,7 +41,7 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 using OpenHardwareMonitor.Hardware;
-using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class ParameterForm : Form {

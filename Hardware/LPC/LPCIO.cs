@@ -41,7 +41,7 @@ using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
-  public class LPCIO {
+  internal class LPCIO {
 
     private List<ISuperIO> superIOs = new List<ISuperIO>();
     private StringBuilder report = new StringBuilder();
