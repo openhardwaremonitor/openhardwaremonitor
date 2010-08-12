@@ -127,10 +127,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (this.idleTimes == null)
         return;
 
-      long systemTime = DateTime.Now.Ticks;
-      long[] idleTimes = GetIdleTimes();
+      long localSystemTime = DateTime.Now.Ticks;
+      long[] localIdleTimes = GetIdleTimes();
 
-      if (systemTime - this.systemTime < 10000)
+      if (localSystemTime - this.systemTime < 10000)
         return;
 
       float total = 0;
@@ -139,28 +139,28 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         float value = 0;
         for (int j = 0; j < cpuid[i].Length; j++) {
           long index = cpuid[i][j].Thread;
-          if (index < idleTimes.Length) {
-            long delta = idleTimes[index] - this.idleTimes[index];
+          if (index < localIdleTimes.Length) {
+            long delta = localIdleTimes[index] - this.idleTimes[index];
             value += delta;
             total += delta;
             count++;
           }
         }
         value = 1.0f - value / (cpuid[i].Length * 
-          (systemTime - this.systemTime));
+          (localSystemTime - this.systemTime));
         value = value < 0 ? 0 : value;
         coreLoads[i] = value * 100;
       }
       if (count > 0) {
-        total = 1.0f - total / (count * (systemTime - this.systemTime));
+        total = 1.0f - total / (count * (localSystemTime - this.systemTime));
         total = total < 0 ? 0 : total;
       } else {
         total = 0;
       }
       this.totalLoad = total * 100;
 
-      this.systemTime = systemTime;
-      this.idleTimes = idleTimes;
+      this.systemTime = localSystemTime;
+      this.idleTimes = localIdleTimes;
     }
 
   }

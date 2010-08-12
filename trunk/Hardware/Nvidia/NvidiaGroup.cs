@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
@@ -104,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       }
 
       report.Append("Number of GPUs: ");
-      report.AppendLine(count.ToString());      
+      report.AppendLine(count.ToString(CultureInfo.InvariantCulture));      
       
       for (int i = 0; i < count; i++) {    
         NvDisplayHandle displayHandle;

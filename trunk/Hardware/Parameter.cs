@@ -36,6 +36,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -75,9 +76,9 @@ namespace OpenHardwareMonitor.Hardware {
       this.isDefault = !settings.Contains(Identifier.ToString());
       this.value = description.DefaultValue;
       if (!this.isDefault) {
-        if (!float.TryParse(settings.Get(Identifier.ToString(), "0"),
-          System.Globalization.NumberStyles.Float,
-          System.Globalization.CultureInfo.InvariantCulture,
+        if (!float.TryParse(settings.GetValue(Identifier.ToString(), "0"),
+          NumberStyles.Float,
+          CultureInfo.InvariantCulture,
           out this.value))
           this.value = description.DefaultValue;
       }
@@ -91,8 +92,8 @@ namespace OpenHardwareMonitor.Hardware {
 
     public Identifier Identifier {
       get {
-        return new Identifier(sensor.Identifier, "parameter", 
-          Name.Replace(" ", "").ToLower());
+        return new Identifier(sensor.Identifier, "parameter",
+          Name.Replace(" ", "").ToLowerInvariant());
       }
     }
 
@@ -107,8 +108,8 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         this.isDefault = false;
         this.value = value;
-        this.settings.Set(Identifier.ToString(), value.ToString(
-          System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
+        this.settings.SetValue(Identifier.ToString(), value.ToString(
+          CultureInfo.InvariantCulture));
       }
     }
 
@@ -128,7 +129,8 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitParameter(this);
+      if (visitor != null)
+        visitor.VisitParameter(this);
     }
 
     public void Traverse(IVisitor visitor) { }

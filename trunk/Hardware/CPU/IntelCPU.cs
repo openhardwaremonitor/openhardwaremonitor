@@ -45,7 +45,7 @@ using System.Threading;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  internal class IntelCPU : Hardware, IHardware {
+  internal sealed class IntelCPU : Hardware, IHardware {
 
     private int processorIndex;
     private CPUID[][] cpuid;
@@ -243,7 +243,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public override Identifier Identifier {
-      get { return new Identifier("intelcpu", processorIndex.ToString()); }
+      get { 
+        return new Identifier("intelcpu", 
+          processorIndex.ToString(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public override HardwareType HardwareType {
@@ -254,11 +257,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint eax, edx;
       if (WinRing0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
         r.Append(" ");
-        r.Append((msr).ToString("X8"));
+        r.Append((msr).ToString("X8", CultureInfo.InvariantCulture));
         r.Append("  ");
-        r.Append((edx).ToString("X8"));
+        r.Append((edx).ToString("X8", CultureInfo.InvariantCulture));
         r.Append("  ");
-        r.Append((eax).ToString("X8"));
+        r.Append((eax).ToString("X8", CultureInfo.InvariantCulture));
         r.AppendLine();
       }
     }

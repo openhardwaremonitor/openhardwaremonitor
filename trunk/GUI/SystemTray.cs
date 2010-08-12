@@ -97,7 +97,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SensorAdded(ISensor sensor) {
-      if (settings.Get(new Identifier(sensor.Identifier, 
+      if (settings.GetValue(new Identifier(sensor.Identifier, 
         "tray").ToString(), false)) 
         Add(sensor, false);   
     }
@@ -131,7 +131,7 @@ namespace OpenHardwareMonitor.GUI {
       } else {        
         list.Add(new SensorNotifyIcon(this, sensor, balloonTip, settings));
         UpdateMainIconVisibilty();
-        settings.Set(new Identifier(sensor.Identifier, "tray").ToString(), true);
+        settings.SetValue(new Identifier(sensor.Identifier, "tray").ToString(), true);
       }
     }
 

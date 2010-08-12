@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal class HDD : IHardware {
@@ -70,7 +71,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public Identifier Identifier {
-      get { return new Identifier("hdd", drive.ToString()); }
+      get { 
+        return new Identifier("hdd", 
+          drive.ToString(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public HardwareType HardwareType {
@@ -113,7 +117,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     #pragma warning restore 67    
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitHardware(this);
+      if (visitor != null)
+        visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) { }

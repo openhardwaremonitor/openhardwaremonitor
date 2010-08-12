@@ -37,9 +37,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
-  internal class ATIGPU : Hardware {
+  internal sealed class ATIGPU : Hardware {
 
     private string name;
     private int adapterIndex;
@@ -80,7 +81,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     public override Identifier Identifier {
-      get { return new Identifier("atigpu", adapterIndex.ToString()); }
+      get { 
+        return new Identifier("atigpu", 
+          adapterIndex.ToString(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public override HardwareType HardwareType {

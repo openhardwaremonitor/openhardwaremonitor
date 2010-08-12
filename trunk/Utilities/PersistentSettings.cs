@@ -95,11 +95,11 @@ namespace OpenHardwareMonitor {
       return settings.ContainsKey(name);
     }
 
-    public void Set(string name, string value) {
+    public void SetValue(string name, string value) {
       settings[name] = value;
     }
 
-    public string Get(string name, string value) {
+    public string GetValue(string name, string value) {
       string result;
       if (settings.TryGetValue(name, out result))
         return result;
@@ -111,11 +111,11 @@ namespace OpenHardwareMonitor {
       settings.Remove(name);
     }
 
-    public void Set(string name, int value) {
+    public void SetValue(string name, int value) {
       settings[name] = value.ToString();
     }
 
-    public int Get(string name, int value) {
+    public int GetValue(string name, int value) {
       string str;
       if (settings.TryGetValue(name, out str)) {
         int parsedValue;
@@ -128,11 +128,11 @@ namespace OpenHardwareMonitor {
       }
     }
 
-    public void Set(string name, bool value) {
+    public void SetValue(string name, bool value) {
       settings[name] = value ? "true" : "false";
     }
 
-    public bool Get(string name, bool value) {
+    public bool GetValue(string name, bool value) {
       string str;
       if (settings.TryGetValue(name, out str)) {
         return str == "true";
@@ -141,11 +141,11 @@ namespace OpenHardwareMonitor {
       }
     }
 
-    public void Set(string name, Color color) {
+    public void SetValue(string name, Color color) {
       settings[name] = color.ToArgb().ToString("X8");
     }
 
-    public Color Get(string name, Color value) {
+    public Color GetValue(string name, Color value) {
       string str;
       if (settings.TryGetValue(name, out str)) {
         int parsedValue;

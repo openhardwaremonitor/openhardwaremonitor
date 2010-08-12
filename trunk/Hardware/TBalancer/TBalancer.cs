@@ -38,6 +38,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
@@ -276,7 +277,10 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     public Identifier Identifier {
-      get { return new Identifier("bigng", this.portIndex.ToString()); }
+      get { 
+        return new Identifier("bigng",
+          this.portIndex.ToString(CultureInfo.InvariantCulture));
+      }
     }
 
     public IHardware[] SubHardware {
@@ -292,7 +296,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       r.AppendLine("T-Balancer bigNG");
       r.AppendLine();
-      r.Append("Port Index: "); r.AppendLine(portIndex.ToString());
+      r.Append("Port Index: "); 
+      r.AppendLine(portIndex.ToString(CultureInfo.InvariantCulture));
       r.AppendLine();
 
       r.AppendLine("Primary System Information Answer");
@@ -300,12 +305,14 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
       for (int i = 0; i <= 0x11; i++) {
-        r.Append(" "); r.Append((i << 4).ToString("X3")); r.Append("  ");
+        r.Append(" "); 
+        r.Append((i << 4).ToString("X3", CultureInfo.InvariantCulture)); 
+        r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           int index = ((i << 4) | j);
           if (index < primaryData.Length) {
             r.Append(" ");
-            r.Append(primaryData[index].ToString("X2"));
+            r.Append(primaryData[index].ToString("X2", CultureInfo.InvariantCulture));
           }          
         }
         r.AppendLine();
@@ -318,12 +325,14 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
         r.AppendLine();
         for (int i = 0; i <= 0x11; i++) {
-          r.Append(" "); r.Append((i << 4).ToString("X3")); r.Append("  ");
+          r.Append(" "); 
+          r.Append((i << 4).ToString("X3", CultureInfo.InvariantCulture)); 
+          r.Append("  ");
           for (int j = 0; j <= 0xF; j++) {
             int index = ((i << 4) | j);
             if (index < alternativeData.Length) {
               r.Append(" ");
-              r.Append(alternativeData[index].ToString("X2"));
+              r.Append(alternativeData[index].ToString("X2", CultureInfo.InvariantCulture));
             }
           }
           r.AppendLine();
@@ -367,7 +376,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public event SensorEventHandler SensorRemoved;
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitHardware(this);
+      if (visitor != null)
+        visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) { }

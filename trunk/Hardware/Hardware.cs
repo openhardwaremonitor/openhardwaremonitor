@@ -80,7 +80,8 @@ namespace OpenHardwareMonitor.Hardware {
     public abstract void Update();
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitHardware(this);
+      if (visitor != null)
+        visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) {

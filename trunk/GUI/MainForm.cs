@@ -107,9 +107,9 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
       if (settings.Contains("mainForm.Location.X")) {
-        int x = settings.Get("mainForm.Location.X", Location.X);
+        int x = settings.GetValue("mainForm.Location.X", Location.X);
         x = x < 0 ? 0 : x;
-        int y = settings.Get("mainForm.Location.Y", Location.Y);
+        int y = settings.GetValue("mainForm.Location.Y", Location.Y);
         y = y < 0 ? 0 : y;
         this.Location = new Point(x, y);
       } else {
@@ -117,12 +117,12 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       ClientSize = new Size(
-        settings.Get("mainForm.Width", 470),
-        settings.Get("mainForm.Height", 640));
+        settings.GetValue("mainForm.Width", 470),
+        settings.GetValue("mainForm.Height", 640));
 
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(20, Math.Min(400,
-          settings.Get("treeView.Columns." + column.Header + ".Width",
+          settings.GetValue("treeView.Columns." + column.Header + ".Width",
           column.Width)));
 
       treeModel = new TreeModel();
@@ -317,14 +317,14 @@ namespace OpenHardwareMonitor.GUI {
 
     private void SaveConfiguration() {
       if (WindowState != FormWindowState.Minimized) {
-        settings.Set("mainForm.Location.X", Location.X);
-        settings.Set("mainForm.Location.Y", Location.Y);
-        settings.Set("mainForm.Width", ClientSize.Width);
-        settings.Set("mainForm.Height", ClientSize.Height);
+        settings.SetValue("mainForm.Location.X", Location.X);
+        settings.SetValue("mainForm.Location.Y", Location.Y);
+        settings.SetValue("mainForm.Width", ClientSize.Width);
+        settings.SetValue("mainForm.Height", ClientSize.Height);
       }
 
       foreach (TreeColumn column in treeView.Columns)
-        settings.Set("treeView.Columns." + column.Header + ".Width",
+        settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
 
       settings.Save(Path.ChangeExtension(

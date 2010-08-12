@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Ports;
 using System.Text;
@@ -62,7 +63,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       FTD2XX.FT_GetDeviceInfoList(info, ref numDevices);
 
       for (int i = 0; i < numDevices; i++) {
-        report.Append("Device Index: "); report.AppendLine(i.ToString());
+        report.Append("Device Index: ");
+        report.AppendLine(i.ToString(CultureInfo.InvariantCulture));
         
         FT_HANDLE handle;
         FT_STATUS status;
@@ -112,7 +114,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
               protocolVersion = data[274];
               if (!isValid) {
                 report.Append("Status: Wrong Protocol Version: 0x");
-                report.AppendLine(protocolVersion.ToString("X"));
+                report.AppendLine(
+                  protocolVersion.ToString("X", CultureInfo.InvariantCulture));
               }
             } else {
               report.AppendLine("Status: Wrong Message Length: " + length);
