@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 
@@ -238,7 +239,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             WinbondFintekExit();
 
             report.Append("Chip ID: Unknown Winbond / Fintek with ID 0x");
-            report.AppendLine(((id << 8) | revision).ToString("X"));
+            report.AppendLine(((id << 8) | revision).ToString("X", 
+              CultureInfo.InvariantCulture));
             report.AppendLine();
           }
         } else {
@@ -256,7 +258,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             report.Append("Chip ID: 0x");
             report.AppendLine(chip.ToString("X"));
             report.Append("Chip revision: 0x");
-            report.AppendLine(revision.ToString("X"));
+            report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
             report.AppendLine("Error: Address verification failed");
             report.AppendLine();
             return;
@@ -270,9 +272,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             report.Append("Chip ID: 0x");
             report.AppendLine(chip.ToString("X"));
             report.Append("Chip revision: 0x");
-            report.AppendLine(revision.ToString("X"));
+            report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
             report.Append("Error: Invalid address 0x");
-            report.AppendLine(address.ToString("X"));
+            report.AppendLine(address.ToString("X", CultureInfo.InvariantCulture));
             report.AppendLine();
             return;
           }
@@ -298,9 +300,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
                 report.Append("Chip ID: 0x");
                 report.AppendLine(chip.ToString("X"));
                 report.Append("Chip revision: 0x");
-                report.AppendLine(revision.ToString("X"));
+                report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
                 report.Append("Error: Invalid vendor ID 0x");
-                report.AppendLine(vendorID.ToString("X"));
+                report.AppendLine(vendorID.ToString("X", CultureInfo.InvariantCulture));
                 report.AppendLine();
                 return;
               }
@@ -328,7 +330,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             IT87Exit();
 
             report.Append("Chip ID: Unknown ITE with ID 0x");
-            report.AppendLine(chipID.ToString("X"));
+            report.AppendLine(chipID.ToString("X", CultureInfo.InvariantCulture));
             report.AppendLine();
           }
         } else {
@@ -345,7 +347,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             report.Append("Chip ID: 0x");
             report.AppendLine(chip.ToString("X"));
             report.Append("Error: Invalid address 0x");
-            report.AppendLine(address.ToString("X"));
+            report.AppendLine(address.ToString("X", CultureInfo.InvariantCulture));
             report.AppendLine();
             return;
           }
@@ -366,7 +368,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             SMSCExit();
 
             report.Append("Chip ID: Unknown SMSC with ID 0x");
-            report.AppendLine(chipID.ToString("X"));
+            report.AppendLine(chipID.ToString("X", CultureInfo.InvariantCulture));
             report.AppendLine();
           }
         } else {

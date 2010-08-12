@@ -196,7 +196,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     public string GetReport() {
 
-      using (StringWriter w = new StringWriter()) {
+      using (StringWriter w = new StringWriter(CultureInfo.InvariantCulture)) {
 
         w.WriteLine();
         w.WriteLine("Open Hardware Monitor Report");
@@ -266,7 +266,8 @@ namespace OpenHardwareMonitor.Hardware {
     public event HardwareEventHandler HardwareRemoved;
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitComputer(this);
+      if (visitor != null)
+        visitor.VisitComputer(this);
     }
 
     public void Traverse(IVisitor visitor) {
@@ -281,9 +282,9 @@ namespace OpenHardwareMonitor.Hardware {
         return false;
       }
 
-      public void Set(string name, string value) { }
+      public void SetValue(string name, string value) { }
 
-      public string Get(string name, string value) {
+      public string GetValue(string name, string value) {
         return value;
       }
 

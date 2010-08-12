@@ -52,7 +52,7 @@ namespace OpenHardwareMonitor.GUI {
 
     public UnitManager(PersistentSettings settings) {
       this.settings = settings;
-      this.temperatureUnit = (TemperatureUnit)settings.Get("TemperatureUnit",
+      this.temperatureUnit = (TemperatureUnit)settings.GetValue("TemperatureUnit",
         (int)TemperatureUnit.Celcius);
     }
 
@@ -60,7 +60,7 @@ namespace OpenHardwareMonitor.GUI {
       get { return temperatureUnit; }
       set {
         this.temperatureUnit = value;
-        this.settings.Set("TemperatureUnit", (int)temperatureUnit);
+        this.settings.SetValue("TemperatureUnit", (int)temperatureUnit);
       }
     }
   }

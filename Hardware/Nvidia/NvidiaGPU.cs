@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
@@ -115,7 +116,10 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     public override Identifier Identifier {
-      get { return new Identifier("nvidiagpu", adapterIndex.ToString()); }
+      get { 
+        return new Identifier("nvidiagpu", 
+          adapterIndex.ToString(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public override HardwareType HardwareType {
@@ -136,12 +140,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     private uint[] GetClocks() {
-      NvClocks clocks = new NvClocks();
-      clocks.Version = NVAPI.GPU_CLOCKS_VER;
-      clocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
+      NvClocks allClocks = new NvClocks();
+      allClocks.Version = NVAPI.GPU_CLOCKS_VER;
+      allClocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
       if (NVAPI.NvAPI_GPU_GetAllClocks != null &&
-        NVAPI.NvAPI_GPU_GetAllClocks(handle, ref clocks) == NvStatus.OK) {
-        return clocks.Clock;
+        NVAPI.NvAPI_GPU_GetAllClocks(handle, ref allClocks) == NvStatus.OK) {
+        return allClocks.Clock;
       }
       return null;
     }
@@ -235,7 +239,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           r.Append("Driver Version: ");
           r.Append(driverVersion.DriverVersion / 100);
           r.Append(".");
-          r.Append((driverVersion.DriverVersion % 100).ToString("00"));
+          r.Append((driverVersion.DriverVersion % 100).ToString("00", CultureInfo.InvariantCulture));
           r.AppendLine();
           r.Append("Driver Branch: ");
           r.AppendLine(driverVersion.BuildBranch);
@@ -275,17 +279,17 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       }      
 
       if (NVAPI.NvAPI_GPU_GetAllClocks != null) {
-        NvClocks clocks = new NvClocks();
-        clocks.Version = NVAPI.GPU_CLOCKS_VER;
-        clocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
-        NvStatus status = NVAPI.NvAPI_GPU_GetAllClocks(handle, ref clocks);
+        NvClocks allClocks = new NvClocks();
+        allClocks.Version = NVAPI.GPU_CLOCKS_VER;
+        allClocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
+        NvStatus status = NVAPI.NvAPI_GPU_GetAllClocks(handle, ref allClocks);
 
         r.AppendLine("Clocks");
         r.AppendLine();
         if (status == NvStatus.OK) {
-          for (int i = 0; i < clocks.Clock.Length; i++)
-            if (clocks.Clock[i] > 0) {
-              r.AppendFormat(" Clock[{0}]: {1}{2}", i, clocks.Clock[i],
+          for (int i = 0; i < allClocks.Clock.Length; i++)
+            if (allClocks.Clock[i] > 0) {
+              r.AppendFormat(" Clock[{0}]: {1}{2}", i, allClocks.Clock[i],
                 Environment.NewLine);
             }
         } else {

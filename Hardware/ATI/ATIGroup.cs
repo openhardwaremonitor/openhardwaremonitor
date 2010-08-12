@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
@@ -55,7 +56,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         if (status == ADL.ADL_OK)
           report.AppendLine("OK");
         else
-          report.AppendLine(status.ToString());
+          report.AppendLine(status.ToString(CultureInfo.InvariantCulture));
         report.AppendLine();
 
         if (status == ADL.ADL_OK) {
@@ -63,7 +64,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);
           
           report.Append("Number of adapters: "); 
-          report.AppendLine(numberOfAdapters.ToString());
+          report.AppendLine(numberOfAdapters.ToString(CultureInfo.InvariantCulture));
           report.AppendLine();
 
           if (numberOfAdapters > 0) {
@@ -78,25 +79,30 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                   out adapterID);
 
                 report.Append("AdapterIndex: "); 
-                report.AppendLine(i.ToString());
+                report.AppendLine(i.ToString(CultureInfo.InvariantCulture));
                 report.Append("isActive: "); 
-                report.AppendLine(isActive.ToString());
+                report.AppendLine(isActive.ToString(CultureInfo.InvariantCulture));
                 report.Append("AdapterName: "); 
                 report.AppendLine(adapterInfo[i].AdapterName);     
                 report.Append("UDID: ");
                 report.AppendLine(adapterInfo[i].UDID);
                 report.Append("Present: ");
-                report.AppendLine(adapterInfo[i].Present.ToString());
+                report.AppendLine(adapterInfo[i].Present.ToString(
+                  CultureInfo.InvariantCulture));
                 report.Append("VendorID: ");
-                report.AppendLine(adapterInfo[i].VendorID.ToString());
+                report.AppendLine(adapterInfo[i].VendorID.ToString(
+                  CultureInfo.InvariantCulture));
                 report.Append("BusNumber: ");
-                report.AppendLine(adapterInfo[i].BusNumber.ToString());
+                report.AppendLine(adapterInfo[i].BusNumber.ToString(
+                  CultureInfo.InvariantCulture));
                 report.Append("DeviceNumber: ");
-                report.AppendLine(adapterInfo[i].DeviceNumber.ToString());
+                report.AppendLine(adapterInfo[i].DeviceNumber.ToString(
+                 CultureInfo.InvariantCulture));
                 report.Append("FunctionNumber: ");
-                report.AppendLine(adapterInfo[i].FunctionNumber.ToString());
+                report.AppendLine(adapterInfo[i].FunctionNumber.ToString(
+                  CultureInfo.InvariantCulture));
                 report.Append("AdapterID: 0x");
-                report.AppendLine(adapterID.ToString("X"));
+                report.AppendLine(adapterID.ToString("X", CultureInfo.InvariantCulture));
 
                 if (adapterID != 0 && adapterInfo[i].UDID != "" &&
                   (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||

@@ -131,7 +131,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     #pragma warning restore 67
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitHardware(this);
+      if (visitor != null)
+        visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) {

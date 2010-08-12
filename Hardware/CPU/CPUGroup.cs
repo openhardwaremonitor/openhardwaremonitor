@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Diagnostics;
 using System.Text;
 
@@ -153,10 +154,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private void AppendCpuidData(StringBuilder r, uint[,] data, uint offset) {
       for (int i = 0; i < data.GetLength(0); i++) {
         r.Append(" ");
-        r.Append((i + offset).ToString("X8"));
+        r.Append((i + offset).ToString("X8", CultureInfo.InvariantCulture));
         for (int j = 0; j < 4; j++) {
           r.Append("  ");
-          r.Append(data[i, j].ToString("X8"));
+          r.Append(data[i, j].ToString("X8", CultureInfo.InvariantCulture));
         }
         r.AppendLine();
       }
@@ -180,11 +181,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         r.AppendFormat("Processor Brand: {0}{1}", threads[i][0][0].BrandString,
           Environment.NewLine);
         r.AppendFormat("Family: 0x{0}{1}", 
-          threads[i][0][0].Family.ToString("X"), Environment.NewLine);
-        r.AppendFormat("Model: 0x{0}{1}", 
-          threads[i][0][0].Model.ToString("X"), Environment.NewLine);
-        r.AppendFormat("Stepping: 0x{0}{1}", 
-          threads[i][0][0].Stepping.ToString("X"), Environment.NewLine);
+          threads[i][0][0].Family.ToString("X", CultureInfo.InvariantCulture), 
+          Environment.NewLine);
+        r.AppendFormat("Model: 0x{0}{1}",
+          threads[i][0][0].Model.ToString("X", CultureInfo.InvariantCulture), 
+          Environment.NewLine);
+        r.AppendFormat("Stepping: 0x{0}{1}",
+          threads[i][0][0].Stepping.ToString("X", CultureInfo.InvariantCulture), 
+          Environment.NewLine);
         r.AppendLine();
 
         r.AppendLine("CPUID Return Values");

@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
@@ -151,7 +152,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           voltageReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
           string s = voltageReaders[i].ReadLine();
           try {
-            voltages[i] = 0.001f * long.Parse(s);
+            voltages[i] = 0.001f * 
+              long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
             voltages[i] = null;
           }
@@ -161,7 +163,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           temperatureReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
           string s = temperatureReaders[i].ReadLine();
           try {
-            temperatures[i] = 0.001f * long.Parse(s);
+            temperatures[i] = 0.001f * 
+              long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
             temperatures[i] = null;
           }
@@ -171,7 +174,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fanReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
           string s = fanReaders[i].ReadLine();
           try {
-            fans[i] = long.Parse(s);
+            fans[i] = long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
             fans[i] = null;
           }

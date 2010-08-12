@@ -43,9 +43,9 @@ namespace OpenHardwareMonitor.Hardware {
 
     bool Contains(string name);
     
-    void Set(string name, string value);
+    void SetValue(string name, string value);
     
-    string Get(string name, string value);
+    string GetValue(string name, string value);
     
     void Remove(string name);
   }

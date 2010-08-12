@@ -76,7 +76,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Control: format = "{0:F1} %"; break;
       }
 
-      bool hidden = settings.Get(new Identifier(sensor.Identifier, 
+      bool hidden = settings.GetValue(new Identifier(sensor.Identifier, 
         "hidden").ToString(), sensor.IsDefaultHidden);
       base.IsVisible = !hidden;
     }
@@ -90,7 +90,7 @@ namespace OpenHardwareMonitor.GUI {
       get { return base.IsVisible; }
       set { 
         base.IsVisible = value;
-        settings.Set(new Identifier(sensor.Identifier,
+        settings.SetValue(new Identifier(sensor.Identifier,
           "hidden").ToString(), !value);
       }
     }

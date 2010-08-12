@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using OpenHardwareMonitor.Hardware.LPC;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
@@ -593,7 +594,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     }
 
     public override Identifier Identifier {
-      get { return new Identifier("lpc", superIO.Chip.ToString().ToLower()); }
+      get { 
+        return new Identifier("lpc", 
+          superIO.Chip.ToString().ToLower(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public override HardwareType HardwareType {

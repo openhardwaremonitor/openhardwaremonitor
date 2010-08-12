@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
@@ -114,8 +115,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine("LPC " + this.GetType().Name);
       r.AppendLine();
       r.Append("Chip ID: 0x"); r.AppendLine(chip.ToString("X"));
-      r.Append("Chip Version: 0x"); r.AppendLine(version.ToString("X"));
-      r.Append("Base Address: 0x"); r.AppendLine(address.ToString("X4"));
+      r.Append("Chip Version: 0x"); r.AppendLine(
+        version.ToString("X", CultureInfo.InvariantCulture));
+      r.Append("Base Address: 0x"); r.AppendLine(
+        address.ToString("X4", CultureInfo.InvariantCulture));
       r.AppendLine();
 
       if (!WinRing0.WaitIsaBusMutex(100))
@@ -126,13 +129,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine("      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
       for (int i = 0; i <= 0xA; i++) {
-        r.Append(" "); r.Append((i << 4).ToString("X2")); r.Append("  ");
+        r.Append(" "); 
+        r.Append((i << 4).ToString("X2", CultureInfo.InvariantCulture)); 
+        r.Append("  ");
         for (int j = 0; j <= 0xF; j++) {
           r.Append(" ");
           bool valid;
           byte value = ReadByte((byte)((i << 4) | j), out valid);
           if (valid)
-            r.Append(value.ToString("X2"));
+            r.Append(value.ToString("X2", CultureInfo.InvariantCulture));
           else
             r.Append("??");
         }

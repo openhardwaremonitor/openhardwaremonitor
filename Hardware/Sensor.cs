@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -88,7 +89,7 @@ namespace OpenHardwareMonitor.Hardware {
 
       this.settings = settings;
       this.defaultName = name; 
-      this.name = settings.Get(
+      this.name = settings.GetValue(
         new Identifier(Identifier, "name").ToString(), name);
     }
 
@@ -102,8 +103,9 @@ namespace OpenHardwareMonitor.Hardware {
 
     public Identifier Identifier {
       get {
-        return new Identifier(hardware.Identifier, 
-          sensorType.ToString().ToLower(), index.ToString());
+        return new Identifier(hardware.Identifier,
+          sensorType.ToString().ToLowerInvariant(),
+          index.ToString(CultureInfo.InvariantCulture));
       }
     }
 
@@ -116,7 +118,7 @@ namespace OpenHardwareMonitor.Hardware {
           name = value;          
         else 
           name = defaultName;
-        settings.Set(new Identifier(Identifier, "name").ToString(), name);
+        settings.SetValue(new Identifier(Identifier, "name").ToString(), name);
       }
     }
 
@@ -175,7 +177,8 @@ namespace OpenHardwareMonitor.Hardware {
     }    
 
     public void Accept(IVisitor visitor) {
-      visitor.VisitSensor(this);
+      if (visitor != null)
+        visitor.VisitSensor(this);
     }
 
     public void Traverse(IVisitor visitor) {

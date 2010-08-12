@@ -37,10 +37,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  internal class AMD0FCPU : Hardware, IHardware {
+  internal sealed class AMD0FCPU : Hardware, IHardware {
 
     private string name;
 
@@ -117,7 +118,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public override Identifier Identifier {
-      get { return new Identifier("amdcpu", processorIndex.ToString()); }
+      get { 
+        return new Identifier("amdcpu", 
+          processorIndex.ToString(CultureInfo.InvariantCulture)); 
+      }
     }
 
     public override HardwareType HardwareType {
