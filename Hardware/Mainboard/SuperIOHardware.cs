@@ -70,7 +70,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           switch (manufacturer) {
             case Manufacturer.ASUS:
               switch (model) {
-                case Model.Crosshair_III_Formula:
+                case Model.Crosshair_III_Formula: // IT8720F
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("CPU", 0));
                   for (int i = 0; i < superIO.Fans.Length; i++)
@@ -89,7 +89,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Chassis Fan #1", 1));
                   f.Add(new Fan("Power Fan", 2));
                   break;
-                case Model.M4A79XTD_EVO:              
+                case Model.M4A79XTD_EVO: // IT8720F           
                   v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("CPU", 0));
@@ -117,7 +117,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Manufacturer.DFI:
               switch (model) {
-                case Model.LP_BI_P45_T2RS_Elite:
+                case Model.LP_BI_P45_T2RS_Elite: // IT8718F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("FSB VTT", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -134,7 +134,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Fan #2", 1));
                   f.Add(new Fan("Fan #3", 2));
                   break;
-                case Model.LP_DK_P55_T3eH9:
+                case Model.LP_DK_P55_T3eH9: // IT8720F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("VTT", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -171,7 +171,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
             case Manufacturer.Gigabyte:
               switch (model) {
-                case Model._965P_S3:
+                case Model._965P_S3: // IT8718F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -183,7 +183,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("CPU Fan", 0));
                   f.Add(new Fan("System Fan", 1));
                   break;
-                case Model.EP45_DS3R:
+                case Model.EP45_DS3R: // IT8718F
                 case Model.EP45_UD3R: 
                 case Model.X38_DS5:    
                   v.Add(new Voltage("CPU VCore", 0));
@@ -199,7 +199,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
-                case Model.EX58_EXTREME:
+                case Model.EX58_EXTREME: // IT8720F 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10, 0));
@@ -212,8 +212,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
-                case Model.P35_DS3:
-                case Model.P35_DS3L:
+                case Model.P35_DS3: // IT8718F 
+                case Model.P35_DS3L: // IT8718F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -227,7 +227,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #2", 2));
                   f.Add(new Fan("Power Fan", 3));
                   break;
-                case Model.P55_UD4:                
+                case Model.P55_UD4: // IT8720F
+                case Model.P55M_UD4: // IT8720F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -241,7 +242,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
-                case Model.GA_MA770T_UD3:
+                case Model.GA_MA770T_UD3: // IT8720F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -255,7 +256,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #2", 2));
                   f.Add(new Fan("Power Fan", 3));
                   break;
-                case Model.GA_MA785GMT_UD2H:
+                case Model.GA_MA785GMT_UD2H: // IT8718F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -268,7 +269,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan", 1));
                   f.Add(new Fan("NB Fan", 2));
                   break;
-                case Model.X58A_UD3R:
+                case Model.X58A_UD3R: // IT8720F 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
@@ -336,7 +337,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           switch (manufacturer) {
             case Manufacturer.EVGA:
               switch (model) {
-                case Model.X58_SLI_Classified:
+                case Model.X58_SLI_Classified: // F71882 
                   v.Add(new Voltage("VCC3V", 0, 150, 150, 0));
                   v.Add(new Voltage("CPU VCore", 1, 47, 100, 0));
                   v.Add(new Voltage("DIMM", 2, 47, 100, 0));
@@ -415,7 +416,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           switch (manufacturer) {
             case Manufacturer.ASRock:
               switch (model) {
-                case Model._880GMH_USB3: 
+                case Model._880GMH_USB3: // W83627DHG-P
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+3.3V", 3, 34, 34, 0));
                   v.Add(new Voltage("+5V", 5, 15, 7.5f, 0));
@@ -451,7 +452,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Manufacturer.ASUS:
               switch (model) {
-                case Model.P6X58D_E:
+                case Model.P6X58D_E: // W83667HG 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+12V", 1, 11.5f, 1.91f, 0));
                   v.Add(new Voltage("Analog +3.3V", 2, 34, 34, 0));
