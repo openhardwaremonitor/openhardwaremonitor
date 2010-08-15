@@ -53,8 +53,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       this.smbios = new SMBIOS();
      
       if (smbios.Board != null) {
-        if (smbios.Board.ProductName != null
-          && smbios.Board.ProductName != "") {
+        if (!string.IsNullOrEmpty(smbios.Board.ProductName)) {
           if (smbios.Board.Manufacturer == Manufacturer.Unknown)
             this.name = smbios.Board.ProductName;
           else
@@ -131,8 +130,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     #pragma warning restore 67
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitHardware(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) {

@@ -45,7 +45,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static char SEPARATOR = '/';
 
-    private void CheckIdentifiers(string[] identifiers) {
+    private static void CheckIdentifiers(string[] identifiers) {
       foreach (string s in identifiers)
         if (s.Contains(" ") || s.Contains(SEPARATOR.ToString()))
           throw new ArgumentException("Invalid identifier");

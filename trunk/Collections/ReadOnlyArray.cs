@@ -66,5 +66,9 @@ namespace OpenHardwareMonitor.Collections {
     public static implicit operator ReadOnlyArray<T>(T[] array) {
       return new ReadOnlyArray<T>(array);
     }
+
+    public T[] ToArray() {
+      return (T[])array.Clone();
+    }
   }
 }

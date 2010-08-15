@@ -104,7 +104,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.Append("AdapterID: 0x");
                 report.AppendLine(adapterID.ToString("X", CultureInfo.InvariantCulture));
 
-                if (adapterID != 0 && adapterInfo[i].UDID != "" &&
+                if (adapterID != 0 && !string.IsNullOrEmpty(adapterInfo[i].UDID) &&
                   (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
                    adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) {
                   bool found = false;

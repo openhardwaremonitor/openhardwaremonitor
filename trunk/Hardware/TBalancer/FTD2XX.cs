@@ -128,18 +128,44 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public delegate FT_STATUS FT_ReadDelegate(FT_HANDLE handle, 
       [Out] byte[] buffer, uint bytesToRead, out uint bytesReturned);
 
-    public static FT_CreateDeviceInfoListDelegate FT_CreateDeviceInfoList;
-    public static FT_GetDeviceInfoListDelegate FT_GetDeviceInfoList;
-    public static FT_OpenDelegate FT_Open;
-    public static FT_CloseDelegate FT_Close;
-    public static FT_SetBaudRateDelegate FT_SetBaudRate;
-    public static FT_SetDataCharacteristicsDelegate FT_SetDataCharacteristics;
-    public static FT_SetFlowControlDelegate FT_SetFlowControl;
-    public static FT_SetTimeoutsDelegate FT_SetTimeouts;
-    public static FT_WriteDelegate FT_Write;
-    public static FT_PurgeDelegate FT_Purge;
-    public static FT_GetStatusDelegate FT_GetStatus;
-    public static FT_ReadDelegate FT_Read;
+    public static readonly FT_CreateDeviceInfoListDelegate 
+      FT_CreateDeviceInfoList = CreateDelegate<
+      FT_CreateDeviceInfoListDelegate>("FT_CreateDeviceInfoList");
+    public static readonly FT_GetDeviceInfoListDelegate 
+      FT_GetDeviceInfoList = CreateDelegate<
+      FT_GetDeviceInfoListDelegate>("FT_GetDeviceInfoList");
+    public static readonly FT_OpenDelegate 
+      FT_Open = CreateDelegate<
+      FT_OpenDelegate>("FT_Open");
+    public static readonly FT_CloseDelegate 
+      FT_Close = CreateDelegate<
+      FT_CloseDelegate>("FT_Close");
+    public static readonly FT_SetBaudRateDelegate 
+      FT_SetBaudRate = CreateDelegate<
+      FT_SetBaudRateDelegate>("FT_SetBaudRate");
+    public static readonly FT_SetDataCharacteristicsDelegate 
+      FT_SetDataCharacteristics = CreateDelegate<
+      FT_SetDataCharacteristicsDelegate>("FT_SetDataCharacteristics");
+    public static readonly FT_SetFlowControlDelegate 
+      FT_SetFlowControl = CreateDelegate<
+      FT_SetFlowControlDelegate>("FT_SetFlowControl");
+    public static readonly FT_SetTimeoutsDelegate 
+      FT_SetTimeouts = CreateDelegate<
+      FT_SetTimeoutsDelegate>("FT_SetTimeouts");
+    public static readonly FT_WriteDelegate 
+      FT_Write = CreateDelegate<
+      FT_WriteDelegate>("FT_Write");
+    public static readonly FT_PurgeDelegate 
+      FT_Purge = CreateDelegate<
+      FT_PurgeDelegate>("FT_Purge");
+    public static readonly FT_GetStatusDelegate 
+      FT_GetStatus = CreateDelegate<
+      FT_GetStatusDelegate>("FT_GetStatus");
+    public static readonly FT_ReadDelegate 
+      FT_Read = CreateDelegate<
+      FT_ReadDelegate>("FT_Read");
+
+    private FTD2XX() { }
 
     public static FT_STATUS Write(FT_HANDLE handle, byte[] buffer) {
       uint bytesWritten;
@@ -168,40 +194,27 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       uint bytesReturned;
       FT_STATUS status = FT_Read(handle, buffer, 1, out bytesReturned);
       if (status != FT_STATUS.FT_OK || bytesReturned != 1)
-        throw new Exception();
+        throw new InvalidOperationException();
       return buffer[0];
     }
 
-    private static string dllName;
+    private static string GetDllName() {
+      int p = (int)System.Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128))
+        return "libftd2xx.so";
+      else
+        return "ftd2xx.dll";
+    }
 
-    private static void GetDelegate<T>(string entryPoint, out T newDelegate)
+    private static T CreateDelegate<T>(string entryPoint)
       where T : class {
-      DllImportAttribute attribute = new DllImportAttribute(dllName);
+      DllImportAttribute attribute = new DllImportAttribute(GetDllName());
       attribute.CallingConvention = CallingConvention.StdCall;
       attribute.PreserveSig = true;
       attribute.EntryPoint = entryPoint;
+      T newDelegate;
       PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
-    }
-
-    static FTD2XX() {
-      int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
-        dllName = "libftd2xx.so";
-      else
-        dllName = "ftd2xx.dll";
-
-      GetDelegate("FT_CreateDeviceInfoList", out FT_CreateDeviceInfoList);
-      GetDelegate("FT_GetDeviceInfoList", out FT_GetDeviceInfoList);
-      GetDelegate("FT_Open", out FT_Open);
-      GetDelegate("FT_Close", out FT_Close);
-      GetDelegate("FT_SetBaudRate", out FT_SetBaudRate);
-      GetDelegate("FT_SetDataCharacteristics", out FT_SetDataCharacteristics);
-      GetDelegate("FT_SetFlowControl", out FT_SetFlowControl);
-      GetDelegate("FT_SetTimeouts", out FT_SetTimeouts);
-      GetDelegate("FT_Write", out FT_Write);
-      GetDelegate("FT_Purge", out FT_Purge);
-      GetDelegate("FT_GetStatus", out FT_GetStatus);
-      GetDelegate("FT_Read", out FT_Read);
+      return newDelegate;
     }
   }
 }

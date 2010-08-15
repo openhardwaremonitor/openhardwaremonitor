@@ -117,8 +117,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     #pragma warning restore 67    
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitHardware(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) { }

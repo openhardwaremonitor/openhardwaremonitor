@@ -41,6 +41,9 @@ using System.IO;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using System.Security;
+using System.Security.Permissions;
+
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -86,9 +89,12 @@ namespace OpenHardwareMonitor.Hardware {
           HardwareRemoved(hardware);
     }
 
+    [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
     public void Open() {
       if (open)
         return;
+
+      WinRing0.Open();
 
       Add(new Mainboard.MainboardGroup(settings));
       Add(new CPU.CPUGroup(settings));
@@ -101,9 +107,11 @@ namespace OpenHardwareMonitor.Hardware {
 
       open = true;
     }
-
+    
     public bool HDDEnabled {
       get { return hddEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
       set {
         if (open && value && !hddEnabled) {
           Add(new HDD.HDDGroup(settings));
@@ -129,7 +137,7 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    private void NewSection(TextWriter writer) {
+    private static void NewSection(TextWriter writer) {
       for (int i = 0; i < 8; i++)
         writer.Write("----------");
       writer.WriteLine();
@@ -186,7 +194,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     private void ReportHardware(IHardware hardware, TextWriter w) {
       string hardwareReport = hardware.GetReport();
-      if (hardwareReport != null && hardwareReport != "") {
+      if (!string.IsNullOrEmpty(hardwareReport)) {
         NewSection(w);
         w.Write(hardwareReport);
       }
@@ -237,7 +245,7 @@ namespace OpenHardwareMonitor.Hardware {
 
         foreach (IGroup group in groups) {
           string report = group.GetReport();
-          if (report != null && report != "") {
+          if (!string.IsNullOrEmpty(report)) {
             NewSection(w);
             w.Write(report);
           }
@@ -259,6 +267,8 @@ namespace OpenHardwareMonitor.Hardware {
         group.Close();
       groups.Clear();
 
+      WinRing0.Close();
+
       open = false;
     }
 
@@ -266,8 +276,9 @@ namespace OpenHardwareMonitor.Hardware {
     public event HardwareEventHandler HardwareRemoved;
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitComputer(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitComputer(this);
     }
 
     public void Traverse(IVisitor visitor) {

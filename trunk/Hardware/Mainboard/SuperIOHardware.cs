@@ -44,39 +44,18 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class SuperIOHardware : Hardware {
 
     private ISuperIO superIO;
-    protected readonly string name;
+    private string name;
 
     private List<Sensor> voltages = new List<Sensor>();
     private List<Sensor> temperatures = new List<Sensor>();
-    private List<Sensor> fans = new List<Sensor>();  
+    private List<Sensor> fans = new List<Sensor>();
+
 
     public SuperIOHardware(ISuperIO superIO, Manufacturer manufacturer,
       Model model, ISettings settings) 
     {
       this.superIO = superIO;
-
-      switch (superIO.Chip) {
-        case Chip.F71858: name = "Fintek F71858"; break;
-        case Chip.F71862: name = "Fintek F71862"; break;
-        case Chip.F71869: name = "Fintek F71869"; break;
-        case Chip.F71882: name = "Fintek F71882"; break;
-        case Chip.F71889ED: name = "Fintek F71889ED"; break;
-        case Chip.F71889F: name = "Fintek F71889F"; break;
-        case Chip.IT8712F: this.name = "ITE IT8712F"; break;
-        case Chip.IT8716F: this.name = "ITE IT8716F"; break;
-        case Chip.IT8718F: this.name = "ITE IT8718F"; break;
-        case Chip.IT8720F: this.name = "ITE IT8720F"; break;
-        case Chip.IT8726F: this.name = "ITE IT8726F"; break;
-        case Chip.W83627DHG: this.name = "Winbond W83627DHG"; break;
-        case Chip.W83627DHGP: this.name = "Winbond W83627DHG-P"; break;
-        case Chip.W83627EHF: this.name = "Winbond W83627EHF"; break;
-        case Chip.W83627HF: this.name = "Winbond W83627HF"; break;
-        case Chip.W83627THF: this.name = "Winbond W83627THF"; break;
-        case Chip.W83667HG: this.name = "Winbond W83667HG"; break;
-        case Chip.W83667HGB: this.name = "Winbond W83667HG-B"; break;
-        case Chip.W83687THF: this.name = "Winbond W83687THF"; break;
-        case Chip.Unknown: this.name = "Unkown"; break;
-      }
+      this.name = ChipName.GetName(superIO.Chip);
 
       List<Voltage> v = new List<Voltage>();
       List<Temperature> t = new List<Temperature>();
@@ -483,7 +462,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("Standby +3.3V", 7, 34, 34, 0));
                   v.Add(new Voltage("VBAT", 8, 34, 34, 0));
                   t.Add(new Temperature("CPU", 0));
-                  t.Add(new Temperature("Auxiliary", 1, true));
                   t.Add(new Temperature("Motherboard", 2));
                   f.Add(new Fan("Chassis Fan #1", 0));
                   f.Add(new Fan("CPU Fan", 1));
@@ -673,15 +651,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private class Temperature {
       public readonly string Name;
       public readonly int Index;
-      public readonly bool Hidden;
 
-      public Temperature(string name, int index) :
-        this(name, index, false) { }
-
-      public Temperature(string name, int index, bool hidden) {
+      public Temperature(string name, int index) {
         this.Name = name;
         this.Index = index;
-        this.Hidden = hidden;
       }
     }
 

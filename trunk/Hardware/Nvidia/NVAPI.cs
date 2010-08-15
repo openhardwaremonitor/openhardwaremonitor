@@ -310,7 +310,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public static readonly NvAPI_GPU_GetMemoryInfoDelegate
       NvAPI_GPU_GetMemoryInfo;
     public static readonly NvAPI_GetDisplayDriverVersionDelegate
-      NvAPI_GetDisplayDriverVersion;    
+      NvAPI_GetDisplayDriverVersion;
+
+    private NVAPI() { }
 
     public static NvStatus NvAPI_GPU_GetFullName(NvPhysicalGpuHandle gpuHandle,
       out string name) {

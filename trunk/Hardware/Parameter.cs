@@ -41,7 +41,7 @@ using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  public struct ParameterDescription {
+  internal struct ParameterDescription {
     private string name;
     private string description;
     private float defaultValue;    
@@ -60,7 +60,7 @@ namespace OpenHardwareMonitor.Hardware {
     public float DefaultValue { get { return defaultValue; } }
   }
 
-  public class Parameter : IParameter {
+  internal class Parameter : IParameter {
     private ISensor sensor;
     private ParameterDescription description;
     private float value;
@@ -129,8 +129,9 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitParameter(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitParameter(this);
     }
 
     public void Traverse(IVisitor visitor) { }

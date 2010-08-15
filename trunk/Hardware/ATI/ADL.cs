@@ -156,7 +156,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private static ADL_Adapter_AdapterInfo_GetDelegate
       _ADL_Adapter_AdapterInfo_Get;
 
-    public static ADL_Main_Control_DestroyDelegate 
+    public static ADL_Main_Control_DestroyDelegate
       ADL_Main_Control_Destroy;
     public static ADL_Adapter_NumberOfAdapters_GetDelegate
       ADL_Adapter_NumberOfAdapters_Get;

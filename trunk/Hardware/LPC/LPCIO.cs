@@ -47,8 +47,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private List<ISuperIO> superIOs = new List<ISuperIO>();
     private StringBuilder report = new StringBuilder();
 
-    private Chip chip = Chip.Unknown;
-
     // I/O Ports
     private ushort[] REGISTER_PORTS = new ushort[] { 0x2e, 0x4e };
     private ushort[] VALUE_PORTS = new ushort[] { 0x2f, 0x4f };
@@ -121,261 +119,290 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
     }
 
+    private void ReportUnknownChip(string type, int chip) {
+      report.Append("Chip ID: Unknown ");
+      report.Append(type);
+      report.Append(" with ID 0x");
+      report.Append(chip.ToString("X", CultureInfo.InvariantCulture));
+      report.Append(" at 0x");
+      report.Append(registerPort.ToString("X", CultureInfo.InvariantCulture));
+      report.Append("/0x");
+      report.AppendLine(valuePort.ToString("X", CultureInfo.InvariantCulture));
+      report.AppendLine();
+    }
+
+    private bool DetectWinbondFintek() {
+      WinbondFintekEnter();
+
+      byte logicalDeviceNumber;
+      byte id = ReadByte(CHIP_ID_REGISTER);
+      byte revision = ReadByte(CHIP_REVISION_REGISTER);
+      Chip chip = Chip.Unknown;
+      logicalDeviceNumber = 0;
+      switch (id) {
+        case 0x05:
+          switch (revision) {
+            case 0x07:
+              chip = Chip.F71858;
+              logicalDeviceNumber = F71858_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x41:
+              chip = Chip.F71882;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x06:
+          switch (revision) {
+            case 0x01:
+              chip = Chip.F71862;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x07:
+          switch (revision) {
+            case 0x23:
+              chip = Chip.F71889F;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x08:
+          switch (revision) {
+            case 0x14:
+              chip = Chip.F71869;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x09:
+          switch (revision) {
+            case 0x09:
+              chip = Chip.F71889ED;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x52:
+          switch (revision) {
+            case 0x17:
+            case 0x3A:
+            case 0x41:
+              chip = Chip.W83627HF;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x82:
+          switch (revision & 0xF0) {
+            case 0x80:
+              chip = Chip.W83627THF;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x85:
+          switch (revision) {
+            case 0x41:
+              chip = Chip.W83687THF;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0x88:
+          switch (revision & 0xF0) {
+            case 0x50:
+            case 0x60:
+              chip = Chip.W83627EHF;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xA0:
+          switch (revision & 0xF0) {
+            case 0x20:
+              chip = Chip.W83627DHG;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xA5:
+          switch (revision & 0xF0) {
+            case 0x10:
+              chip = Chip.W83667HG;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xB0:
+          switch (revision & 0xF0) {
+            case 0x70:
+              chip = Chip.W83627DHGP;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xB3:
+          switch (revision & 0xF0) {
+            case 0x50:
+              chip = Chip.W83667HGB;
+              logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+      }
+      if (chip == Chip.Unknown) {
+        if (id != 0 && id != 0xff) {
+          WinbondFintekExit();
+
+          ReportUnknownChip("Winbond / Fintek", ((id << 8) | revision));         
+        }
+      } else {
+
+        Select(logicalDeviceNumber);
+        ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+        Thread.Sleep(1);
+        ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+
+        ushort vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
+
+        WinbondFintekExit();
+
+        if (address != verify) {
+          report.Append("Chip ID: 0x");
+          report.AppendLine(chip.ToString("X"));
+          report.Append("Chip revision: 0x");
+          report.AppendLine(revision.ToString("X", 
+            CultureInfo.InvariantCulture));
+          report.AppendLine("Error: Address verification failed");
+          report.AppendLine();
+          return false;
+        }
+
+        // some Fintek chips have address register offset 0x05 added already
+        if ((address & 0x07) == 0x05)
+          address &= 0xFFF8;
+
+        if (address < 0x100 || (address & 0xF007) != 0) {
+          report.Append("Chip ID: 0x");
+          report.AppendLine(chip.ToString("X"));
+          report.Append("Chip revision: 0x");
+          report.AppendLine(revision.ToString("X", 
+            CultureInfo.InvariantCulture));
+          report.Append("Error: Invalid address 0x");
+          report.AppendLine(address.ToString("X", 
+            CultureInfo.InvariantCulture));
+          report.AppendLine();
+          return false;
+        }
+
+        switch (chip) {
+          case Chip.W83627DHG:
+          case Chip.W83627DHGP:
+          case Chip.W83627EHF:
+          case Chip.W83627HF:
+          case Chip.W83627THF:
+          case Chip.W83667HG:
+          case Chip.W83667HGB:
+          case Chip.W83687THF:
+            superIOs.Add(new W836XX(chip, revision, address));
+            break;
+          case Chip.F71858:
+          case Chip.F71862:
+          case Chip.F71869:
+          case Chip.F71882:
+          case Chip.F71889ED:
+          case Chip.F71889F:
+            if (vendorID != FINTEK_VENDOR_ID) {
+              report.Append("Chip ID: 0x");
+              report.AppendLine(chip.ToString("X"));
+              report.Append("Chip revision: 0x");
+              report.AppendLine(revision.ToString("X", 
+                CultureInfo.InvariantCulture));
+              report.Append("Error: Invalid vendor ID 0x");
+              report.AppendLine(vendorID.ToString("X", 
+                CultureInfo.InvariantCulture));
+              report.AppendLine();
+              return false;
+            }
+            superIOs.Add(new F718XX(chip, address));
+            break;
+          default: break;
+        }
+
+        return true;
+      }
+
+      return false;
+    }
+
+    private bool DetectIT87() {
+      IT87Enter();
+
+      ushort chipID = ReadWord(CHIP_ID_REGISTER);
+      Chip chip;
+      switch (chipID) {
+        case 0x8712: chip = Chip.IT8712F; break;
+        case 0x8716: chip = Chip.IT8716F; break;
+        case 0x8718: chip = Chip.IT8718F; break;
+        case 0x8720: chip = Chip.IT8720F; break;
+        case 0x8726: chip = Chip.IT8726F; break;
+        default: chip = Chip.Unknown; break;
+      }
+      if (chip == Chip.Unknown) {
+        if (chipID != 0 && chipID != 0xffff) {
+          IT87Exit();
+
+          ReportUnknownChip("ITE", chipID);
+        }
+      } else {
+        Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
+        ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+        Thread.Sleep(1);
+        ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+
+        byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
+
+        IT87Exit();
+
+        if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
+          report.Append("Chip ID: 0x");
+          report.AppendLine(chip.ToString("X"));
+          report.Append("Error: Invalid address 0x");
+          report.AppendLine(address.ToString("X",
+            CultureInfo.InvariantCulture));
+          report.AppendLine();
+          return false;
+        }
+
+        superIOs.Add(new IT87XX(chip, address, version));
+        return true;
+      }
+
+      return false;
+    }
+
+    private bool DetectSMSC() {
+      SMSCEnter();
+
+      ushort chipID = ReadWord(CHIP_ID_REGISTER);
+      Chip chip;
+      switch (chipID) {
+        default: chip = Chip.Unknown; break;
+      }
+      if (chip == Chip.Unknown) {
+        if (chipID != 0 && chipID != 0xffff) {
+          SMSCExit();
+
+          ReportUnknownChip("SMSC", chipID);
+        }
+      } else {
+        SMSCExit();
+        return true;
+      }
+
+      return false;
+    }
+
     private void Detect() {
 
       for (int i = 0; i < REGISTER_PORTS.Length; i++) {
         registerPort = REGISTER_PORTS[i];
         valuePort = VALUE_PORTS[i];
 
-        WinbondFintekEnter();
+        if (DetectWinbondFintek()) continue;
 
-        byte logicalDeviceNumber;
-        byte id = ReadByte(CHIP_ID_REGISTER);
-        byte revision = ReadByte(CHIP_REVISION_REGISTER);
-        chip = Chip.Unknown;
-        logicalDeviceNumber = 0;
-        switch (id) {
-          case 0x05:
-            switch (revision) {
-              case 0x07:
-                chip = Chip.F71858;
-                logicalDeviceNumber = F71858_HARDWARE_MONITOR_LDN;
-                break;
-              case 0x41:
-                chip = Chip.F71882;
-                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x06:
-            switch (revision) {
-              case 0x01:
-                chip = Chip.F71862;
-                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x07:
-            switch (revision) {
-              case 0x23:
-                chip = Chip.F71889F;
-                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x08:
-            switch (revision) {
-              case 0x14:
-                chip = Chip.F71869;
-                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x09:
-            switch (revision) {
-              case 0x09:
-                chip = Chip.F71889ED;
-                logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x52:
-            switch (revision) {
-              case 0x17:
-              case 0x3A:
-              case 0x41:
-                chip = Chip.W83627HF;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x82:
-            switch (revision & 0xF0) {
-              case 0x80:
-                chip = Chip.W83627THF;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x85:
-            switch (revision) {
-              case 0x41:
-                chip = Chip.W83687THF;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0x88:
-            switch (revision & 0xF0) {
-              case 0x50:
-              case 0x60:
-                chip = Chip.W83627EHF;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0xA0:
-            switch (revision & 0xF0) {
-              case 0x20:
-                chip = Chip.W83627DHG;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0xA5:
-            switch (revision & 0xF0) {
-              case 0x10:
-                chip = Chip.W83667HG;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0xB0:
-            switch (revision & 0xF0) {
-              case 0x70:
-                chip = Chip.W83627DHGP;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-          case 0xB3:
-            switch (revision & 0xF0) {
-              case 0x50:
-                chip = Chip.W83667HGB;
-                logicalDeviceNumber = WINBOND_HARDWARE_MONITOR_LDN;
-                break;
-            } break;
-        }
-        if (chip == Chip.Unknown) {
-          if (id != 0 && id != 0xff) {
-            WinbondFintekExit();
+        if (DetectIT87()) continue;
 
-            report.Append("Chip ID: Unknown Winbond / Fintek with ID 0x");
-            report.AppendLine(((id << 8) | revision).ToString("X", 
-              CultureInfo.InvariantCulture));
-            report.AppendLine();
-          }
-        } else {
-
-          Select(logicalDeviceNumber);
-          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
-          Thread.Sleep(1);
-          ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
-
-          ushort vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
-
-          WinbondFintekExit();
-
-          if (address != verify) {
-            report.Append("Chip ID: 0x");
-            report.AppendLine(chip.ToString("X"));
-            report.Append("Chip revision: 0x");
-            report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
-            report.AppendLine("Error: Address verification failed");
-            report.AppendLine();
-            return;
-          }
-
-          // some Fintek chips have address register offset 0x05 added already
-          if ((address & 0x07) == 0x05)
-            address &= 0xFFF8;
-
-          if (address < 0x100 || (address & 0xF007) != 0) {
-            report.Append("Chip ID: 0x");
-            report.AppendLine(chip.ToString("X"));
-            report.Append("Chip revision: 0x");
-            report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
-            report.Append("Error: Invalid address 0x");
-            report.AppendLine(address.ToString("X", CultureInfo.InvariantCulture));
-            report.AppendLine();
-            return;
-          }
-
-          switch (chip) {
-            case Chip.W83627DHG:
-            case Chip.W83627DHGP:
-            case Chip.W83627EHF:
-            case Chip.W83627HF:
-            case Chip.W83627THF:
-            case Chip.W83667HG:
-            case Chip.W83667HGB:
-            case Chip.W83687THF:
-              superIOs.Add(new W836XX(chip, revision, address));
-              break;
-            case Chip.F71858:
-            case Chip.F71862:
-            case Chip.F71869:
-            case Chip.F71882:
-            case Chip.F71889ED:
-            case Chip.F71889F:
-              if (vendorID != FINTEK_VENDOR_ID) {
-                report.Append("Chip ID: 0x");
-                report.AppendLine(chip.ToString("X"));
-                report.Append("Chip revision: 0x");
-                report.AppendLine(revision.ToString("X", CultureInfo.InvariantCulture));
-                report.Append("Error: Invalid vendor ID 0x");
-                report.AppendLine(vendorID.ToString("X", CultureInfo.InvariantCulture));
-                report.AppendLine();
-                return;
-              }
-              superIOs.Add(new F718XX(chip, address));
-              break;
-            default: break;
-          }
-
-          return;
-        }
-
-        IT87Enter();
-
-        ushort chipID = ReadWord(CHIP_ID_REGISTER);
-        switch (chipID) {
-          case 0x8712: chip = Chip.IT8712F; break;
-          case 0x8716: chip = Chip.IT8716F; break;
-          case 0x8718: chip = Chip.IT8718F; break;
-          case 0x8720: chip = Chip.IT8720F; break;
-          case 0x8726: chip = Chip.IT8726F; break;
-          default: chip = Chip.Unknown; break;
-        }
-        if (chip == Chip.Unknown) {
-          if (chipID != 0 && chipID != 0xffff) {
-            IT87Exit();
-
-            report.Append("Chip ID: Unknown ITE with ID 0x");
-            report.AppendLine(chipID.ToString("X", CultureInfo.InvariantCulture));
-            report.AppendLine();
-          }
-        } else {
-          Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
-          ushort address = ReadWord(BASE_ADDRESS_REGISTER);
-          Thread.Sleep(1);
-          ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
-
-          byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
-
-          IT87Exit();
-
-          if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
-            report.Append("Chip ID: 0x");
-            report.AppendLine(chip.ToString("X"));
-            report.Append("Error: Invalid address 0x");
-            report.AppendLine(address.ToString("X", CultureInfo.InvariantCulture));
-            report.AppendLine();
-            return;
-          }
-
-          superIOs.Add(new IT87XX(chip, address, version));
-
-          return;
-        }
-
-        SMSCEnter();
-
-        chipID = ReadWord(CHIP_ID_REGISTER);
-        switch (chipID) {
-          default: chip = Chip.Unknown; break;
-        }
-        if (chip == Chip.Unknown) {
-          if (chipID != 0 && chipID != 0xffff) {
-            SMSCExit();
-
-            report.Append("Chip ID: Unknown SMSC with ID 0x");
-            report.AppendLine(chipID.ToString("X", CultureInfo.InvariantCulture));
-            report.AppendLine();
-          }
-        } else {
-          SMSCExit();
-
-          return;
-        }
+        if (DetectSMSC()) continue;
       }  
     }
 

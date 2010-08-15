@@ -51,9 +51,9 @@ namespace OpenHardwareMonitor.Hardware {
     private SensorType sensorType;
     private IHardware hardware;
     private ReadOnlyArray<IParameter> parameters;
-    private float? value;
-    private float? min;
-    private float? max;
+    private float? currentValue;
+    private float? minValue;
+    private float? maxValue;
     private Queue<SensorValue> values =
       new Queue<SensorValue>(MAX_MINUTES * 15);
     private ISettings settings;
@@ -114,7 +114,7 @@ namespace OpenHardwareMonitor.Hardware {
         return name; 
       }
       set {
-        if (value != "") 
+        if (!string.IsNullOrEmpty(value)) 
           name = value;          
         else 
           name = defaultName;
@@ -136,7 +136,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     public float? Value {
       get { 
-        return value; 
+        return currentValue; 
       }
       set {
         while (values.Count > 0 && 
@@ -153,23 +153,23 @@ namespace OpenHardwareMonitor.Hardware {
           }
         }
 
-        this.value = value;
-        if (min > value || !min.HasValue)
-          min = value;
-        if (max < value || !max.HasValue)
-          max = value;
+        this.currentValue = value;
+        if (minValue > value || !minValue.HasValue)
+          minValue = value;
+        if (maxValue < value || !maxValue.HasValue)
+          maxValue = value;
       }
     }
 
-    public float? Min { get { return min; } }
-    public float? Max { get { return max; } }
+    public float? Min { get { return minValue; } }
+    public float? Max { get { return maxValue; } }
 
     public void ResetMin() {
-      min = null;
+      minValue = null;
     }
 
     public void ResetMax() {
-      max = null;
+      maxValue = null;
     }
 
     public IEnumerable<SensorValue> Values {
@@ -177,8 +177,9 @@ namespace OpenHardwareMonitor.Hardware {
     }    
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitSensor(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitSensor(this);
     }
 
     public void Traverse(IVisitor visitor) {
