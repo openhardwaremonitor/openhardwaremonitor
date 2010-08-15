@@ -75,14 +75,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public static uint CPUID_0 = 0;
     public static uint CPUID_EXT = 0x80000000;
 
-    private void AppendRegister(StringBuilder b, uint value) {
+    private static void AppendRegister(StringBuilder b, uint value) {
       b.Append((char)((value) & 0xff));
       b.Append((char)((value >> 8) & 0xff));
       b.Append((char)((value >> 16) & 0xff));
       b.Append((char)((value >> 24) & 0xff));
     }
 
-    private uint NextLog2(long x) {
+    private static uint NextLog2(long x) {
       if (x <= 0)
         return 0;
 
@@ -105,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint eax, ebx, ecx, edx;
 
       if (thread >= 32)
-        throw new ArgumentException();
+        throw new ArgumentOutOfRangeException("thread");
       UIntPtr mask = (UIntPtr)(1L << thread);
 
       if (WinRing0.CpuidTx(CPUID_0, 0,
@@ -139,10 +139,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           else
             return;
         } else {
-          throw new ArgumentException();
+          throw new ArgumentOutOfRangeException("thread");
         }
       } else {
-        throw new ArgumentException();
+        throw new ArgumentOutOfRangeException("thread");
       }
 
       maxCpuid = Math.Min(maxCpuid, 1024);

@@ -232,37 +232,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private const int MAX_DRIVE_ATTRIBUTES = 512;
 
-    private const string KERNEL = "kernel32.dll";
-
-    [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-    private static extern IntPtr CreateFile(string fileName, 
-      AccessMode desiredAccess, ShareMode shareMode, IntPtr securityAttributes,
-      CreationMode creationDisposition, FileAttribute flagsAndAttributes, 
-      IntPtr templateFilehandle);
-
-    [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-    public static extern int CloseHandle(IntPtr handle);
-
-    [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-    private static extern bool DeviceIoControl(IntPtr handle,
-      DriveCommand command, ref DriveCommandParameter parameter,
-      int parameterSize, out DriveSmartReadResult result, int resultSize, 
-      out uint bytesReturned, IntPtr overlapped);
-
-    [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-    private static extern bool DeviceIoControl(IntPtr handle,
-      DriveCommand command, ref DriveCommandParameter parameter,
-      int parameterSize, out DriveCommandResult result, int resultSize,
-      out uint bytesReturned, IntPtr overlapped);
-
-    [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-    private static extern bool DeviceIoControl(IntPtr handle,
-      DriveCommand command, ref DriveCommandParameter parameter,
-      int parameterSize, out DriveIdentifyResult result, int resultSize,
-      out uint bytesReturned, IntPtr overlapped);
+    private SMART() { }
 
     public static IntPtr OpenPhysicalDrive(int driveNumber) {
-      return CreateFile(@"\\.\PhysicalDrive" + driveNumber,
+      return NativeMethods.CreateFile(@"\\.\PhysicalDrive" + driveNumber,
         AccessMode.Read | AccessMode.Write, ShareMode.Read | ShareMode.Write,
         IntPtr.Zero, CreationMode.OpenExisting, FileAttribute.Device,
         IntPtr.Zero);
@@ -279,8 +252,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       parameter.Registers.LBAHigh = SMART_LBA_HI;
       parameter.Registers.Command = SMART_CMD;
 
-      return DeviceIoControl(handle, DriveCommand.SendDriveCommand, 
-        ref parameter, Marshal.SizeOf(parameter), out result,
+      return NativeMethods.DeviceIoControl(handle, DriveCommand.SendDriveCommand, 
+        ref parameter, Marshal.SizeOf(typeof(DriveCommandParameter)), out result,
         Marshal.SizeOf(typeof(DriveCommandResult)), out bytesReturned, 
         IntPtr.Zero);
     }
@@ -296,10 +269,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       parameter.Registers.LBAHigh = SMART_LBA_HI;
       parameter.Registers.Command = SMART_CMD;
 
-      bool valid = DeviceIoControl(handle, DriveCommand.ReceiveDriveData,
-        ref parameter, Marshal.SizeOf(parameter), out result,
-        Marshal.SizeOf(typeof(DriveSmartReadResult)), out bytesReturned,
-        IntPtr.Zero);
+      bool valid = NativeMethods.DeviceIoControl(handle, 
+        DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter), 
+        out result, Marshal.SizeOf(typeof(DriveSmartReadResult)), 
+        out bytesReturned, IntPtr.Zero);
 
       if (!valid)
         return null;
@@ -315,10 +288,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       parameter.DriveNumber = (byte)driveNumber;
       parameter.Registers.Command = ID_CMD;
 
-      bool valid = DeviceIoControl(handle, DriveCommand.ReceiveDriveData,
-        ref parameter, Marshal.SizeOf(parameter), out result,
-        Marshal.SizeOf(typeof(DriveIdentifyResult)), out bytesReturned,
-        IntPtr.Zero);
+      bool valid = NativeMethods.DeviceIoControl(handle, 
+        DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter), 
+        out result, Marshal.SizeOf(typeof(DriveIdentifyResult)), 
+        out bytesReturned, IntPtr.Zero);
 
       if (!valid)
         return null;
@@ -335,5 +308,43 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
+    public static int CloseHandle(IntPtr handle) {
+      return NativeMethods.CloseHandle(handle);
+    }
+
+    private static class NativeMethods {
+      private const string KERNEL = "kernel32.dll";
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi,
+        CharSet = CharSet.Unicode)]
+      public static extern IntPtr CreateFile(string fileName,
+        AccessMode desiredAccess, ShareMode shareMode, IntPtr securityAttributes,
+        CreationMode creationDisposition, FileAttribute flagsAndAttributes,
+        IntPtr templateFilehandle);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      public static extern int CloseHandle(IntPtr handle);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      [return: MarshalAsAttribute(UnmanagedType.Bool)]
+      public static extern bool DeviceIoControl(IntPtr handle,
+        DriveCommand command, ref DriveCommandParameter parameter,
+        int parameterSize, out DriveSmartReadResult result, int resultSize,
+        out uint bytesReturned, IntPtr overlapped);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      [return: MarshalAsAttribute(UnmanagedType.Bool)]
+      public static extern bool DeviceIoControl(IntPtr handle,
+        DriveCommand command, ref DriveCommandParameter parameter,
+        int parameterSize, out DriveCommandResult result, int resultSize,
+        out uint bytesReturned, IntPtr overlapped);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      [return: MarshalAsAttribute(UnmanagedType.Bool)]
+      public static extern bool DeviceIoControl(IntPtr handle,
+        DriveCommand command, ref DriveCommandParameter parameter,
+        int parameterSize, out DriveIdentifyResult result, int resultSize,
+        out uint bytesReturned, IntPtr overlapped);
+    }    
   }
 }

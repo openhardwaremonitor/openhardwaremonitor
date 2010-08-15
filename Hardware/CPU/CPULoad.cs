@@ -62,12 +62,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       SystemProcessorPerformanceInformation = 8
     }
 
-    [DllImport("ntdll.dll")]
-    private static extern int NtQuerySystemInformation(
-      SystemInformationClass informationClass,
-      [Out] SystemProcessorPerformanceInformation[] informations, 
-      int structSize, out IntPtr returnLength);
-
     private CPUID[][] cpuid;
 
     private long systemTime;
@@ -78,16 +72,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private bool available = false;
 
-    private long[] GetIdleTimes() {      
+    private static long[] GetIdleTimes() {      
       SystemProcessorPerformanceInformation[] informations = new
         SystemProcessorPerformanceInformation[64];
 
       int size = Marshal.SizeOf(typeof(SystemProcessorPerformanceInformation));
 
       IntPtr returnLength;
-      NtQuerySystemInformation(
+      if (NativeMethods.NtQuerySystemInformation(
         SystemInformationClass.SystemProcessorPerformanceInformation,
-        informations, informations.Length * size, out returnLength);
+        informations, informations.Length * size, out returnLength) != 0)
+        return null;
 
       long[] result = new long[(int)returnLength / size];
 
@@ -127,10 +122,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (this.idleTimes == null)
         return;
 
-      long localSystemTime = DateTime.Now.Ticks;
-      long[] localIdleTimes = GetIdleTimes();
+      long newSystemTime = DateTime.Now.Ticks;
+      long[] newIdleTimes = GetIdleTimes();
 
-      if (localSystemTime - this.systemTime < 10000)
+      if (newSystemTime - this.systemTime < 10000)
+        return;
+
+      if (newIdleTimes == null)
         return;
 
       float total = 0;
@@ -139,29 +137,37 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         float value = 0;
         for (int j = 0; j < cpuid[i].Length; j++) {
           long index = cpuid[i][j].Thread;
-          if (index < localIdleTimes.Length) {
-            long delta = localIdleTimes[index] - this.idleTimes[index];
+          if (index < newIdleTimes.Length) {
+            long delta = newIdleTimes[index] - this.idleTimes[index];
             value += delta;
             total += delta;
             count++;
           }
         }
         value = 1.0f - value / (cpuid[i].Length * 
-          (localSystemTime - this.systemTime));
+          (newSystemTime - this.systemTime));
         value = value < 0 ? 0 : value;
         coreLoads[i] = value * 100;
       }
       if (count > 0) {
-        total = 1.0f - total / (count * (localSystemTime - this.systemTime));
+        total = 1.0f - total / (count * (newSystemTime - this.systemTime));
         total = total < 0 ? 0 : total;
       } else {
         total = 0;
       }
       this.totalLoad = total * 100;
 
-      this.systemTime = localSystemTime;
-      this.idleTimes = localIdleTimes;
+      this.systemTime = newSystemTime;
+      this.idleTimes = newIdleTimes;
     }
 
+    private static class NativeMethods {
+
+      [DllImport("ntdll.dll")]
+      public static extern int NtQuerySystemInformation(
+        SystemInformationClass informationClass,
+        [Out] SystemProcessorPerformanceInformation[] informations,
+        int structSize, out IntPtr returnLength);
+    }
   }
 }

@@ -161,8 +161,6 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       }
 
       for (int i = 0; i < 2; i++) {
-        float maxRPM = 20.0f * data[offset + 44 + 2 * i];
-
         if (miniNGFans[number * 2 + i] == null)
           miniNGFans[number * 2 + i] = 
             new Sensor("miniNG #" + (number + 1) + " Fan Channel " + (i + 1),
@@ -376,8 +374,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public event SensorEventHandler SensorRemoved;
 
     public void Accept(IVisitor visitor) {
-      if (visitor != null)
-        visitor.VisitHardware(this);
+      if (visitor == null)
+        throw new ArgumentNullException("visitor");
+      visitor.VisitHardware(this);
     }
 
     public void Traverse(IVisitor visitor) { }

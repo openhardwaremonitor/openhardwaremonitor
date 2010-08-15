@@ -51,7 +51,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private BIOSInformation biosInformation = null;
     private BaseBoardInformation baseBoardInformation = null;
 
-    private string ReadSysFS(string path) {
+    private static string ReadSysFS(string path) {
       try {
         if (File.Exists(path)) {
           using (StreamReader reader = new StreamReader(path)) 
@@ -85,9 +85,12 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
         raw = null;
         try {
-          ManagementObjectCollection collection = 
+          ManagementObjectCollection collection;
+          using (ManagementObjectSearcher searcher = 
             new ManagementObjectSearcher("root\\WMI", 
-              "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables").Get();
+              "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables")) {
+            collection = searcher.Get();
+          }
          
           foreach (ManagementObject mo in collection) {
             raw = (byte[])mo["SMBiosData"];
@@ -144,17 +147,19 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     public string GetReport() {
       StringBuilder r = new StringBuilder();
 
-      if (biosInformation != null) {
-        r.Append("BIOS Vendor: "); r.AppendLine(biosInformation.Vendor);
-        r.Append("BIOS Version: "); r.AppendLine(biosInformation.Version);
+      if (BIOS != null) {
+        r.Append("BIOS Vendor: "); r.AppendLine(BIOS.Vendor);
+        r.Append("BIOS Version: "); r.AppendLine(BIOS.Version);
         r.AppendLine();
       }
 
-      if (baseBoardInformation != null) {
+      if (Board != null) {
         r.Append("Mainboard Manufacturer: ");
-        r.AppendLine(baseBoardInformation.ManufacturerName);
+        r.AppendLine(Board.ManufacturerName);
         r.Append("Mainboard Name: ");
-        r.AppendLine(baseBoardInformation.ProductName);
+        r.AppendLine(Board.ProductName);
+        r.Append("Mainboard Version: ");
+        r.AppendLine(Board.Version);
         r.AppendLine();
       }
 
@@ -249,10 +254,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       private Manufacturer manufacturer;
       private Model model;
 
-      private void SetManufacturerName(string manufacturerName) {
-        this.manufacturerName = manufacturerName;
+      private void SetManufacturerName(string name) {
+        this.manufacturerName = name;
         
-        switch (manufacturerName) {
+        switch (name) {
           case "ASRock":
             manufacturer = Manufacturer.ASRock; break;
           case "ASUSTeK Computer INC.":
@@ -286,10 +291,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         }
       }
       
-      private void SetProductName(string productName) {
-        this.productName = productName;
+      private void SetProductName(string name) {
+        this.productName = name;
         
-        switch (productName) {
+        switch (name) {
           case "880GMH/USB3":
             model = Model._880GMH_USB3; break;
           case "Crosshair III Formula":

@@ -41,6 +41,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Collections {
+
   public class ListSet<T> : IEnumerable<T> {
 
     private List<T> list = new List<T>();

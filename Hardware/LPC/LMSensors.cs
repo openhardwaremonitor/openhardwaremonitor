@@ -51,9 +51,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       foreach (string path in devicePaths) {
         string name = null;
         try {
-          StreamReader reader = new StreamReader(path + "/device/name");
-          name = reader.ReadLine();
-          reader.Close();
+          using (StreamReader reader = new StreamReader(path + "/device/name")) 
+            name = reader.ReadLine();
         } catch (IOException) { }
         switch (name) {
           case "f71858fg":

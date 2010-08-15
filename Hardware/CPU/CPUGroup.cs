@@ -48,13 +48,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private CPUID[][][] threads;
 
-    private CPUID[][] GetProcessorThreads() {
+    private static CPUID[][] GetProcessorThreads() {
 
       List<CPUID> threads = new List<CPUID>();
       for (int i = 0; i < 32; i++) {
         try {
           threads.Add(new CPUID(i));
-        } catch (ArgumentException) { }
+        } catch (ArgumentOutOfRangeException) { }
       }
 
       SortedDictionary<uint, List<CPUID>> processors =
@@ -78,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return processorThreads;
     }
 
-    private CPUID[][] GroupThreadsByCore(CPUID[] threads) {
+    private static CPUID[][] GroupThreadsByCore(CPUID[] threads) {
 
       SortedDictionary<uint, List<CPUID>> cores = 
         new SortedDictionary<uint, List<CPUID>>();
@@ -151,7 +151,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
     }
 
-    private void AppendCpuidData(StringBuilder r, uint[,] data, uint offset) {
+    private static void AppendCpuidData(StringBuilder r, uint[,] data, 
+      uint offset) 
+    {
       for (int i = 0; i < data.GetLength(0); i++) {
         r.Append(" ");
         r.Append((i + offset).ToString("X8", CultureInfo.InvariantCulture));

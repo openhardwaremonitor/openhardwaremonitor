@@ -44,6 +44,8 @@ using System.Threading;
 namespace OpenHardwareMonitor.Hardware {
 
   internal class WinRing0 {
+
+    private WinRing0() { }
     
     public enum OlsDllStatus{
       OLS_DLL_NO_ERROR                        = 0,
@@ -56,7 +58,7 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private static bool available = false;
-    public static Mutex isaBusMutex;
+    private static Mutex isaBusMutex;
 
     private static string GetDllName() {   
       int p = (int)System.Environment.OSVersion.Platform;
@@ -78,10 +80,7 @@ namespace OpenHardwareMonitor.Hardware {
     private delegate bool InitializeOlsDelegate();
     private delegate void DeinitializeOlsDelegate();
     
-    public delegate uint GetDllStatusDelegate();
     public delegate bool IsCpuidDelegate();
-    public delegate bool CpuidDelegate(uint index, uint ecxValue, 
-      out uint eax, out uint ebx, out uint ecx, out uint edx);
     public delegate bool CpuidTxDelegate(uint index, uint ecxValue,
       out uint eax, out uint ebx, out uint ecx, out uint edx,
       UIntPtr threadAffinityMask);
@@ -90,7 +89,6 @@ namespace OpenHardwareMonitor.Hardware {
       UIntPtr threadAffinityMask);
     public delegate byte ReadIoPortByteDelegate(ushort port);
     public delegate void WriteIoPortByteDelegate(ushort port, byte value);
-    public delegate void SetPciMaxBusIndexDelegate(byte max);
     public delegate uint FindPciDeviceByIdDelegate(ushort vendorId, 
       ushort deviceId, byte index);
     public delegate bool ReadPciConfigDwordExDelegate(uint pciAddress, 
@@ -101,85 +99,73 @@ namespace OpenHardwareMonitor.Hardware {
       UIntPtr threadAffinityMask);
     public delegate bool RdtscDelegate(out uint eax, out uint edx);
 
-    private static InitializeOlsDelegate InitializeOls;
-    private static DeinitializeOlsDelegate DeinitializeOls;
+    private static InitializeOlsDelegate InitializeOls = 
+      CreateDelegate<InitializeOlsDelegate>("InitializeOls");
+    private static DeinitializeOlsDelegate DeinitializeOls =
+      CreateDelegate<DeinitializeOlsDelegate>("DeinitializeOls");
 
-    public static readonly GetDllStatusDelegate GetDllStatus;
-    public static readonly IsCpuidDelegate IsCpuid;
-    public static readonly CpuidDelegate Cpuid;
-    public static readonly CpuidTxDelegate CpuidTx;
-    public static readonly RdmsrDelegate Rdmsr;
-    public static readonly RdmsrTxDelegate RdmsrTx;
-    public static readonly ReadIoPortByteDelegate ReadIoPortByte;
-    public static readonly WriteIoPortByteDelegate WriteIoPortByte;
-    public static readonly SetPciMaxBusIndexDelegate SetPciMaxBusIndex;
-    public static readonly FindPciDeviceByIdDelegate FindPciDeviceById;
-    public static readonly ReadPciConfigDwordExDelegate ReadPciConfigDwordEx;
-    public static readonly WritePciConfigDwordExDelegate WritePciConfigDwordEx;
-    public static readonly RdtscTxDelegate RdtscTx;
-    public static readonly RdtscDelegate Rdtsc;
-
-    
-
-    private static void GetDelegate<T>(string entryPoint, out T newDelegate) 
-      where T : class 
-    {
+    public static readonly IsCpuidDelegate IsCpuid =
+      CreateDelegate<IsCpuidDelegate>("IsCpuid");
+    public static readonly CpuidTxDelegate CpuidTx =
+      CreateDelegate<CpuidTxDelegate>("CpuidTx");
+    public static readonly RdmsrDelegate Rdmsr =
+      CreateDelegate<RdmsrDelegate>("Rdmsr");
+    public static readonly RdmsrTxDelegate RdmsrTx =
+      CreateDelegate<RdmsrTxDelegate>("RdmsrTx");
+    public static readonly ReadIoPortByteDelegate ReadIoPortByte =
+      CreateDelegate<ReadIoPortByteDelegate>("ReadIoPortByte");
+    public static readonly WriteIoPortByteDelegate WriteIoPortByte =
+      CreateDelegate<WriteIoPortByteDelegate>("WriteIoPortByte");
+    public static readonly FindPciDeviceByIdDelegate FindPciDeviceById =
+      CreateDelegate<FindPciDeviceByIdDelegate>("FindPciDeviceById");
+    public static readonly ReadPciConfigDwordExDelegate ReadPciConfigDwordEx =
+      CreateDelegate<ReadPciConfigDwordExDelegate>("ReadPciConfigDwordEx");
+    public static readonly WritePciConfigDwordExDelegate WritePciConfigDwordEx =
+      CreateDelegate<WritePciConfigDwordExDelegate>("WritePciConfigDwordEx");
+    public static readonly RdtscTxDelegate RdtscTx =
+      CreateDelegate<RdtscTxDelegate>("RdtscTx");
+    public static readonly RdtscDelegate Rdtsc =
+      CreateDelegate<RdtscDelegate>("Rdtsc");
+ 
+    private static T CreateDelegate<T>(string entryPoint) where T : class {
       DllImportAttribute attribute = new DllImportAttribute(GetDllName());
       attribute.CallingConvention = CallingConvention.Winapi;
       attribute.PreserveSig = true;
       attribute.EntryPoint = entryPoint;
       attribute.CharSet = CharSet.Auto;
-      PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
+      T result;
+      PInvokeDelegateFactory.CreateDelegate(attribute, out result);
+      return result;
     }
 
-    static WinRing0() {
-      GetDelegate("InitializeOls", out InitializeOls);
-      GetDelegate("DeinitializeOls", out DeinitializeOls);
-      GetDelegate("GetDllStatus", out GetDllStatus);
-      GetDelegate("IsCpuid", out IsCpuid);
-      GetDelegate("Cpuid", out Cpuid);
-      GetDelegate("CpuidTx", out CpuidTx);
-      GetDelegate("Rdmsr", out  Rdmsr);
-      GetDelegate("RdmsrTx", out  RdmsrTx);
-      GetDelegate("ReadIoPortByte", out ReadIoPortByte);
-      GetDelegate("WriteIoPortByte", out WriteIoPortByte);
-      GetDelegate("SetPciMaxBusIndex", out SetPciMaxBusIndex);
-      GetDelegate("FindPciDeviceById", out FindPciDeviceById);
-      GetDelegate("ReadPciConfigDwordEx", out ReadPciConfigDwordEx);
-      GetDelegate("WritePciConfigDwordEx", out WritePciConfigDwordEx);
-      GetDelegate("RdtscTx", out RdtscTx);
-      GetDelegate("Rdtsc", out Rdtsc);
-
+    public static void Open() {
       try {
         if (InitializeOls != null && InitializeOls())
           available = true;
-      } catch (DllNotFoundException) { }
-
+      } catch (DllNotFoundException) { }   
+      
       isaBusMutex = new Mutex(false, "Access_ISABUS.HTP.Method");
     }
-    
+
     public static bool IsAvailable {
       get { return available; }
     }
 
+    public static void Close() {
+      if (available)
+        DeinitializeOls();        
+      isaBusMutex.Close();      
+    }    
+
     public static bool WaitIsaBusMutex(int millisecondsTimeout) {
       try {
-        return isaBusMutex.WaitOne(millisecondsTimeout);
-      } catch { return false; }
+        return isaBusMutex.WaitOne(millisecondsTimeout, false);
+      } catch (AbandonedMutexException) { return false; } 
+        catch (InvalidOperationException) { return false; }     
     }
 
     public static void ReleaseIsaBusMutex() {
       isaBusMutex.ReleaseMutex();
-    }
-
-    private static Deinitializer deinitializer = new Deinitializer();
-    private class Deinitializer {
-      ~Deinitializer() {
-        if (available)
-          DeinitializeOls();
-        
-        isaBusMutex.Close();
-      }
-    }
+    }    
   }
 }

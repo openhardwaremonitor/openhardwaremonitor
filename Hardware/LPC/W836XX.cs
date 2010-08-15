@@ -178,7 +178,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return vendorId == WINBOND_VENDOR_ID;
     }
 
-    private ulong SetBit(ulong target, int bit, int value) {
+    private static ulong SetBit(ulong target, int bit, int value) {
       if ((value & 1) != value)
         throw new ArgumentException("Value must be one bit only.");
 

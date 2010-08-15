@@ -159,7 +159,7 @@ namespace OpenHardwareMonitor.GUI {
 
       protected override void InsertItem(int index, Node item) {
         if (item == null)
-          throw new ArgumentNullException();
+          throw new ArgumentNullException("item");
 
         if (item.parent != owner) {
           if (item.parent != null)
@@ -189,7 +189,7 @@ namespace OpenHardwareMonitor.GUI {
 
       protected override void SetItem(int index, Node item) {
         if (item == null)
-          throw new ArgumentNullException();
+          throw new ArgumentNullException("item");
 
         RemoveAt(index);
         InsertItem(index, item);

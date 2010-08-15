@@ -253,7 +253,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return HardwareType.CPU; }
     }
 
-    private void AppendMSRData(StringBuilder r, uint msr, int thread) {
+    private static void AppendMSRData(StringBuilder r, uint msr, int thread) {
       uint eax, edx;
       if (WinRing0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
         r.Append(" ");
@@ -298,7 +298,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return r.ToString();
     }
 
-    private double EstimateMaxClock(double timeWindow) {
+    private static double EstimateMaxClock(double timeWindow) {
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
       uint lsbBegin, msbBegin, lsbEnd, msbEnd; 
       
@@ -359,7 +359,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           else
             maxClock = estimatedMaxClock;
 
-          double busClock = 0;
+          double newBusClock = 0;
           uint eax, edx;
           for (int i = 0; i < coreClocks.Length; i++) {
             System.Threading.Thread.Sleep(1);
@@ -369,7 +369,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 uint nehalemMultiplier = eax & 0xff;
                 coreClocks[i].Value =
                   (float)(nehalemMultiplier * maxClock / maxNehalemMultiplier);
-                busClock = (float)(maxClock / maxNehalemMultiplier);
+                newBusClock = (float)(maxClock / maxNehalemMultiplier);
               } else { // Core 2
                 uint multiplier = (eax >> 8) & 0x1f;
                 uint maxMultiplier = (edx >> 8) & 0x1f;
@@ -378,7 +378,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
                 if (maxFactor > 0) {
                   coreClocks[i].Value = (float)(factor * maxClock / maxFactor);
-                  busClock = (float)(2 * maxClock / maxFactor);
+                  newBusClock = (float)(2 * maxClock / maxFactor);
                 }
               }
             } else { // Intel Pentium 4
@@ -386,8 +386,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               coreClocks[i].Value = (float)maxClock;
             }
           }
-          if (busClock > 0) {
-            this.busClock.Value = (float)busClock;
+          if (newBusClock > 0) {
+            this.busClock.Value = (float)newBusClock;
             ActivateSensor(this.busClock);
           }
         }

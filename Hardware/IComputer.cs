@@ -46,7 +46,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     IHardware[] Hardware { get; }
 
-    bool HDDEnabled { get; set; }
+    bool HDDEnabled { get; }
 
     string GetReport();
 

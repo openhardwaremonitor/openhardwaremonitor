@@ -45,24 +45,14 @@ namespace OpenHardwareMonitor.Hardware {
 
   internal sealed class PInvokeDelegateFactory {
 
-    private static AssemblyBuilder assemblyBuilder;
-    private static ModuleBuilder moduleBuilder;
+    private static ModuleBuilder moduleBuilder = 
+      AppDomain.CurrentDomain.DefineDynamicAssembly(
+        new AssemblyName("PInvokeDelegateFactoryInternalAssembly"),
+        AssemblyBuilderAccess.Run).DefineDynamicModule(
+        "PInvokeDelegateFactoryInternalModule");
 
     private static IDictionary<DllImportAttribute, Type> wrapperTypes =
       new Dictionary<DllImportAttribute, Type>();
-
-    static PInvokeDelegateFactory() {
-
-      AssemblyName assemblyName = new AssemblyName();
-      assemblyName.Name = "PInvokeDelegateFactoryInternalAssembly";
-
-      assemblyBuilder =
-        AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName,
-        AssemblyBuilderAccess.Run);
-
-      moduleBuilder = assemblyBuilder.DefineDynamicModule(
-        "PInvokeDelegateFactoryInternalModule");
-    }
 
     private PInvokeDelegateFactory() { }
 
