@@ -331,6 +331,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.P35_DS3L; break;
           case "P55-UD4":
             model = Model.P55_UD4; break;
+          case "P55M-UD4":
+            model = Model.P55M_UD4; break;
           case "X38-DS5":
             model = Model.X38_DS5; break;
           case "X58A-UD3R":
