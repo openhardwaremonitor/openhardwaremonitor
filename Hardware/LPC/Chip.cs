@@ -11,6 +11,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     IT8716F = 0x8716,
     IT8718F = 0x8718,
     IT8720F = 0x8720,
+    IT8721F = 0x8721,
     IT8726F = 0x8726,
     W83627DHG = 0xA020,
     W83627DHGP = 0xB070,
@@ -43,6 +44,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8712F: return "ITE IT8712F";
         case Chip.IT8716F: return "ITE IT8716F";
         case Chip.IT8718F: return "ITE IT8718F";
+        case Chip.IT8721F: return "ITE IT8721F";
         case Chip.IT8720F: return "ITE IT8720F";
         case Chip.IT8726F: return "ITE IT8726F";
         case Chip.W83627DHG: return "Winbond W83627DHG";

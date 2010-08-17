@@ -334,6 +334,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case 0x8716: chip = Chip.IT8716F; break;
         case 0x8718: chip = Chip.IT8718F; break;
         case 0x8720: chip = Chip.IT8720F; break;
+        case 0x8721: chip = Chip.IT8721F; break;
         case 0x8726: chip = Chip.IT8726F; break;
         default: chip = Chip.Unknown; break;
       }
