@@ -53,6 +53,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private float?[] voltages = new float?[0];
     private float?[] temperatures = new float?[0];
     private float?[] fans = new float?[0];
+
+    private readonly float voltageGain;
    
     // Consts
     private const byte ITE_VENDOR_ID = 0x90;
@@ -102,6 +104,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       voltages = new float?[9];
       temperatures = new float?[3];
       fans = new float?[5];
+
+      // The IT8721F uses a 12mV resultion ADC, all others 16mV
+      if (chip == Chip.IT8721F) {
+        voltageGain = 0.012f;
+      } else {
+        voltageGain = 0.016f;
+      }
     }
 
     public Chip Chip { get { return chip; } }
@@ -156,8 +165,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       for (int i = 0; i < voltages.Length; i++) {
         bool valid;
-        float value = 0.001f * ((int)ReadByte(
-          (byte)(VOLTAGE_BASE_REG + i), out valid) << 4);
+        
+        float value = 
+          voltageGain * ReadByte((byte)(VOLTAGE_BASE_REG + i), out valid);   
+
         if (!valid)
           continue;
         if (value > 0)
