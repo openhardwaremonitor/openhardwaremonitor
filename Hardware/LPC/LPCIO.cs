@@ -48,8 +48,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private StringBuilder report = new StringBuilder();
 
     // I/O Ports
-    private ushort[] REGISTER_PORTS = new ushort[] { 0x2e, 0x4e };
-    private ushort[] VALUE_PORTS = new ushort[] { 0x2f, 0x4f };
+    private ushort[] REGISTER_PORTS = new ushort[] { 0x2E, 0x4E };
+    private ushort[] VALUE_PORTS = new ushort[] { 0x2F, 0x4F };
 
     private ushort registerPort;
     private ushort valuePort;
@@ -76,23 +76,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(valuePort, logicalDeviceNumber);
     }
 
-    // ITE
-    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
-    private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
-
-    private void IT87Enter() {
-      WinRing0.WriteIoPortByte(registerPort, 0x87);
-      WinRing0.WriteIoPortByte(registerPort, 0x01);
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
+    private void ReportUnknownChip(string type, int chip) {
+      report.Append("Chip ID: Unknown ");
+      report.Append(type);
+      report.Append(" with ID 0x");
+      report.Append(chip.ToString("X", CultureInfo.InvariantCulture));
+      report.Append(" at 0x");
+      report.Append(registerPort.ToString("X", CultureInfo.InvariantCulture));
+      report.Append("/0x");
+      report.AppendLine(valuePort.ToString("X", CultureInfo.InvariantCulture));
+      report.AppendLine();
     }
 
-    private void IT87Exit() {
-      WinRing0.WriteIoPortByte(registerPort, CONFIGURATION_CONTROL_REGISTER);
-      WinRing0.WriteIoPortByte(valuePort, 0x02);
-    }
+    #region Winbond, Fintek
 
-    // Winbond, Fintek
     private const byte FINTEK_VENDOR_ID_REGISTER = 0x23;
     private const ushort FINTEK_VENDOR_ID = 0x1934;
 
@@ -107,28 +104,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     private void WinbondFintekExit() {
-      WinRing0.WriteIoPortByte(registerPort, 0xAA);      
-    }
-
-    // SMSC
-    private void SMSCEnter() {
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
-    }
-
-    private void SMSCExit() {
       WinRing0.WriteIoPortByte(registerPort, 0xAA);
-    }
-
-    private void ReportUnknownChip(string type, int chip) {
-      report.Append("Chip ID: Unknown ");
-      report.Append(type);
-      report.Append(" with ID 0x");
-      report.Append(chip.ToString("X", CultureInfo.InvariantCulture));
-      report.Append(" at 0x");
-      report.Append(registerPort.ToString("X", CultureInfo.InvariantCulture));
-      report.Append("/0x");
-      report.AppendLine(valuePort.ToString("X", CultureInfo.InvariantCulture));
-      report.AppendLine();
     }
 
     private bool DetectWinbondFintek() {
@@ -324,7 +300,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return false;
     }
 
+    #endregion
+
+    #region ITE
+
+    private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
+    private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
+
+    private void IT87Enter() {
+      WinRing0.WriteIoPortByte(registerPort, 0x87);
+      WinRing0.WriteIoPortByte(registerPort, 0x01);
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
+    }
+
+    private void IT87Exit() {
+      WinRing0.WriteIoPortByte(registerPort, CONFIGURATION_CONTROL_REGISTER);
+      WinRing0.WriteIoPortByte(valuePort, 0x02);
+    }
+
     private bool DetectIT87() {
+
+      // IT87XX can enter only on port 0x2E
+      if (registerPort != 0x2E)
+        return false;
+
       IT87Enter();
 
       ushort chipID = ReadWord(CHIP_ID_REGISTER);
@@ -370,6 +370,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return false;
     }
 
+    #endregion
+
+    #region SMSC
+
+    private void SMSCEnter() {
+      WinRing0.WriteIoPortByte(registerPort, 0x55);
+    }
+
+    private void SMSCExit() {
+      WinRing0.WriteIoPortByte(registerPort, 0xAA);
+    }
+
     private bool DetectSMSC() {
       SMSCEnter();
 
@@ -391,6 +403,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       return false;
     }
+
+    #endregion
 
     private void Detect() {
 
@@ -426,9 +440,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     public string GetReport() {
       if (report.Length > 0) {
-        report.Insert(0, "LPCIO" + Environment.NewLine +
-          Environment.NewLine);        
-        return report.ToString();
+        return "LPCIO" + Environment.NewLine + Environment.NewLine + 
+          report.ToString();
       } else
         return null;
     }
