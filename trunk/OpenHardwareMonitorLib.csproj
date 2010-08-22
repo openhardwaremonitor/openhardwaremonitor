@@ -71,6 +71,8 @@
     <Compile Include="Hardware\HDD\HDD.cs" />
     <Compile Include="Hardware\HDD\HDDGroup.cs" />
     <Compile Include="Hardware\HDD\SMART.cs" />
+    <Compile Include="Hardware\Heatmaster\Heatmaster.cs" />
+    <Compile Include="Hardware\Heatmaster\HeatmasterGroup.cs" />
     <Compile Include="Hardware\IComputer.cs" />
     <Compile Include="Hardware\Identifier.cs" />
     <Compile Include="Hardware\IElement.cs" />
@@ -128,6 +130,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

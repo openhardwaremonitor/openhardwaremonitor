@@ -46,6 +46,7 @@ namespace OpenHardwareMonitor.Hardware {
     CPU,
     GPU,
     HDD,
+    Heatmaster,
     Mainboard,
     SuperIO,
     TBalancer

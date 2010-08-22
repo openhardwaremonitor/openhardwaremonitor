@@ -99,8 +99,9 @@ namespace OpenHardwareMonitor.Hardware {
       Add(new Mainboard.MainboardGroup(settings));
       Add(new CPU.CPUGroup(settings));
       Add(new ATI.ATIGroup(settings));
-      Add(new Nvidia.NvidiaGroup(settings));
+      Add(new Nvidia.NvidiaGroup(settings));      
       Add(new TBalancer.TBalancerGroup(settings));
+      Add(new Heatmaster.HeatmasterGroup(settings));
 
       if (hddEnabled)
         Add(new HDD.HDDGroup(settings));

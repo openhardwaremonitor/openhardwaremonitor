@@ -68,6 +68,9 @@ namespace OpenHardwareMonitor.GUI {
         case HardwareType.HDD: 
           this.Image = Utilities.EmbeddedResources.GetImage("hdd.png");
           break;
+        case HardwareType.Heatmaster:
+          this.Image = Utilities.EmbeddedResources.GetImage("bigng.png");
+          break;
         case HardwareType.Mainboard: 
           this.Image = Utilities.EmbeddedResources.GetImage("mainboard.png");
           break;
