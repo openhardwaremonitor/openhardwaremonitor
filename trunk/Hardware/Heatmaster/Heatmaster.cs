@@ -61,6 +61,8 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
     
     private bool available = false;
 
+    private StringBuilder buffer = new StringBuilder();
+
     private string ReadLine(int timeout) {
       int i = 0;
       StringBuilder builder = new StringBuilder();
@@ -82,7 +84,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
     private string ReadField(int device, char field) {
       serialPort.WriteLine("[0:" + device + "]R" + field);
       for (int i = 0; i < 5; i++) {
-        string s = ReadLine(100);
+        string s = ReadLine(200);
         Match match = Regex.Match(s, @"-\[0:" + device.ToString() + @"\]R" +
           Regex.Escape(field.ToString()) + ":(.*)");
         if (match.Success) 
@@ -111,7 +113,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
     private bool WriteField(int device, char field, string value) {
       serialPort.WriteLine("[0:" + device + "]W" + field + ":" + value);
       for (int i = 0; i < 5; i++) {
-        string s = ReadLine(100);
+        string s = ReadLine(200);
         Match match = Regex.Match(s, @"-\[0:" + device.ToString() + @"\]W" + 
           Regex.Escape(field.ToString()) + ":" + value);
         if (match.Success)
@@ -222,42 +224,52 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       get { return "Heatmaster"; }
     }
 
+    private void ProcessUpdateLine(string line) {
+      Match match = Regex.Match(line, @">\[0:(\d+)\]([0-9:\|-]+)");
+      if (match.Success) {
+        int device;
+        if (int.TryParse(match.Groups[1].Value, out device)) {
+          foreach (string s in match.Groups[2].Value.Split('|')) {
+            string[] strings = s.Split(':');
+            int[] ints = new int[strings.Length];
+            for (int i = 0; i < ints.Length; i++)
+              ints[i] = int.Parse(strings[i]);
+            switch (device) {
+              case 32:
+                if (ints.Length == 3 && ints[0] <= fans.Length) {
+                  fans[ints[0] - 1].Value = ints[1];
+                  controls[ints[0] - 1].Value = (100 / 255.0f) * ints[2];
+                }
+                break;
+              case 48:
+                if (ints.Length == 2 && ints[0] <= temperatures.Length)
+                  temperatures[ints[0] - 1].Value = 0.1f * ints[1];
+                break;
+              case 64:
+                if (ints.Length == 3 && ints[0] <= flows.Length)
+                  flows[ints[0] - 1].Value = 0.1f * ints[1];
+                break;
+              case 80:
+                if (ints.Length == 2 && ints[0] <= relays.Length)
+                  relays[ints[0] - 1].Value = 100 * ints[1];
+                break;
+            }
+          }
+        }
+      }
+    }
+
     public override void Update() {
       if (!available)
         return;
 
       while (serialPort.BytesToRead > 0) {
-        Match match = Regex.Match(ReadLine(0), @">\[0:(\d+)\]([0-9:\|-]+)");
-        if (match.Success) {
-          int device;
-          if (int.TryParse(match.Groups[1].Value, out device)) {
-            foreach (string s in match.Groups[2].Value.Split('|')) {
-              string[] strings = s.Split(':');
-              int[] ints = new int[strings.Length];
-              for (int i = 0; i < ints.Length; i++)
-                ints[i] = int.Parse(strings[i]);
-              switch (device) {
-                case 32:
-                  if (ints.Length == 3 && ints[0] <= fans.Length) {
-                    fans[ints[0] - 1].Value = ints[1];
-                    controls[ints[0] - 1].Value = (100 / 255.0f) * ints[2];
-                  }
-                  break;
-                case 48:
-                  if (ints.Length == 2 && ints[0] <= temperatures.Length) 
-                      temperatures[ints[0] - 1].Value = 0.1f * ints[1];
-                  break;
-                case 64:
-                  if (ints.Length == 3 && ints[0] <= flows.Length)
-                    flows[ints[0] - 1].Value = 0.1f * ints[1];
-                  break;
-                case 80:
-                  if (ints.Length == 2 && ints[0] <= relays.Length)
-                    relays[ints[0] - 1].Value = 100 * ints[1];
-                  break;
-              } 
-            } 
-          }
+        byte b = (byte)serialPort.ReadByte();
+        if (b == 0x0D) {
+          ProcessUpdateLine(buffer.ToString());
+          buffer.Length = 0;
+        } else {
+          buffer.Append((char)b);
         }
       }
     }
