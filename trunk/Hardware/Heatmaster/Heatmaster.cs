@@ -143,10 +143,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
         firmwareRevision = ReadInteger(0, 'V');
         firmwareCRC = ReadInteger(0, 'C');
 
-        int fanCount = ReadInteger(32, '?');
-        int temperatureCount = ReadInteger(48, '?');
-        int flowCount = ReadInteger(64, '?');
-        int relayCount =  ReadInteger(80, '?');
+        int fanCount = Math.Min(ReadInteger(32, '?'), 4);
+        int temperatureCount = Math.Min(ReadInteger(48, '?'), 6);
+        int flowCount = Math.Min(ReadInteger(64, '?'), 1);
+        int relayCount =  Math.Min(ReadInteger(80, '?'), 1);
 
         fans = new Sensor[fanCount];
         controls = new Sensor[fanCount];

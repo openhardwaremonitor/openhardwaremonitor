@@ -71,7 +71,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       List<string> result = new List<string>();
       try {
         RegistryKey key = Registry.LocalMachine.OpenSubKey(
-          @"SYSTEM\CurrentControlSet\Enum\USB\Vid_10c4&Pid_ea60&Mi_00");
+          @"SYSTEM\CurrentControlSet\Enum\USB\VID_10C4&PID_EA60");
+        if (key == null)
+          key = Registry.LocalMachine.OpenSubKey(
+            @"SYSTEM\CurrentControlSet\Enum\USB\VID_10C4&PID_EA60&MI_00");           
         if (key != null) {
           foreach (string subKeyName in key.GetSubKeyNames()) {
             RegistryKey subKey =
