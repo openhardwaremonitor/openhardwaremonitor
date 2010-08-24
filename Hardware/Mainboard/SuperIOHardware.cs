@@ -468,14 +468,29 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Manufacturer.ASUS:
               switch (model) {
-                case Model.P6X58D_E: // W83667HG 
+                case Model.P6X58D_E: // W83667HG                 
+                case Model.Rampage_II_GENE: // W83667HG 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+12V", 1, 11.5f, 1.91f, 0));
                   v.Add(new Voltage("Analog +3.3V", 2, 34, 34, 0));
                   v.Add(new Voltage("+3.3V", 3, 34, 34, 0));
                   v.Add(new Voltage("+5V", 4, 15, 7.5f, 0));
-                  v.Add(new Voltage("Voltage #6", 5, true));
-                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Standby +3.3V", 7, 34, 34, 0));
+                  v.Add(new Voltage("VBAT", 8, 34, 34, 0));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Motherboard", 2));
+                  f.Add(new Fan("Chassis Fan #1", 0));
+                  f.Add(new Fan("CPU Fan", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("Chassis Fan #2", 3));
+                  f.Add(new Fan("Chassis Fan #3", 4));
+                  break;
+                case Model.Rampage_Extreme: // W83667HG 
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("+12V", 1, 12, 2, 0));
+                  v.Add(new Voltage("Analog +3.3V", 2, 34, 34, 0));
+                  v.Add(new Voltage("+3.3V", 3, 34, 34, 0));
+                  v.Add(new Voltage("+5V", 4, 15, 7.5f, 0));
                   v.Add(new Voltage("Standby +3.3V", 7, 34, 34, 0));
                   v.Add(new Voltage("VBAT", 8, 34, 34, 0));
                   t.Add(new Temperature("CPU", 0));
