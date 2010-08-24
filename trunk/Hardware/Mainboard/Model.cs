@@ -47,6 +47,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     M4A79XTD_EVO,
     P5W_DH_Deluxe,    
     P6X58D_E,
+    Rampage_Extreme,
+    Rampage_II_GENE,
 
     // DFI
     LP_BI_P45_T2RS_Elite,

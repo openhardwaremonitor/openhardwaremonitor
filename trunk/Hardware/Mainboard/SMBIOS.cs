@@ -307,6 +307,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             model = Model.P5W_DH_Deluxe; break;
           case "P6X58D-E":
             model = Model.P6X58D_E; break;
+          case "Rampage Extreme":
+            model = Model.Rampage_Extreme; break;
+          case "Rampage II GENE":
+            model = Model.Rampage_II_GENE; break;
           case "LP BI P45-T2RS Elite":
             model = Model.LP_BI_P45_T2RS_Elite; break;
           case "LP DK P55-T3eH9":
