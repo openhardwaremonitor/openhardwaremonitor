@@ -69,20 +69,20 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     private static string[] GetRegistryPortNames() {
       List<string> result = new List<string>();
+      string[] paths = { "", "&MI_00" };
       try {
-        RegistryKey key = Registry.LocalMachine.OpenSubKey(
-          @"SYSTEM\CurrentControlSet\Enum\USB\VID_10C4&PID_EA60");
-        if (key == null)
-          key = Registry.LocalMachine.OpenSubKey(
-            @"SYSTEM\CurrentControlSet\Enum\USB\VID_10C4&PID_EA60&MI_00");           
-        if (key != null) {
-          foreach (string subKeyName in key.GetSubKeyNames()) {
-            RegistryKey subKey =
-              key.OpenSubKey(subKeyName + "\\" + "Device Parameters");
-            if (subKey != null) {
-              string name = subKey.GetValue("PortName") as string;
-              if (name != null)
-                result.Add((string)name);
+        foreach (string path in paths) {
+          RegistryKey key = Registry.LocalMachine.OpenSubKey(
+            @"SYSTEM\CurrentControlSet\Enum\USB\VID_10C4&PID_EA60" + path);
+          if (key != null) {
+            foreach (string subKeyName in key.GetSubKeyNames()) {
+              RegistryKey subKey =
+                key.OpenSubKey(subKeyName + "\\" + "Device Parameters");
+              if (subKey != null) {
+                string name = subKey.GetValue("PortName") as string;
+                if (name != null && !result.Contains(name))
+                  result.Add((string)name);
+              }
             }
           }
         }
