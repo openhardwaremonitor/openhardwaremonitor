@@ -88,7 +88,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     public override HardwareType HardwareType {
-      get { return HardwareType.GPU; }
+      get { return HardwareType.GpuAti; }
     }
 
     public override void Update() {

@@ -88,6 +88,7 @@ namespace OpenHardwareMonitor.GUI {
       this.valueMenuItem = new System.Windows.Forms.MenuItem();
       this.minMenuItem = new System.Windows.Forms.MenuItem();
       this.maxMenuItem = new System.Windows.Forms.MenuItem();
+      this.gadgetMenuItem = new System.Windows.Forms.MenuItem();
       this.optionsMenuItem = new System.Windows.Forms.MenuItem();
       this.startMinMenuItem = new System.Windows.Forms.MenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.MenuItem();
@@ -231,6 +232,7 @@ namespace OpenHardwareMonitor.GUI {
             this.MenuItem3,
             this.hiddenMenuItem,
             this.plotMenuItem,
+            this.gadgetMenuItem,
             this.MenuItem1,
             this.columnsMenuItem});
       this.viewMenuItem.Text = "View";
@@ -258,12 +260,12 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // MenuItem1
       // 
-      this.MenuItem1.Index = 4;
+      this.MenuItem1.Index = 5;
       this.MenuItem1.Text = "-";
       // 
       // columnsMenuItem
       // 
-      this.columnsMenuItem.Index = 5;
+      this.columnsMenuItem.Index = 6;
       this.columnsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.valueMenuItem,
             this.minMenuItem,
@@ -284,6 +286,11 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.maxMenuItem.Index = 2;
       this.maxMenuItem.Text = "Max";
+      // 
+      // gadgetMenuItem
+      // 
+      this.gadgetMenuItem.Index = 4;
+      this.gadgetMenuItem.Text = "Show Gadget";
       // 
       // optionsMenuItem
       // 
@@ -501,6 +508,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem MenuItem2;
     private System.Windows.Forms.MenuItem resetMinMaxMenuItem;
     private System.Windows.Forms.MenuItem MenuItem3;
+    private System.Windows.Forms.MenuItem gadgetMenuItem;
   }
 }
 

@@ -78,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       
       superIOHardware = new IHardware[superIO.Length];
       for (int i = 0; i < superIO.Length; i++)
-        superIOHardware[i] = new SuperIOHardware(superIO[i], 
+        superIOHardware[i] = new SuperIOHardware(this, superIO[i], 
           smbios.Board != null ? smbios.Board.Manufacturer : 
           Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model :
           Model.Unknown, settings);
@@ -94,6 +94,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public HardwareType HardwareType {
       get { return HardwareType.Mainboard; }
+    }
+
+    public virtual IHardware Parent {
+      get { return null; }
     }
 
     public string GetReport() {

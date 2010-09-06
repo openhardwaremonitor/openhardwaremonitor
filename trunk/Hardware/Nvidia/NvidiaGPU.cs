@@ -123,7 +123,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     public override HardwareType HardwareType {
-      get { return HardwareType.GPU; }
+      get { return HardwareType.GpuNvidia; }
     }
 
     private NvGPUThermalSettings GetThermalSettings() {
