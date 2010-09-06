@@ -48,6 +48,10 @@ namespace OpenHardwareMonitor.Hardware {
       get { return new IHardware[0]; }
     }
 
+    public virtual IHardware Parent {
+      get { return null; }
+    }
+
     public ISensor[] Sensors {
       get { return active.ToArray(); }
     }

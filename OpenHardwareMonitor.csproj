@@ -70,6 +70,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\GadgetWindow.cs" />
+    <Compile Include="GUI\Gadget.cs" />
+    <Compile Include="GUI\HardwareTypeImage.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -92,7 +95,9 @@
     <Compile Include="GUI\ParameterForm.Designer.cs">
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\SensorGadget.cs" />
     <Compile Include="GUI\SensorNotifyIcon.cs" />
+    <Compile Include="GUI\ShowDesktop.cs" />
     <Compile Include="GUI\SplitContainerAdv.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -196,6 +201,11 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\barback.png" />
+    <EmbeddedResource Include="Resources\barblue.png" />
+    <EmbeddedResource Include="Resources\gadget.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

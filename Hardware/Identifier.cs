@@ -40,7 +40,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
-  public class Identifier {
+  public class Identifier : IComparable<Identifier> {
     private string identifier;
 
     private static char SEPARATOR = '/';
@@ -91,6 +91,13 @@ namespace OpenHardwareMonitor.Hardware {
 
     public override int GetHashCode() {
       return identifier.GetHashCode();
+    }
+
+    public int CompareTo(Identifier other) {
+      if (other == null)
+        return 1;
+      else 
+        return this.identifier.CompareTo(other.identifier);
     }
   }
 }

@@ -85,6 +85,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return new IHardware[0]; }
     }
 
+    public virtual IHardware Parent {
+      get { return null; }
+    }
+
     public ISensor[] Sensors {
       get {
         return new ISensor[] { temperature };

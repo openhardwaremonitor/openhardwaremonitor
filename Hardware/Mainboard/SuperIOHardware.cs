@@ -43,6 +43,7 @@ using OpenHardwareMonitor.Hardware.LPC;
 namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class SuperIOHardware : Hardware {
 
+    private Mainboard mainboard;
     private ISuperIO superIO;
     private string name;
 
@@ -51,9 +52,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private List<Sensor> fans = new List<Sensor>();
 
 
-    public SuperIOHardware(ISuperIO superIO, Manufacturer manufacturer,
-      Model model, ISettings settings) 
+    public SuperIOHardware(Mainboard mainboard, ISuperIO superIO, 
+      Manufacturer manufacturer, Model model, ISettings settings) 
     {
+      this.mainboard = mainboard;
       this.superIO = superIO;
       this.name = ChipName.GetName(superIO.Chip);
 
@@ -612,6 +614,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public override HardwareType HardwareType {
       get { return HardwareType.SuperIO; }
+    }
+
+    public override IHardware Parent {
+      get { return mainboard; }
     }
 
     public override string Name {

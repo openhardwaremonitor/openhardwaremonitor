@@ -62,6 +62,7 @@ namespace OpenHardwareMonitor.GUI {
     private SystemTray systemTray;    
     private StartupManager startupManager = new StartupManager();
     private UpdateVisitor updateVisitor = new UpdateVisitor();
+    private SensorGadget gadget;
 
     private UserOption showHiddenSensors;
     private UserOption showPlot;
@@ -72,6 +73,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption minimizeToTray;
     private UserOption autoStart;
     private UserOption readHddSensors;
+    private UserOption showGadget;
 
     public MainForm() {      
       InitializeComponent();
@@ -138,6 +140,8 @@ namespace OpenHardwareMonitor.GUI {
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
+      gadget = new SensorGadget(computer, settings, unitManager);
+
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
       computer.Open();
@@ -194,13 +198,18 @@ namespace OpenHardwareMonitor.GUI {
 
       autoStart = new UserOption(null, startupManager.Startup, startupMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
-        startupManager.Startup = autoStart.Value; ;
+        startupManager.Startup = autoStart.Value; 
       };
 
       readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem, settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
         UpdatePlotSelection(null, null);
+      };
+
+      showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem, settings);
+      showGadget.Changed += delegate(object sender, EventArgs e) {
+        gadget.Visible = showGadget.Value;
       };
 
       celciusMenuItem.Checked = 
@@ -225,7 +234,7 @@ namespace OpenHardwareMonitor.GUI {
       Microsoft.Win32.SystemEvents.SessionEnded +=
         delegate(object sender, Microsoft.Win32.SessionEndedEventArgs e) {
           SaveConfiguration();
-        };
+        };  
     }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
@@ -313,6 +322,7 @@ namespace OpenHardwareMonitor.GUI {
       treeView.Invalidate();
       plotPanel.Invalidate();
       systemTray.Redraw();
+      gadget.Redraw();
     }
 
     private void SaveConfiguration() {
@@ -369,7 +379,7 @@ namespace OpenHardwareMonitor.GUI {
               nodeTextBoxText.BeginEdit();
             };
             sensorContextMenu.MenuItems.Add(item);
-          }          
+          }
           if (node.IsVisible) {
             MenuItem item = new MenuItem("Hide");
             item.Click += delegate(object obj, EventArgs args) {
@@ -382,20 +392,30 @@ namespace OpenHardwareMonitor.GUI {
               node.IsVisible = true;
             };
             sensorContextMenu.MenuItems.Add(item);
-          }         
-          if (systemTray.Contains(node.Sensor)) {
-            MenuItem item = new MenuItem("Remove From Tray");
-            item.Click += delegate(object obj, EventArgs args) {
-              systemTray.Remove(node.Sensor);
-            };
-            sensorContextMenu.MenuItems.Add(item);
-          } else {
-            MenuItem item = new MenuItem("Add To Tray");
-            item.Click += delegate(object obj, EventArgs args) {
-              systemTray.Add(node.Sensor, true);
-            };
-            sensorContextMenu.MenuItems.Add(item);
           }
+          sensorContextMenu.MenuItems.Add(new MenuItem("-"));
+
+          MenuItem menuItem = new MenuItem("Show in Tray");
+          menuItem.Checked = systemTray.Contains(node.Sensor);
+          menuItem.Click += delegate(object obj, EventArgs args) {
+            if (menuItem.Checked)
+              systemTray.Remove(node.Sensor);
+            else
+              systemTray.Add(node.Sensor, true);
+          };
+          sensorContextMenu.MenuItems.Add(menuItem);
+
+          menuItem = new MenuItem("Show in Gadget");
+          menuItem.Checked = gadget.Contains(node.Sensor);
+          menuItem.Click += delegate(object obj, EventArgs args) {
+            if (menuItem.Checked) {
+              gadget.Remove(node.Sensor);
+            } else {
+              gadget.Add(node.Sensor);
+            }
+          };
+          sensorContextMenu.MenuItems.Add(menuItem);
+
           sensorContextMenu.Show(treeView, new Point(m.X, m.Y));
         }
       }

@@ -55,32 +55,7 @@ namespace OpenHardwareMonitor.GUI {
       this.settings = settings;
       this.unitManager = unitManager;
       this.hardware = hardware;
-      switch (hardware.HardwareType) {
-        case HardwareType.CPU: 
-          this.Image = Utilities.EmbeddedResources.GetImage("cpu.png");
-          break;
-        case HardwareType.GPU:
-          if (hardware.Identifier.ToString().Contains("nvidia"))
-            this.Image = Utilities.EmbeddedResources.GetImage("nvidia.png");
-          else
-            this.Image = Utilities.EmbeddedResources.GetImage("ati.png");
-          break;
-        case HardwareType.HDD: 
-          this.Image = Utilities.EmbeddedResources.GetImage("hdd.png");
-          break;
-        case HardwareType.Heatmaster:
-          this.Image = Utilities.EmbeddedResources.GetImage("bigng.png");
-          break;
-        case HardwareType.Mainboard: 
-          this.Image = Utilities.EmbeddedResources.GetImage("mainboard.png");
-          break;
-        case HardwareType.SuperIO: 
-          this.Image = Utilities.EmbeddedResources.GetImage("chip.png");
-          break;
-        case HardwareType.TBalancer: 
-          this.Image = Utilities.EmbeddedResources.GetImage("bigng.png");
-          break;
-      }
+      this.Image = HardwareTypeImage.Instance.GetImage(hardware.HardwareType);
 
       typeNodes.Add(new TypeNode(SensorType.Voltage));
       typeNodes.Add(new TypeNode(SensorType.Clock));      

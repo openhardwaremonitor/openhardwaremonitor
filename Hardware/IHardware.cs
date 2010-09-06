@@ -42,14 +42,15 @@ namespace OpenHardwareMonitor.Hardware {
 
   public delegate void SensorEventHandler(ISensor sensor);
 
-  public enum HardwareType {    
-    CPU,
-    GPU,
-    HDD,
-    Heatmaster,
+  public enum HardwareType {
     Mainboard,
     SuperIO,
-    TBalancer
+    CPU,
+    GpuNvidia,
+    GpuAti,    
+    TBalancer,
+    Heatmaster,
+    HDD,     
   }
 
   public interface IHardware : IElement {
@@ -64,6 +65,8 @@ namespace OpenHardwareMonitor.Hardware {
     void Update();
 
     IHardware[] SubHardware { get; }
+
+    IHardware Parent { get; }
 
     ISensor[] Sensors { get; }
 
