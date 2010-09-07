@@ -116,7 +116,7 @@ namespace OpenHardwareMonitor.GUI {
         // search if the reference window is behind the worker window
         IntPtr reference = NativeMethods.FindWindowEx(
           IntPtr.Zero, workerWindow, null, referenceWindowCaption);
-        showDesktopDetected = reference == referenceWindow.Handle;
+        showDesktopDetected = reference != IntPtr.Zero;
       } else {
         // if there is no worker window, then nothing can hide the reference
         showDesktopDetected = false;
