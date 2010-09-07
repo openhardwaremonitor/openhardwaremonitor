@@ -42,6 +42,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     ASUS,
     Dell,
     DFI,
+    ECS,
     EPoX,
     EVGA,
     FIC,

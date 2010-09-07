@@ -54,6 +54,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     LP_BI_P45_T2RS_Elite,
     LP_DK_P55_T3eH9,
 
+    // ECS
+
+    A890GXM_A,
+
     // EVGA
     X58_SLI_Classified,
 
