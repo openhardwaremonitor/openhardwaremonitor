@@ -54,19 +54,22 @@ namespace OpenHardwareMonitor.GUI {
     private const int leftBorder = 6;
     private const int rightBorder = 6;
     private const int iconSize = 11;
-    private const int hardwareLineHeight = 13;
-    private const int sensorLineHeight = 11;
+    private const int hardwareLineHeight = 12;
+    private const int sensorLineHeight = 10;
 
     private IDictionary<IHardware, IList<ISensor>> sensors =
       new SortedDictionary<IHardware, IList<ISensor>>(new HardwareComparer());
 
     private PersistentSettings settings;
+    private UserOption hardwareNames;
     private UserOption alwaysOnTop;
     private UserOption lockPosition;
 
     private Font largeFont;
     private Font smallFont;
-    private Brush darkWhite = new SolidBrush(Color.FromArgb(0xF0, 0xF0, 0xF0));
+    private Brush darkWhite;
+    private StringFormat trimStringFormat;
+    private StringFormat alignRightStringFormat;
 
     public SensorGadget(IComputer computer, PersistentSettings settings, 
       UnitManager unitManager) 
@@ -78,7 +81,14 @@ namespace OpenHardwareMonitor.GUI {
 
       this.largeFont = new Font(SystemFonts.MessageBoxFont.FontFamily, 7.5f, 
         FontStyle.Bold); 
-      this.smallFont = new Font(SystemFonts.MessageBoxFont.FontFamily, 6.5f);      
+      this.smallFont = new Font(SystemFonts.MessageBoxFont.FontFamily, 7.5f);
+      this.darkWhite = new SolidBrush(Color.FromArgb(0xF0, 0xF0, 0xF0));
+
+      this.trimStringFormat = new StringFormat();
+      this.trimStringFormat.Trimming = StringTrimming.EllipsisCharacter;
+
+      this.alignRightStringFormat = new StringFormat();
+      this.alignRightStringFormat.Alignment = StringAlignment.Far;
 
       this.Location = new Point(
         settings.GetValue("sensorGadget.Location.X", 100),
@@ -89,6 +99,9 @@ namespace OpenHardwareMonitor.GUI {
       };
       
       ContextMenu contextMenu = new ContextMenu();
+      MenuItem hardwareNamesItem = new MenuItem("Hardware Names");
+      contextMenu.MenuItems.Add(hardwareNamesItem);
+      contextMenu.MenuItems.Add(new MenuItem("-"));
       MenuItem lockItem = new MenuItem("Lock Position");
       contextMenu.MenuItems.Add(lockItem);
       contextMenu.MenuItems.Add(new MenuItem("-"));
@@ -111,6 +124,13 @@ namespace OpenHardwareMonitor.GUI {
       }
       this.ContextMenu = contextMenu;
 
+      hardwareNames = new UserOption("sensorGadget.Hardwarenames", true,
+        hardwareNamesItem, settings);
+      hardwareNames.Changed += delegate(object sender, EventArgs e) {
+        Resize();
+        Redraw();
+      };
+
       alwaysOnTop = new UserOption("sensorGadget.AlwaysOnTop", false, 
         alwaysOnTopItem, settings);
       alwaysOnTop.Changed += delegate(object sender, EventArgs e) {
@@ -123,6 +143,26 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       Resize();
+    }
+
+    public override void Dispose() {
+
+      largeFont.Dispose();
+      largeFont = null;
+
+      smallFont.Dispose();
+      smallFont = null;
+
+      darkWhite.Dispose();
+      darkWhite = null;
+
+      trimStringFormat.Dispose();
+      trimStringFormat = null;
+
+      alignRightStringFormat.Dispose();
+      alignRightStringFormat = null;      
+
+      base.Dispose();
     }
 
     private void HardwareRemoved(IHardware hardware) {
@@ -213,12 +253,16 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void Resize() {
-      int y = topBorder + 1;
+      int y = topBorder + 1;      
       foreach (KeyValuePair<IHardware, IList<ISensor>> pair in sensors) {
-        y += hardwareLineHeight;
+        if (hardwareNames.Value) {
+          if (y > topBorder + 1)
+            y += 2;
+          y += hardwareLineHeight;
+        }
         y += pair.Value.Count * sensorLineHeight;
       }
-      y += bottomBorder + 2;
+      y += bottomBorder + 3;
       y = Math.Max(y, topBorder + bottomBorder + 10);
       this.Size = new Size(130, y);
     }
@@ -277,25 +321,24 @@ namespace OpenHardwareMonitor.GUI {
 
       DrawBackground(g);
 
-      StringFormat stringFormat = new StringFormat();
-      stringFormat.Alignment = StringAlignment.Far;
-
       int x;
       int y = topBorder + 1;
       foreach (KeyValuePair<IHardware, IList<ISensor>> pair in sensors) {
-        x = leftBorder + 1;
-        g.DrawImage(HardwareTypeImage.Instance.GetImage(pair.Key.HardwareType),
-          new Rectangle(x, y + 2, iconSize, iconSize));
-        x += iconSize + 1;
-        g.DrawString(pair.Key.Name, largeFont, Brushes.White,
-          new Rectangle(x, y, w - rightBorder - x, 15));
-        y += hardwareLineHeight;
+        if (hardwareNames.Value) {
+          if (y > topBorder + 1)
+            y += 2;
+          x = leftBorder + 1;
+          g.DrawImage(HardwareTypeImage.Instance.GetImage(pair.Key.HardwareType),
+            new Rectangle(x, y + 1, iconSize, iconSize));
+          x += iconSize + 1;
+          g.DrawString(pair.Key.Name, largeFont, Brushes.White,
+            new Rectangle(x, y - 1, w - rightBorder - x, 15));
+          y += hardwareLineHeight;
+        }
 
         foreach (ISensor sensor in pair.Value) {
+          int restWidth;
 
-          g.DrawString(sensor.Name + ":", smallFont, darkWhite,
-            new Rectangle(9, y, 64, 15));
-          
           if (sensor.SensorType != SensorType.Load && 
             sensor.SensorType != SensorType.Control) 
           {
@@ -327,13 +370,24 @@ namespace OpenHardwareMonitor.GUI {
               formattedValue = string.Format(format, sensor.Value);
             }
 
-            x = 75;
+            int rightMargin = 8;
             g.DrawString(formattedValue, smallFont, darkWhite,
-              new RectangleF(x, y, w - x - 9, 15), stringFormat);            
+              new RectangleF(-1, y - 1, w - rightMargin + 2, 15), 
+              alignRightStringFormat);
+
+            restWidth = w - (int)Math.Floor(g.MeasureString(formattedValue,
+              smallFont, w, StringFormat.GenericTypographic).Width) - 
+              rightMargin;
           } else {
-            x = 80;
-            DrawProgress(g, x, y + 4, w - x - 9, 6, 0.01f * sensor.Value.Value);
+            restWidth = 80;
+            DrawProgress(g, restWidth, y + 4, w - restWidth - 9, 6, 
+              0.01f * sensor.Value.Value);
           }
+
+          int leftMargin = 8;
+          g.DrawString(sensor.Name, smallFont, darkWhite,
+            new RectangleF(leftMargin - 1, y - 1, restWidth - leftMargin + 2, 
+            15), trimStringFormat);
 
           y += sensorLineHeight;
         }

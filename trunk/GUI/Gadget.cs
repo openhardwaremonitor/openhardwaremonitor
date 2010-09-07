@@ -54,9 +54,8 @@ namespace OpenHardwareMonitor.GUI {
       CreateBuffer();
     }
 
-    public void Dispose() {
-      this.graphics.Dispose();
-      this.buffer.Dispose();
+    public virtual void Dispose() {
+      DisposeBuffer();
     }
 
     public Point Location {
