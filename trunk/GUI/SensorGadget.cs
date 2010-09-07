@@ -100,13 +100,12 @@ namespace OpenHardwareMonitor.GUI {
       for (int i = 0; i < 5; i++) {
         MenuItem item = new MenuItem((20 * (i + 1)).ToString() + " %");
         byte o = (byte)(51 * (i + 1));
-        item.Tag = o;
         item.Checked = Opacity == o;
         item.Click += delegate(object sender, EventArgs e) {
-          Opacity = (byte)item.Tag;
+          Opacity = o;
           settings.SetValue("sensorGadget.Opacity", Opacity);
           foreach (MenuItem mi in opacityMenu.MenuItems)
-            mi.Checked = (byte)mi.Tag == Opacity;          
+            mi.Checked = mi == item;          
         };
         opacityMenu.MenuItems.Add(item);
       }
