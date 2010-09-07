@@ -226,10 +226,13 @@ namespace OpenHardwareMonitor.GUI {
           NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER |
             (value ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
-          if (value)
-            ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
-          else
-            ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;         
+          if (value) {
+            if (!alwaysOnTop)
+              ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
+          } else {
+            if (!alwaysOnTop)
+              ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
+          }
         }
       }
     }
@@ -252,11 +255,13 @@ namespace OpenHardwareMonitor.GUI {
         if (value != alwaysOnTop) {
           alwaysOnTop = value;
           if (alwaysOnTop) {
-            ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
+            if (visible)
+              ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
             MoveToTopMost(Handle);            
           } else {
             MoveToBottom(Handle);
-            ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
+            if (visible)
+              ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
           }
         }
       }
