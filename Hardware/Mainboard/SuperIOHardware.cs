@@ -67,7 +67,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.IT8712F:
         case Chip.IT8716F:
         case Chip.IT8718F:
-        case Chip.IT8720F:        
+        case Chip.IT8720F: 
         case Chip.IT8726F:
           switch (manufacturer) {
             case Manufacturer.ASUS:
@@ -323,19 +323,57 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           break;
 
         case Chip.IT8721F:
-          v.Add(new Voltage("Voltage #1", 0, true));
-          v.Add(new Voltage("Voltage #2", 1, true));
-          v.Add(new Voltage("Voltage #3", 2, true));
-          v.Add(new Voltage("Analog +3.3V", 3, 10, 10, 0, true));
-          v.Add(new Voltage("Voltage #5", 4, true));
-          v.Add(new Voltage("Voltage #6", 5, true));
-          v.Add(new Voltage("Voltage #7", 6, true));
-          v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
-          v.Add(new Voltage("VBat", 8, 10, 10, 0));
-          for (int i = 0; i < superIO.Temperatures.Length; i++)
-            t.Add(new Temperature("Temperature #" + (i + 1), i));
-          for (int i = 0; i < superIO.Fans.Length; i++)
-            f.Add(new Fan("Fan #" + (i + 1), i));
+          switch (manufacturer) {
+            case Manufacturer.ECS:
+              switch (model) {
+                case Model.A890GXM_A: // IT8721F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("VDIMM", 1));
+                  v.Add(new Voltage("NB Voltage", 2));
+                  v.Add(new Voltage("Analog +3.3V", 3, 10, 10, 0));
+                  // v.Add(new Voltage("VDIMM", 6, true));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0));
+                  v.Add(new Voltage("VBat", 8, 10, 10, 0));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("System", 1));
+                  t.Add(new Temperature("Northbridge", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  break;
+                default:
+                  v.Add(new Voltage("Voltage #1", 0, true));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Analog +3.3V", 3, 10, 10, 0, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+                  v.Add(new Voltage("VBat", 8, 10, 10, 0));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
+            default:
+              v.Add(new Voltage("Voltage #1", 0, true));
+              v.Add(new Voltage("Voltage #2", 1, true));
+              v.Add(new Voltage("Voltage #3", 2, true));
+              v.Add(new Voltage("Analog +3.3V", 3, 10, 10, 0, true));
+              v.Add(new Voltage("Voltage #5", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+              v.Add(new Voltage("VBat", 8, 10, 10, 0));
+              for (int i = 0; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature("Temperature #" + (i + 1), i));
+              for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
+              break;
+          }
           break;
           
         case Chip.F71858:
