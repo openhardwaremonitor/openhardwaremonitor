@@ -38,7 +38,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Diagnostics;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {

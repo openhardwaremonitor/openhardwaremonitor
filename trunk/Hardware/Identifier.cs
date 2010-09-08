@@ -36,7 +36,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -45,7 +44,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static char SEPARATOR = '/';
 
-    private static void CheckIdentifiers(string[] identifiers) {
+    private static void CheckIdentifiers(string[] identifiers) {      
       foreach (string s in identifiers)
         if (s.Contains(" ") || s.Contains(SEPARATOR.ToString()))
           throw new ArgumentException("Invalid identifier");
@@ -97,7 +96,34 @@ namespace OpenHardwareMonitor.Hardware {
       if (other == null)
         return 1;
       else 
-        return this.identifier.CompareTo(other.identifier);
+        return string.Compare(this.identifier, other.identifier, 
+          StringComparison.Ordinal);
     }
+
+    public static bool operator ==(Identifier id1, Identifier id2) {
+      if (id1 == null)
+        return id2 == null;
+      else
+        return id1.Equals(id2);
+    }
+
+    public static bool operator !=(Identifier id1, Identifier id2) {
+      return !(id1 == id2);
+    }
+
+    public static bool operator <(Identifier id1, Identifier id2) {
+      if (id1 == null)
+        return id2 != null;
+      else 
+        return (id1.CompareTo(id2) < 0);
+    }
+
+    public static bool operator >(Identifier id1, Identifier id2) {
+      if (id1 == null)
+        return false;
+      else 
+        return (id1.CompareTo(id2) > 0);
+    }  
+
   }
 }

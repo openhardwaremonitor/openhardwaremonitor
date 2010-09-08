@@ -37,13 +37,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Globalization;
-using System.Text;
-using System.Threading;
-using System.Security;
+using System.IO;
 using System.Security.Permissions;
-
 
 namespace OpenHardwareMonitor.Hardware {
 

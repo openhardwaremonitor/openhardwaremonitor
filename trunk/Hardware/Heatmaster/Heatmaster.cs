@@ -36,7 +36,7 @@
 */
 
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.IO.Ports;
 using System.Text;
@@ -44,7 +44,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.Heatmaster {
-  internal class Heatmaster : Hardware {
+  internal class Heatmaster : Hardware, IDisposable {
 
     private string portName;
     private SerialPort serialPort;
@@ -85,8 +85,9 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       serialPort.WriteLine("[0:" + device + "]R" + field);
       for (int i = 0; i < 5; i++) {
         string s = ReadLine(200);
-        Match match = Regex.Match(s, @"-\[0:" + device.ToString() + @"\]R" +
-          Regex.Escape(field.ToString()) + ":(.*)");
+        Match match = Regex.Match(s, @"-\[0:" + 
+          device.ToString(CultureInfo.InvariantCulture) + @"\]R" +
+          Regex.Escape(field.ToString(CultureInfo.InvariantCulture)) + ":(.*)");
         if (match.Success) 
           return match.Groups[1].Value;
       }
@@ -114,8 +115,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       serialPort.WriteLine("[0:" + device + "]W" + field + ":" + value);
       for (int i = 0; i < 5; i++) {
         string s = ReadLine(200);
-        Match match = Regex.Match(s, @"-\[0:" + device.ToString() + @"\]W" + 
-          Regex.Escape(field.ToString()) + ":" + value);
+        Match match = Regex.Match(s, @"-\[0:" + 
+          device.ToString(CultureInfo.InvariantCulture) + @"\]W" + 
+          Regex.Escape(field.ToString(CultureInfo.InvariantCulture)) +
+          ":" + value);
         if (match.Success)
           return true;
       }
@@ -123,7 +126,8 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
     }
 
     private bool WriteInteger(int device, char field, int value) {
-      return WriteField(device, field, value.ToString());
+      return WriteField(device, field, 
+        value.ToString(CultureInfo.InvariantCulture));
     }
 
     private bool WriteString(int device, char field, string value) {
@@ -233,7 +237,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
             string[] strings = s.Split(':');
             int[] ints = new int[strings.Length];
             for (int i = 0; i < ints.Length; i++)
-              ints[i] = int.Parse(strings[i]);
+              ints[i] = int.Parse(strings[i], CultureInfo.InvariantCulture);
             switch (device) {
               case 32:
                 if (ints.Length == 3 && ints[0] <= fans.Length) {
@@ -282,11 +286,11 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       r.Append("Port: ");
       r.AppendLine(portName);
       r.Append("Hardware Revision: ");
-      r.AppendLine(hardwareRevision.ToString());
+      r.AppendLine(hardwareRevision.ToString(CultureInfo.InvariantCulture));
       r.Append("Firmware Revision: ");
-      r.AppendLine(firmwareRevision.ToString());
+      r.AppendLine(firmwareRevision.ToString(CultureInfo.InvariantCulture));
       r.Append("Firmware CRC: ");
-      r.AppendLine(firmwareCRC.ToString());
+      r.AppendLine(firmwareCRC.ToString(CultureInfo.InvariantCulture));
       r.AppendLine();
 
       return r.ToString();
@@ -294,6 +298,15 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     public void Close() {
       serialPort.Close();
+      serialPort.Dispose();
+      serialPort = null;
+    }
+
+    public void Dispose() {
+      if (serialPort != null) {
+        serialPort.Dispose();
+        serialPort = null;
+      }
     }
   }
 }
