@@ -35,9 +35,6 @@
  
 */
 
-using System;
-using System.Collections.Generic;
-
 namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class MainboardGroup : IGroup {
 

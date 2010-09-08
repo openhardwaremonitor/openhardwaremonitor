@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO.Ports;
 using System.Security;
 using System.Text;
@@ -99,77 +100,77 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
       string[] portNames = GetRegistryPortNames();      
       for (int i = portNames.Length - 1; i >= 0; i--) {
-        try {
+        bool isValid = false;
+        try {        
+          using (SerialPort serialPort =
+            new SerialPort(portNames[i], 38400, Parity.None, 8, StopBits.One)) {
+            serialPort.NewLine = ((char)0x0D).ToString();            
+            report.Append("Port Name: "); report.AppendLine(portNames[i]);
 
-          SerialPort serialPort =
-            new SerialPort(portNames[i], 38400, Parity.None, 8, StopBits.One);
-          serialPort.NewLine = ((char)0x0D).ToString();
-
-          bool isValid = false;
-          report.Append("Port Name: "); report.AppendLine(portNames[i]);
-
-          try {
-            serialPort.Open();
-          } catch (UnauthorizedAccessException) {
-            report.AppendLine("Exception: Access Denied");
-          }
-
-          if (serialPort.IsOpen) {
-            serialPort.DiscardInBuffer();
-            serialPort.DiscardOutBuffer(); 
-            serialPort.Write(new byte[] { 0xAA }, 0, 1);
-
-            int j = 0;
-            while (serialPort.BytesToRead == 0 && j < 10) {
-              Thread.Sleep(20);
-              j++;
+            try {
+              serialPort.Open();
+            } catch (UnauthorizedAccessException) {
+              report.AppendLine("Exception: Access Denied");
             }
-            if (serialPort.BytesToRead > 0) {
-              bool flag = false;
-              while (serialPort.BytesToRead > 0 && !flag) {
-                flag |= (serialPort.ReadByte() == 0xAA);
+
+            if (serialPort.IsOpen) {
+              serialPort.DiscardInBuffer();
+              serialPort.DiscardOutBuffer();
+              serialPort.Write(new byte[] { 0xAA }, 0, 1);
+
+              int j = 0;
+              while (serialPort.BytesToRead == 0 && j < 10) {
+                Thread.Sleep(20);
+                j++;
               }
-              if (flag) {
-                serialPort.WriteLine("[0:0]RH");
-                try {
-                  int k = 0;
-                  int revision = 0;
-                  while (k < 5) {
-                    string line = ReadLine(serialPort, 100);
-                    if (line.StartsWith("-[0:0]RH:")) {
-                      int.TryParse(line.Substring(9), out revision);
-                      break;
+              if (serialPort.BytesToRead > 0) {
+                bool flag = false;
+                while (serialPort.BytesToRead > 0 && !flag) {
+                  flag |= (serialPort.ReadByte() == 0xAA);
+                }
+                if (flag) {
+                  serialPort.WriteLine("[0:0]RH");
+                  try {
+                    int k = 0;
+                    int revision = 0;
+                    while (k < 5) {
+                      string line = ReadLine(serialPort, 100);
+                      if (line.StartsWith("-[0:0]RH:",
+                        StringComparison.Ordinal)) {
+                        revision = int.Parse(line.Substring(9), 
+                          CultureInfo.InvariantCulture);
+                        break;
+                      }
+                      k++;
                     }
-                    k++;
+                    isValid = (revision == 770);
+                    if (!isValid) {
+                      report.Append("Status: Wrong Hardware Revision " +
+                        revision.ToString(CultureInfo.InvariantCulture));
+                    }
+                  } catch (TimeoutException) {
+                    report.AppendLine("Status: Timeout Reading Revision");
                   }
-                  isValid = (revision == 770); 
-                  if (!isValid) {
-                    report.Append("Status: Wrong Hardware Revision " + 
-                      revision.ToString());
-                  }                 
-                } catch (TimeoutException) {
-                  report.AppendLine("Status: Timeout Reading Revision");
+                } else {
+                  report.AppendLine("Status: Wrong Startflag");
                 }
               } else {
-                report.AppendLine("Status: Wrong Startflag");
+                report.AppendLine("Status: No Response");
               }
+              serialPort.DiscardInBuffer();
             } else {
-              report.AppendLine("Status: No Response");
-            }
-            serialPort.DiscardInBuffer();
-            serialPort.Close();
-            serialPort.Dispose();
-          } else {
-            report.AppendLine("Status: Port not Open");
-          }                          
-          if (isValid) {
-            report.AppendLine("Status: OK");
-            hardware.Add(new Heatmaster(portNames[i], settings));
-            return;
+              report.AppendLine("Status: Port not Open");
+            }            
           }
         } catch (Exception e) {
           report.AppendLine(e.ToString());
-        } 
+        }
+
+        if (isValid) {
+          report.AppendLine("Status: OK");
+          hardware.Add(new Heatmaster(portNames[i], settings));
+          return;
+        }
         report.AppendLine();
       }
     }

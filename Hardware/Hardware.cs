@@ -36,7 +36,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {

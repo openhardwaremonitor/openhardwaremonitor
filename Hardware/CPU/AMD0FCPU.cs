@@ -36,9 +36,7 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class AMD0FCPU : Hardware, IHardware {
