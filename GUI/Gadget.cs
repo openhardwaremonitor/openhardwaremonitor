@@ -76,16 +76,21 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    protected virtual Size Size {
+    public virtual Size Size {
       get {
         return window.Size; 
       }
-      set {
-        if (window.Size != value) {
-          DisposeBuffer();
-          this.window.Size = value;          
-          CreateBuffer();
-        }
+      set {        
+        this.window.Size = value;
+      }
+    }
+
+    public event EventHandler SizeChanged {
+      add {
+        window.SizeChanged += value;
+      }
+      remove {
+        window.SizeChanged -= value;
       }
     }
 
@@ -98,12 +103,12 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    public bool LockPosition {
+    public bool LockPositionAndSize {
       get {
-        return window.LockPosition;
+        return window.LockPositionAndSize;
       }
       set {
-        window.LockPosition = value;
+        window.LockPositionAndSize = value;
       }
     }
 
@@ -124,6 +129,15 @@ namespace OpenHardwareMonitor.GUI {
         window.ContextMenu = value;
       }
     }
+
+    public event HitTestEventHandler HitTest {
+      add {
+        window.HitTest += value;
+      }
+      remove {
+        window.HitTest -= value;
+      }
+    } 
 
     private void CreateBuffer() {
       this.buffer = new Bitmap(window.Size.Width, window.Size.Height, 
@@ -160,6 +174,11 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public void Redraw() {
+      if (window.Size != buffer.Size) {
+        DisposeBuffer();
+        CreateBuffer();
+      }
+
       OnPaint(new PaintEventArgs(graphics, 
         new Rectangle(Point.Empty, window.Size)));
       window.Update(buffer);
