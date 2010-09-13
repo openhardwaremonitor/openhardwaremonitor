@@ -101,8 +101,8 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static bool operator ==(Identifier id1, Identifier id2) {
-      if (id1 == null)
-        return id2 == null;
+      if (id1.Equals(null))
+        return id2.Equals(null);
       else
         return id1.Equals(id2);
     }
