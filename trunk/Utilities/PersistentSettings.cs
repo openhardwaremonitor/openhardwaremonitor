@@ -35,10 +35,9 @@
  
 */
 
-using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Drawing;
-using System.Text;
 using System.Xml;
 using OpenHardwareMonitor.Hardware;
 
@@ -128,6 +127,24 @@ namespace OpenHardwareMonitor {
       }
     }
 
+    public void SetValue(string name, float value) {
+      settings[name] = value.ToString(CultureInfo.InvariantCulture);
+    }
+
+    public float GetValue(string name, float value) {
+      string str;
+      if (settings.TryGetValue(name, out str)) {
+        float parsedValue;
+        if (float.TryParse(str, NumberStyles.Float, 
+          CultureInfo.InvariantCulture, out parsedValue))
+          return parsedValue;
+        else
+          return value;
+      } else {
+        return value;
+      }
+    }
+
     public void SetValue(string name, bool value) {
       settings[name] = value ? "true" : "false";
     }
@@ -149,9 +166,8 @@ namespace OpenHardwareMonitor {
       string str;
       if (settings.TryGetValue(name, out str)) {
         int parsedValue;
-        if (int.TryParse(str,
-          System.Globalization.NumberStyles.HexNumber,
-          System.Globalization.CultureInfo.InvariantCulture, out parsedValue))
+        if (int.TryParse(str, NumberStyles.HexNumber,
+          CultureInfo.InvariantCulture, out parsedValue))
           return Color.FromArgb(parsedValue);
         else
           return value;

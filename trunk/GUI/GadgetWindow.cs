@@ -42,10 +42,11 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace OpenHardwareMonitor.GUI {
+
   public class GadgetWindow : NativeWindow {
 
     private bool visible = false;
-    private bool lockPosition = false;
+    private bool lockPositionAndSize = false;
     private bool alwaysOnTop = false;
     private byte opacity = 255;
     private Point location = new Point(100, 100);
@@ -100,9 +101,9 @@ namespace OpenHardwareMonitor.GUI {
 
     protected virtual CreateParams CreateParams {
       get {
-        CreateParams cp = new CreateParams();
-        cp.Width = size.Width;
-        cp.Height = size.Height;
+        CreateParams cp = new CreateParams();        
+        cp.Width = 4096;
+        cp.Height = 4096;
         cp.X = location.X;
         cp.Y = location.Y;
         cp.ExStyle = WS_EX_LAYERED | WS_EX_TOOLWINDOW;
@@ -112,57 +113,92 @@ namespace OpenHardwareMonitor.GUI {
 
     protected override void WndProc(ref Message message) {
       switch (message.Msg) {
-        case WM_COMMAND:
-          // need to dispatch the message for the context menu
-          if (message.LParam == IntPtr.Zero) 
-            commandDispatch.Invoke(null, new object[] { 
-              message.WParam.ToInt32() & 0xFFFF });          
-          break;
-        case WM_NCHITTEST:           
-          // all pixels of the form belong to the caption
-          message.Result = HTCAPTION; 
-          break;
-        case WM_NCLBUTTONDBLCLK:  
-          message.Result = IntPtr.Zero; break;
-        case WM_NCRBUTTONDOWN:
-          message.Result = IntPtr.Zero; break;
-        case WM_NCRBUTTONUP:
-          if (contextMenu != null)
-            ShowContextMenu(new Point(
-              (int)((uint)message.LParam & 0xFFFF), 
-              (int)(((uint)message.LParam >>16) & 0xFFFF)));          
-          message.Result = IntPtr.Zero; 
-          break;
-        case WM_WINDOWPOSCHANGING:         
-          WindowPos wp = (WindowPos)Marshal.PtrToStructure(
-            message.LParam, typeof(WindowPos));
-
-          // add the nomove flag if position is locked
-          if (lockPosition)
-            wp.flags |= SWP_NOMOVE;
-
-          // prevent the window from leaving the screen
-          if ((wp.flags & SWP_NOMOVE) == 0) {            
-            Rectangle rect = Screen.GetWorkingArea(new Point(wp.x, wp.y));
-            const int margin = 20;
-            wp.x = Math.Max(wp.x, rect.Left - wp.cx + margin);
-            wp.x = Math.Min(wp.x, rect.Right - margin);
-            wp.y = Math.Max(wp.y, rect.Top - wp.cy + margin);
-            wp.y = Math.Min(wp.y, rect.Bottom - margin);
-
-            // raise the event if location changed
-            if (location.X != wp.x || location.Y != wp.y) {
-              location = new Point(wp.x, wp.y);
-              if (LocationChanged != null)
-                LocationChanged(this, EventArgs.Empty);
+        case WM_COMMAND: {
+            // need to dispatch the message for the context menu
+            if (message.LParam == IntPtr.Zero)
+              commandDispatch.Invoke(null, new object[] { 
+              message.WParam.ToInt32() & 0xFFFF });
+          } break;
+        case WM_NCHITTEST: {
+            message.Result = (IntPtr)HitResult.Caption;
+            if (HitTest != null) {
+              Point p = new Point(
+                (int)((uint)message.LParam & 0xFFFF) - location.X,
+                (int)(((uint)message.LParam >> 16) & 0xFFFF) - location.Y);
+              HitTestEventArgs e = new HitTestEventArgs(p, HitResult.Caption);
+              HitTest(this, e);
+              message.Result = (IntPtr)e.HitResult;
             }
-          }          
+          } break;
+        case WM_NCLBUTTONDBLCLK: {
+            message.Result = IntPtr.Zero;
+          } break;
+        case WM_NCRBUTTONDOWN: {
+            message.Result = IntPtr.Zero;
+          } break;
+        case WM_NCRBUTTONUP: {
+            if (contextMenu != null)
+              ShowContextMenu(new Point(
+                (int)((uint)message.LParam & 0xFFFF),
+                (int)(((uint)message.LParam >> 16) & 0xFFFF)));
+            message.Result = IntPtr.Zero;
+          } break;
+        case WM_WINDOWPOSCHANGING: {
+            WindowPos wp = (WindowPos)Marshal.PtrToStructure(
+              message.LParam, typeof(WindowPos));
+            
+            if (!lockPositionAndSize) {
+              // prevent the window from leaving the screen
+              if ((wp.flags & SWP_NOMOVE) == 0) {
+                Rectangle rect = Screen.GetWorkingArea(new Point(wp.x, wp.y));
+                const int margin = 16;
+                wp.x = Math.Max(wp.x, rect.Left - wp.cx + margin);
+                wp.x = Math.Min(wp.x, rect.Right - margin);
+                wp.y = Math.Max(wp.y, rect.Top - wp.cy + margin);
+                wp.y = Math.Min(wp.y, rect.Bottom - margin);
+              }
 
-          Marshal.StructureToPtr(wp, message.LParam, false);
-          message.Result = IntPtr.Zero;
-          break;           
-        default:
-          base.WndProc(ref message); break;
+              // update location and fire event
+              if ((wp.flags & SWP_NOMOVE) == 0) {
+                if (location.X != wp.x || location.Y != wp.y) {
+                  location = new Point(wp.x, wp.y);
+                  if (LocationChanged != null)
+                    LocationChanged(this, EventArgs.Empty);
+                }
+              }
+
+              // update size and fire event
+              if ((wp.flags & SWP_NOSIZE) == 0) {
+                if (size.Width != wp.cx || size.Height != wp.cy) {
+                  size = new Size(wp.cx, wp.cy);
+                  if (SizeChanged != null)
+                    SizeChanged(this, EventArgs.Empty);
+                }
+              } 
+
+              // update the size of the layered window
+              if ((wp.flags & SWP_NOSIZE) == 0) {
+                NativeMethods.UpdateLayeredWindow(Handle, IntPtr.Zero,
+                  IntPtr.Zero, ref size, IntPtr.Zero, IntPtr.Zero, 0,
+                  IntPtr.Zero, 0);                
+              }
+
+              // update the position of the layered window
+              if ((wp.flags & SWP_NOMOVE) == 0) {
+                NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 
+                  location.X, location.Y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | 
+                  SWP_NOZORDER | SWP_NOSENDCHANGING);
+              }
+            }
+            
+            // do not forward any move or size messages
+            wp.flags |= SWP_NOSIZE | SWP_NOMOVE;            
+            Marshal.StructureToPtr(wp, message.LParam, false);                      
+            message.Result = IntPtr.Zero;
+          } break;
+        default: {
+            base.WndProc(ref message);
+          } break;
       }      
     }
 
@@ -185,20 +221,24 @@ namespace OpenHardwareMonitor.GUI {
         newHBitmap = bitmap.GetHbitmap(Color.Black);
         oldHBitmap = NativeMethods.SelectObject(memory, newHBitmap);
 
-        Size size = bitmap.Size;
         Point pointSource = Point.Empty;
-        Point topPos = Location;
-
         BlendFunction blend = CreateBlendFunction();
-        NativeMethods.UpdateLayeredWindow(Handle, screen, ref topPos,
+
+        NativeMethods.UpdateLayeredWindow(Handle, screen, IntPtr.Zero,
           ref size, memory, ref pointSource, 0, ref blend, ULW_ALPHA);
-      } finally {
-        NativeMethods.ReleaseDC(IntPtr.Zero, screen);
+
+        // make sure the window is at the right location
+        NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 
+          location.X, location.Y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | 
+          SWP_NOZORDER | SWP_NOSENDCHANGING);
+
+      } finally {        
         if (newHBitmap != IntPtr.Zero) {
           NativeMethods.SelectObject(memory, oldHBitmap);
           NativeMethods.DeleteObject(newHBitmap);
         }
         NativeMethods.DeleteDC(memory);
+        NativeMethods.ReleaseDC(IntPtr.Zero, screen);
       }
     }
 
@@ -237,13 +277,13 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    // if locked, the window can not be moved
-    public bool LockPosition {
+    // if locked, the window can not be moved or resized
+    public bool LockPositionAndSize {
       get {
-        return lockPosition;
+        return lockPositionAndSize;
       }
       set {
-        lockPosition = value;
+        lockPositionAndSize = value;
       }
     }
 
@@ -274,23 +314,29 @@ namespace OpenHardwareMonitor.GUI {
       set {
         if (size != value) {
           size = value;
-          NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, size.Width,
-            size.Height, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER | 
-            SWP_NOSENDCHANGING);
+          NativeMethods.UpdateLayeredWindow(Handle, IntPtr.Zero, IntPtr.Zero,
+            ref size, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero, 0);                    
+          if (SizeChanged != null)
+            SizeChanged(this, EventArgs.Empty);
         }
       }
     }
+
+    public event EventHandler SizeChanged;
 
     public Point Location {
       get {
         return location;
       }
       set {
-        NativeMethods.SetWindowPos(Handle, IntPtr.Zero, value.X, value.Y, 0,
-          0, SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSENDCHANGING);
-        location = value;
-        if (LocationChanged != null)
-          LocationChanged(this, EventArgs.Empty);
+        if (location != value) {
+          location = value;
+          NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 
+            location.X, location.Y, 0, 0, 
+            SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOSENDCHANGING);          
+          if (LocationChanged != null)
+            LocationChanged(this, EventArgs.Empty);
+        }
       }
     }
 
@@ -304,6 +350,8 @@ namespace OpenHardwareMonitor.GUI {
         this.contextMenu = value;
       }
     }
+
+    public event HitTestEventHandler HitTest;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     private struct BlendFunction {
@@ -357,8 +405,6 @@ namespace OpenHardwareMonitor.GUI {
     public const int TPM_RIGHTBUTTON = 0x0002;
     public const int TPM_VERTICAL = 0x0040;
 
-    public readonly IntPtr HTCAPTION = (IntPtr)2;
-
     private enum WindowAttribute : int {
       DWMWA_NCRENDERING_ENABLED = 1,
       DWMWA_NCRENDERING_POLICY,
@@ -382,8 +428,14 @@ namespace OpenHardwareMonitor.GUI {
 
       [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
       [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst,
+        IntPtr pptDst, ref Size psize, IntPtr hdcSrc, IntPtr pprSrc,
+        int crKey, IntPtr pblend, int dwFlags);
+
+      [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
+      [return: MarshalAs(UnmanagedType.Bool)]
       public static extern bool UpdateLayeredWindow(IntPtr hwnd, IntPtr hdcDst, 
-        ref Point pptDst, ref Size psize, IntPtr hdcSrc, ref Point pprSrc, 
+        IntPtr pptDst, ref Size psize, IntPtr hdcSrc, ref Point pprSrc, 
         int crKey, ref BlendFunction pblend, int dwFlags);
 
       [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
@@ -424,5 +476,32 @@ namespace OpenHardwareMonitor.GUI {
       public static extern int DwmSetWindowAttribute(IntPtr hwnd,
         WindowAttribute dwAttribute, ref bool pvAttribute, int cbAttribute);
     }    
+  }
+
+  public enum HitResult {
+    Transparent = -1,
+    Nowhere = 0,
+    Client = 1,
+    Caption = 2,
+    Left = 10,
+    Right = 11,
+    Top = 12,
+    TopLeft = 13,
+    TopRight = 14,
+    Bottom = 15,
+    BottomLeft = 16,
+    BottomRight = 17,
+    Border = 18
+  }
+
+  public delegate void HitTestEventHandler(object sender, HitTestEventArgs e);
+
+  public class HitTestEventArgs : EventArgs {
+    public HitTestEventArgs(Point location, HitResult hitResult) {
+      Location = location;
+      HitResult = hitResult;
+    }
+    public Point Location { get; private set; }
+    public HitResult HitResult { get; set; }
   }
 }
