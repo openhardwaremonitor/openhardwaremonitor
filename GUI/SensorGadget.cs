@@ -486,7 +486,7 @@ namespace OpenHardwareMonitor.GUI {
         if (x.HardwareType != y.HardwareType)
           return x.HardwareType.CompareTo(y.HardwareType);
 
-        return x.Name.CompareTo(y.Name);
+        return x.Identifier.CompareTo(y.Identifier);
       }
     }
   }
