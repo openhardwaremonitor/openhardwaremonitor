@@ -174,7 +174,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void CreateRegistryRun() {
-      RegistryKey key = Registry.CurrentUser.CreateSubKey(REGISTRY_RUN);
+      RegistryKey key = Registry.CurrentUser.CreateSubKey(REGISTRY_RUN);     
       key.SetValue("OpenHardwareMonitor", Application.ExecutablePath);
     }
 
@@ -192,20 +192,27 @@ namespace OpenHardwareMonitor.GUI {
         return startup;
       }
       set {
-        if (startup != value) {
-          startup = value;
+        if (startup != value) {          
           if (isAvailable) {
             if (scheduler != null) {
-              if (startup)
+              if (value)
                 CreateSchedulerTask();
               else
                 DeleteSchedulerTask();
+              startup = value;
             } else {
-              if (startup)
-                CreateRegistryRun();
-              else
-                DeleteRegistryRun();
+              try {
+                if (value)
+                  CreateRegistryRun();
+                else
+                  DeleteRegistryRun();
+                startup = value;
+              } catch (UnauthorizedAccessException) {
+                throw new InvalidOperationException();
+              }
             }
+          } else {
+            throw new InvalidOperationException();
           }
         }
       }
