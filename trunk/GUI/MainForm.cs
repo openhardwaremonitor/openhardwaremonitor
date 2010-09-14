@@ -198,7 +198,13 @@ namespace OpenHardwareMonitor.GUI {
 
       autoStart = new UserOption(null, startupManager.Startup, startupMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
-        startupManager.Startup = autoStart.Value; 
+        try {
+          startupManager.Startup = autoStart.Value;
+        } catch (InvalidOperationException) {
+          MessageBox.Show("Updating the auto-startup option failed.", "Error", 
+            MessageBoxButtons.OK, MessageBoxIcon.Error);
+          autoStart.Value = startupManager.Startup;
+        }
       };
 
       readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem, settings);
