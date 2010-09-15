@@ -63,7 +63,15 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       for (int i = 0; i < numDevices; i++) {
         report.Append("Device Index: ");
         report.AppendLine(i.ToString(CultureInfo.InvariantCulture));
-        
+        report.Append("Device Type: ");
+        report.AppendLine(info[i].Type.ToString());
+
+        // the T-Balancer always uses an FT232BM
+        if (info[i].Type != FT_DEVICE.FT_DEVICE_232BM) {
+          report.AppendLine("Status: Wrong device type");
+          continue;
+        }
+
         FT_HANDLE handle;
         FT_STATUS status;
         status = FTD2XX.FT_Open(i, out handle);
