@@ -339,7 +339,7 @@ namespace OpenHardwareMonitor.GUI {
         y += pair.Value.Count * sensorLineHeight;
       }
       y += bottomMargin;
-      y = Math.Max(y, topBorder + bottomBorder + 10);
+      y = Math.Max(y, topBorder + hardwareLineHeight + bottomBorder);
       this.Size = new Size(width, y);
     }
 
@@ -399,6 +399,13 @@ namespace OpenHardwareMonitor.GUI {
 
       int x;
       int y = topMargin;
+
+      if (sensors.Count == 0) {
+        x = leftBorder + 1;
+        g.DrawString("Add a sensor ...", smallFont, Brushes.White,
+          new Rectangle(x, y - 1, w - rightBorder - x, 0));
+      }
+
       foreach (KeyValuePair<IHardware, IList<ISensor>> pair in sensors) {
         if (hardwareNames.Value) {
           if (y > topMargin)
