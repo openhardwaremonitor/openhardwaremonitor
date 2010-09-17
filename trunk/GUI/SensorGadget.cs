@@ -423,52 +423,57 @@ namespace OpenHardwareMonitor.GUI {
         foreach (ISensor sensor in pair.Value) {
           int remainingWidth;
 
-          if (sensor.SensorType != SensorType.Load && 
-            sensor.SensorType != SensorType.Control) 
+
+          if ((sensor.SensorType != SensorType.Load &&
+            sensor.SensorType != SensorType.Control) || !sensor.Value.HasValue) 
           {
-            string format = "";
-            switch (sensor.SensorType) {
-              case SensorType.Voltage:
-                format = "{0:F2} V";
-                break;
-              case SensorType.Clock:
-                format = "{0:F0} MHz";
-                break;
-              case SensorType.Temperature:
-                format = "{0:F1} °C";
-                break;
-              case SensorType.Fan:
-                format = "{0:F0} RPM";
-                break;
-              case SensorType.Flow:
-                format = "{0:F0} L/h";
-                break;
-            }
+            string formatted;
 
-            string formattedValue;
-            if (sensor.SensorType == SensorType.Temperature &&
-              unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
-              formattedValue = string.Format("{0:F1} °F",
-                sensor.Value * 1.8 + 32);
+            if (sensor.Value.HasValue) {
+              string format = "";
+              switch (sensor.SensorType) {
+                case SensorType.Voltage:
+                  format = "{0:F2} V";
+                  break;
+                case SensorType.Clock:
+                  format = "{0:F0} MHz";
+                  break;
+                case SensorType.Temperature:
+                  format = "{0:F1} °C";
+                  break;
+                case SensorType.Fan:
+                  format = "{0:F0} RPM";
+                  break;
+                case SensorType.Flow:
+                  format = "{0:F0} L/h";
+                  break;
+              }
+
+              if (sensor.SensorType == SensorType.Temperature &&
+                unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
+                formatted = string.Format("{0:F1} °F",
+                  sensor.Value * 1.8 + 32);
+              } else {
+                formatted = string.Format(format, sensor.Value);
+              }
             } else {
-              formattedValue = string.Format(format, sensor.Value);
+              formatted = "-";
             }
 
-            
-            g.DrawString(formattedValue, smallFont, darkWhite,
-              new RectangleF(-1, y - 1, w - rightMargin + 3, 0), 
+            g.DrawString(formatted, smallFont, darkWhite,
+              new RectangleF(-1, y - 1, w - rightMargin + 3, 0),
               alignRightStringFormat);
 
-            remainingWidth = w - (int)Math.Floor(g.MeasureString(formattedValue,
-              smallFont, w, StringFormat.GenericTypographic).Width) - 
+            remainingWidth = w - (int)Math.Floor(g.MeasureString(formatted,
+              smallFont, w, StringFormat.GenericTypographic).Width) -
               rightMargin;
-          } else {            
-            DrawProgress(g, w - progressWidth - rightMargin, 
+          } else {
+            DrawProgress(g, w - progressWidth - rightMargin,
               y + 4, progressWidth, 6, 0.01f * sensor.Value.Value);
 
             remainingWidth = w - progressWidth - rightMargin;
           }
-
+           
           remainingWidth -= leftMargin + 2;
           if (remainingWidth > 0) {
             g.DrawString(sensor.Name, smallFont, darkWhite,
