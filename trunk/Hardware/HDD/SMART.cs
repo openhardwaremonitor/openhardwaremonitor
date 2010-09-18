@@ -154,7 +154,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       private uint BufferSize;           
       public CommandBlockRegisters Registers;           
       public byte DriveNumber;   
-      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 19)]
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
       public byte[] Reserved;                                
     }
 
