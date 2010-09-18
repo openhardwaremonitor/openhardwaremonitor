@@ -152,6 +152,7 @@
     <EmbeddedResource Include="Resources\nvidia.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="Resources\app.manifest" />
     <None Include="Resources\icon.ico" />
   </ItemGroup>
