@@ -83,12 +83,12 @@ namespace OpenHardwareMonitor.GUI {
       this.MenuItem3 = new System.Windows.Forms.MenuItem();
       this.hiddenMenuItem = new System.Windows.Forms.MenuItem();
       this.plotMenuItem = new System.Windows.Forms.MenuItem();
+      this.gadgetMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem1 = new System.Windows.Forms.MenuItem();
       this.columnsMenuItem = new System.Windows.Forms.MenuItem();
       this.valueMenuItem = new System.Windows.Forms.MenuItem();
       this.minMenuItem = new System.Windows.Forms.MenuItem();
       this.maxMenuItem = new System.Windows.Forms.MenuItem();
-      this.gadgetMenuItem = new System.Windows.Forms.MenuItem();
       this.optionsMenuItem = new System.Windows.Forms.MenuItem();
       this.startMinMenuItem = new System.Windows.Forms.MenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.MenuItem();
@@ -161,6 +161,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxText.IncrementalSearchEnabled = true;
       this.nodeTextBoxText.LeftMargin = 3;
       this.nodeTextBoxText.ParentColumn = this.sensor;
+      this.nodeTextBoxText.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
       // 
       // nodeTextBoxValue
       // 
@@ -168,6 +169,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxValue.IncrementalSearchEnabled = true;
       this.nodeTextBoxValue.LeftMargin = 3;
       this.nodeTextBoxValue.ParentColumn = this.value;
+      this.nodeTextBoxValue.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
       // 
       // nodeTextBoxMin
       // 
@@ -175,6 +177,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMin.IncrementalSearchEnabled = true;
       this.nodeTextBoxMin.LeftMargin = 3;
       this.nodeTextBoxMin.ParentColumn = this.min;
+      this.nodeTextBoxMin.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
       // 
       // nodeTextBoxMax
       // 
@@ -182,6 +185,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMax.IncrementalSearchEnabled = true;
       this.nodeTextBoxMax.LeftMargin = 3;
       this.nodeTextBoxMax.ParentColumn = this.max;
+      this.nodeTextBoxMax.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
       // 
       // mainMenu
       // 
@@ -258,6 +262,11 @@ namespace OpenHardwareMonitor.GUI {
       this.plotMenuItem.Index = 3;
       this.plotMenuItem.Text = "Show Plot";
       // 
+      // gadgetMenuItem
+      // 
+      this.gadgetMenuItem.Index = 4;
+      this.gadgetMenuItem.Text = "Show Gadget";
+      // 
       // MenuItem1
       // 
       this.MenuItem1.Index = 5;
@@ -286,11 +295,6 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.maxMenuItem.Index = 2;
       this.maxMenuItem.Text = "Max";
-      // 
-      // gadgetMenuItem
-      // 
-      this.gadgetMenuItem.Index = 4;
-      this.gadgetMenuItem.Text = "Show Gadget";
       // 
       // optionsMenuItem
       // 
