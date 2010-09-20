@@ -35,52 +35,22 @@
  
 */
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Diagnostics;
-using System.Text;
-
 namespace OpenHardwareMonitor.Hardware.CPU {
 
-  internal sealed class AMD10CPU : Hardware, IHardware {
-    private string name;
+  internal sealed class AMD10CPU : GenericCPU {
 
-    private int processorIndex;
     private uint pciAddress;
 
     private Sensor coreTemperature;
-    private Sensor totalLoad;
-    private Sensor[] coreLoads;
-
-    private CPULoad cpuLoad;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID = 0x1203;
     private const ushort PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID = 0x1303;
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
-    public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings) {
-
-      this.processorIndex = processorIndex;
-      this.name = cpuid[0][0].Name;
-
-      int coreCount = cpuid.Length;
-
-      totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this, settings);
-
-      coreLoads = new Sensor[coreCount];
-      for (int i = 0; i < coreCount; i++) 
-        coreLoads[i] = new Sensor("Core #" + (i + 1), i + 1,
-          SensorType.Load, this, settings);
-
-      cpuLoad = new CPULoad(cpuid);
-      if (cpuLoad.IsAvailable) {
-        foreach (Sensor sensor in coreLoads)
-          ActivateSensor(sensor);
-        ActivateSensor(totalLoad);
-      }    
-      
+    public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
+      : base(processorIndex, cpuid, settings) 
+    {      
       // AMD family 10h processors support only one temperature sensor
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
@@ -97,22 +67,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Update();                   
     }
 
-    public override string Name {
-      get { return name; }
-    }
-
-    public override Identifier Identifier {
-      get { 
-        return new Identifier("amdcpu", 
-          processorIndex.ToString(CultureInfo.InvariantCulture)); 
-      }
-    }
-
-    public override HardwareType HardwareType {
-      get { return HardwareType.CPU; }
+    protected override uint[] GetMSRs() {
+      return new uint[] { };
     }
 
     public override void Update() {
+      base.Update();
+
       if (pciAddress != 0xFFFFFFFF) {
         uint value;
         if (WinRing0.ReadPciConfigDwordEx(pciAddress,
@@ -123,13 +84,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         } else {
           DeactivateSensor(coreTemperature);
         }
-      }
-
-      if (cpuLoad.IsAvailable) {
-        cpuLoad.Update();
-        for (int i = 0; i < coreLoads.Length; i++)
-          coreLoads[i].Value = cpuLoad.GetCoreLoad(i);
-        totalLoad.Value = cpuLoad.GetTotalLoad();
       }
     }
   }

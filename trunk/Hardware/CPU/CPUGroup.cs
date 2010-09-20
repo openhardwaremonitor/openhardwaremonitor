@@ -119,7 +119,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             
         CPUID[][] coreThreads = GroupThreadsByCore(threads);
 
-        this.threads[index] = coreThreads;        
+        this.threads[index] = coreThreads;
 
         switch (threads[0].Vendor) {
           case Vendor.Intel:
@@ -134,9 +134,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 hardware.Add(new AMD10CPU(index, coreThreads, settings));
                 break;
               default:
+                hardware.Add(new GenericCPU(index, coreThreads, settings));
                 break;
             } break;
           default:
+            hardware.Add(new GenericCPU(index, coreThreads, settings));
             break;
         }
 
