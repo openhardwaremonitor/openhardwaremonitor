@@ -98,10 +98,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     protected override uint[] GetMSRs() {
       return new uint[] {
-        FIDVID_STATUS,
-        THERMTRIP_STATUS_REGISTER,
-        THERM_SENSE_CORE_SEL_CPU0,
-        THERM_SENSE_CORE_SEL_CPU1
+        FIDVID_STATUS
       };
     }
 
@@ -132,9 +129,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreClocks.Length; i++) {
           Thread.Sleep(1);
 
-          // Fail-safe value - if the code below fails, we'll use this instead
-          coreClocks[i].Value = (float)MaxClock;
-
           uint eax, edx;
           if (WinRing0.RdmsrTx(FIDVID_STATUS, out eax, out edx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) {
@@ -144,6 +138,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             double maxMP = 0.5 * ((eax >> 16 & 0x3F) + 8);
             coreClocks[i].Value = (float)(curMP * MaxClock / maxMP);
             newBusClock = (float)(MaxClock / maxMP);
+          } else {
+            // Fail-safe value - if the code above fails, we'll use this instead
+            coreClocks[i].Value = (float)MaxClock;
           }
         }
 
