@@ -35,14 +35,20 @@
  
 */
 
+using System;
+using System.Threading;
+
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class AMD0FCPU : GenericCPU {
 
     private uint pciAddress;
-    private Sensor[] coreTemperatures;    
+    private Sensor[] coreTemperatures;
+    private Sensor[] coreClocks;
+    private Sensor busClock;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID = 0x1103;
+    private const uint FIDVID_STATUS = 0xC0010042;
     private const uint THERMTRIP_STATUS_REGISTER = 0xE4;
     private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
@@ -78,6 +84,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
         PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
 
+      busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
+      coreClocks = new Sensor[coreCount];
+      for (int i = 0; i < coreClocks.Length; i++) {
+        coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock, this, settings);
+        if (hasTSC)
+          ActivateSensor(coreClocks[i]);
+      }
+
       Update();                   
     }
 
@@ -103,6 +117,31 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               DeactivateSensor(coreTemperatures[i]);
             }
           }
+        }
+      }
+
+      if (hasTSC) {
+        double newBusClock = 0;
+
+        for (int i = 0; i < coreClocks.Length; i++) {
+          Thread.Sleep(1);
+
+          coreClocks[i].Value = (float)MaxClock; // Fail-safe value - if the code below fails, we'll use this instead
+
+          uint eax, edx;
+          if (WinRing0.RdmsrTx(FIDVID_STATUS, out eax, out edx, (UIntPtr)(1L << cpuid[i][0].Thread))) {
+            // CurrFID can be found in eax bits 0-5, MaxFID in 16-21
+            // 8-13 hold StartFID, we don't use that here.
+            double curMP = 0.5 * ((eax & 0x3F) + 8);
+            double maxMP = 0.5 * ((eax >> 16 & 0x3F) + 8);
+            coreClocks[i].Value = (float)(curMP * MaxClock / maxMP);
+            newBusClock = (float)(MaxClock / maxMP);
+          }
+        }
+
+        if (newBusClock > 0) {
+          this.busClock.Value = (float)newBusClock;
+          ActivateSensor(this.busClock);
         }
       }
     }  
