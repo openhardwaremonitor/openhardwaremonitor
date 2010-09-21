@@ -41,11 +41,11 @@ using System.Collections.Generic;
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class IntelCPU : GenericCPU {
 
-    private Sensor[] coreTemperatures;
-    private Sensor[] coreClocks;
-    private Sensor busClock;
+    private readonly Sensor[] coreTemperatures;
+    private readonly Sensor[] coreClocks;
+    private readonly Sensor busClock;
 
-    private uint maxNehalemMultiplier = 0;
+    private readonly uint maxNehalemMultiplier;
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -127,7 +127,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i,
-            SensorType.Temperature, this, new ParameterDescription[] { 
+            SensorType.Temperature, this, new [] { 
               new ParameterDescription(
                 "TjMax [°C]", "TjMax temperature of the core.\n" + 
                 "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
@@ -153,7 +153,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     protected override uint[] GetMSRs() {
-      return new uint[] {
+      return new [] {
         MSR_PLATFORM_INFO,
         IA32_PERF_STATUS ,
         IA32_THERM_STATUS_MSR,

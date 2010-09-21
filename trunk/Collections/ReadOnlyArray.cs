@@ -35,7 +35,6 @@
  
 */
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -43,7 +42,7 @@ namespace OpenHardwareMonitor.Collections {
 
   public class ReadOnlyArray<T> : IReadOnlyArray<T> {
 
-    private T[] array;
+    private readonly T[] array;
 
     public ReadOnlyArray(T[] array) {
       this.array = array;

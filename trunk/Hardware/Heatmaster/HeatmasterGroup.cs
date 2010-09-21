@@ -47,8 +47,8 @@ using Microsoft.Win32;
 namespace OpenHardwareMonitor.Hardware.Heatmaster {
   internal class HeatmasterGroup : IGroup {
 
-    private List<Heatmaster> hardware = new List<Heatmaster>();
-    private StringBuilder report = new StringBuilder();
+    private readonly List<Heatmaster> hardware = new List<Heatmaster>();
+    private readonly StringBuilder report = new StringBuilder();
 
     private static string ReadLine(SerialPort port, int timeout) {
       int i = 0;
@@ -82,7 +82,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
               if (subKey != null) {
                 string name = subKey.GetValue("PortName") as string;
                 if (name != null && !result.Contains(name))
-                  result.Add((string)name);
+                  result.Add(name);
               }
             }
           }
@@ -94,7 +94,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
     public HeatmasterGroup(ISettings settings) {
       
       // No implementation for Heatmaster on Unix systems
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         return;
 

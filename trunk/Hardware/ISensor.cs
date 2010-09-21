@@ -52,8 +52,8 @@ namespace OpenHardwareMonitor.Hardware {
   }
 
   public struct SensorValue {
-    private float value;
-    private DateTime time;
+    private readonly float value;
+    private readonly DateTime time;
 
     public SensorValue(float value, DateTime time) {
       this.value = value;

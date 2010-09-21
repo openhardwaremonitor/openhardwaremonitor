@@ -45,22 +45,18 @@ namespace OpenHardwareMonitor.Hardware {
 
   public class Computer : IComputer {
 
-    private List<IGroup> groups = new List<IGroup>();
+    private readonly List<IGroup> groups = new List<IGroup>();
+    private readonly ISettings settings;
 
-    private bool open = false;
-    private bool hddEnabled = false;
-    private ISettings settings;
+    private bool open;
+    private bool hddEnabled;    
 
     public Computer() {
       this.settings = new Settings();
     }
 
     public Computer(ISettings settings) {
-      if (settings != null)
-        this.settings = settings;
-      else {
-        this.settings = new Settings();
-      }
+      this.settings = settings ?? new Settings();
     }
 
     private void Add(IGroup group) {
@@ -141,7 +137,7 @@ namespace OpenHardwareMonitor.Hardware {
       writer.WriteLine();
     }
 
-    private int CompareSensor(ISensor a, ISensor b) {
+    private static int CompareSensor(ISensor a, ISensor b) {
       int c = a.SensorType.CompareTo(b.SensorType);
       if (c == 0)
         return a.Index.CompareTo(b.Index);
@@ -149,13 +145,14 @@ namespace OpenHardwareMonitor.Hardware {
         return c;
     }
 
-    private void ReportHardwareSensorTree(IHardware hardware, TextWriter w,
-      string space) {
+    private static void ReportHardwareSensorTree(
+      IHardware hardware, TextWriter w, string space) 
+    {
       w.WriteLine("{0}|", space);
       w.WriteLine("{0}+-+ {1} ({2})",
         space, hardware.Name, hardware.Identifier);
       ISensor[] sensors = hardware.Sensors;
-      Array.Sort<ISensor>(sensors, CompareSensor);
+      Array.Sort(sensors, CompareSensor);
       foreach (ISensor sensor in sensors) {
         w.WriteLine("{0}|   +- {1}[{2}] : {3} : {4}",
           space, sensor.SensorType, sensor.Index, 
@@ -166,13 +163,14 @@ namespace OpenHardwareMonitor.Hardware {
         ReportHardwareSensorTree(subHardware, w, "|   ");
     }
 
-    private void ReportHardwareParameterTree(IHardware hardware, TextWriter w,
-      string space) {
+    private static void ReportHardwareParameterTree(
+      IHardware hardware, TextWriter w, string space) 
+    {
       w.WriteLine("{0}|", space);
       w.WriteLine("{0}+-+ {1} ({2})",
         space, hardware.Name, hardware.Identifier);
       ISensor[] sensors = hardware.Sensors;
-      Array.Sort<ISensor>(sensors, CompareSensor);
+      Array.Sort(sensors, CompareSensor);
       foreach (ISensor sensor in sensors) {
         if (sensor.Parameters.Length > 0) {
           w.WriteLine("{0}|   +- {1}[{2}] : {3}",
@@ -189,7 +187,7 @@ namespace OpenHardwareMonitor.Hardware {
         ReportHardwareParameterTree(subHardware, w, "|   ");
     }
 
-    private void ReportHardware(IHardware hardware, TextWriter w) {
+    private static void ReportHardware(IHardware hardware, TextWriter w) {
       string hardwareReport = hardware.GetReport();
       if (!string.IsNullOrEmpty(hardwareReport)) {
         NewSection(w);

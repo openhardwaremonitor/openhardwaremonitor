@@ -43,18 +43,16 @@ using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  internal sealed class PInvokeDelegateFactory {
+  internal static class PInvokeDelegateFactory {
 
-    private static ModuleBuilder moduleBuilder = 
+    private static readonly ModuleBuilder moduleBuilder = 
       AppDomain.CurrentDomain.DefineDynamicAssembly(
         new AssemblyName("PInvokeDelegateFactoryInternalAssembly"),
         AssemblyBuilderAccess.Run).DefineDynamicModule(
         "PInvokeDelegateFactoryInternalModule");
 
-    private static IDictionary<DllImportAttribute, Type> wrapperTypes =
+    private static readonly IDictionary<DllImportAttribute, Type> wrapperTypes =
       new Dictionary<DllImportAttribute, Type>();
-
-    private PInvokeDelegateFactory() { }
 
     public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
       out T newDelegate) where T : class 

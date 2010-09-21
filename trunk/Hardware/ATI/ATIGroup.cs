@@ -43,8 +43,8 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.ATI {
   internal class ATIGroup : IGroup {
 
-    private List<ATIGPU> hardware = new List<ATIGPU>();
-    private StringBuilder report = new StringBuilder();
+    private readonly List<ATIGPU> hardware = new List<ATIGPU>();
+    private readonly StringBuilder report = new StringBuilder();
 
     public ATIGroup(ISettings settings) {
       try {
@@ -53,10 +53,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         report.AppendLine("AMD Display Library");
         report.AppendLine();
         report.Append("Status: ");
-        if (status == ADL.ADL_OK)
-          report.AppendLine("OK");
-        else
-          report.AppendLine(status.ToString(CultureInfo.InvariantCulture));
+        report.AppendLine(status == ADL.ADL_OK ? "OK" : 
+          status.ToString(CultureInfo.InvariantCulture));
         report.AppendLine();
 
         if (status == ADL.ADL_OK) {

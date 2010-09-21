@@ -40,19 +40,19 @@ using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
-  internal class NvidiaGPU : Hardware, IHardware {
+  internal class NvidiaGPU : Hardware {
 
-    private string name;
-    private int adapterIndex;
-    private NvPhysicalGpuHandle handle;
-    private NvDisplayHandle? displayHandle;
+    private readonly string name;
+    private readonly int adapterIndex;
+    private readonly NvPhysicalGpuHandle handle;
+    private readonly NvDisplayHandle? displayHandle;
 
-    private Sensor[] temperatures;
-    private Sensor fan = null;
-    private Sensor[] clocks;
-    private Sensor[] loads;
-    private Sensor control;
-    private Sensor memoryLoad;
+    private readonly Sensor[] temperatures;
+    private readonly Sensor fan;
+    private readonly Sensor[] clocks;
+    private readonly Sensor[] loads;
+    private readonly Sensor control;
+    private readonly Sensor memoryLoad;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle, 
       NvDisplayHandle? displayHandle, ISettings settings) 

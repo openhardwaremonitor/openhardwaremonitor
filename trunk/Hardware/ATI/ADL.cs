@@ -187,7 +187,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     private static void CreateDelegates(string name) {
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         dllName = name + ".so";
       else
@@ -234,7 +234,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
             enumConnectedAdapters);
         }
       } catch {
-        return ADL.ADL_ERR;
+        return ADL_ERR;
       }
     }
 

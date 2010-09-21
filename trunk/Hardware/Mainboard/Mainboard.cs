@@ -41,12 +41,12 @@ using OpenHardwareMonitor.Hardware.LPC;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class Mainboard : IHardware {
-    private SMBIOS smbios;
-    private string name;
+    private readonly SMBIOS smbios;
+    private readonly string name;
 
-    private LPCIO lpcio;
-    private LMSensors lmSensors;
-    private IHardware[] superIOHardware;
+    private readonly LPCIO lpcio;
+    private readonly LMSensors lmSensors;
+    private readonly IHardware[] superIOHardware;
 
     public Mainboard(ISettings settings) {
       this.smbios = new SMBIOS();
@@ -66,7 +66,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       ISuperIO[] superIO;
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
         this.lmSensors = new LMSensors();
         superIO = lmSensors.SuperIO;

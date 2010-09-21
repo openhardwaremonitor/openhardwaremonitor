@@ -55,11 +55,11 @@ namespace OpenHardwareMonitor.Hardware {
       OLS_DLL_UNKNOWN_ERROR                   = 9
     }
 
-    private static bool available = false;
+    private static bool available;
     private static Mutex isaBusMutex;
 
     private static string GetDllName() {   
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
         if (IntPtr.Size == 4) {
           return "libring0.so";
@@ -97,9 +97,9 @@ namespace OpenHardwareMonitor.Hardware {
       UIntPtr threadAffinityMask);
     public delegate bool RdtscDelegate(out uint eax, out uint edx);
 
-    private static InitializeOlsDelegate InitializeOls = 
+    private static readonly InitializeOlsDelegate InitializeOls = 
       CreateDelegate<InitializeOlsDelegate>("InitializeOls");
-    private static DeinitializeOlsDelegate DeinitializeOls =
+    private static readonly DeinitializeOlsDelegate DeinitializeOls =
       CreateDelegate<DeinitializeOlsDelegate>("DeinitializeOls");
 
     public static readonly IsCpuidDelegate IsCpuid =

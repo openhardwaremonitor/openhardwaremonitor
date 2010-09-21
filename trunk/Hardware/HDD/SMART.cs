@@ -36,7 +36,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -90,7 +89,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     };
 
     [Flags]
-    private enum AccessMode : uint {     
+    protected enum AccessMode : uint {     
       Read = 0x80000000,    
       Write = 0x40000000,     
       Execute = 0x20000000,     
@@ -98,14 +97,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [Flags]
-    private enum ShareMode : uint {
+    protected enum ShareMode : uint {
       None = 0,     
       Read = 1,     
       Write = 2,    
       Delete = 4
     }
 
-    private enum CreationMode : uint {
+    protected enum CreationMode : uint {
       New = 1,
       CreateAlways = 2,    
       OpenExisting = 3,    
@@ -114,7 +113,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [Flags]
-    private enum FileAttribute : uint {
+    protected enum FileAttribute : uint {
       Readonly = 0x00000001,
       Hidden = 0x00000002,
       System = 0x00000004,
@@ -131,14 +130,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       Encrypted = 0x00004000,
     }
 
-    private enum DriveCommand : uint {
+    protected enum DriveCommand : uint {
       GetVersion = 0x00074080,
       SendDriveCommand = 0x0007c084,
       ReceiveDriveData = 0x0007c088
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct CommandBlockRegisters {
+    protected struct CommandBlockRegisters {
       public byte Features;         
       public byte SectorCount;      
       public byte LBALow;       
@@ -150,8 +149,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct DriveCommandParameter {
-      private uint BufferSize;           
+    protected struct DriveCommandParameter {
+      public uint BufferSize;           
       public CommandBlockRegisters Registers;           
       public byte DriveNumber;   
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20)]
@@ -159,7 +158,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct DriverStatus {
+    protected struct DriverStatus {
       public byte DriverError;   
       public byte IDEError;             
       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
@@ -167,13 +166,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct DriveCommandResult {
+    protected struct DriveCommandResult {
       public uint BufferSize;
       public DriverStatus DriverStatus;
     } 
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct DriveSmartReadResult {
+    protected struct DriveSmartReadResult {
       public uint BufferSize;           
       public DriverStatus DriverStatus;
       public byte Version;
@@ -183,7 +182,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct Identify {
+    protected struct Identify {
       public ushort GeneralConfiguration;
       public ushort NumberOfCylinders;
       public ushort Reserved;
@@ -213,7 +212,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct DriveIdentifyResult {
+    protected struct DriveIdentifyResult {
       public uint BufferSize;
       public DriverStatus DriverStatus;
       public Identify Identify;
@@ -312,7 +311,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return NativeMethods.CloseHandle(handle);
     }
 
-    private static class NativeMethods {
+    protected static class NativeMethods {
       private const string KERNEL = "kernel32.dll";
 
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi,

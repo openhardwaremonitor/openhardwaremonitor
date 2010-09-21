@@ -43,11 +43,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private const int MAX_DRIVES = 32;
 
-    private List<HDD> hardware = new List<HDD>();
+    private readonly List<HDD> hardware = new List<HDD>();
 
     public HDDGroup(ISettings settings) {
 
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p != 4) && (p != 128)) {
         for (int drive = 0; drive < MAX_DRIVES; drive++) {
           IntPtr handle = SMART.OpenPhysicalDrive(drive);

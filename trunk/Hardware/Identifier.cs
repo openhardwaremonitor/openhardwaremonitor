@@ -36,17 +36,18 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
   public class Identifier : IComparable<Identifier> {
-    private string identifier;
+    private readonly string identifier;
 
-    private static char SEPARATOR = '/';
+    private const char Separator = '/';
 
-    private static void CheckIdentifiers(string[] identifiers) {      
+    private static void CheckIdentifiers(IEnumerable<string> identifiers) {      
       foreach (string s in identifiers)
-        if (s.Contains(" ") || s.Contains(SEPARATOR.ToString()))
+        if (s.Contains(" ") || s.Contains(Separator.ToString()))
           throw new ArgumentException("Invalid identifier");
     }
 
@@ -55,7 +56,7 @@ namespace OpenHardwareMonitor.Hardware {
 
       StringBuilder s = new StringBuilder();
       for (int i = 0; i < identifiers.Length; i++) {
-        s.Append(SEPARATOR);
+        s.Append(Separator);
         s.Append(identifiers[i]);
       }
       this.identifier = s.ToString();
@@ -67,7 +68,7 @@ namespace OpenHardwareMonitor.Hardware {
       StringBuilder s = new StringBuilder();
       s.Append(identifier.ToString());
       for (int i = 0; i < extensions.Length; i++) {
-        s.Append(SEPARATOR);
+        s.Append(Separator);
         s.Append(extensions[i]);
       }
       this.identifier = s.ToString();
@@ -77,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware {
       return identifier;
     }
 
-    public override bool Equals(System.Object obj) {
+    public override bool Equals(Object obj) {
       if (obj == null)
         return false;
 

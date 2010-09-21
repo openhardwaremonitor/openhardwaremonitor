@@ -44,12 +44,12 @@ using System.Threading;
 namespace OpenHardwareMonitor.Hardware.LPC {
   internal class LPCIO {
 
-    private List<ISuperIO> superIOs = new List<ISuperIO>();
-    private StringBuilder report = new StringBuilder();
+    private readonly List<ISuperIO> superIOs = new List<ISuperIO>();
+    private readonly StringBuilder report = new StringBuilder();
 
     // I/O Ports
-    private ushort[] REGISTER_PORTS = new ushort[] { 0x2E, 0x4E };
-    private ushort[] VALUE_PORTS = new ushort[] { 0x2F, 0x4F };
+    private readonly ushort[] REGISTER_PORTS = new ushort[] { 0x2E, 0x4E };
+    private readonly ushort[] VALUE_PORTS = new ushort[] { 0x2F, 0x4F };
 
     private ushort registerPort;
     private ushort valuePort;
@@ -110,11 +110,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private bool DetectWinbondFintek() {
       WinbondFintekEnter();
 
-      byte logicalDeviceNumber;
+      byte logicalDeviceNumber = 0;
       byte id = ReadByte(CHIP_ID_REGISTER);
       byte revision = ReadByte(CHIP_REVISION_REGISTER);
       Chip chip = Chip.Unknown;
-      logicalDeviceNumber = 0;
       switch (id) {
         case 0x05:
           switch (revision) {
@@ -441,8 +440,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     public string GetReport() {
       if (report.Length > 0) {
-        return "LPCIO" + Environment.NewLine + Environment.NewLine + 
-          report.ToString();
+        return "LPCIO" + Environment.NewLine + Environment.NewLine + report;
       } else
         return null;
     }

@@ -43,8 +43,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
   internal class NvidiaGroup : IGroup {
    
-    private List<IHardware> hardware = new List<IHardware>();
-    private StringBuilder report = new StringBuilder();
+    private readonly List<IHardware> hardware = new List<IHardware>();
+    private readonly StringBuilder report = new StringBuilder();
 
     public NvidiaGroup(ISettings settings) {
       if (!NVAPI.IsAvailable)
@@ -69,7 +69,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       } else {        
         NvStatus status = NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count);
         if (status != NvStatus.OK) {
-          report.AppendLine("Status: " + status.ToString());
+          report.AppendLine("Status: " + status);
           report.AppendLine();
           return;
         }
@@ -104,14 +104,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       }
 
       report.Append("Number of GPUs: ");
-      report.AppendLine(count.ToString(CultureInfo.InvariantCulture));      
-      
-      for (int i = 0; i < count; i++) {    
+      report.AppendLine(count.ToString(CultureInfo.InvariantCulture));
+
+      for (int i = 0; i < count; i++) {
         NvDisplayHandle displayHandle;
-        if (displayHandles.TryGetValue(handles[i], out displayHandle))
-          hardware.Add(new NvidiaGPU(i, handles[i], displayHandle, settings));                            
-        else
-          hardware.Add(new NvidiaGPU(i, handles[i], null, settings));   
+        displayHandles.TryGetValue(handles[i], out displayHandle);
+        hardware.Add(new NvidiaGPU(i, handles[i], displayHandle, settings));
       }
 
       report.AppendLine();

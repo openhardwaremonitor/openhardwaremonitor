@@ -43,21 +43,22 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.TBalancer {
   internal class TBalancer : IHardware {
 
-    private ISettings settings;
-    private int portIndex;
+    private readonly ISettings settings;
+    private readonly int portIndex;    
+    private readonly byte protocolVersion;
+    private readonly Sensor[] digitalTemperatures = new Sensor[8];
+    private readonly Sensor[] analogTemperatures = new Sensor[4];
+    private readonly Sensor[] sensorhubTemperatures = new Sensor[6];
+    private readonly Sensor[] sensorhubFlows = new Sensor[2];
+    private readonly Sensor[] fans = new Sensor[4];
+    private readonly Sensor[] controls = new Sensor[4];
+    private readonly Sensor[] miniNGTemperatures = new Sensor[4];
+    private readonly Sensor[] miniNGFans = new Sensor[4];
+    private readonly Sensor[] miniNGControls = new Sensor[4];
+    private readonly List<ISensor> active = new List<ISensor>();
+    private readonly List<ISensor> deactivating = new List<ISensor>();
+
     private FT_HANDLE handle;
-    private byte protocolVersion;
-    private Sensor[] digitalTemperatures = new Sensor[8];
-    private Sensor[] analogTemperatures = new Sensor[4];
-    private Sensor[] sensorhubTemperatures = new Sensor[6];
-    private Sensor[] sensorhubFlows = new Sensor[2];
-    private Sensor[] fans = new Sensor[4];
-    private Sensor[] controls = new Sensor[4];
-    private Sensor[] miniNGTemperatures = new Sensor[4];
-    private Sensor[] miniNGFans = new Sensor[4];
-    private Sensor[] miniNGControls = new Sensor[4];
-    private List<ISensor> active = new List<ISensor>();
-    private List<ISensor> deactivating = new List<ISensor>();
     private int[] primaryData = new int[0];
     private int[] alternativeData = new int[0];
 
@@ -65,7 +66,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public const byte ENDFLAG = 254;
 
     private delegate void MethodDelegate();
-    private MethodDelegate alternativeRequest;    
+    private readonly MethodDelegate alternativeRequest;    
 
     public TBalancer(int portIndex, byte protocolVersion, ISettings settings) {
       this.settings = settings;
@@ -73,7 +74,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       this.portIndex = portIndex;
       this.protocolVersion = protocolVersion;
 
-      ParameterDescription[] parameter = new ParameterDescription[] {
+      ParameterDescription[] parameter = new [] {
         new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
       };
       int offset = 0;
@@ -100,7 +101,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       for (int i = 0; i < sensorhubFlows.Length; i++)
         sensorhubFlows[i] = new Sensor("Flowmeter " + (i + 1),
-          i, SensorType.Flow, this, new ParameterDescription[] {
+          i, SensorType.Flow, this, new [] {
             new ParameterDescription("Impulse Rate", 
               "The impulse rate of the flowmeter in pulses/L", 509)
           }, settings);
@@ -237,8 +238,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
           if (fans[i] == null)
             fans[i] = new Sensor("Fan Channel " + i, i, SensorType.Fan,
-              this, new ParameterDescription[] {
-                new ParameterDescription("MaxRPM", 
+              this, new [] { new ParameterDescription("MaxRPM", 
                   "Maximum revolutions per minute (RPM) of the fan.", maxRPM)
               }, settings);
 

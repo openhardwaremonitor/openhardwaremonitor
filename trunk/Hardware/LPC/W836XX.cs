@@ -42,19 +42,19 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.LPC {
   internal class W836XX : ISuperIO {
 
-    private ushort address;
-    private byte revision;
+    private readonly ushort address;
+    private readonly byte revision;
 
-    private Chip chip;
+    private readonly Chip chip;
 
-    private float?[] voltages = new float?[0];
-    private float?[] temperatures = new float?[0];    
-    private float?[] fans = new float?[0];
+    private readonly float?[] voltages = new float?[0];
+    private readonly float?[] temperatures = new float?[0];    
+    private readonly float?[] fans = new float?[0];
 
-    private bool[] peciTemperature = new bool[0];
-    private byte[] voltageRegister = new byte[0];
-    private byte[] voltageBank = new byte[0];
-    private float voltageGain = 0.008f;
+    private readonly bool[] peciTemperature = new bool[0];
+    private readonly byte[] voltageRegister = new byte[0];
+    private readonly byte[] voltageBank = new byte[0];
+    private readonly float voltageGain = 0.008f;
 
     // Consts 
     private const ushort WINBOND_VENDOR_ID = 0x5CA3;
@@ -70,15 +70,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte VENDOR_ID_REGISTER = 0x4F;
     private const byte TEMPERATURE_SOURCE_SELECT_REG = 0x49;
 
-    private byte[] TEMPERATURE_REG = new byte[] { 0x50, 0x50, 0x27 };
-    private byte[] TEMPERATURE_BANK = new byte[] { 1, 2, 0 };
+    private readonly byte[] TEMPERATURE_REG = new byte[] { 0x50, 0x50, 0x27 };
+    private readonly byte[] TEMPERATURE_BANK = new byte[] { 1, 2, 0 };
 
-    private byte[] FAN_TACHO_REG = new byte[] { 0x28, 0x29, 0x2A, 0x3F, 0x53 };
-    private byte[] FAN_TACHO_BANK = new byte[] { 0, 0, 0, 0, 5 };       
-    private byte[] FAN_BIT_REG = new byte[] { 0x47, 0x4B, 0x4C, 0x59, 0x5D };
-    private byte[] FAN_DIV_BIT0 = new byte[] { 36, 38, 30, 8, 10 };
-    private byte[] FAN_DIV_BIT1 = new byte[] { 37, 39, 31, 9, 11 };
-    private byte[] FAN_DIV_BIT2 = new byte[] { 5, 6, 7, 23, 15 };
+    private readonly byte[] FAN_TACHO_REG = 
+      new byte[] { 0x28, 0x29, 0x2A, 0x3F, 0x53 };
+    private readonly byte[] FAN_TACHO_BANK = 
+      new byte[] { 0, 0, 0, 0, 5 };       
+    private readonly byte[] FAN_BIT_REG =
+      new byte[] { 0x47, 0x4B, 0x4C, 0x59, 0x5D };
+    private readonly byte[] FAN_DIV_BIT0 = new byte[] { 36, 38, 30, 8, 10 };
+    private readonly byte[] FAN_DIV_BIT1 = new byte[] { 37, 39, 31, 9, 11 };
+    private readonly byte[] FAN_DIV_BIT2 = new byte[] { 5, 6, 7, 23, 15 };
 
     private byte ReadByte(byte bank, byte register) {
       WinRing0.WriteIoPortByte(

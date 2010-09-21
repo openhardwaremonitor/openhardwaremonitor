@@ -87,7 +87,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
   [StructLayout(LayoutKind.Sequential)]
   internal struct FT_HANDLE {
-    private uint handle;
+    private readonly uint handle;
   }
 
   [StructLayout(LayoutKind.Sequential)]
@@ -198,7 +198,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     private static string GetDllName() {
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         return "libftd2xx.so";
       else

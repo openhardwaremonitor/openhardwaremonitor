@@ -43,7 +43,7 @@ using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  internal class GenericCPU : Hardware, IHardware {
+  internal class GenericCPU : Hardware {
 
     protected readonly CPUID[][] cpuid;
    
@@ -57,13 +57,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     protected readonly bool hasTSC;
     protected readonly bool invariantTSC;
+    private readonly double estimatedMaxClock;
 
     private ulong lastTimeStampCount;
     private long lastTime;
-    private double maxClock;
-    private double estimatedMaxClock;
+    private double maxClock;    
 
-    private Vendor vendor;
+    private readonly Vendor vendor;
 
     private readonly CPULoad cpuLoad;
     private readonly Sensor totalLoad;
@@ -129,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       lastTime = 0;
     }
 
-    private double EstimateMaxClock() {
+    private static double EstimateMaxClock() {
       // preload the function
       EstimateMaxClock(0);
       EstimateMaxClock(0);
@@ -184,7 +184,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       StringBuilder r = new StringBuilder();
 
       switch (vendor) {
-        case Vendor.AMD: r.AppendLine("Intel CPU"); break;
+        case Vendor.AMD: r.AppendLine("AMD CPU"); break;
         case Vendor.Intel: r.AppendLine("Intel CPU"); break;
         default: r.AppendLine("Generic CPU"); break;
       }
