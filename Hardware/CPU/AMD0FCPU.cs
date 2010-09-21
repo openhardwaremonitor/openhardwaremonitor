@@ -87,7 +87,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       coreClocks = new Sensor[coreCount];
       for (int i = 0; i < coreClocks.Length; i++) {
-        coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock, this, settings);
+        coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock,
+          this, settings);
         if (hasTSC)
           ActivateSensor(coreClocks[i]);
       }
@@ -96,7 +97,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     protected override uint[] GetMSRs() {
-      return new uint[] { };
+      return new uint[] {
+        FIDVID_STATUS,
+        THERMTRIP_STATUS_REGISTER,
+        THERM_SENSE_CORE_SEL_CPU0,
+        THERM_SENSE_CORE_SEL_CPU1
+      };
     }
 
     public override void Update() {
@@ -126,10 +132,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreClocks.Length; i++) {
           Thread.Sleep(1);
 
-          coreClocks[i].Value = (float)MaxClock; // Fail-safe value - if the code below fails, we'll use this instead
+          // Fail-safe value - if the code below fails, we'll use this instead
+          coreClocks[i].Value = (float)MaxClock;
 
           uint eax, edx;
-          if (WinRing0.RdmsrTx(FIDVID_STATUS, out eax, out edx, (UIntPtr)(1L << cpuid[i][0].Thread))) {
+          if (WinRing0.RdmsrTx(FIDVID_STATUS, out eax, out edx,
+            (UIntPtr)(1L << cpuid[i][0].Thread))) {
             // CurrFID can be found in eax bits 0-5, MaxFID in 16-21
             // 8-13 hold StartFID, we don't use that here.
             double curMP = 0.5 * ((eax & 0x3F) + 8);
