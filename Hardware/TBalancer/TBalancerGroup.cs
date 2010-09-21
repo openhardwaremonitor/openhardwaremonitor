@@ -44,8 +44,8 @@ using System.Threading;
 namespace OpenHardwareMonitor.Hardware.TBalancer {
   internal class TBalancerGroup : IGroup {
 
-    private List<TBalancer> hardware = new List<TBalancer>();
-    private StringBuilder report = new StringBuilder();
+    private readonly List<TBalancer> hardware = new List<TBalancer>();
+    private readonly StringBuilder report = new StringBuilder();
 
     public TBalancerGroup(ISettings settings) {
 
@@ -73,8 +73,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         }
 
         FT_HANDLE handle;
-        FT_STATUS status;
-        status = FTD2XX.FT_Open(i, out handle);
+        FT_STATUS status = FTD2XX.FT_Open(i, out handle);
         if (status != FT_STATUS.FT_OK) {
           report.AppendLine("Open Status: " + status);
           continue;

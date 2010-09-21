@@ -43,7 +43,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
   internal class LMSensors {
 
-    private List<LMChip> lmChips = new List<LMChip>();
+    private readonly List<LMChip> lmChips = new List<LMChip>();
 
     public LMSensors() {
       string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
@@ -102,15 +102,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private class LMChip : ISuperIO {
 
       private string path;
-      private Chip chip;
+      private readonly Chip chip;
 
-      private float?[] voltages;
-      private float?[] temperatures;
-      private float?[] fans;
+      private readonly float?[] voltages;
+      private readonly float?[] temperatures;
+      private readonly float?[] fans;
 
-      private StreamReader[] voltageReaders;
-      private StreamReader[] temperatureReaders;
-      private StreamReader[] fanReaders;
+      private readonly StreamReader[] voltageReaders;
+      private readonly StreamReader[] temperatureReaders;
+      private readonly StreamReader[] fanReaders;
 
       public Chip Chip { get { return chip; } }
       public float?[] Voltages { get { return voltages; } }

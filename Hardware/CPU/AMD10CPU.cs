@@ -39,9 +39,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
   internal sealed class AMD10CPU : GenericCPU {
 
-    private uint pciAddress;
+    private readonly uint pciAddress;
 
-    private Sensor coreTemperature;
+    private readonly Sensor coreTemperature;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID = 0x1203;
@@ -54,7 +54,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       // AMD family 10h processors support only one temperature sensor
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
-        SensorType.Temperature, this, new ParameterDescription[] {
+        SensorType.Temperature, this, new [] {
             new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           }, settings);
 

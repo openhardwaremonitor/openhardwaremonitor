@@ -45,11 +45,11 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
   internal class SMBIOS {
 
-    private byte[] raw;
-    private Structure[] table;
+    private readonly byte[] raw;
+    private readonly Structure[] table;
 
-    private BIOSInformation biosInformation = null;
-    private BaseBoardInformation baseBoardInformation = null;
+    private readonly BIOSInformation biosInformation;
+    private readonly BaseBoardInformation baseBoardInformation;
 
     private static string ReadSysFS(string path) {
       try {
@@ -65,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     }
     
     public SMBIOS() {
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
         this.raw = null;
         this.table = null;
@@ -193,11 +193,11 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     }
 
     public class Structure {
-      private byte type;
-      private ushort handle;
+      private readonly byte type;
+      private readonly ushort handle;
 
-      private byte[] data;
-      private string[] strings;
+      private readonly byte[] data;
+      private readonly string[] strings;
 
       protected string GetString(int offset) {
         if (offset < data.Length && data[offset] > 0 &&
@@ -222,8 +222,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       
     public class BIOSInformation : Structure {
 
-      private string vendor;
-      private string version;
+      private readonly string vendor;
+      private readonly string version;
       
       public BIOSInformation(string vendor, string version) 
         : base (0x00, 0, null, null) 
@@ -247,117 +247,115 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public class BaseBoardInformation : Structure {
 
-      private string manufacturerName;
-      private string productName;
-      private string version;
-      private string serialNumber;
-      private Manufacturer manufacturer;
-      private Model model;
+      private readonly string manufacturerName;
+      private readonly string productName;
+      private readonly string version;
+      private readonly string serialNumber;
+      private readonly Manufacturer manufacturer;
+      private readonly Model model;
 
-      private void SetManufacturerName(string name) {
-        this.manufacturerName = name;
-        
+      private static Manufacturer GetManufacturer(string name) {               
         switch (name) {
           case "ASRock":
-            manufacturer = Manufacturer.ASRock; break;
+            return Manufacturer.ASRock;
           case "ASUSTeK Computer INC.":
-            manufacturer = Manufacturer.ASUS; break;
+            return Manufacturer.ASUS;
           case "Dell Inc.":
-            manufacturer = Manufacturer.Dell; break;
+            return Manufacturer.Dell;
           case "DFI":
           case "DFI Inc.":            
-            manufacturer = Manufacturer.DFI; break;
+            return Manufacturer.DFI;
           case "ECS":
-            manufacturer = Manufacturer.ECS; break;
+            return Manufacturer.ECS;
           case "EPoX COMPUTER CO., LTD":
-            manufacturer = Manufacturer.EPoX; break;
+            return Manufacturer.EPoX;
           case "EVGA":
-            manufacturer = Manufacturer.EVGA; break;
+            return  Manufacturer.EVGA;
           case "First International Computer, Inc.":
-            manufacturer = Manufacturer.FIC; break;
+            return Manufacturer.FIC;
           case "Gigabyte Technology Co., Ltd.":
-            manufacturer = Manufacturer.Gigabyte; break;
+            return  Manufacturer.Gigabyte;
           case "Hewlett-Packard":
-            manufacturer = Manufacturer.HP; break;
+            return  Manufacturer.HP;
           case "IBM":
-            manufacturer = Manufacturer.IBM; break;
+            return  Manufacturer.IBM;
           case "MICRO-STAR INTERNATIONAL CO., LTD":
           case "MICRO-STAR INTERNATIONAL CO.,LTD":
-            manufacturer = Manufacturer.MSI; break;
+            return  Manufacturer.MSI;
           case "XFX":
-            manufacturer = Manufacturer.XFX; break;
+            return  Manufacturer.XFX;
           case "To be filled by O.E.M.":
-            manufacturer = Manufacturer.Unknown; break;
+            return  Manufacturer.Unknown;
           default:
-            manufacturer = Manufacturer.Unknown; break;
+            return  Manufacturer.Unknown;
         }
       }
-      
-      private void SetProductName(string name) {
-        this.productName = name;
-        
+
+      private static Model GetModel(string name) {
         switch (name) {
           case "880GMH/USB3":
-            model = Model._880GMH_USB3; break;
+            return Model._880GMH_USB3;
           case "Crosshair III Formula":
-            model = Model.Crosshair_III_Formula; break;
+            return Model.Crosshair_III_Formula;
           case "M2N-SLI DELUXE":
-            model = Model.M2N_SLI_DELUXE; break;
+            return Model.M2N_SLI_DELUXE;
           case "M4A79XTD EVO":
-            model = Model.M4A79XTD_EVO; break;
+            return Model.M4A79XTD_EVO;
           case "P5W DH Deluxe":
-            model = Model.P5W_DH_Deluxe; break;
+            return Model.P5W_DH_Deluxe;
           case "P6X58D-E":
-            model = Model.P6X58D_E; break;
+            return Model.P6X58D_E;
           case "Rampage Extreme":
-            model = Model.Rampage_Extreme; break;
+            return Model.Rampage_Extreme;
           case "Rampage II GENE":
-            model = Model.Rampage_II_GENE; break;
+            return Model.Rampage_II_GENE;
           case "LP BI P45-T2RS Elite":
-            model = Model.LP_BI_P45_T2RS_Elite; break;
+            return Model.LP_BI_P45_T2RS_Elite;
           case "LP DK P55-T3eH9":
-            model = Model.LP_DK_P55_T3eH9; break;
+            return Model.LP_DK_P55_T3eH9;
           case "A890GXM-A":
-            model = Model.A890GXM_A; break;
+            return Model.A890GXM_A;
           case "X58 SLI Classified":
-            model = Model.X58_SLI_Classified; break;
+            return Model.X58_SLI_Classified;
           case "965P-S3":
-            model = Model._965P_S3; break;
+            return Model._965P_S3;
           case "EP45-DS3R":
-            model = Model.EP45_DS3R; break;
+            return Model.EP45_DS3R;
           case "EP45-UD3R":
-            model = Model.EP45_UD3R; break;
+            return Model.EP45_UD3R;
           case "EX58-EXTREME":
-            model = Model.EX58_EXTREME; break;
+            return Model.EX58_EXTREME;
           case "GA-MA770T-UD3":
-            model = Model.GA_MA770T_UD3; break;
+            return Model.GA_MA770T_UD3;
           case "GA-MA785GMT-UD2H":
-            model = Model.GA_MA785GMT_UD2H; break;
+            return Model.GA_MA785GMT_UD2H;
           case "P35-DS3":
-            model = Model.P35_DS3; break;
+            return Model.P35_DS3;
           case "P35-DS3L":
-            model = Model.P35_DS3L; break;
+            return Model.P35_DS3L;
           case "P55-UD4":
-            model = Model.P55_UD4; break;
+            return Model.P55_UD4;
           case "P55M-UD4":
-            model = Model.P55M_UD4; break;
+            return Model.P55M_UD4;
           case "X38-DS5":
-            model = Model.X38_DS5; break;
+            return Model.X38_DS5;
           case "X58A-UD3R":
-            model = Model.X58A_UD3R; break;
+            return Model.X58A_UD3R;
           case "To be filled by O.E.M.":
-            model = Model.Unknown; break;
+            return Model.Unknown;
           default:
-            model = Model.Unknown; break;
+            return Model.Unknown;
         }
       }
       
       public BaseBoardInformation(string manufacturerName, string productName, 
         string version, string serialNumber) 
         : base(0x02, 0, null, null) 
-      {        
-        SetManufacturerName(manufacturerName);
-        SetProductName(productName);
+      {
+        this.manufacturerName = manufacturerName;
+        this.manufacturer = GetManufacturer(manufacturerName);
+        this.productName = productName;
+        this.model = GetModel(productName);
         this.version = version;
         this.serialNumber = serialNumber;
       }
@@ -366,8 +364,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         string[] strings)
         : base(type, handle, data, strings) {
 
-        SetManufacturerName(GetString(0x04).Trim());
-        SetProductName(GetString(0x05).Trim());
+        this.manufacturerName = GetString(0x04).Trim();
+        this.manufacturer = GetManufacturer(this.manufacturerName);
+        this.productName = GetString(0x05).Trim();
+        this.model = GetModel(this.productName);
         this.version = GetString(0x06).Trim();
         this.serialNumber = GetString(0x07).Trim();               
       }

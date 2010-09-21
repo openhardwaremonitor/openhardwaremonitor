@@ -36,7 +36,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -44,11 +43,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private const int UPDATE_DIVIDER = 30; // update only every 30s
 
-    private string name;
-    private IntPtr handle;
-    private int drive;
-    private int attribute;    
-    private Sensor temperature;
+    private readonly string name;
+    private readonly IntPtr handle;
+    private readonly int drive;
+    private readonly int attribute;    
+    private readonly Sensor temperature;
     private int count;
     
 

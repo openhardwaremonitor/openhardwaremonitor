@@ -48,31 +48,31 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
   internal class CPUID {
 
-    private int thread;
+    private readonly int thread;
 
-    private Vendor vendor = Vendor.Unknown;
+    private readonly Vendor vendor = Vendor.Unknown;
 
-    private string cpuBrandString = "";
-    private string name = "";
+    private readonly string cpuBrandString = "";
+    private readonly string name = "";
 
-    private uint[,] cpuidData = new uint[0, 0];
-    private uint[,] cpuidExtData = new uint[0, 0];
+    private readonly uint[,] cpuidData = new uint[0, 0];
+    private readonly uint[,] cpuidExtData = new uint[0, 0];
 
-    private uint family;
-    private uint model;
-    private uint stepping;
+    private readonly uint family;
+    private readonly uint model;
+    private readonly uint stepping;
 
-    private uint apicId;
+    private readonly uint apicId;
 
-    private uint threadMaskWith;
-    private uint coreMaskWith;
+    private readonly uint threadMaskWith;
+    private readonly uint coreMaskWith;
 
-    private uint processorId;
-    private uint coreId;
-    private uint threadId;
+    private readonly uint processorId;
+    private readonly uint coreId;
+    private readonly uint threadId;
 
-    public static uint CPUID_0 = 0;
-    public static uint CPUID_EXT = 0x80000000;
+    public const uint CPUID_0 = 0;
+    public const uint CPUID_EXT = 0x80000000;
 
     private static void AppendRegister(StringBuilder b, uint value) {
       b.Append((char)((value) & 0xff));
@@ -217,8 +217,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           break;
       }
 
-      processorId = (uint)(apicId >> (int)(coreMaskWith + threadMaskWith));
-      coreId = (uint)((apicId >> (int)(threadMaskWith)) 
+      processorId = (apicId >> (int)(coreMaskWith + threadMaskWith));
+      coreId = ((apicId >> (int)(threadMaskWith)) 
         - (processorId << (int)(coreMaskWith)));
       threadId = apicId
         - (processorId << (int)(coreMaskWith + threadMaskWith))

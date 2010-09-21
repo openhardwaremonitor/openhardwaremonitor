@@ -41,17 +41,17 @@ using System.Globalization;
 namespace OpenHardwareMonitor.Hardware.ATI {
   internal sealed class ATIGPU : Hardware {
 
-    private string name;
-    private int adapterIndex;
-    private int busNumber;
-    private int deviceNumber;
-    private Sensor temperature;
-    private Sensor fan;
-    private Sensor coreClock;
-    private Sensor memoryClock;
-    private Sensor coreVoltage;
-    private Sensor coreLoad;
-    private Sensor fanControl;
+    private readonly string name;
+    private readonly int adapterIndex;
+    private readonly int busNumber;
+    private readonly int deviceNumber;
+    private readonly Sensor temperature;
+    private readonly Sensor fan;
+    private readonly Sensor coreClock;
+    private readonly Sensor memoryClock;
+    private readonly Sensor coreVoltage;
+    private readonly Sensor coreLoad;
+    private readonly Sensor fanControl;
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber, ISettings settings) 

@@ -35,20 +35,18 @@
  
 */
 
-using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
   internal class F718XX : ISuperIO {
 
-    private ushort address;
-    private Chip chip;
+    private readonly ushort address;
+    private readonly Chip chip;
 
-    private float?[] voltages;
-    private float?[] temperatures;
-    private float?[] fans;
+    private readonly float?[] voltages;
+    private readonly float?[] temperatures;
+    private readonly float?[] fans;
 
     // Hardware Monitor
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
@@ -58,7 +56,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte VOLTAGE_BASE_REG = 0x20;
     private const byte TEMPERATURE_CONFIG_REG = 0x69;
     private const byte TEMPERATURE_BASE_REG = 0x70;
-    private byte[] FAN_TACHOMETER_REG = new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
+    private readonly byte[] FAN_TACHOMETER_REG = 
+      new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
     
     private byte ReadByte(byte register) {
       WinRing0.WriteIoPortByte(
@@ -126,7 +125,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < temperatures.Length; i++) {
         switch (chip) {
           case Chip.F71858: {
-              int tableMode = 0x3 & ReadByte((byte)(TEMPERATURE_CONFIG_REG));
+              int tableMode = 0x3 & ReadByte(TEMPERATURE_CONFIG_REG);
               int high = 
                 ReadByte((byte)(TEMPERATURE_BASE_REG + 2 * i));
               int low =

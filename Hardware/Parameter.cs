@@ -41,9 +41,9 @@ using System.Globalization;
 namespace OpenHardwareMonitor.Hardware {
 
   internal struct ParameterDescription {
-    private string name;
-    private string description;
-    private float defaultValue;    
+    private readonly string name;
+    private readonly string description;
+    private readonly float defaultValue;    
 
     public ParameterDescription(string name, string description, 
       float defaultValue) {
@@ -60,11 +60,11 @@ namespace OpenHardwareMonitor.Hardware {
   }
 
   internal class Parameter : IParameter {
-    private ISensor sensor;
+    private readonly ISensor sensor;
     private ParameterDescription description;
     private float value;
     private bool isDefault;
-    private ISettings settings;
+    private readonly ISettings settings;
 
     public Parameter(ParameterDescription description, ISensor sensor, 
       ISettings settings) 

@@ -44,22 +44,22 @@ namespace OpenHardwareMonitor.Hardware {
 
   internal class Sensor : ISensor {
 
-    private string defaultName;
+    private readonly string defaultName;
     private string name;
-    private int index;
-    private bool defaultHidden;
-    private SensorType sensorType;
-    private IHardware hardware;
-    private ReadOnlyArray<IParameter> parameters;
+    private readonly int index;
+    private readonly bool defaultHidden;
+    private readonly SensorType sensorType;
+    private readonly IHardware hardware;
+    private readonly ReadOnlyArray<IParameter> parameters;
     private float? currentValue;
     private float? minValue;
     private float? maxValue;
-    private Queue<SensorValue> values =
+    private readonly Queue<SensorValue> values =
       new Queue<SensorValue>(MAX_MINUTES * 15);
-    private ISettings settings;
+    private readonly ISettings settings;
     
-    private float sum = 0;
-    private int count = 0;
+    private float sum;
+    private int count;
 
     private const int MAX_MINUTES = 120;
    

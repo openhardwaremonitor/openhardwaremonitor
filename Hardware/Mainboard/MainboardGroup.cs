@@ -38,7 +38,7 @@
 namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class MainboardGroup : IGroup {
 
-    private Mainboard[] mainboards;
+    private readonly Mainboard[] mainboards;
 
     public MainboardGroup(ISettings settings) {
       mainboards = new Mainboard[1];

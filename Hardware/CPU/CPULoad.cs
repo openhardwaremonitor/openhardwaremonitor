@@ -42,7 +42,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
   internal class CPULoad {
 
     [StructLayout(LayoutKind.Sequential)]
-    private struct SystemProcessorPerformanceInformation {
+    protected struct SystemProcessorPerformanceInformation {
       public long IdleTime;
       public long KernelTime;
       public long UserTime;
@@ -51,7 +51,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       public ulong Reserved2;
     }
 
-    private enum SystemInformationClass : int {
+    protected enum SystemInformationClass {
       SystemBasicInformation = 0,
       SystemCpuInformation = 1,
       SystemPerformanceInformation = 2,
@@ -60,15 +60,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       SystemProcessorPerformanceInformation = 8
     }
 
-    private CPUID[][] cpuid;
+    private readonly CPUID[][] cpuid;
 
     private long systemTime;
     private long[] idleTimes;
 
     private float totalLoad;
-    private float[] coreLoads;
+    private readonly float[] coreLoads;
 
-    private bool available = false;
+    private readonly bool available;
 
     private static long[] GetIdleTimes() {      
       SystemProcessorPerformanceInformation[] informations = new
@@ -159,7 +159,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       this.idleTimes = newIdleTimes;
     }
 
-    private static class NativeMethods {
+    protected static class NativeMethods {
 
       [DllImport("ntdll.dll")]
       public static extern int NtQuerySystemInformation(

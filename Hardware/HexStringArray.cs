@@ -41,7 +41,7 @@ using System.Collections.Generic;
 namespace OpenHardwareMonitor.Hardware {
   internal class HexStringArray {
 
-    private byte[] array;
+    private readonly byte[] array;
 
     public HexStringArray(string input) {
       List<byte> list = new List<byte>();

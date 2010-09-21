@@ -43,9 +43,9 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.CPU {
 
   internal class CPUGroup : IGroup { 
-    private List<IHardware> hardware = new List<IHardware>();
+    private readonly List<IHardware> hardware = new List<IHardware>();
 
-    private CPUID[][][] threads;
+    private readonly CPUID[][][] threads;
 
     private static CPUID[][] GetProcessorThreads() {
 
@@ -77,7 +77,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return processorThreads;
     }
 
-    private static CPUID[][] GroupThreadsByCore(CPUID[] threads) {
+    private static CPUID[][] GroupThreadsByCore(IEnumerable<CPUID> threads) {
 
       SortedDictionary<uint, List<CPUID>> cores = 
         new SortedDictionary<uint, List<CPUID>>();
@@ -102,7 +102,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public CPUGroup(ISettings settings) {
       // No implementation for cpuid on Unix systems
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) 
         return;
       

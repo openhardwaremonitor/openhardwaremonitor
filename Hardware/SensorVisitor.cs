@@ -41,7 +41,7 @@ using System.Collections.Generic;
 namespace OpenHardwareMonitor.Hardware {
 
   public class SensorVisitor : IVisitor {
-    private SensorEventHandler handler;
+    private readonly SensorEventHandler handler;
 
     public SensorVisitor(SensorEventHandler handler) {
       if (handler == null)

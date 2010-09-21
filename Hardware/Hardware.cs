@@ -41,7 +41,7 @@ using OpenHardwareMonitor.Collections;
 namespace OpenHardwareMonitor.Hardware {
   internal abstract class Hardware : IHardware {
 
-    private ListSet<ISensor> active = new ListSet<ISensor>();
+    private readonly ListSet<ISensor> active = new ListSet<ISensor>();
 
     public IHardware[] SubHardware {
       get { return new IHardware[0]; }

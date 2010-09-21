@@ -41,10 +41,10 @@ using System.Threading;
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class AMD0FCPU : GenericCPU {
 
-    private uint pciAddress;
-    private Sensor[] coreTemperatures;
-    private Sensor[] coreClocks;
-    private Sensor busClock;
+    private readonly uint pciAddress;
+    private readonly Sensor[] coreTemperatures;
+    private readonly Sensor[] coreClocks;
+    private readonly Sensor busClock;
 
     private const ushort PCI_AMD_VENDOR_ID = 0x1022;
     private const ushort PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID = 0x1103;
@@ -71,8 +71,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreCount; i++) {
           coreTemperatures[i] =
             new Sensor("Core #" + (i + 1), i, SensorType.Temperature,
-              this, new ParameterDescription[] { 
-                new ParameterDescription("Offset [°C]", 
+              this, new [] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", offset)
           }, settings);
@@ -97,9 +96,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     protected override uint[] GetMSRs() {
-      return new uint[] {
-        FIDVID_STATUS
-      };
+      return new [] { FIDVID_STATUS };
     }
 
     public override void Update() {

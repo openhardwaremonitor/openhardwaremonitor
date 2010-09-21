@@ -141,12 +141,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
   [StructLayout(LayoutKind.Sequential)]
   internal struct NvDisplayHandle {
-    private IntPtr ptr;
+    private readonly IntPtr ptr;
   }
 
   [StructLayout(LayoutKind.Sequential)]
   internal struct NvPhysicalGpuHandle {
-    private IntPtr ptr;
+    private readonly IntPtr ptr;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -281,11 +281,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public delegate NvStatus NvAPI_GetInterfaceVersionStringDelegate(
       StringBuilder version);
 
-    private static bool available = false;
-    private static nvapi_QueryInterfaceDelegate nvapi_QueryInterface;
-    private static NvAPI_InitializeDelegate NvAPI_Initialize;
-    private static NvAPI_GPU_GetFullNameDelegate _NvAPI_GPU_GetFullName;
-    private static NvAPI_GetInterfaceVersionStringDelegate
+    private static readonly bool available;
+    private static readonly nvapi_QueryInterfaceDelegate nvapi_QueryInterface;
+    private static readonly NvAPI_InitializeDelegate NvAPI_Initialize;
+    private static readonly NvAPI_GPU_GetFullNameDelegate 
+      _NvAPI_GPU_GetFullName;
+    private static readonly NvAPI_GetInterfaceVersionStringDelegate
       _NvAPI_GetInterfaceVersionString;
 
     public static readonly NvAPI_GPU_GetThermalSettingsDelegate 

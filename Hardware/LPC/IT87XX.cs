@@ -41,16 +41,16 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.LPC {
   internal class IT87XX : ISuperIO {
        
-    private ushort address;
-    private Chip chip;
-    private byte version;
+    private readonly ushort address;
+    private readonly Chip chip;
+    private readonly byte version;
 
     private readonly ushort addressReg;
     private readonly ushort dataReg;
 
-    private float?[] voltages = new float?[0];
-    private float?[] temperatures = new float?[0];
-    private float?[] fans = new float?[0];
+    private readonly float?[] voltages = new float?[0];
+    private readonly float?[] temperatures = new float?[0];
+    private readonly float?[] fans = new float?[0];
 
     private readonly float voltageGain;
    
@@ -66,9 +66,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte TEMPERATURE_BASE_REG = 0x29;
     private const byte VENDOR_ID_REGISTER = 0x58;
     private const byte FAN_TACHOMETER_16_BIT_ENABLE_REGISTER = 0x0c;
-    private byte[] FAN_TACHOMETER_REG = 
+    private readonly byte[] FAN_TACHOMETER_REG = 
       new byte[] { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
-    private byte[] FAN_TACHOMETER_EXT_REG =
+    private readonly byte[] FAN_TACHOMETER_EXT_REG =
       new byte[] { 0x18, 0x19, 0x1a, 0x81, 0x83 };
     private const byte VOLTAGE_BASE_REG = 0x20;
 
@@ -143,10 +143,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           r.Append(" ");
           bool valid;
           byte value = ReadByte((byte)((i << 4) | j), out valid);
-          if (valid)
-            r.Append(value.ToString("X2", CultureInfo.InvariantCulture));
-          else
-            r.Append("??");
+          r.Append(
+            valid ? value.ToString("X2", CultureInfo.InvariantCulture) : "??");
         }
         r.AppendLine();
       }
