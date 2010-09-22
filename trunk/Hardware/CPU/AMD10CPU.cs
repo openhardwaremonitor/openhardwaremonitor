@@ -35,22 +35,25 @@
  
 */
 
+using System;
+using System.Globalization;
+using System.Text;
+
 namespace OpenHardwareMonitor.Hardware.CPU {
 
-  internal sealed class AMD10CPU : GenericCPU {
-
-    private readonly uint pciAddress;
+  internal sealed class AMD10CPU : AMDCPU {
 
     private readonly Sensor coreTemperature;
 
-    private const ushort PCI_AMD_VENDOR_ID = 0x1022;
-    private const ushort PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID = 0x1203;
-    private const ushort PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID = 0x1303;
-    private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
+    private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
+    private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
+    private const byte REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
+    
+    private readonly uint miscellaneousControlAddress;
 
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
-    {      
+    {            
       // AMD family 10h processors support only one temperature sensor
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
@@ -58,11 +61,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           }, settings);
 
-      pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
-        PCI_AMD_10H_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
-      if (pciAddress == 0xFFFFFFFF) 
-        pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
-          PCI_AMD_11H_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
+      // get the pci address for the Miscellaneous Control registers 
+      miscellaneousControlAddress = GetPciAddress(
+        MISCELLANEOUS_CONTROL_FUNCTION, MISCELLANEOUS_CONTROL_DEVICE_ID);
 
       Update();                   
     }
@@ -71,12 +72,24 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return new uint[] { };
     }
 
+    public override string GetReport() {
+      StringBuilder r = new StringBuilder();
+      r.Append(base.GetReport());
+
+      r.Append("Miscellaneous Control Address: ");
+      r.AppendLine((miscellaneousControlAddress).ToString("X",
+        CultureInfo.InvariantCulture));
+      r.AppendLine();
+
+      return r.ToString();
+    }
+
     public override void Update() {
       base.Update();
 
-      if (pciAddress != 0xFFFFFFFF) {
+      if (miscellaneousControlAddress != WinRing0.InvalidPciAddress) {
         uint value;
-        if (WinRing0.ReadPciConfigDwordEx(pciAddress,
+        if (WinRing0.ReadPciConfigDwordEx(miscellaneousControlAddress,
           REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
           coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
             coreTemperature.Parameters[0].Value;
