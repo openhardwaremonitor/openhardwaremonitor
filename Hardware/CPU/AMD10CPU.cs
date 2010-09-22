@@ -38,16 +38,22 @@
 using System;
 using System.Globalization;
 using System.Text;
+using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
 
   internal sealed class AMD10CPU : AMDCPU {
 
     private readonly Sensor coreTemperature;
+    private readonly Sensor[] coreClocks;
+    private readonly Sensor busClock;
+
+    private const uint COFVID_STATUS = 0xC0010071;
+    private const uint P_STATE_0 = 0xC0010064;
 
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
     private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
-    private const byte REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
+    private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     
     private readonly uint miscellaneousControlAddress;
 
@@ -65,23 +71,36 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       miscellaneousControlAddress = GetPciAddress(
         MISCELLANEOUS_CONTROL_FUNCTION, MISCELLANEOUS_CONTROL_DEVICE_ID);
 
+      busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
+      coreClocks = new Sensor[coreCount];
+      for (int i = 0; i < coreClocks.Length; i++) {
+        coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock,
+          this, settings);
+        if (hasTSC)
+          ActivateSensor(coreClocks[i]);
+      }
+
       Update();                   
     }
 
     protected override uint[] GetMSRs() {
-      return new uint[] { };
+      return new uint[] { P_STATE_0, COFVID_STATUS };
     }
 
     public override string GetReport() {
       StringBuilder r = new StringBuilder();
       r.Append(base.GetReport());
 
-      r.Append("Miscellaneous Control Address: ");
+      r.Append("Miscellaneous Control Address: 0x");
       r.AppendLine((miscellaneousControlAddress).ToString("X",
         CultureInfo.InvariantCulture));
       r.AppendLine();
 
       return r.ToString();
+    }
+
+    private double MultiplierFromIDs(uint divisorID, uint frequencyID) {
+      return 0.5 * (frequencyID + 0x10) / (1 << (int)divisorID);
     }
 
     public override void Update() {
@@ -98,6 +117,44 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           DeactivateSensor(coreTemperature);
         }
       }
-    }
+
+      if (hasTSC) {
+        double newBusClock = 0;
+
+        for (int i = 0; i < coreClocks.Length; i++) {
+          Thread.Sleep(1);
+
+          uint curEax, curEdx;
+          uint maxEax, maxEdx;
+          if (WinRing0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
+            (UIntPtr)(1L << cpuid[i][0].Thread)) &&
+            WinRing0.RdmsrTx(P_STATE_0, out maxEax, out maxEdx,
+            (UIntPtr)(1L << cpuid[i][0].Thread))) 
+          {
+            // 8:6 CpuDid: current core divisor ID
+            // 5:0 CpuFid: current core frequency ID
+            uint curCpuDid = (curEax >> 6) & 7;
+            uint curCpuFid = curEax & 0x1F;
+            double multiplier = MultiplierFromIDs(curCpuDid, curCpuFid);
+
+            // we assume that the max multiplier (used for the TSC) 
+            // can be found in the P_STATE_0 MSR
+            uint maxCpuDid = (maxEax >> 6) & 7;
+            uint maxCpuFid = maxEax & 0x1F;
+            double maxMultiplier = MultiplierFromIDs(maxCpuDid, maxCpuFid);
+
+            coreClocks[i].Value = (float)(multiplier * MaxClock / maxMultiplier);
+            newBusClock = (float)(MaxClock / maxMultiplier);
+          } else {
+            coreClocks[i].Value = (float)MaxClock;
+          }
+        }
+
+        if (newBusClock > 0) {
+          this.busClock.Value = (float)newBusClock;
+          ActivateSensor(this.busClock);
+        }
+      }
+    } 
   }
 }

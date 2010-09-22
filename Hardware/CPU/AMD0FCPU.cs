@@ -107,7 +107,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       StringBuilder r = new StringBuilder();
       r.Append(base.GetReport());
 
-      r.Append("Miscellaneous Control Address: ");
+      r.Append("Miscellaneous Control Address: 0x");
       r.AppendLine((miscellaneousControlAddress).ToString("X", 
         CultureInfo.InvariantCulture));
       r.AppendLine();
