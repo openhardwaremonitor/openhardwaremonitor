@@ -48,14 +48,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       : base(processorIndex, cpuid, settings) { }
 
     protected uint GetPciAddress(byte function, ushort deviceId) {
+      
+      // assemble the pci address
       uint address = WinRing0.GetPciAddress(PCI_BUS,
         (byte)(PCI_BASE_DEVICE + processorIndex), function);
 
+      // verify that we have the correct bus, device and function
       uint deviceVendor;
       if (!WinRing0.ReadPciConfigDwordEx(
         address, DEVICE_VENDOR_ID_REGISTER, out deviceVendor))
         return WinRing0.InvalidPciAddress;
-
+      
       if (deviceVendor != (deviceId << 16 | AMD_VENDOR_ID))
         return WinRing0.InvalidPciAddress;
 
