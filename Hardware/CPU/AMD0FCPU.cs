@@ -36,22 +36,26 @@
 */
 
 using System;
+using System.Globalization;
+using System.Text;
 using System.Threading;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
-  internal sealed class AMD0FCPU : GenericCPU {
-
-    private readonly uint pciAddress;
+  internal sealed class AMD0FCPU : AMDCPU {
+    
     private readonly Sensor[] coreTemperatures;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
 
-    private const ushort PCI_AMD_VENDOR_ID = 0x1022;
-    private const ushort PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID = 0x1103;
     private const uint FIDVID_STATUS = 0xC0010042;
+
+    private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
+    private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1103;
     private const uint THERMTRIP_STATUS_REGISTER = 0xE4;
     private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
     private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
+
+    private readonly uint miscellaneousControlAddress;
 
     public AMD0FCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
@@ -80,8 +84,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         coreTemperatures = new Sensor[0];
       }
 
-      pciAddress = WinRing0.FindPciDeviceById(PCI_AMD_VENDOR_ID,
-        PCI_AMD_0FH_MISCELLANEOUS_DEVICE_ID, (byte)processorIndex);
+      miscellaneousControlAddress = GetPciAddress(
+        MISCELLANEOUS_CONTROL_FUNCTION, MISCELLANEOUS_CONTROL_DEVICE_ID);
 
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       coreClocks = new Sensor[coreCount];
@@ -99,17 +103,31 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return new [] { FIDVID_STATUS };
     }
 
+    public override string GetReport() {
+      StringBuilder r = new StringBuilder();
+      r.Append(base.GetReport());
+
+      r.Append("Miscellaneous Control Address: ");
+      r.AppendLine((miscellaneousControlAddress).ToString("X", 
+        CultureInfo.InvariantCulture));
+      r.AppendLine();
+
+      return r.ToString();
+    }
+
     public override void Update() {
       base.Update();
 
-      if (pciAddress != 0xFFFFFFFF) {
+      if (miscellaneousControlAddress != WinRing0.InvalidPciAddress) {
         for (uint i = 0; i < coreTemperatures.Length; i++) {
           if (WinRing0.WritePciConfigDwordEx(
-            pciAddress, THERMTRIP_STATUS_REGISTER,
+            miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER,
             i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
             uint value;
             if (WinRing0.ReadPciConfigDwordEx(
-              pciAddress, THERMTRIP_STATUS_REGISTER, out value)) {
+              miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER, 
+              out value)) 
+            {
               coreTemperatures[i].Value = ((value >> 16) & 0xFF) + 
                 coreTemperatures[i].Parameters[0].Value;
               ActivateSensor(coreTemperatures[i]);

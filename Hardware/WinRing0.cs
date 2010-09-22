@@ -87,8 +87,6 @@ namespace OpenHardwareMonitor.Hardware {
       UIntPtr threadAffinityMask);
     public delegate byte ReadIoPortByteDelegate(ushort port);
     public delegate void WriteIoPortByteDelegate(ushort port, byte value);
-    public delegate uint FindPciDeviceByIdDelegate(ushort vendorId, 
-      ushort deviceId, byte index);
     public delegate bool ReadPciConfigDwordExDelegate(uint pciAddress, 
       uint regAddress, out uint value);
     public delegate bool WritePciConfigDwordExDelegate(uint pciAddress, 
@@ -114,8 +112,6 @@ namespace OpenHardwareMonitor.Hardware {
       CreateDelegate<ReadIoPortByteDelegate>("ReadIoPortByte");
     public static readonly WriteIoPortByteDelegate WriteIoPortByte =
       CreateDelegate<WriteIoPortByteDelegate>("WriteIoPortByte");
-    public static readonly FindPciDeviceByIdDelegate FindPciDeviceById =
-      CreateDelegate<FindPciDeviceByIdDelegate>("FindPciDeviceById");
     public static readonly ReadPciConfigDwordExDelegate ReadPciConfigDwordEx =
       CreateDelegate<ReadPciConfigDwordExDelegate>("ReadPciConfigDwordEx");
     public static readonly WritePciConfigDwordExDelegate WritePciConfigDwordEx =
@@ -164,6 +160,13 @@ namespace OpenHardwareMonitor.Hardware {
 
     public static void ReleaseIsaBusMutex() {
       isaBusMutex.ReleaseMutex();
-    }    
+    }
+
+    public const uint InvalidPciAddress = 0xFFFFFFFF;
+
+    public static uint GetPciAddress(byte bus, byte device, byte function)	{
+      return 
+        (uint)(((bus & 0xFF) << 8) | ((device & 0x1F) << 3) | (function & 7));
+    }
   }
 }

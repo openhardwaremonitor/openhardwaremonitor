@@ -61,6 +61,7 @@
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\Computer.cs" />
+    <Compile Include="Hardware\CPU\AMDCPU.cs" />
     <Compile Include="Hardware\CPU\GenericCPU.cs" />
     <Compile Include="Hardware\CPU\AMD0FCPU.cs" />
     <Compile Include="Hardware\CPU\AMD10CPU.cs" />
