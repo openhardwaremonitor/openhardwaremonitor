@@ -71,6 +71,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption showMax;
     private UserOption startMinimized;
     private UserOption minimizeToTray;
+    private UserOption minimizeOnClose;
     private UserOption autoStart;
     private UserOption readHddSensors;
     private UserOption showGadget;
@@ -80,14 +81,14 @@ namespace OpenHardwareMonitor.GUI {
 
       this.settings = new PersistentSettings();      
       this.settings.Load(Path.ChangeExtension(
-        System.Windows.Forms.Application.ExecutablePath, ".config"));
+        Application.ExecutablePath, ".config"));
 
       this.unitManager = new UnitManager(settings);
 
       // set the DockStyle here, to avoid conflicts with the MainMenu
       this.splitContainer.Dock = DockStyle.Fill;
       
-      int p = (int)System.Environment.OSVersion.Platform;
+      int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
         splitContainer.BorderStyle = BorderStyle.None;
         splitContainer.Border3DStyle = Border3DStyle.Adjust;
@@ -195,6 +196,8 @@ namespace OpenHardwareMonitor.GUI {
       minimizeToTray.Changed += delegate(object sender, EventArgs e) {
         systemTray.IsMainIconEnabled = minimizeToTray.Value;
       };
+
+      minimizeOnClose = new UserOption("minCloseMenuItem", false, minCloseMenuItem, settings);
 
       autoStart = new UserOption(null, startupManager.Startup, startupMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
@@ -320,7 +323,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void exitClick(object sender, EventArgs e) {
-      Close();      
+      Close();
     }
 
     private void timer_Tick(object sender, EventArgs e) {
@@ -347,7 +350,7 @@ namespace OpenHardwareMonitor.GUI {
         System.Windows.Forms.Application.ExecutablePath, ".config"));
     }
 
-    private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
+   private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
       Visible = false;
       SaveConfiguration();
 
@@ -447,9 +450,25 @@ namespace OpenHardwareMonitor.GUI {
     protected override void WndProc(ref Message m) {
       const int WM_SYSCOMMAND = 0x112;
       const int SC_MINIMIZE = 0xF020;
+      const int SC_CLOSE = 0xF060;
+
       if (minimizeToTray.Value && 
         m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
         SysTrayHideShow();
+      } else if(minimizeOnClose.Value && 
+        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_CLOSE) {
+        /*
+         * Apparently the user wants to minimize rather than close
+         * Now we still need to check if we're going to the tray or not
+         * 
+         * Note: the correct way to do this would be to send out SC_MINIMIZE,
+         * but since the code here is so simple,
+         * that would just be a waste of time.
+         */
+        if (minimizeToTray.Value)
+          SysTrayHideShow();
+        else
+          WindowState = FormWindowState.Minimized;
       } else {      
         base.WndProc(ref m);
       }
