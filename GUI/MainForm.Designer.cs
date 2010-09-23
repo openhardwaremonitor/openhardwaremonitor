@@ -92,6 +92,7 @@ namespace OpenHardwareMonitor.GUI {
       this.optionsMenuItem = new System.Windows.Forms.MenuItem();
       this.startMinMenuItem = new System.Windows.Forms.MenuItem();
       this.minTrayMenuItem = new System.Windows.Forms.MenuItem();
+      this.minCloseMenuItem = new System.Windows.Forms.MenuItem();
       this.startupMenuItem = new System.Windows.Forms.MenuItem();
       this.separatorMenuItem = new System.Windows.Forms.MenuItem();
       this.temperatureUnitsMenuItem = new System.Windows.Forms.MenuItem();
@@ -302,6 +303,7 @@ namespace OpenHardwareMonitor.GUI {
       this.optionsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.startMinMenuItem,
             this.minTrayMenuItem,
+            this.minCloseMenuItem,
             this.startupMenuItem,
             this.separatorMenuItem,
             this.temperatureUnitsMenuItem,
@@ -319,19 +321,24 @@ namespace OpenHardwareMonitor.GUI {
       this.minTrayMenuItem.Index = 1;
       this.minTrayMenuItem.Text = "Minimize To Tray";
       // 
+      // minCloseMenuItem
+      // 
+      this.minCloseMenuItem.Index = 2;
+      this.minCloseMenuItem.Text = "Minimize On Close";
+      // 
       // startupMenuItem
       // 
-      this.startupMenuItem.Index = 2;
+      this.startupMenuItem.Index = 3;
       this.startupMenuItem.Text = "Run On Windows Startup";
       // 
       // separatorMenuItem
       // 
-      this.separatorMenuItem.Index = 3;
+      this.separatorMenuItem.Index = 4;
       this.separatorMenuItem.Text = "-";
       // 
       // temperatureUnitsMenuItem
       // 
-      this.temperatureUnitsMenuItem.Index = 4;
+      this.temperatureUnitsMenuItem.Index = 5;
       this.temperatureUnitsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.celciusMenuItem,
             this.fahrenheitMenuItem});
@@ -351,12 +358,12 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // MenuItem4
       // 
-      this.MenuItem4.Index = 5;
+      this.MenuItem4.Index = 6;
       this.MenuItem4.Text = "-";
       // 
       // hddMenuItem
       // 
-      this.hddMenuItem.Index = 6;
+      this.hddMenuItem.Index = 7;
       this.hddMenuItem.Text = "Read HDD sensors";
       // 
       // helpMenuItem
@@ -513,6 +520,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem resetMinMaxMenuItem;
     private System.Windows.Forms.MenuItem MenuItem3;
     private System.Windows.Forms.MenuItem gadgetMenuItem;
+    private System.Windows.Forms.MenuItem minCloseMenuItem;
   }
 }
 
