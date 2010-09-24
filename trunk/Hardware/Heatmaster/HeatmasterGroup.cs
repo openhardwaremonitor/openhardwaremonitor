@@ -99,7 +99,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
         return;
 
       string[] portNames = GetRegistryPortNames();      
-      for (int i = portNames.Length - 1; i >= 0; i--) {
+      for (int i = 0; i < portNames.Length; i++) {
         bool isValid = false;
         try {        
           using (SerialPort serialPort =
@@ -169,7 +169,6 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
         if (isValid) {
           report.AppendLine("Status: OK");
           hardware.Add(new Heatmaster(portNames[i], settings));
-          return;
         }
         report.AppendLine();
       }
