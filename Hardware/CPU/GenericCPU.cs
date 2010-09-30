@@ -55,13 +55,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     protected readonly int coreCount;
     protected readonly string name;
 
-    protected readonly bool hasTSC;
-    protected readonly bool invariantTSC;
-    private readonly double estimatedMaxClock;
+    private readonly bool hasTimeStampCounter;
+    private readonly bool isInvariantTimeStampCounter;
+    private readonly double estimatedTimeStampCounterFrequency;
 
     private ulong lastTimeStampCount;
     private long lastTime;
-    private double maxClock;    
+    private double timeStampCounterFrequency;    
 
     private readonly Vendor vendor;
 
@@ -89,19 +89,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       this.coreCount = cpuid.Length;
       this.name = cpuid[0][0].Name;      
 
-      // check if processor has TSC
+      // check if processor has a TSC
       if (cpuid[0][0].Data.GetLength(0) > 1
         && (cpuid[0][0].Data[1, 3] & 0x10) != 0)
-        hasTSC = true;
+        hasTimeStampCounter = true;
       else
-        hasTSC = false;
+        hasTimeStampCounter = false;
 
-      // check if processor supports invariant TSC 
+      // check if processor supports an invariant TSC 
       if (cpuid[0][0].ExtData.GetLength(0) > 7
         && (cpuid[0][0].ExtData[7, 3] & 0x100) != 0)
-        invariantTSC = true;
+        isInvariantTimeStampCounter = true;
       else
-        invariantTSC = false;
+        isInvariantTimeStampCounter = false;
 
       if (coreCount > 1)
         totalLoad = new Sensor("CPU Total", 0, SensorType.Load, this, settings);
@@ -119,30 +119,30 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(totalLoad);
       }
 
-      if (hasTSC)
-        estimatedMaxClock = EstimateMaxClock();
+      if (hasTimeStampCounter)
+        estimatedTimeStampCounterFrequency = EstimateTimeStampCounterFrequency();
       else
-        estimatedMaxClock = 0;
-      maxClock = estimatedMaxClock;
+        estimatedTimeStampCounterFrequency = 0;
+      timeStampCounterFrequency = estimatedTimeStampCounterFrequency;
 
       lastTimeStampCount = 0;
       lastTime = 0;
     }
 
-    private static double EstimateMaxClock() {
+    private static double EstimateTimeStampCounterFrequency() {
       // preload the function
-      EstimateMaxClock(0);
-      EstimateMaxClock(0);
+      EstimateTimeStampCounterFrequency(0);
+      EstimateTimeStampCounterFrequency(0);
 
-      // estimate the max clock in MHz      
-      List<double> estimatedMaxClocks = new List<double>(3);
+      // estimate the frequency in MHz      
+      List<double> estimatedFrequency = new List<double>(3);
       for (int i = 0; i < 3; i++)
-        estimatedMaxClocks.Add(1e-6 * EstimateMaxClock(0.025));
-      estimatedMaxClocks.Sort();
-      return estimatedMaxClocks[1];
+        estimatedFrequency.Add(1e-6 * EstimateTimeStampCounterFrequency(0.025));
+      estimatedFrequency.Sort();
+      return estimatedFrequency[1];
     }
 
-    private static double EstimateMaxClock(double timeWindow) {
+    private static double EstimateTimeStampCounterFrequency(double timeWindow) {
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
       uint lsbBegin, msbBegin, lsbEnd, msbEnd;
 
@@ -195,12 +195,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         Environment.NewLine);
       r.AppendFormat("Threads per Core: {0}{1}", cpuid[0].Length,
         Environment.NewLine);
-      r.AppendLine("TSC: " +
-        (hasTSC ? (invariantTSC ? "Invariant" : "Not Invariant") : "None"));
       r.AppendLine(string.Format(CultureInfo.InvariantCulture,
         "Timer Frequency: {0} MHz", Stopwatch.Frequency * 1e-6));
+      r.AppendLine("Time Stamp Counter: " + (hasTimeStampCounter ? (
+        isInvariantTimeStampCounter ? "Invariant" : "Not Invariant") : "None"));
       r.AppendLine(string.Format(CultureInfo.InvariantCulture,
-        "Max Clock: {0} MHz", Math.Round(maxClock * 100) * 0.01));
+        "Time Stamp Counter Frequency: {0} MHz",
+        Math.Round(timeStampCounterFrequency * 100) * 0.01));   
       r.AppendLine();
 
       uint[] msrArray = GetMSRs();
@@ -239,22 +240,27 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return HardwareType.CPU; }
     }
 
-    protected double MaxClock {
-      get { return maxClock; }
+    public bool HasTimeStampCounter {
+      get { return hasTimeStampCounter; }
+    }
+
+    public double TimeStampCounterFrequency {
+      get { return timeStampCounterFrequency; }
     }
 
     public override void Update() {
-      if (hasTSC) {
+      if (hasTimeStampCounter) {
         uint lsb, msb;
         WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
         long time = Stopwatch.GetTimestamp();
         ulong timeStampCount = ((ulong)msb << 32) | lsb;
         double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
         if (delta > 0.5) {
-          if (invariantTSC)
-            maxClock = (timeStampCount - lastTimeStampCount) / (1e6 * delta);
+          if (isInvariantTimeStampCounter)
+            timeStampCounterFrequency = 
+              (timeStampCount - lastTimeStampCount) / (1e6 * delta);
           else
-            maxClock = estimatedMaxClock;
+            timeStampCounterFrequency = estimatedTimeStampCounterFrequency;
 
           lastTimeStampCount = timeStampCount;
           lastTime = time;

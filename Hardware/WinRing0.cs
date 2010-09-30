@@ -90,10 +90,13 @@ namespace OpenHardwareMonitor.Hardware {
     public delegate bool ReadPciConfigDwordExDelegate(uint pciAddress, 
       uint regAddress, out uint value);
     public delegate bool WritePciConfigDwordExDelegate(uint pciAddress, 
-      uint regAddress, uint value);
-    public delegate bool RdtscTxDelegate(out uint eax, out uint edx,
-      UIntPtr threadAffinityMask);
+      uint regAddress, uint value);    
     public delegate bool RdtscDelegate(out uint eax, out uint edx);
+    public delegate bool RdtscTxDelegate(out uint eax, out uint edx,
+      UIntPtr threadAffinityMask);    
+    public delegate bool WrmsrDelegate(uint index, uint eax, uint edx);
+    public delegate bool WrmsrTxDelegate(uint index, uint eax, uint edx,
+      UIntPtr threadAffinityMask);
 
     private static readonly InitializeOlsDelegate InitializeOls = 
       CreateDelegate<InitializeOlsDelegate>("InitializeOls");
@@ -116,10 +119,14 @@ namespace OpenHardwareMonitor.Hardware {
       CreateDelegate<ReadPciConfigDwordExDelegate>("ReadPciConfigDwordEx");
     public static readonly WritePciConfigDwordExDelegate WritePciConfigDwordEx =
       CreateDelegate<WritePciConfigDwordExDelegate>("WritePciConfigDwordEx");
-    public static readonly RdtscTxDelegate RdtscTx =
-      CreateDelegate<RdtscTxDelegate>("RdtscTx");
     public static readonly RdtscDelegate Rdtsc =
       CreateDelegate<RdtscDelegate>("Rdtsc");
+    public static readonly RdtscTxDelegate RdtscTx =
+      CreateDelegate<RdtscTxDelegate>("RdtscTx");    
+    public static readonly WrmsrDelegate Wrmsr =
+      CreateDelegate<WrmsrDelegate>("Wrmsr");
+    public static readonly WrmsrTxDelegate WrmsrTx =
+      CreateDelegate<WrmsrTxDelegate>("WrmsrTx");
  
     private static T CreateDelegate<T>(string entryPoint) where T : class {
       DllImportAttribute attribute = new DllImportAttribute(GetDllName());
