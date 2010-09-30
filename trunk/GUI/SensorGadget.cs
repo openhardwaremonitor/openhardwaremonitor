@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -391,7 +391,6 @@ namespace OpenHardwareMonitor.GUI {
     protected override void OnPaint(PaintEventArgs e) {
       Graphics g = e.Graphics;
       int w = Size.Width;
-      int h = Size.Height;
 
       g.Clear(Color.Transparent);
       

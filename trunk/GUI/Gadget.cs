@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -166,14 +166,17 @@ namespace OpenHardwareMonitor.GUI {
       }
       set {
         if (value != window.Visible) {
-          if (value)
-            Redraw();
           window.Visible = value;
+          if (value)
+            Redraw();          
         }
       }
     }
 
     public void Redraw() {
+      if (!window.Visible)
+        return;
+      
       if (window.Size != buffer.Size) {
         DisposeBuffer();
         CreateBuffer();

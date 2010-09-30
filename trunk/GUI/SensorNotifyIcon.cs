@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -187,7 +187,6 @@ namespace OpenHardwareMonitor.GUI {
         new Rectangle(0, 0, bitmap.Width, bitmap.Height),
         ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
-      int stride = data.Stride;
       IntPtr Scan0 = data.Scan0;
 
       int numBytes = bitmap.Width * bitmap.Height * 4;
