@@ -87,16 +87,7 @@ namespace OpenHardwareMonitor.GUI {
 
       // set the DockStyle here, to avoid conflicts with the MainMenu
       this.splitContainer.Dock = DockStyle.Fill;
-      
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
-        splitContainer.BorderStyle = BorderStyle.None;
-        splitContainer.Border3DStyle = Border3DStyle.Adjust;
-        splitContainer.SplitterWidth = 4;
-        treeView.BorderStyle = BorderStyle.Fixed3D;
-        plotPanel.BorderStyle = BorderStyle.Fixed3D;
-      }
-      
+            
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
       plotPanel.Font = SystemFonts.MessageBoxFont;
@@ -141,7 +132,18 @@ namespace OpenHardwareMonitor.GUI {
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
-      gadget = new SensorGadget(computer, settings, unitManager);
+      int p = (int)Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) { // Unix
+        splitContainer.BorderStyle = BorderStyle.None;
+        splitContainer.Border3DStyle = Border3DStyle.Adjust;
+        splitContainer.SplitterWidth = 4;
+        treeView.BorderStyle = BorderStyle.Fixed3D;
+        plotPanel.BorderStyle = BorderStyle.Fixed3D;
+        gadgetMenuItem.Visible = false;
+        minCloseMenuItem.Visible = false;
+      } else { // Windows
+        gadget = new SensorGadget(computer, settings, unitManager);
+      }          
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
@@ -218,7 +220,8 @@ namespace OpenHardwareMonitor.GUI {
 
       showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem, settings);
       showGadget.Changed += delegate(object sender, EventArgs e) {
-        gadget.Visible = showGadget.Value;
+        if (gadget != null) 
+          gadget.Visible = showGadget.Value;
       };
 
       celciusMenuItem.Checked = 
@@ -330,8 +333,9 @@ namespace OpenHardwareMonitor.GUI {
       computer.Accept(updateVisitor);
       treeView.Invalidate();
       plotPanel.Invalidate();
-      systemTray.Redraw();
-      gadget.Redraw();
+      systemTray.Redraw(); 
+      if (gadget != null)
+        gadget.Redraw();
     }
 
     private void SaveConfiguration() {
@@ -476,18 +480,6 @@ namespace OpenHardwareMonitor.GUI {
 
     private void hideShowClick(object sender, EventArgs e) {
       SysTrayHideShow();
-    }
-
-    private void removeMenuItem_Click(object sender, EventArgs e) {
-      MenuItem item = sender as MenuItem;
-      if (item == null)
-        return;
-
-      ISensor sensor = item.Parent.Tag as ISensor;
-      if (sensor == null)
-        return;
-
-      systemTray.Remove(sensor);
     }
 
     private void ShowParameterForm(ISensor sensor) {

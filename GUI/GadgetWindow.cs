@@ -1,4 +1,4 @@
-﻿/*
+/*
   
   Version: MPL 1.1/GPL 2.0/LGPL 2.1
 
@@ -69,7 +69,7 @@ namespace OpenHardwareMonitor.GUI {
       // prevent window from fading to a glass sheet when peek is invoked
       try {
         bool value = true;
-        int r = NativeMethods.DwmSetWindowAttribute(Handle,
+        NativeMethods.DwmSetWindowAttribute(Handle,
           WindowAttribute.DWMWA_EXCLUDED_FROM_PEEK, ref value,
           Marshal.SizeOf(value));
       } catch (DllNotFoundException) { } catch (EntryPointNotFoundException) { }
