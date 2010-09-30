@@ -145,7 +145,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] =
           new Sensor(CoreString(i), i + 1, SensorType.Clock, this, settings);
-        if (hasTSC)
+        if (HasTimeStampCounter)
           ActivateSensor(coreClocks[i]);
       }
 
@@ -182,7 +182,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      if (hasTSC) {
+      if (HasTimeStampCounter) {
         double newBusClock = 0;
         uint eax, edx;
         for (int i = 0; i < coreClocks.Length; i++) {
@@ -191,9 +191,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             (UIntPtr)(1L << cpuid[i][0].Thread))) {
             if (maxNehalemMultiplier > 0) { // Core i3, i5, i7
               uint nehalemMultiplier = eax & 0xff;
-              coreClocks[i].Value =
-                (float)(nehalemMultiplier * MaxClock / maxNehalemMultiplier);
-              newBusClock = (float)(MaxClock / maxNehalemMultiplier);
+              coreClocks[i].Value =(float)(nehalemMultiplier * 
+                TimeStampCounterFrequency / maxNehalemMultiplier);
+              newBusClock = 
+                (float)(TimeStampCounterFrequency / maxNehalemMultiplier);
             } else { // Core 2
               uint multiplier = (eax >> 8) & 0x1f;
               uint maxMultiplier = (edx >> 8) & 0x1f;
@@ -201,13 +202,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               uint factor = (multiplier << 1) | ((eax >> 14) & 1);
               uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
               if (maxFactor > 0) {
-                coreClocks[i].Value = (float)(factor * MaxClock / maxFactor);
-                newBusClock = (float)(2 * MaxClock / maxFactor);
+                coreClocks[i].Value = 
+                  (float)(factor * TimeStampCounterFrequency / maxFactor);
+                newBusClock = 
+                  (float)(2 * TimeStampCounterFrequency / maxFactor);
               }
             }
           } else { // Intel Pentium 4
-            // if IA32_PERF_STATUS is not available, assume maxClock
-            coreClocks[i].Value = (float)MaxClock;
+            // if IA32_PERF_STATUS is not available, assume TSC frequency
+            coreClocks[i].Value = (float)TimeStampCounterFrequency;
           }
         }
         if (newBusClock > 0) {

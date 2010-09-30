@@ -36,7 +36,10 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -47,15 +50,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private readonly Sensor coreTemperature;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
-
-    private const uint COFVID_STATUS = 0xC0010071;
+      
+    private const uint PERF_CTL_0 = 0xC0010000;
+    private const uint PERF_CTR_0 = 0xC0010004;
     private const uint P_STATE_0 = 0xC0010064;
+    private const uint COFVID_STATUS = 0xC0010071;
 
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
     private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
-    
+
     private readonly uint miscellaneousControlAddress;
+
+    private double timeStampCounterMultiplier;
+
+    private StringBuilder debug = new StringBuilder();
 
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
@@ -76,15 +85,87 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock,
           this, settings);
-        if (hasTSC)
+        if (HasTimeStampCounter)
           ActivateSensor(coreClocks[i]);
       }
+
+      // set affinity to the first thread for all frequency estimations
+      IntPtr thread = NativeMethods.GetCurrentThread();
+      UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread,
+        (UIntPtr)(1L << cpuid[0][0].Thread));
+
+      uint ctlEax, ctlEdx;
+      WinRing0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
+      uint ctrEax, ctrEdx;
+      WinRing0.Rdmsr(PERF_CTR_0, out ctrEax, out ctrEdx);
+
+      timeStampCounterMultiplier = estimateTimeStampCounterMultiplier();
+
+      // restore the performance counter registers
+      WinRing0.Wrmsr(PERF_CTL_0, ctlEax, ctlEdx);
+      WinRing0.Wrmsr(PERF_CTR_0, ctrEax, ctrEdx);
+
+      // restore the thread affinity.
+      NativeMethods.SetThreadAffinityMask(thread, mask);
 
       Update();                   
     }
 
+    private double estimateTimeStampCounterMultiplier() {
+      // preload the function
+      estimateTimeStampCounterMultiplier(0);
+      estimateTimeStampCounterMultiplier(0);
+
+      // estimate the multiplier
+      List<double> estimate = new List<double>(3);
+      for (int i = 0; i < 3; i++)
+        estimate.Add(estimateTimeStampCounterMultiplier(0.025));
+      estimate.Sort();
+      return estimate[1];
+    }
+
+    private double estimateTimeStampCounterMultiplier(double timeWindow) {
+      uint eax, edx;
+     
+      // select event "076h CPU Clocks not Halted" and enable the counter
+      WinRing0.Wrmsr(PERF_CTL_0,
+        (1 << 22) | // enable performance counter
+        (1 << 17) | // count events in user mode
+        (1 << 16) | // count events in operating-system mode
+        0x76, 0x00000000);
+
+      // set the counter to 0
+      WinRing0.Wrmsr(PERF_CTR_0, 0, 0);
+
+      long ticks = (long)(timeWindow * Stopwatch.Frequency);
+      uint lsbBegin, msbBegin, lsbEnd, msbEnd;
+
+      long timeBegin = Stopwatch.GetTimestamp() +
+        (long)Math.Ceiling(0.001 * ticks);
+      long timeEnd = timeBegin + ticks;
+      while (Stopwatch.GetTimestamp() < timeBegin) { }
+      WinRing0.Rdmsr(PERF_CTR_0, out lsbBegin, out msbBegin);
+      while (Stopwatch.GetTimestamp() < timeEnd) { }
+      WinRing0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
+
+      WinRing0.Rdmsr(COFVID_STATUS, out eax, out edx);
+      uint cpuDid = (eax >> 6) & 7;
+      uint cpuFid = eax & 0x1F;
+      double coreMultiplier = MultiplierFromIDs(cpuDid, cpuFid);
+
+      ulong countBegin = ((ulong)msbBegin << 32) | lsbBegin;
+      ulong countEnd = ((ulong)msbEnd << 32) | lsbEnd;
+
+      double coreFrequency = 1e-6 * 
+        (((double)(countEnd - countBegin)) * Stopwatch.Frequency) /
+        (timeEnd - timeBegin);
+
+      double busFrequency = coreFrequency / coreMultiplier;
+      return 0.5 * Math.Round(2 * TimeStampCounterFrequency / busFrequency);
+    }
+
     protected override uint[] GetMSRs() {
-      return new uint[] { P_STATE_0, COFVID_STATUS };
+      return new uint[] { PERF_CTL_0, PERF_CTR_0, P_STATE_0, COFVID_STATUS };
     }
 
     public override string GetReport() {
@@ -94,12 +175,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.Append("Miscellaneous Control Address: 0x");
       r.AppendLine((miscellaneousControlAddress).ToString("X",
         CultureInfo.InvariantCulture));
+      r.Append("Time Stamp Counter Multiplier: ");
+      r.AppendLine(timeStampCounterMultiplier.ToString(
+        CultureInfo.InvariantCulture));
+      r.AppendLine();
+
+      r.Append(debug);
       r.AppendLine();
 
       return r.ToString();
     }
 
-    private double MultiplierFromIDs(uint divisorID, uint frequencyID) {
+    private static double MultiplierFromIDs(uint divisorID, uint frequencyID) {
       return 0.5 * (frequencyID + 0x10) / (1 << (int)divisorID);
     }
 
@@ -118,35 +205,29 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      if (hasTSC) {
+      if (HasTimeStampCounter) {
         double newBusClock = 0;
 
         for (int i = 0; i < coreClocks.Length; i++) {
           Thread.Sleep(1);
 
           uint curEax, curEdx;
-          uint maxEax, maxEdx;
           if (WinRing0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
-            (UIntPtr)(1L << cpuid[i][0].Thread)) &&
-            WinRing0.RdmsrTx(P_STATE_0, out maxEax, out maxEdx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) 
           {
             // 8:6 CpuDid: current core divisor ID
             // 5:0 CpuFid: current core frequency ID
-            uint curCpuDid = (curEax >> 6) & 7;
-            uint curCpuFid = curEax & 0x1F;
-            double multiplier = MultiplierFromIDs(curCpuDid, curCpuFid);
+            uint cpuDid = (curEax >> 6) & 7;
+            uint cpuFid = curEax & 0x1F;
+            double multiplier = MultiplierFromIDs(cpuDid, cpuFid);
 
-            // we assume that the max multiplier (used for the TSC) 
-            // can be found in the P_STATE_0 MSR
-            uint maxCpuDid = (maxEax >> 6) & 7;
-            uint maxCpuFid = maxEax & 0x1F;
-            double maxMultiplier = MultiplierFromIDs(maxCpuDid, maxCpuFid);
-
-            coreClocks[i].Value = (float)(multiplier * MaxClock / maxMultiplier);
-            newBusClock = (float)(MaxClock / maxMultiplier);
+            coreClocks[i].Value = 
+              (float)(multiplier * TimeStampCounterFrequency / 
+              timeStampCounterMultiplier);
+            newBusClock = 
+              (float)(TimeStampCounterFrequency / timeStampCounterMultiplier);
           } else {
-            coreClocks[i].Value = (float)MaxClock;
+            coreClocks[i].Value = (float)TimeStampCounterFrequency;
           }
         }
 
@@ -155,6 +236,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(this.busClock);
         }
       }
-    } 
+    }
+
+    private static class NativeMethods {
+      private const string KERNEL = "kernel32.dll";
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      public static extern UIntPtr
+        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      public static extern IntPtr GetCurrentThread();
+    }
   }
 }

@@ -92,7 +92,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] = new Sensor(CoreString(i), i + 1, SensorType.Clock,
           this, settings);
-        if (hasTSC)
+        if (HasTimeStampCounter)
           ActivateSensor(coreClocks[i]);
       }
 
@@ -138,7 +138,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      if (hasTSC) {
+      if (HasTimeStampCounter) {
         double newBusClock = 0;
 
         for (int i = 0; i < coreClocks.Length; i++) {
@@ -151,11 +151,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             // 8-13 hold StartFID, we don't use that here.
             double curMP = 0.5 * ((eax & 0x3F) + 8);
             double maxMP = 0.5 * ((eax >> 16 & 0x3F) + 8);
-            coreClocks[i].Value = (float)(curMP * MaxClock / maxMP);
-            newBusClock = (float)(MaxClock / maxMP);
+            coreClocks[i].Value = 
+              (float)(curMP * TimeStampCounterFrequency / maxMP);
+            newBusClock = (float)(TimeStampCounterFrequency / maxMP);
           } else {
             // Fail-safe value - if the code above fails, we'll use this instead
-            coreClocks[i].Value = (float)MaxClock;
+            coreClocks[i].Value = (float)TimeStampCounterFrequency;
           }
         }
 
