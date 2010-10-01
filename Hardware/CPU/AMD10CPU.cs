@@ -64,8 +64,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private double timeStampCounterMultiplier;
 
-    private StringBuilder debug = new StringBuilder();
-
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
     {            
@@ -178,9 +176,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       r.Append("Time Stamp Counter Multiplier: ");
       r.AppendLine(timeStampCounterMultiplier.ToString(
         CultureInfo.InvariantCulture));
-      r.AppendLine();
-
-      r.Append(debug);
       r.AppendLine();
 
       return r.ToString();

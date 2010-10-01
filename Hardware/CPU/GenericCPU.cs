@@ -119,14 +119,24 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(totalLoad);
       }
 
-      if (hasTimeStampCounter)
-        estimatedTimeStampCounterFrequency = EstimateTimeStampCounterFrequency();
-      else
-        estimatedTimeStampCounterFrequency = 0;
-      timeStampCounterFrequency = estimatedTimeStampCounterFrequency;
+      if (hasTimeStampCounter) {
+        estimatedTimeStampCounterFrequency = 
+          EstimateTimeStampCounterFrequency();
+        
+        // set initial values 
+        uint lsb, msb;
+        WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
+        lastTime = Stopwatch.GetTimestamp();
+        lastTimeStampCount = ((ulong)msb << 32) | lsb;
 
-      lastTimeStampCount = 0;
-      lastTime = 0;
+      } else {
+        estimatedTimeStampCounterFrequency = 0;
+
+        lastTime = 0;
+        lastTimeStampCount = 0;
+      }
+
+      timeStampCounterFrequency = estimatedTimeStampCounterFrequency;                  
     }
 
     private static double EstimateTimeStampCounterFrequency() {
