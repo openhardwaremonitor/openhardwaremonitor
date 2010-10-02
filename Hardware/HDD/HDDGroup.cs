@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -45,8 +46,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private const int MAX_DRIVES = 32;
 
     private readonly List<HDD> hardware = new List<HDD>();
-
-    private readonly Dictionary<string, SMART.DriveAttribute[]> ignoredDrives = new Dictionary<string, SMART.DriveAttribute[]>();
 
     public HDDGroup(ISettings settings) {
       int p = (int)Environment.OSVersion.Platform;
@@ -70,26 +69,39 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         }
 
         SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
+        if (attributes == null) {
+          SMART.CloseHandle(handle);
+          continue;
+        }
 
-        if (attributes != null) {
-          int attribute = -1;
+        int attribute = -1;
 
-          int i = 0;
-          foreach (SMART.DriveAttribute attr in attributes) {
-            if (attr.ID == SMART.AttributeID.Temperature
-                || attr.ID == SMART.AttributeID.DriveTemperature
-                || attr.ID == SMART.AttributeID.AirflowTemperature) {
+        // search for the Temperature attribute
+        for (int i = 0; i < attributes.Length; i++)
+          if (attributes[i].ID == SMART.AttributeID.Temperature) {
+            attribute = i;
+            break;
+          }
+
+        // if no temperature attribute is found, search for DriveTemperature
+        if (attribute == -1)
+          for (int i = 0; i < attributes.Length; i++)
+            if (attributes[i].ID == SMART.AttributeID.DriveTemperature) {
               attribute = i;
               break;
             }
-            i++;
-          }
 
-          if (attribute >= 0)
-          {
-            hardware.Add(new HDD(name, handle, drive, attribute, settings));
-            continue;
-          }
+        // if no temperature attribute is found, search for AirflowTemperature
+        if (attribute == -1)
+          for (int i = 0; i < attributes.Length; i++)
+            if (attributes[i].ID == SMART.AttributeID.AirflowTemperature) {
+              attribute = i;
+              break;
+            }
+
+        if (attribute >= 0) {
+          hardware.Add(new HDD(name, handle, drive, attribute, settings));
+          continue;
         }
 
         SMART.CloseHandle(handle);
@@ -133,25 +145,24 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if (attributes != null) {
           r.AppendLine("Drive name: " + name);
           r.AppendLine();
-          r.AppendFormat(" {0}{1}{2}{3}{4}{5}",
-                          ("ID").PadRight(6),
-                          ("RawValue").PadRight(20),
-                          ("WorstValue").PadRight(12),
-                          ("AttrValue").PadRight(12),
-                          ("Name"),
-                          Environment.NewLine);
+          r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
+            ("ID").PadRight(6),
+            ("RawValue").PadRight(20),
+            ("WorstValue").PadRight(12),
+            ("AttrValue").PadRight(12),
+            ("Name"),
+            Environment.NewLine);
 
-          foreach (SMART.DriveAttribute attr in attributes) {
-            if (attr.ID == 0) continue;
-            string raw = BitConverter.ToString(attr.RawValue);
-            r.AppendFormat(" {0}{1}{2}{3}{4}{5}",
-                           attr.ID.ToString("d").PadRight(6), 
-                           raw.Replace("-", " ").PadRight(20),
-                           attr.WorstValue.ToString().PadRight(12),
-                           attr.AttrValue.ToString().PadRight(12),
-                           attr.ID,
-                           Environment.NewLine)
-              ;
+          foreach (SMART.DriveAttribute a in attributes) {
+            if (a.ID == 0) continue;
+            string raw = BitConverter.ToString(a.RawValue);
+            r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
+              a.ID.ToString("d").PadRight(6), 
+              raw.Replace("-", " ").PadRight(20),
+              a.WorstValue.ToString(CultureInfo.InvariantCulture).PadRight(12),
+              a.AttrValue.ToString(CultureInfo.InvariantCulture).PadRight(12),
+              a.ID,
+              Environment.NewLine);
           }
           r.AppendLine();
         }
