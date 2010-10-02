@@ -19,7 +19,7 @@
   Portions created by the Initial Developer are Copyright (C) 2009-2010
   the Initial Developer. All Rights Reserved.
 
-  Contributor(s):
+  Contributor(s): Paul Werelds
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -37,6 +37,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal class HDDGroup : IGroup {
@@ -45,58 +46,55 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private readonly List<HDD> hardware = new List<HDD>();
 
+    private readonly Dictionary<string, SMART.DriveAttribute[]> ignoredDrives = new Dictionary<string, SMART.DriveAttribute[]>();
+
     public HDDGroup(ISettings settings) {
-
       int p = (int)Environment.OSVersion.Platform;
-      if ((p != 4) && (p != 128)) {
-        for (int drive = 0; drive < MAX_DRIVES; drive++) {
-          IntPtr handle = SMART.OpenPhysicalDrive(drive);
+      if (p == 4 || p == 128) return;
 
-          if (handle == SMART.INVALID_HANDLE_VALUE)
-            continue;
+      for (int drive = 0; drive < MAX_DRIVES; drive++) {
+        IntPtr handle = SMART.OpenPhysicalDrive(drive);
 
-          if (SMART.EnableSmart(handle, drive)) {
+        if (handle == SMART.INVALID_HANDLE_VALUE)
+          continue;
 
-            string name = SMART.ReadName(handle, drive);
-            if (name != null) {
-
-              SMART.DriveAttribute[] attributes = 
-                SMART.ReadSmart(handle, drive);
-
-              if (attributes == null)
-                continue;
-
-              int attribute = -1;
-              for (int i = 0; i < attributes.Length; i++) 
-                if (attributes[i].ID == SMART.AttributeID.Temperature) {
-                  attribute = i;
-                  break;
-                }
-              if (attribute == -1) 
-                for (int i = 0; i < attributes.Length; i++)
-                  if (attributes[i].ID == SMART.AttributeID.DriveTemperature) {
-                    attribute = i;
-                    break;
-                  }
-              if (attribute == -1)
-                for (int i = 0; i < attributes.Length; i++)
-                  if (attributes[i].ID == SMART.AttributeID.AirflowTemperature) 
-                  {
-                    attribute = i;
-                    break;
-                  }
-
-              if (attribute >= 0) {
-                hardware.Add(new HDD(name, handle, drive, attribute, settings));
-                continue;
-              }
-            }
-          }
+        if (!SMART.EnableSmart(handle, drive)) {
           SMART.CloseHandle(handle);
+          continue;
         }
+
+        string name = SMART.ReadName(handle, drive);
+        if (name == null) {
+          SMART.CloseHandle(handle);
+          continue;
+        }
+
+        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
+
+        if (attributes != null) {
+          int attribute = -1;
+
+          int i = 0;
+          foreach (SMART.DriveAttribute attr in attributes) {
+            if (attr.ID == SMART.AttributeID.Temperature
+                || attr.ID == SMART.AttributeID.DriveTemperature
+                || attr.ID == SMART.AttributeID.AirflowTemperature) {
+              attribute = i;
+              break;
+            }
+            i++;
+          }
+
+          if (attribute >= 0)
+          {
+            hardware.Add(new HDD(name, handle, drive, attribute, settings));
+            continue;
+          }
+        }
+
+        SMART.CloseHandle(handle);
       }
     }
-
 
     public IHardware[] Hardware {
       get {
@@ -105,7 +103,63 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public string GetReport() {
-      return null;
+      int p = (int)Environment.OSVersion.Platform;
+      if (p == 4 || p == 128) return null;
+
+      StringBuilder r = new StringBuilder();
+
+      r.AppendLine("S.M.A.R.T Data");
+      r.AppendLine();
+
+      for (int drive = 0; drive < MAX_DRIVES; drive++) {
+        IntPtr handle = SMART.OpenPhysicalDrive(drive);
+
+        if (handle == SMART.INVALID_HANDLE_VALUE)
+          continue;
+
+        if (!SMART.EnableSmart(handle, drive)) {
+          SMART.CloseHandle(handle);
+          continue;
+        }
+
+        string name = SMART.ReadName(handle, drive);
+        if (name == null) {
+          SMART.CloseHandle(handle);
+          continue;
+        }
+
+        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
+
+        if (attributes != null) {
+          r.AppendLine("Drive name: " + name);
+          r.AppendLine();
+          r.AppendFormat(" {0}{1}{2}{3}{4}{5}",
+                          ("ID").PadRight(6),
+                          ("RawValue").PadRight(20),
+                          ("WorstValue").PadRight(12),
+                          ("AttrValue").PadRight(12),
+                          ("Name"),
+                          Environment.NewLine);
+
+          foreach (SMART.DriveAttribute attr in attributes) {
+            if (attr.ID == 0) continue;
+            string raw = BitConverter.ToString(attr.RawValue);
+            r.AppendFormat(" {0}{1}{2}{3}{4}{5}",
+                           attr.ID.ToString("d").PadRight(6), 
+                           raw.Replace("-", " ").PadRight(20),
+                           attr.WorstValue.ToString().PadRight(12),
+                           attr.AttrValue.ToString().PadRight(12),
+                           attr.ID,
+                           Environment.NewLine)
+              ;
+          }
+          r.AppendLine();
+        }
+
+        SMART.CloseHandle(handle);
+      }
+
+      return r.ToString();
     }
 
     public void Close() {
