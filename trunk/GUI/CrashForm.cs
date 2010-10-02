@@ -36,13 +36,9 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Web;
 using System.Windows.Forms;
 
 namespace OpenHardwareMonitor.GUI {
@@ -88,11 +84,11 @@ namespace OpenHardwareMonitor.GUI {
         request.ContentType = "application/x-www-form-urlencoded";
 
         string report =
-          "type=crash&" + 
-          "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
-          "report=" + HttpUtility.UrlEncode(reportTextBox.Text) + "&" +
-          "comment=" + HttpUtility.UrlEncode(commentTextBox.Text) + "&" +
-          "email=" + HttpUtility.UrlEncode(emailTextBox.Text);
+          "type=crash&" +
+          "version=" + Uri.EscapeDataString(version.ToString()) + "&" +
+          "report=" + Uri.EscapeDataString(reportTextBox.Text) + "&" +
+          "comment=" + Uri.EscapeDataString(commentTextBox.Text) + "&" +
+          "email=" + Uri.EscapeDataString(emailTextBox.Text);
         byte[] byteArray = Encoding.UTF8.GetBytes(report);
         request.ContentLength = byteArray.Length;
 
