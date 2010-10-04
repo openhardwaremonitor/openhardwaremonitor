@@ -123,8 +123,9 @@ namespace OpenHardwareMonitor.GUI {
             message.Result = (IntPtr)HitResult.Caption;
             if (HitTest != null) {
               Point p = new Point(
-                (int)((uint)message.LParam & 0xFFFF) - location.X,
-                (int)(((uint)message.LParam >> 16) & 0xFFFF) - location.Y);
+                Macros.GET_X_LPARAM(message.LParam) - location.X,
+                Macros.GET_Y_LPARAM(message.LParam) - location.Y
+              );
               HitTestEventArgs e = new HitTestEventArgs(p, HitResult.Caption);
               HitTest(this, e);
               message.Result = (IntPtr)e.HitResult;
@@ -421,6 +422,30 @@ namespace OpenHardwareMonitor.GUI {
       DWMWA_LAST
     }
 
+    /// <summary>
+    /// Some macros imported and converted from the Windows SDK
+    /// </summary>
+    private static class Macros {
+      public static UInt16 LOWORD(IntPtr l) {
+        return ((UInt16) (((UInt64) (l)) & 0xffff));
+      }
+      
+      public static UInt16 HIWORD(IntPtr l) {
+        return ((UInt16) ((((UInt64) (l)) >> 16) & 0xffff));
+      }
+
+      public static int GET_X_LPARAM(IntPtr lp) {
+        return ((int) (short) LOWORD(lp));
+      }
+
+      public static int GET_Y_LPARAM(IntPtr lp) {
+        return ((int) (short) HIWORD(lp));
+      }
+    }
+
+    /// <summary>
+    /// Imported native methods
+    /// </summary>
     private static class NativeMethods {
       private const string USER = "user32.dll";
       private const string GDI = "gdi32.dll";
