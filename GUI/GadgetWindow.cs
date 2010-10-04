@@ -140,8 +140,9 @@ namespace OpenHardwareMonitor.GUI {
         case WM_NCRBUTTONUP: {
             if (contextMenu != null)
               ShowContextMenu(new Point(
-                (int)((uint)message.LParam & 0xFFFF),
-                (int)(((uint)message.LParam >> 16) & 0xFFFF)));
+                Macros.GET_X_LPARAM(message.LParam),
+                Macros.GET_Y_LPARAM(message.LParam)
+              ));
             message.Result = IntPtr.Zero;
           } break;
         case WM_WINDOWPOSCHANGING: {
