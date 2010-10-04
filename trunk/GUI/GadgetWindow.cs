@@ -427,20 +427,20 @@ namespace OpenHardwareMonitor.GUI {
     /// Some macros imported and converted from the Windows SDK
     /// </summary>
     private static class Macros {
-      public static UInt16 LOWORD(IntPtr l) {
-        return ((UInt16) (((UInt64) (l)) & 0xffff));
+      public static ushort LOWORD(IntPtr l) {
+        return (ushort) ((ulong)l & 0xFFFF);
       }
       
       public static UInt16 HIWORD(IntPtr l) {
-        return ((UInt16) ((((UInt64) (l)) >> 16) & 0xffff));
+        return (ushort) (((ulong)l >> 16) & 0xFFFF);
       }
 
       public static int GET_X_LPARAM(IntPtr lp) {
-        return ((int) (short) LOWORD(lp));
+        return (short) LOWORD(lp);
       }
 
       public static int GET_Y_LPARAM(IntPtr lp) {
-        return ((int) (short) HIWORD(lp));
+        return (short) HIWORD(lp);
       }
     }
 
