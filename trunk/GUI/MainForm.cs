@@ -418,7 +418,7 @@ namespace OpenHardwareMonitor.GUI {
             };
             sensorContextMenu.MenuItems.Add(item);
           }
-          {
+          if (gadget != null) {
             MenuItem item = new MenuItem("Show in Gadget");
             item.Checked = gadget.Contains(node.Sensor);
             item.Click += delegate(object obj, EventArgs args) {
