@@ -350,8 +350,15 @@ namespace OpenHardwareMonitor.GUI {
         settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
 
-      settings.Save(Path.ChangeExtension(
-        System.Windows.Forms.Application.ExecutablePath, ".config"));
+      string fileName = Path.ChangeExtension(
+          System.Windows.Forms.Application.ExecutablePath, ".config");
+      try {
+        settings.Save(fileName);
+      } catch (UnauthorizedAccessException) {
+        MessageBox.Show("Access to the path '" + fileName + "' is denied. " + 
+          "The current seetings could not be saved.", 
+          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
     }
 
    private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
