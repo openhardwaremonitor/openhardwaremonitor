@@ -100,19 +100,25 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
-      if (settings.Contains("mainForm.Location.X")) {
-        int x = settings.GetValue("mainForm.Location.X", Location.X);
-        x = x < 0 ? 0 : x;
-        int y = settings.GetValue("mainForm.Location.Y", Location.Y);
-        y = y < 0 ? 0 : y;
-        this.Location = new Point(x, y);
-      } else {
-        StartPosition = FormStartPosition.CenterScreen;
-      }
+      Rectangle newBounds = new Rectangle {
+        X = settings.GetValue("mainForm.Location.X", Location.X),
+        Y = settings.GetValue("mainForm.Location.Y", Location.Y),
+        Width = settings.GetValue("mainForm.Width", 470),
+        Height = settings.GetValue("mainForm.Height", 640)
+      };
 
-      ClientSize = new Size(
-        settings.GetValue("mainForm.Width", 470),
-        settings.GetValue("mainForm.Height", 640));
+      Screen[] screens = Screen.AllScreens;
+      Rectangle totalWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
+        int.MinValue, int.MinValue);
+
+      foreach(Screen screen in screens)
+        totalWorkingArea = Rectangle.Union(totalWorkingArea, screen.Bounds);
+
+      this.Bounds = newBounds;
+
+      if (!totalWorkingArea.Contains(newBounds) ||
+        !settings.Contains("mainForm.Location.X"))
+        this.StartPosition = FormStartPosition.CenterScreen;
 
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(20, Math.Min(400,
