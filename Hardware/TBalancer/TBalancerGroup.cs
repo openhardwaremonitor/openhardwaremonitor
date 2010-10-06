@@ -51,14 +51,25 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
       uint numDevices;
       try {
-        FTD2XX.FT_CreateDeviceInfoList(out numDevices);
+        if (FTD2XX.FT_CreateDeviceInfoList(out numDevices) != FT_STATUS.FT_OK) {
+          report.AppendLine("Status: FT_CreateDeviceInfoList failed");
+          return;
+        }
       } catch (DllNotFoundException) { return; } 
         catch (ArgumentNullException) { return; }
         catch (EntryPointNotFoundException) { return; }
         catch (BadImageFormatException) { return; }
      
       FT_DEVICE_INFO_NODE[] info = new FT_DEVICE_INFO_NODE[numDevices];
-      FTD2XX.FT_GetDeviceInfoList(info, ref numDevices);
+      if (FTD2XX.FT_GetDeviceInfoList(info, ref numDevices) != FT_STATUS.FT_OK) 
+      {
+        report.AppendLine("Status: FT_GetDeviceInfoList failed");        
+        return;
+      }
+
+      // make sure numDevices is not larger than the info array
+      if (numDevices > info.Length)
+        numDevices = (uint)info.Length;
 
       for (int i = 0; i < numDevices; i++) {
         report.Append("Device Index: ");
