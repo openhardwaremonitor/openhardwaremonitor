@@ -100,26 +100,6 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
-      Rectangle newBounds = new Rectangle {
-        X = settings.GetValue("mainForm.Location.X", Location.X),
-        Y = settings.GetValue("mainForm.Location.Y", Location.Y),
-        Width = settings.GetValue("mainForm.Width", 470),
-        Height = settings.GetValue("mainForm.Height", 640)
-      };
-
-      Screen[] screens = Screen.AllScreens;
-      Rectangle totalWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
-        int.MinValue, int.MinValue);
-
-      foreach(Screen screen in screens)
-        totalWorkingArea = Rectangle.Union(totalWorkingArea, screen.Bounds);
-
-      this.Bounds = newBounds;
-
-      if (!totalWorkingArea.Contains(newBounds) ||
-        !settings.Contains("mainForm.Location.X"))
-        this.StartPosition = FormStartPosition.CenterScreen;
-
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(20, Math.Min(400,
           settings.GetValue("treeView.Columns." + column.Header + ".Width",
@@ -346,10 +326,10 @@ namespace OpenHardwareMonitor.GUI {
 
     private void SaveConfiguration() {
       if (WindowState != FormWindowState.Minimized) {
-        settings.SetValue("mainForm.Location.X", Location.X);
-        settings.SetValue("mainForm.Location.Y", Location.Y);
-        settings.SetValue("mainForm.Width", ClientSize.Width);
-        settings.SetValue("mainForm.Height", ClientSize.Height);
+        settings.SetValue("mainForm.Location.X", Bounds.X);
+        settings.SetValue("mainForm.Location.Y", Bounds.Y);
+        settings.SetValue("mainForm.Width", Bounds.Width);
+        settings.SetValue("mainForm.Height", Bounds.Height);
       }
 
       foreach (TreeColumn column in treeView.Columns)
@@ -361,13 +341,41 @@ namespace OpenHardwareMonitor.GUI {
       try {
         settings.Save(fileName);
       } catch (UnauthorizedAccessException) {
-        MessageBox.Show("Access to the path '" + fileName + "' is denied. " + 
+        MessageBox.Show("Access to the path '" + fileName + "' is denied. " +
           "The current seetings could not be saved.", 
           "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
 
-   private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
+    private void MainForm_Load(object sender, EventArgs e) {
+      Rectangle newBounds = new Rectangle {
+        X = settings.GetValue("mainForm.Location.X", Location.X),
+        Y = settings.GetValue("mainForm.Location.Y", Location.Y),
+        Width = settings.GetValue("mainForm.Width", 470),
+        Height = settings.GetValue("mainForm.Height", 640)
+      };
+
+      Rectangle totalWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
+        int.MinValue, int.MinValue);
+
+      foreach (Screen screen in Screen.AllScreens)
+        totalWorkingArea = Rectangle.Union(totalWorkingArea, screen.Bounds);
+
+      Rectangle intersection = Rectangle.Intersect(totalWorkingArea, newBounds);
+      if (intersection.Width < 20 || intersection.Height < 20 ||
+        !settings.Contains("mainForm.Location.X")
+      ) {
+        newBounds.X = (Screen.PrimaryScreen.WorkingArea.Width / 2) -
+                      (newBounds.Width/2);
+
+        newBounds.Y = (Screen.PrimaryScreen.WorkingArea.Height / 2) -
+                      (newBounds.Height / 2);
+      }
+
+      this.Bounds = newBounds;
+    }
+    
+    private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
       Visible = false;
       SaveConfiguration();
 

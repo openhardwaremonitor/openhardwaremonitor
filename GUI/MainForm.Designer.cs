@@ -466,6 +466,7 @@ namespace OpenHardwareMonitor.GUI {
       this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
       this.Text = "Open Hardware Monitor";
       this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
+      this.Load += new System.EventHandler(this.MainForm_Load);
       this.splitContainer.Panel1.ResumeLayout(false);
       this.splitContainer.Panel2.ResumeLayout(false);
       this.splitContainer.ResumeLayout(false);
