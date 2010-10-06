@@ -305,8 +305,13 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private Font CreateFont(float size, FontStyle style) {
-      return new Font(SystemFonts.MessageBoxFont.FontFamily, size,
-        style);
+      try {
+        return new Font(SystemFonts.MessageBoxFont.FontFamily, size, style);
+      } catch (ArgumentException) {
+        // if the style is not supported, fall back to the original one
+        return new Font(SystemFonts.MessageBoxFont.FontFamily, size, 
+          SystemFonts.MessageBoxFont.Style);
+      }
     }
 
     private void SetFontSize(float size) {
