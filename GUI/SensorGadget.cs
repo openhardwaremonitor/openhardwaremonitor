@@ -429,7 +429,8 @@ namespace OpenHardwareMonitor.GUI {
 
 
           if ((sensor.SensorType != SensorType.Load &&
-            sensor.SensorType != SensorType.Control) || !sensor.Value.HasValue) 
+               sensor.SensorType != SensorType.Control &&
+               sensor.SensorType != SensorType.Level) || !sensor.Value.HasValue) 
           {
             string formatted;
 

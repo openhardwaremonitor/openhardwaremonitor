@@ -48,7 +48,8 @@ namespace OpenHardwareMonitor.Hardware {
     Load,
     Fan,
     Flow,
-    Control
+    Control,
+    Level
   }
 
   public struct SensorValue {

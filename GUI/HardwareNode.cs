@@ -64,6 +64,7 @@ namespace OpenHardwareMonitor.GUI {
       typeNodes.Add(new TypeNode(SensorType.Fan));
       typeNodes.Add(new TypeNode(SensorType.Flow));
       typeNodes.Add(new TypeNode(SensorType.Control));
+      typeNodes.Add(new TypeNode(SensorType.Level));
       
       foreach (ISensor sensor in hardware.Sensors)
         SensorAdded(sensor);
