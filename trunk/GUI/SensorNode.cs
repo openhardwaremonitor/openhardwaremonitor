@@ -74,6 +74,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Fan: format = "{0:F0} RPM"; break;
         case SensorType.Flow: format = "{0:F0} L/h"; break;
         case SensorType.Control: format = "{0:F1} %"; break;
+        case SensorType.Level: format = "{0:F1} %"; break;
       }
 
       bool hidden = settings.GetValue(new Identifier(sensor.Identifier, 

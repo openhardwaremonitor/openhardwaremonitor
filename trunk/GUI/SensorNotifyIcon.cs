@@ -66,7 +66,10 @@ namespace OpenHardwareMonitor.GUI {
       this.notifyIcon = new NotifyIcon();
 
       Color defaultColor = Color.Black;
-      if (sensor.SensorType == SensorType.Load) {
+      if (sensor.SensorType == SensorType.Load ||
+          sensor.SensorType == SensorType.Control ||
+          sensor.SensorType == SensorType.Level) 
+      {
         defaultColor = Color.FromArgb(0xff, 0x70, 0x8c, 0xf1);
       }
       Color = settings.GetValue(new Identifier(sensor.Identifier, 
@@ -173,6 +176,8 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F11}", 1e-3f * sensor.Value);
         case SensorType.Control:
           return string.Format("{0:F0}", sensor.Value);
+        case SensorType.Level:
+          return string.Format("{0:F0}", sensor.Value);
       }
       return "-";
     }
@@ -209,7 +214,7 @@ namespace OpenHardwareMonitor.GUI {
       return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
     }
 
-    private Icon CreateLoadIcon() {      
+    private Icon CreatePercentageIcon() {      
       try {
         graphics.Clear(Color.Transparent);
       } catch (ArgumentException) {
@@ -233,11 +238,17 @@ namespace OpenHardwareMonitor.GUI {
     public void Update() {
       Icon icon = notifyIcon.Icon;
 
-      if (sensor.SensorType == SensorType.Load) {
-        notifyIcon.Icon = CreateLoadIcon();
-      } else {
-        notifyIcon.Icon = CreateTransparentIcon();
+      switch (sensor.SensorType) {
+        case SensorType.Load:
+        case SensorType.Control:
+        case SensorType.Level:
+          notifyIcon.Icon = CreatePercentageIcon();
+          break;
+        default:
+          notifyIcon.Icon = CreateTransparentIcon();
+          break;
       }
+
       if (icon != null) 
         icon.Dispose();
 
@@ -250,6 +261,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Fan: format = "\n{0}: {1:F0} RPM"; break;
         case SensorType.Flow: format = "\n{0}: {1:F0} L/h"; break;
         case SensorType.Control: format = "\n{0}: {1:F1} %"; break;
+        case SensorType.Level: format = "\n{0}: {1:F1} %"; break;
       }
       string formattedValue = string.Format(format, sensor.Name, sensor.Value);
       string hardwareName = sensor.Hardware.Name;

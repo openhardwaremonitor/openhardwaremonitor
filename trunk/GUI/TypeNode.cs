@@ -76,6 +76,10 @@ namespace OpenHardwareMonitor.GUI {
           this.Image = Utilities.EmbeddedResources.GetImage("control.png");
           this.Text = "Controls";
           break;
+        case SensorType.Level:
+          this.Image = Utilities.EmbeddedResources.GetImage("level.png");
+          this.Text = "Levels";
+          break;
       }
 
       NodeAdded += new NodeEventHandler(TypeNode_NodeAdded);
