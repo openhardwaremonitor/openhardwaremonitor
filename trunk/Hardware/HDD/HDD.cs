@@ -19,7 +19,7 @@
   Portions created by the Initial Developer are Copyright (C) 2009-2010
   the Initial Developer. All Rights Reserved.
 
-  Contributor(s):
+  Contributor(s): Paul Werelds
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -36,6 +36,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -46,24 +47,40 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private readonly string name;
     private readonly IntPtr handle;
     private readonly int drive;
-    private readonly int attribute;    
-    private readonly Sensor temperature;
     private int count;
-    
 
-    public HDD(string name, IntPtr handle, int drive, int attribute, 
-      ISettings settings) 
+    private readonly SMART.AttributeID temperatureID = 0x00;    
+    private readonly SMART.SSDLifeID lifeID = 0x00;
+
+    private readonly Sensor temperatureSensor;
+    private readonly Sensor lifeSensor;
+
+    public HDD(string name, IntPtr handle, int drive,
+      SMART.AttributeID temperatureID, ISettings settings)
     {
       this.name = name;
       this.handle = handle;
       this.drive = drive;
-      this.attribute = attribute;
       this.count = 0;
-      this.temperature = new Sensor("HDD", 0, SensorType.Temperature, this, 
-        settings);
+      this.temperatureID = temperatureID;
+      this.temperatureSensor = new Sensor("HDD", 0, SensorType.Temperature,
+        this, settings);
+
       Update();
     }
 
+    public HDD(string name, IntPtr handle, int drive, SMART.SSDLifeID lifeID,
+      ISettings settings)
+    {
+      this.name = name;
+      this.handle = handle;
+      this.drive = drive;
+      this.count = 0;
+      this.lifeID = lifeID;
+      this.lifeSensor = new Sensor("HDD", 0, SensorType.Level, this, settings);
+
+      Update();
+    }
 
     public string Name {
       get { return name; }
@@ -90,7 +107,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public ISensor[] Sensors {
       get {
-        return new ISensor[] { temperature };
+        if (lifeID != SMART.SSDLifeID.None)
+          return new ISensor[] { lifeSensor };
+
+        if (temperatureID != 0x00)
+          return new ISensor[] { temperatureSensor };
+
+        return new ISensor[] {};
       }
     }
 
@@ -100,11 +123,30 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public void Update() {
       if (count == 0) {
-        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
-        if (attributes != null && attribute < attributes.Length) 
-          temperature.Value = attributes[attribute].RawValue[0];
+        List<SMART.DriveAttribute> attributes = SMART.ReadSmart(handle, drive);
+        if (temperatureID != 0x00 &&
+          attributes.Exists(attr => (int)attr.ID == (int)temperatureID))
+        {
+          temperatureSensor.Value = attributes
+            .Find(attr => (int)attr.ID == (int)temperatureID)
+            .RawValue[0];
+        }
+
+        if (lifeID != 0x00 &&
+          attributes.Exists(attr => (int)attr.ID == (int)lifeID))
+        {
+          lifeSensor.Value = attributes
+            .Find(attr => (int)attr.ID == (int)temperatureID)
+            .AttrValue;
+        }
       } else {
-        temperature.Value = temperature.Value;
+        if (temperatureID != 0x00) {
+          temperatureSensor.Value = temperatureSensor.Value;
+        }
+
+        if (lifeID != 0x00) {
+          lifeSensor.Value = lifeSensor.Value;
+        }
       }
 
       count++; count %= UPDATE_DIVIDER; 

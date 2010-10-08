@@ -68,44 +68,91 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           continue;
         }
 
-        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
-        if (attributes == null) {
+        List<SMART.DriveAttribute> attributes =
+          new List<SMART.DriveAttribute>(SMART.ReadSmart(handle, drive));
+        
+        if (!(attributes.Count > 0)) {
           SMART.CloseHandle(handle);
           continue;
         }
 
-        int attribute = -1;
+        SMART.SSDLifeID ssdLifeID = GetSSDLifeID(attributes);
+        if (ssdLifeID == SMART.SSDLifeID.None) {
+          SMART.AttributeID temperatureID = GetTemperatureIndex(attributes);
 
-        // search for the Temperature attribute
-        for (int i = 0; i < attributes.Length; i++)
-          if (attributes[i].ID == SMART.AttributeID.Temperature) {
-            attribute = i;
-            break;
+          if (temperatureID != 0x00) {
+            hardware.Add(new HDD(name, handle, drive, temperatureID, settings));
+            continue;
           }
-
-        // if no temperature attribute is found, search for DriveTemperature
-        if (attribute == -1)
-          for (int i = 0; i < attributes.Length; i++)
-            if (attributes[i].ID == SMART.AttributeID.DriveTemperature) {
-              attribute = i;
-              break;
-            }
-
-        // if no temperature attribute is found, search for AirflowTemperature
-        if (attribute == -1)
-          for (int i = 0; i < attributes.Length; i++)
-            if (attributes[i].ID == SMART.AttributeID.AirflowTemperature) {
-              attribute = i;
-              break;
-            }
-
-        if (attribute >= 0) {
-          hardware.Add(new HDD(name, handle, drive, attribute, settings));
+        } else {
+          hardware.Add(new HDD(name, handle, drive, ssdLifeID, settings));
           continue;
         }
-
+        
         SMART.CloseHandle(handle);
       }
+    }
+
+    private SMART.SSDLifeID GetSSDLifeID(List<SMART.DriveAttribute> attributes) {
+      // ID E9 is present on Intel, JM, SF and Samsung
+      // ID D2 is present on Indilinx
+      // Neither ID has been found on a mechanical hard drive (yet),
+      // So this seems like a good way to check if it's an SSD.
+      bool isKnownSSD = (attributes.Exists(attr => (int)attr.ID == 0xE9) ||
+              attributes.Exists(attr => (int)attr.ID == 0xD2)
+      );
+
+      if (!isKnownSSD) return SMART.SSDLifeID.None;
+
+      // We start with a traditional loop, because there are 4 unique ID's
+      // that potentially identify one of the vendors
+      for (int i = 0; i < attributes.Count; i++) {
+
+        switch ((int)attributes[i].ID) {
+          case 0xB4:
+            return SMART.SSDLifeID.Samsung;
+          case 0xAB:
+            return SMART.SSDLifeID.SandForce;
+          case 0xD2:
+            return SMART.SSDLifeID.Indilinx;
+        }
+      }
+
+      // TODO: Find out JMicron's Life attribute ID; their unique ID = 0xE4
+
+      // For Intel, we make sure we have their 3 most important ID's
+      // We do a traditional loop again, because we all we need to know
+      // is whether we can find all 3; pointless to use Exists()
+      int intelRegisterCount = 0;
+      foreach (SMART.DriveAttribute attribute in attributes) {
+        if ((int)attribute.ID == 0xE1 ||
+          (int)attribute.ID == 0xE8 ||
+          (int)attribute.ID == 0xE9
+        )
+          intelRegisterCount++;
+      }
+
+      return (intelRegisterCount == 3)
+        ? SMART.SSDLifeID.Intel
+        : SMART.SSDLifeID.None;
+    }
+
+    private SMART.AttributeID GetTemperatureIndex(
+      List<SMART.DriveAttribute> attributes)
+    {
+      SMART.AttributeID[] validIds = new[] {
+        SMART.AttributeID.Temperature,
+        SMART.AttributeID.DriveTemperature,
+        SMART.AttributeID.AirflowTemperature
+      };
+
+      foreach (SMART.AttributeID validId in validIds) {
+        SMART.AttributeID id = validId;
+        if (attributes.Exists(attr => attr.ID == id))
+          return validId;
+      }
+
+      return 0x00;
     }
 
     public IHardware[] Hardware {
@@ -140,7 +187,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           continue;
         }
 
-        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
+        List<SMART.DriveAttribute> attributes = SMART.ReadSmart(handle, drive);
 
         if (attributes != null) {
           r.AppendLine("Drive name: " + name);

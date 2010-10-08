@@ -19,7 +19,7 @@
   Portions created by the Initial Developer are Copyright (C) 2009-2010
   the Initial Developer. All Rights Reserved.
 
-  Contributor(s):
+  Contributor(s): Paul Werelds
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -36,6 +36,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -75,6 +76,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       UltraDMACRCErrorCount = 0xC7,
       WriteErrorRate = 0xC8,
       DriveTemperature = 0xE7
+    }
+
+    public enum SSDLifeID {
+      None = 0x00,
+      Indilinx = 0xD1,
+      Intel = 0xE8,
+      Samsung = 0xB4,
+      SandForce = 0xE7
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -257,7 +266,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         IntPtr.Zero);
     }
 
-    public static DriveAttribute[] ReadSmart(IntPtr handle, int driveNumber) {
+    public static List<DriveAttribute> ReadSmart(IntPtr handle,
+      int driveNumber)
+    {
       DriveCommandParameter parameter = new DriveCommandParameter();
       DriveSmartReadResult result;
       uint bytesReturned;
@@ -268,15 +279,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       parameter.Registers.LBAHigh = SMART_LBA_HI;
       parameter.Registers.Command = SMART_CMD;
 
-      bool valid = NativeMethods.DeviceIoControl(handle, 
+      bool isValid = NativeMethods.DeviceIoControl(handle, 
         DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter), 
         out result, Marshal.SizeOf(typeof(DriveSmartReadResult)), 
         out bytesReturned, IntPtr.Zero);
 
-      if (!valid)
-        return null;
-      else
-        return result.Attributes;
+      return (isValid)
+        ? new List<DriveAttribute>(result.Attributes)
+        : new List<DriveAttribute>();
     }
 
     public static string ReadName(IntPtr handle, int driveNumber) {
