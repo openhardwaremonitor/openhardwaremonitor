@@ -36,16 +36,25 @@
 */
 
 using System;
-using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class IntelCPU : GenericCPU {
+
+    private enum Microarchitecture {
+      Unknown,
+      Core,
+      Atom,
+      Nehalem
+    }
 
     private readonly Sensor[] coreTemperatures;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
 
-    private readonly uint maxNehalemMultiplier;
+    private readonly Microarchitecture microarchitecture;
+    private readonly double timeStampCounterMultiplier;
 
     private const uint IA32_THERM_STATUS_MSR = 0x019C;
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
@@ -62,11 +71,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public IntelCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
     {
+      // set tjMax
       float[] tjMax;
       switch (family) {
         case 0x06: {
             switch (model) {
-              case 0x0F: // Intel Core (65nm)
+              case 0x0F: // Intel Core 2 (65nm)
+                microarchitecture = Microarchitecture.Core;
                 switch (stepping) {
                   case 0x06: // B2
                     switch (coreCount) {
@@ -85,9 +96,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   default:
                     tjMax = Floats(85 + 10); break;
                 } break;
-              case 0x17: // Intel Core (45nm)
+              case 0x17: // Intel Core 2 (45nm)
+                microarchitecture = Microarchitecture.Core;
                 tjMax = Floats(100); break;
               case 0x1C: // Intel Atom (45nm)
+                microarchitecture = Microarchitecture.Atom;
                 switch (stepping) {
                   case 0x02: // C0
                     tjMax = Floats(90); break;
@@ -100,6 +113,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x1E: // Intel Core i5, i7 LGA1156 (45nm)
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
               case 0x2C: // Intel Core i7 LGA1366 (32nm) 6 Core
+                microarchitecture = Microarchitecture.Nehalem;
                 uint eax, edx;
                 tjMax = new float[coreCount];
                 for (int i = 0; i < coreCount; i++) {
@@ -109,16 +123,39 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   } else {
                     tjMax[i] = 100;
                   }
-                }
-                if (WinRing0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
-                  maxNehalemMultiplier = (eax >> 8) & 0xff;
-                }
+                }                
                 break;
               default:
-                tjMax = Floats(100); break;
+                microarchitecture = Microarchitecture.Unknown;
+                tjMax = Floats(100); 
+                break;
             }
           } break;
-        default: tjMax = Floats(100); break;
+        default:
+          microarchitecture = Microarchitecture.Unknown;
+          tjMax = Floats(100); 
+          break;
+      }
+
+      // set timeStampCounterMultiplier
+      switch (microarchitecture) {
+        case Microarchitecture.Atom:
+        case Microarchitecture.Core: {
+            uint eax, edx;
+            if (WinRing0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
+              timeStampCounterMultiplier = 
+                ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
+            }
+          } break;
+        case Microarchitecture.Nehalem: {
+            uint eax, edx;
+            if (WinRing0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
+              timeStampCounterMultiplier = (eax >> 8) & 0xff;
+            }
+          } break;
+        default:
+          timeStampCounterMultiplier = 1;
+          break;
       }
 
       // check if processor supports a digital thermal sensor
@@ -161,6 +198,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       };
     }
 
+    public override string GetReport() {
+      StringBuilder r = new StringBuilder();
+      r.Append(base.GetReport());
+
+      r.Append("Time Stamp Counter Multiplier: ");
+      r.AppendLine(timeStampCounterMultiplier.ToString(
+        CultureInfo.InvariantCulture));
+      r.AppendLine();
+
+      return r.ToString();
+    }
+
     public override void Update() {
       base.Update();
 
@@ -188,27 +237,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreClocks.Length; i++) {
           System.Threading.Thread.Sleep(1);
           if (WinRing0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-            (UIntPtr)(1L << cpuid[i][0].Thread))) {
-            if (maxNehalemMultiplier > 0) { // Core i3, i5, i7
-              uint nehalemMultiplier = eax & 0xff;
-              coreClocks[i].Value =(float)(nehalemMultiplier * 
-                TimeStampCounterFrequency / maxNehalemMultiplier);
-              newBusClock = 
-                (float)(TimeStampCounterFrequency / maxNehalemMultiplier);
-            } else { // Core 2
-              uint multiplier = (eax >> 8) & 0x1f;
-              uint maxMultiplier = (edx >> 8) & 0x1f;
-              // factor = multiplier * 2 to handle non integer multipliers 
-              uint factor = (multiplier << 1) | ((eax >> 14) & 1);
-              uint maxFactor = (maxMultiplier << 1) | ((edx >> 14) & 1);
-              if (maxFactor > 0) {
-                coreClocks[i].Value = 
-                  (float)(factor * TimeStampCounterFrequency / maxFactor);
-                newBusClock = 
-                  (float)(2 * TimeStampCounterFrequency / maxFactor);
-              }
-            }
-          } else { // Intel Pentium 4
+            (UIntPtr)(1L << cpuid[i][0].Thread))) 
+          {
+            newBusClock = 
+              TimeStampCounterFrequency / timeStampCounterMultiplier;
+            if (microarchitecture == Microarchitecture.Nehalem) {
+              uint multiplier = eax & 0xff;
+              coreClocks[i].Value = (float)(multiplier * newBusClock);
+            } else {
+              double multiplier = ((eax >> 8) & 0x1f) + 0.5 * ((eax >> 14) & 1);
+              coreClocks[i].Value = (float)(multiplier * newBusClock);
+            }            
+          } else { 
             // if IA32_PERF_STATUS is not available, assume TSC frequency
             coreClocks[i].Value = (float)TimeStampCounterFrequency;
           }
