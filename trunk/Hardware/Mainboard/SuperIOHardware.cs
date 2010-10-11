@@ -444,25 +444,67 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           }
           break;
 
-        case Chip.W83627EHF:          
-          v.Add(new Voltage("CPU VCore", 0));
-          v.Add(new Voltage("Voltage #2", 1, true));
-          v.Add(new Voltage("AVCC", 2, 34, 34));
-          v.Add(new Voltage("3VCC", 3, 34, 34));
-          v.Add(new Voltage("Voltage #5", 4, true));
-          v.Add(new Voltage("Voltage #6", 5, true));
-          v.Add(new Voltage("Voltage #7", 6, true));
-          v.Add(new Voltage("3VSB", 7, 34, 34));
-          v.Add(new Voltage("VBAT", 8, 34, 34));
-          v.Add(new Voltage("Voltage #10", 9, true));
-          t.Add(new Temperature("CPU", 0));
-          t.Add(new Temperature("Auxiliary", 1));
-          t.Add(new Temperature("System", 2));
-          f.Add(new Fan("System Fan", 0));
-          f.Add(new Fan("CPU Fan", 1));
-          f.Add(new Fan("Auxiliary Fan", 2));
-          f.Add(new Fan("CPU Fan #2", 3));
-          f.Add(new Fan("Auxiliary Fan #2", 4));
+        case Chip.W83627EHF:
+          switch (manufacturer) {
+            case Manufacturer.ASRock:
+              switch (model) {
+                case Model.AOD790GX_128M: // W83627EHF
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Analog +3.3V", 2, 34, 34));
+                  v.Add(new Voltage("+3.3V", 4, 10, 10));
+                  v.Add(new Voltage("+5V", 5, 20, 10));
+                  v.Add(new Voltage("+12V", 6, 28, 5));
+                  v.Add(new Voltage("Standby +3.3V", 7, 34, 34));
+                  v.Add(new Voltage("VBAT", 8, 34, 34));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Motherboard", 2));
+                  f.Add(new Fan("Chassis Fan", 0));
+                  f.Add(new Fan("CPU Fan", 1));
+                  f.Add(new Fan("NB Fan", 2));
+                  f.Add(new Fan("Power Fan", 4));
+                  break;
+                default:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("AVCC", 2, 34, 34));
+                  v.Add(new Voltage("3VCC", 3, 34, 34));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("3VSB", 7, 34, 34));
+                  v.Add(new Voltage("VBAT", 8, 34, 34));
+                  v.Add(new Voltage("Voltage #10", 9, true));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Auxiliary", 1));
+                  t.Add(new Temperature("System", 2));
+                  f.Add(new Fan("System Fan", 0));
+                  f.Add(new Fan("CPU Fan", 1));
+                  f.Add(new Fan("Auxiliary Fan", 2));
+                  f.Add(new Fan("CPU Fan #2", 3));
+                  f.Add(new Fan("Auxiliary Fan #2", 4));
+                  break;
+              } break;
+            default:
+              v.Add(new Voltage("CPU VCore", 0));
+              v.Add(new Voltage("Voltage #2", 1, true));
+              v.Add(new Voltage("AVCC", 2, 34, 34));
+              v.Add(new Voltage("3VCC", 3, 34, 34));
+              v.Add(new Voltage("Voltage #5", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("3VSB", 7, 34, 34));
+              v.Add(new Voltage("VBAT", 8, 34, 34));
+              v.Add(new Voltage("Voltage #10", 9, true));
+              t.Add(new Temperature("CPU", 0));
+              t.Add(new Temperature("Auxiliary", 1));
+              t.Add(new Temperature("System", 2));
+              f.Add(new Fan("System Fan", 0));
+              f.Add(new Fan("CPU Fan", 1));
+              f.Add(new Fan("Auxiliary Fan", 2));
+              f.Add(new Fan("CPU Fan #2", 3));
+              f.Add(new Fan("Auxiliary Fan #2", 4));
+              break;
+          }
           break;
         case Chip.W83627DHG: 
         case Chip.W83627DHGP:                      
