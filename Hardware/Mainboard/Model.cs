@@ -40,6 +40,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal enum Model {
     // ASRock
     _880GMH_USB3,
+    AOD790GX_128M,
 
     // ASUS
     Crosshair_III_Formula,

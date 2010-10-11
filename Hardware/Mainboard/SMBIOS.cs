@@ -295,6 +295,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         switch (name) {
           case "880GMH/USB3":
             return Model._880GMH_USB3;
+          case "ASRock AOD790GX/128M":
+            return Model.AOD790GX_128M;
           case "Crosshair III Formula":
             return Model.Crosshair_III_Formula;
           case "M2N-SLI DELUXE":
