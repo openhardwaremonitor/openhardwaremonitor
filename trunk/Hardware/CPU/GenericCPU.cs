@@ -121,19 +121,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       if (hasTimeStampCounter) {
         estimatedTimeStampCounterFrequency = 
-          EstimateTimeStampCounterFrequency();
-        
-        // set initial values 
-        uint lsb, msb;
-        WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
-        lastTime = Stopwatch.GetTimestamp();
-        lastTimeStampCount = ((ulong)msb << 32) | lsb;
-
+          EstimateTimeStampCounterFrequency();        
       } else {
         estimatedTimeStampCounterFrequency = 0;
-
-        lastTime = 0;
-        lastTimeStampCount = 0;
       }
 
       timeStampCounterFrequency = estimatedTimeStampCounterFrequency;                  
@@ -259,18 +249,29 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public override void Update() {
-      if (hasTimeStampCounter) {
+      if (hasTimeStampCounter && isInvariantTimeStampCounter) {
         uint lsb, msb;
+
+        // read time before and after getting the TSC to estimate the error
+        long firstTime = Stopwatch.GetTimestamp();
         WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
         long time = Stopwatch.GetTimestamp();
+
         ulong timeStampCount = ((ulong)msb << 32) | lsb;
         double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
-        if (delta > 0.5) {
-          if (isInvariantTimeStampCounter)
-            timeStampCounterFrequency = 
+        double error = ((double)(time - firstTime)) / Stopwatch.Frequency;
+
+        // only use data if they are measured accuarte enough (max 0.1ms delay)
+        if (error < 0.0001) {
+
+          // ignore the first reading because there are no initial values 
+          // ignore readings with too large or too small time window
+          if (lastTime != 0 && delta > 0.5 && delta < 2) {
+
+            // update the TSC frequency with the new value
+            timeStampCounterFrequency =
               (timeStampCount - lastTimeStampCount) / (1e6 * delta);
-          else
-            timeStampCounterFrequency = estimatedTimeStampCounterFrequency;
+          }
 
           lastTimeStampCount = timeStampCount;
           lastTime = time;
