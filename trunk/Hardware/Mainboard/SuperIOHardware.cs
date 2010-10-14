@@ -50,7 +50,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly List<Sensor> temperatures = new List<Sensor>();
     private readonly List<Sensor> fans = new List<Sensor>();
 
-
     public SuperIOHardware(Mainboard mainboard, ISuperIO superIO, 
       Manufacturer manufacturer, Model model, ISettings settings) 
     {
@@ -116,6 +115,40 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
               }
               break;
+
+            case Manufacturer.ASRock:
+              switch (model) {
+                case Model.P55_Deluxe: // IT8720F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+12V", 4, 30, 10));
+                  v.Add(new Voltage("+5V", 5, 6.8f, 10));
+                  v.Add(new Voltage("VBat", 8));                  
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Motherboard", 1));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("Chassis Fan #1", 1));
+                  // fan channel 2 can connect to 3 different fan headers
+                  // which fan is read is configured with gpio 83-85
+                  break;
+                default:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Voltage #8", 7, true));
+                  v.Add(new Voltage("VBat", 8));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              };
+              break;
+
             case Manufacturer.DFI:
               switch (model) {
                 case Model.LP_BI_P45_T2RS_Elite: // IT8718F
@@ -458,10 +491,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("VBAT", 8, 34, 34));
                   t.Add(new Temperature("CPU", 0));
                   t.Add(new Temperature("Motherboard", 2));
-                  f.Add(new Fan("Chassis Fan", 0));
-                  f.Add(new Fan("CPU Fan", 1));
-                  f.Add(new Fan("NB Fan", 2));
-                  f.Add(new Fan("Power Fan", 4));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("Chassis Fan", 1));                 
                   break;
                 default:
                   v.Add(new Voltage("CPU VCore", 0));

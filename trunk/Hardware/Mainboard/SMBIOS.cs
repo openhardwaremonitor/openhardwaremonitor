@@ -297,6 +297,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model._880GMH_USB3;
           case "ASRock AOD790GX/128M":
             return Model.AOD790GX_128M;
+          case "P55 Deluxe":
+            return Model.P55_Deluxe;
           case "Crosshair III Formula":
             return Model.Crosshair_III_Formula;
           case "M2N-SLI DELUXE":
