@@ -19,7 +19,7 @@
   Portions created by the Initial Developer are Copyright (C) 2009-2010
   the Initial Developer. All Rights Reserved.
 
-  Contributor(s):
+  Contributor(s): Paul Werelds
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -38,15 +38,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
-using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitor.WMIProvider;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
@@ -75,6 +73,9 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption autoStart;
     private UserOption readHddSensors;
     private UserOption showGadget;
+    private UserOption enableWmiProvider;
+
+    private WmiProvider wmiProvider;
 
     public MainForm() {      
       InitializeComponent();
@@ -133,6 +134,10 @@ namespace OpenHardwareMonitor.GUI {
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
+
+      if (settings.GetValue("enableWmiProvider", false))
+        wmiProvider = new WmiProvider(computer);
+
       computer.Open();
 
       timer.Enabled = true;
@@ -152,7 +157,8 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[11] = Color.Olive;
       plotColorPalette[12] = Color.Firebrick;
 
-      showHiddenSensors = new UserOption("hiddenMenuItem", false, hiddenMenuItem, settings);
+      showHiddenSensors = new UserOption("hiddenMenuItem", false,
+        hiddenMenuItem, settings);
       showHiddenSensors.Changed += delegate(object sender, EventArgs e) {
         treeModel.ForceVisible = showHiddenSensors.Value;
       };
@@ -163,7 +169,8 @@ namespace OpenHardwareMonitor.GUI {
         treeView.Invalidate();
       };
 
-      showValue = new UserOption("valueMenuItem", true, valueMenuItem, settings);
+      showValue = new UserOption("valueMenuItem", true, valueMenuItem,
+        settings);
       showValue.Changed += delegate(object sender, EventArgs e) {
         treeView.Columns[1].IsVisible = showValue.Value;
       };
@@ -178,16 +185,20 @@ namespace OpenHardwareMonitor.GUI {
         treeView.Columns[3].IsVisible = showMax.Value;
       };
 
-      startMinimized = new UserOption("startMinMenuItem", false, startMinMenuItem, settings);
+      startMinimized = new UserOption("startMinMenuItem", false,
+        startMinMenuItem, settings);
 
-      minimizeToTray = new UserOption("minTrayMenuItem", true, minTrayMenuItem, settings);
+      minimizeToTray = new UserOption("minTrayMenuItem", true,
+        minTrayMenuItem, settings);
       minimizeToTray.Changed += delegate(object sender, EventArgs e) {
         systemTray.IsMainIconEnabled = minimizeToTray.Value;
       };
 
-      minimizeOnClose = new UserOption("minCloseMenuItem", false, minCloseMenuItem, settings);
+      minimizeOnClose = new UserOption("minCloseMenuItem", false,
+        minCloseMenuItem, settings);
 
-      autoStart = new UserOption(null, startupManager.Startup, startupMenuItem, settings);
+      autoStart = new UserOption(null, startupManager.Startup,
+        startupMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
         try {
           startupManager.Startup = autoStart.Value;
@@ -198,16 +209,29 @@ namespace OpenHardwareMonitor.GUI {
         }
       };
 
-      readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem, settings);
+      readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem,
+        settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
         UpdatePlotSelection(null, null);
       };
 
-      showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem, settings);
+      showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem,
+        settings);
       showGadget.Changed += delegate(object sender, EventArgs e) {
         if (gadget != null) 
           gadget.Visible = showGadget.Value;
+      };
+
+      enableWmiProvider = new UserOption("enableWmiProvider", false,
+        wmiMenuItem, settings);
+      enableWmiProvider.Changed += delegate {
+        if (enableWmiProvider.Value && wmiProvider == null)
+          wmiProvider = new WmiProvider(computer);
+        else if (!enableWmiProvider.Value && wmiProvider != null) {
+          wmiProvider.Dispose();
+          wmiProvider = null;
+        }
       };
 
       celciusMenuItem.Checked = 
@@ -229,10 +253,9 @@ namespace OpenHardwareMonitor.GUI {
       IntPtr handle = Handle;
 
       // Make sure the settings are saved when the user logs off
-      Microsoft.Win32.SystemEvents.SessionEnded +=
-        delegate(object sender, Microsoft.Win32.SessionEndedEventArgs e) {
-          SaveConfiguration();
-        };  
+      Microsoft.Win32.SystemEvents.SessionEnded += delegate {
+        SaveConfiguration();
+      };  
     }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
@@ -297,7 +320,8 @@ namespace OpenHardwareMonitor.GUI {
       plotPanel.SetSensors(selected, colors);
     }
 
-    private void nodeTextBoxText_EditorShowing(object sender, CancelEventArgs e) 
+    private void nodeTextBoxText_EditorShowing(object sender,
+      CancelEventArgs e) 
     {
       e.Cancel = !(treeView.CurrentNode != null &&
         treeView.CurrentNode.Tag is SensorNode);
@@ -319,9 +343,12 @@ namespace OpenHardwareMonitor.GUI {
       computer.Accept(updateVisitor);
       treeView.Invalidate();
       plotPanel.Invalidate();
-      systemTray.Redraw(); 
+      systemTray.Redraw();
       if (gadget != null)
         gadget.Redraw();
+
+      if (wmiProvider != null)
+        wmiProvider.Update();
     }
 
     private void SaveConfiguration() {
@@ -355,13 +382,13 @@ namespace OpenHardwareMonitor.GUI {
         Height = settings.GetValue("mainForm.Height", 640)
       };
 
-      Rectangle totalWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
+      Rectangle fullWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
         int.MinValue, int.MinValue);
 
       foreach (Screen screen in Screen.AllScreens)
-        totalWorkingArea = Rectangle.Union(totalWorkingArea, screen.Bounds);
+        fullWorkingArea = Rectangle.Union(fullWorkingArea, screen.Bounds);
 
-      Rectangle intersection = Rectangle.Intersect(totalWorkingArea, newBounds);
+      Rectangle intersection = Rectangle.Intersect(fullWorkingArea, newBounds);
       if (intersection.Width < 20 || intersection.Height < 20 ||
         !settings.Contains("mainForm.Location.X")
       ) {
@@ -394,7 +421,9 @@ namespace OpenHardwareMonitor.GUI {
       if (m == null || m.Button != MouseButtons.Right)
         return;
 
-      NodeControlInfo info = treeView.GetNodeControlInfoAt(new Point(m.X, m.Y));
+      NodeControlInfo info = treeView.GetNodeControlInfoAt(
+        new Point(m.X, m.Y)
+      );
       treeView.SelectedNode = info.Node;
       if (info.Node != null) {
         SensorNode node = info.Node.Tag as SensorNode;
