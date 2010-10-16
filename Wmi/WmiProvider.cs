@@ -39,22 +39,23 @@ using System;
 using System.Collections.Generic;
 using System.Management.Instrumentation;
 using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitor.Wmi;
 
 [assembly: Instrumented("root/OpenHardwareMonitor")]
 
 [System.ComponentModel.RunInstaller(true)]
 public class InstanceInstaller : DefaultManagementProjectInstaller { }
 
-namespace OpenHardwareMonitor.WMIProvider {
+namespace OpenHardwareMonitor.Wmi {
   /// <summary>
   /// The WMI Provider.
   /// This class is not exposed to WMI itself.
   /// </summary>
   public class WmiProvider : IDisposable {
-    private List<IWmiObject> _activeInstances;
+    private List<IWmiObject> activeInstances;
 
     public WmiProvider(IComputer computer) {
-      _activeInstances = new List<IWmiObject>();
+      activeInstances = new List<IWmiObject>();
 
       foreach (IHardware hardware in computer.Hardware)
         ComputerHardwareAdded(hardware);
@@ -64,7 +65,7 @@ namespace OpenHardwareMonitor.WMIProvider {
     }
 
     public void Update() {
-      foreach (IWmiObject instance in _activeInstances)
+      foreach (IWmiObject instance in activeInstances)
         instance.Update();
     }
 
@@ -79,7 +80,7 @@ namespace OpenHardwareMonitor.WMIProvider {
         hardware.SensorRemoved += HardwareSensorRemoved;
 
         Hardware hw = new Hardware(hardware);
-        _activeInstances.Add(hw);
+        activeInstances.Add(hw);
 
         Instrumentation.Publish(hw);
       }
@@ -90,7 +91,7 @@ namespace OpenHardwareMonitor.WMIProvider {
 
     private void HardwareSensorAdded(ISensor data) {
       Sensor sensor = new Sensor(data);
-      _activeInstances.Add(sensor);
+      activeInstances.Add(sensor);
 
       Instrumentation.Publish(sensor);
     }
@@ -117,25 +118,25 @@ namespace OpenHardwareMonitor.WMIProvider {
     #region Helpers
     
     private bool Exists(string identifier) {
-      return _activeInstances.Exists(h => h.Identifier == identifier);
+      return activeInstances.Exists(h => h.Identifier == identifier);
     }
 
     private void RevokeInstance(string identifier) {
-      int instanceIndex = _activeInstances.FindIndex(
+      int instanceIndex = activeInstances.FindIndex(
         item => item.Identifier == identifier.ToString()
       );
 
-      Instrumentation.Revoke(_activeInstances[instanceIndex]);
+      Instrumentation.Revoke(activeInstances[instanceIndex]);
 
-      _activeInstances.RemoveAt(instanceIndex);
+      activeInstances.RemoveAt(instanceIndex);
     }
 
     #endregion
 
     public void Dispose() {
-      foreach (IWmiObject instance in _activeInstances)
+      foreach (IWmiObject instance in activeInstances)
         Instrumentation.Revoke(instance);
-      _activeInstances = null;
+      activeInstances = null;
     }
   }
 }
