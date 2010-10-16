@@ -100,6 +100,8 @@ namespace OpenHardwareMonitor.GUI {
       this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem4 = new System.Windows.Forms.MenuItem();
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
+      this.menuItem5 = new System.Windows.Forms.MenuItem();
+      this.wmiMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
       this.aboutMenuItem = new System.Windows.Forms.MenuItem();
       this.sensorContextMenu = new System.Windows.Forms.ContextMenu();
@@ -308,7 +310,9 @@ namespace OpenHardwareMonitor.GUI {
             this.separatorMenuItem,
             this.temperatureUnitsMenuItem,
             this.MenuItem4,
-            this.hddMenuItem});
+            this.hddMenuItem,
+            this.menuItem5,
+            this.wmiMenuItem});
       this.optionsMenuItem.Text = "Options";
       // 
       // startMinMenuItem
@@ -365,6 +369,16 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.hddMenuItem.Index = 7;
       this.hddMenuItem.Text = "Read HDD sensors";
+      // 
+      // menuItem5
+      // 
+      this.menuItem5.Index = 8;
+      this.menuItem5.Text = "-";
+      // 
+      // wmiMenuItem
+      // 
+      this.wmiMenuItem.Index = 9;
+      this.wmiMenuItem.Text = "Enable WMI Provider";
       // 
       // helpMenuItem
       // 
@@ -522,6 +536,8 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem MenuItem3;
     private System.Windows.Forms.MenuItem gadgetMenuItem;
     private System.Windows.Forms.MenuItem minCloseMenuItem;
+    private System.Windows.Forms.MenuItem menuItem5;
+    private System.Windows.Forms.MenuItem wmiMenuItem;
   }
 }
 
