@@ -129,7 +129,7 @@
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
     <Compile Include="WMIProvider\Hardware.cs" />
-    <Compile Include="WMIProvider\IWmiClass.cs" />
+    <Compile Include="WMIProvider\IWmiObject.cs" />
     <Compile Include="WMIProvider\Sensor.cs" />
     <Compile Include="WMIProvider\WMIProvider.cs">
       <SubType>Component</SubType>
