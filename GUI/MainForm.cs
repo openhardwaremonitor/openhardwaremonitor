@@ -44,7 +44,7 @@ using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
-using OpenHardwareMonitor.Wmi;
+using OpenHardwareMonitor.WMI;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {

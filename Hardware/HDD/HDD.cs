@@ -77,7 +77,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       this.drive = drive;
       this.count = 0;
       this.lifeID = lifeID;
-      this.lifeSensor = new Sensor("HDD", 0, SensorType.Level, this, settings);
+      this.lifeSensor = new Sensor("Remaining life", 0, SensorType.Level,
+        this, settings);
 
       Update();
     }
@@ -136,7 +137,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           attributes.Exists(attr => (int)attr.ID == (int)lifeID))
         {
           lifeSensor.Value = attributes
-            .Find(attr => (int)attr.ID == (int)temperatureID)
+            .Find(attr => (int)attr.ID == (int)lifeID)
             .AttrValue;
         }
       } else {

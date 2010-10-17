@@ -37,9 +37,8 @@
 
 using System.Management.Instrumentation;
 using OpenHardwareMonitor.Hardware;
-using OpenHardwareMonitor.Wmi;
 
-namespace OpenHardwareMonitor.Wmi {
+namespace OpenHardwareMonitor.WMI {
   [InstrumentationClass(InstrumentationType.Instance)]
   public class Sensor : IWmiObject {
     private ISensor sensor;
