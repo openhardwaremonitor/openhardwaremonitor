@@ -53,37 +53,100 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       SelfPreserving = 0x20
     }
 
-    public enum AttributeID : byte {
-      ReadErrorRate = 0x01,
-      ThroughputPerformance = 0x02,
-      SpinUpTime = 0x03,
-      StartStopCount = 0x04,
-      ReallocatedSectorsCount = 0x05,
-      ReadChannelMargin = 0x06,
-      SeekErrorRate = 0x07,
-      SeekTimePerformance = 0x08,
-      PowerOnHours = 0x09,
-      SpinRetryCount = 0x0A,
-      RecalibrationRetries = 0x0B,
-      PowerCycleCount = 0x0C,
-      SoftReadErrorRate = 0x0D,
-      AirflowTemperature = 0xBE,
-      Temperature = 0xC2,
-      HardwareECCRecovered = 0xC3,
-      ReallocationEventCount = 0xC4,
-      CurrentPendingSectorCount = 0xC5,
-      UncorrectableSectorCount = 0xC6,
-      UltraDMACRCErrorCount = 0xC7,
-      WriteErrorRate = 0xC8,
-      DriveTemperature = 0xE7
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct AttributeID {
+      private byte value;
+
+      public AttributeID(byte value) {
+        this.value = value;
+      }
+
+      public override bool Equals(Object obj) {
+        return obj is AttributeID && this == (AttributeID)obj;
+      }
+      public override int GetHashCode() {
+        return value.GetHashCode() ^ value.GetHashCode();
+      }
+      public static bool operator ==(AttributeID a, AttributeID b) {
+        return a.value == b.value;
+      }
+      public static bool operator !=(AttributeID a, AttributeID b) {
+        return !(a == b);
+      }
+
+      public string ToString(string format) {
+        return value.ToString(format);
+      }
+
+      public static readonly AttributeID None = new AttributeID(0x00);
     }
 
-    public enum SSDLifeID {
-      None = 0x00,
-      Indilinx = 0xD1,
-      Intel = 0xE8,
-      Samsung = 0xB4,
-      SandForce = 0xE7
+    // Common SMART attributes
+    public static class CommonAttributes {      
+      public static readonly AttributeID 
+        ReadErrorRate = new AttributeID(0x01);
+      public static readonly AttributeID 
+        ThroughputPerformance = new AttributeID(0x02);
+      public static readonly AttributeID 
+        SpinUpTime = new AttributeID(0x03);
+      public static readonly AttributeID 
+        StartStopCount = new AttributeID(0x04);
+      public static readonly AttributeID 
+        ReallocatedSectorsCount = new AttributeID(0x05);
+      public static readonly AttributeID 
+        ReadChannelMargin = new AttributeID(0x06);
+      public static readonly AttributeID 
+        SeekErrorRate = new AttributeID(0x07);
+      public static readonly AttributeID 
+        SeekTimePerformance = new AttributeID(0x08);
+      public static readonly AttributeID 
+        PowerOnHours = new AttributeID(0x09);
+      public static readonly AttributeID 
+        SpinRetryCount = new AttributeID(0x0A);
+      public static readonly AttributeID 
+        RecalibrationRetries = new AttributeID(0x0B);
+      public static readonly AttributeID 
+        PowerCycleCount = new AttributeID(0x0C);
+      public static readonly AttributeID 
+        SoftReadErrorRate = new AttributeID(0x0D);
+      public static readonly AttributeID 
+        AirflowTemperature = new AttributeID(0xBE);
+      public static readonly AttributeID 
+        Temperature = new AttributeID(0xC2);
+      public static readonly AttributeID 
+        HardwareECCRecovered = new AttributeID(0xC3);
+      public static readonly AttributeID 
+        ReallocationEventCount = new AttributeID(0xC4);
+      public static readonly AttributeID 
+        CurrentPendingSectorCount = new AttributeID(0xC5);
+      public static readonly AttributeID 
+        UncorrectableSectorCount = new AttributeID(0xC6);
+      public static readonly AttributeID 
+        UltraDMACRCErrorCount = new AttributeID(0xC7);
+      public static readonly AttributeID 
+        WriteErrorRate = new AttributeID(0xC8);
+      public static readonly AttributeID 
+        DriveTemperature = new AttributeID(0xE7);
+    }
+
+    // Indilinx SSD SMART attributes
+    public static class IndilinxAttributes {      
+      public static readonly AttributeID RemainingLife = new AttributeID(0xD1);
+    }
+
+    // Intel SSD SMART attributes
+    public static class IntelAttributes {      
+      public static readonly AttributeID RemainingLife = new AttributeID(0xE8);
+    }
+
+    // Samsung SSD SMART attributes
+    public static class SamsungAttributes {      
+      public static readonly AttributeID RemainingLife = new AttributeID(0xB4);
+    }
+
+    // SandForce SSD SMART attributes
+    public static class SandForceAttributes {      
+      public static readonly AttributeID RemainingLife = new AttributeID(0xE7);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

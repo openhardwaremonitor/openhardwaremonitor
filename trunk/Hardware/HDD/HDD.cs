@@ -49,36 +49,31 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private readonly int drive;
     private int count;
 
-    private readonly SMART.AttributeID temperatureID = 0x00;    
-    private readonly SMART.SSDLifeID lifeID = 0x00;
+    private readonly SMART.AttributeID temperatureID = SMART.AttributeID.None;
+    private readonly SMART.AttributeID lifeID = SMART.AttributeID.None;
 
     private readonly Sensor temperatureSensor;
     private readonly Sensor lifeSensor;
 
-    public HDD(string name, IntPtr handle, int drive,
-      SMART.AttributeID temperatureID, ISettings settings)
-    {
-      this.name = name;
-      this.handle = handle;
-      this.drive = drive;
-      this.count = 0;
-      this.temperatureID = temperatureID;
-      this.temperatureSensor = new Sensor("HDD", 0, SensorType.Temperature,
-        this, settings);
-
-      Update();
-    }
-
-    public HDD(string name, IntPtr handle, int drive, SMART.SSDLifeID lifeID,
+    public HDD(string name, IntPtr handle, int drive, 
+      SMART.AttributeID temperatureID, SMART.AttributeID lifeID, 
       ISettings settings)
     {
       this.name = name;
       this.handle = handle;
       this.drive = drive;
       this.count = 0;
-      this.lifeID = lifeID;
-      this.lifeSensor = new Sensor("Remaining life", 0, SensorType.Level,
-        this, settings);
+      if (temperatureID != SMART.AttributeID.None) {
+        this.temperatureID = temperatureID;
+        this.temperatureSensor = new Sensor("HDD", 0, SensorType.Temperature,
+          this, settings);
+      }
+
+      if (lifeID != SMART.AttributeID.None) {
+        this.lifeID = lifeID;
+        this.lifeSensor = new Sensor("Remaining life", 0, SensorType.Level,
+          this, settings);
+      }
 
       Update();
     }
@@ -108,10 +103,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public ISensor[] Sensors {
       get {
-        if (lifeID != SMART.SSDLifeID.None)
+        if (lifeID != SMART.AttributeID.None)
           return new ISensor[] { lifeSensor };
 
-        if (temperatureID != 0x00)
+        if (temperatureID != SMART.AttributeID.None)
           return new ISensor[] { temperatureSensor };
 
         return new ISensor[] {};
@@ -125,27 +120,27 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public void Update() {
       if (count == 0) {
         List<SMART.DriveAttribute> attributes = SMART.ReadSmart(handle, drive);
-        if (temperatureID != 0x00 &&
-          attributes.Exists(attr => (int)attr.ID == (int)temperatureID))
+        if (temperatureID != SMART.AttributeID.None &&
+          attributes.Exists(attr => attr.ID == temperatureID))
         {
           temperatureSensor.Value = attributes
-            .Find(attr => (int)attr.ID == (int)temperatureID)
+            .Find(attr => attr.ID == temperatureID)
             .RawValue[0];
         }
 
-        if (lifeID != 0x00 &&
-          attributes.Exists(attr => (int)attr.ID == (int)lifeID))
+        if (lifeID != SMART.AttributeID.None &&
+          attributes.Exists(attr => attr.ID == lifeID))
         {
           lifeSensor.Value = attributes
-            .Find(attr => (int)attr.ID == (int)lifeID)
+            .Find(attr => attr.ID == lifeID)
             .AttrValue;
         }
       } else {
-        if (temperatureID != 0x00) {
+        if (temperatureID != SMART.AttributeID.None) {
           temperatureSensor.Value = temperatureSensor.Value;
         }
 
-        if (lifeID != 0x00) {
+        if (lifeID != SMART.AttributeID.None) {
           lifeSensor.Value = lifeSensor.Value;
         }
       }
