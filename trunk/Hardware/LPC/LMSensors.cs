@@ -141,6 +141,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fanReaders[i] = new StreamReader(fanPaths[i]);
       }
 
+      public byte? ReadGPIO(int index) {
+        return null;
+      }
+
+      public void WriteGPIO(int index, byte value) { }
+
       public string GetReport() {
         return null;
       }
