@@ -64,10 +64,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private byte ReadByte(byte register) {
       WinRing0.WriteIoPortByte(registerPort, register);
       return WinRing0.ReadIoPortByte(valuePort);
-    } 
+    }
 
     private ushort ReadWord(byte register) {
-      return (ushort)((ReadByte(register) << 8) | 
+      return (ushort)((ReadByte(register) << 8) |
         ReadByte((byte)(register + 1)));
     }
 
@@ -218,7 +218,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if (id != 0 && id != 0xff) {
           WinbondFintekExit();
 
-          ReportUnknownChip("Winbond / Fintek", ((id << 8) | revision));         
+          ReportUnknownChip("Winbond / Fintek", ((id << 8) | revision));
         }
       } else {
 
@@ -235,7 +235,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           report.Append("Chip ID: 0x");
           report.AppendLine(chip.ToString("X"));
           report.Append("Chip revision: 0x");
-          report.AppendLine(revision.ToString("X", 
+          report.AppendLine(revision.ToString("X",
             CultureInfo.InvariantCulture));
           report.AppendLine("Error: Address verification failed");
           report.AppendLine();
@@ -250,10 +250,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           report.Append("Chip ID: 0x");
           report.AppendLine(chip.ToString("X"));
           report.Append("Chip revision: 0x");
-          report.AppendLine(revision.ToString("X", 
+          report.AppendLine(revision.ToString("X",
             CultureInfo.InvariantCulture));
           report.Append("Error: Invalid address 0x");
-          report.AppendLine(address.ToString("X", 
+          report.AppendLine(address.ToString("X",
             CultureInfo.InvariantCulture));
           report.AppendLine();
           return false;
@@ -280,10 +280,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               report.Append("Chip ID: 0x");
               report.AppendLine(chip.ToString("X"));
               report.Append("Chip revision: 0x");
-              report.AppendLine(revision.ToString("X", 
+              report.AppendLine(revision.ToString("X",
                 CultureInfo.InvariantCulture));
               report.Append("Error: Invalid vendor ID 0x");
-              report.AppendLine(vendorID.ToString("X", 
+              report.AppendLine(vendorID.ToString("X",
                 CultureInfo.InvariantCulture));
               report.AppendLine();
               return false;
@@ -304,6 +304,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     #region ITE
 
     private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
+    private const byte IT87_GPIO_LDN = 0x07;
     private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
     private void IT87Enter() {
@@ -351,6 +352,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
 
+        Select(IT87_GPIO_LDN);
+        ushort gpioAddress = ReadWord(BASE_ADDRESS_REGISTER + 2);
+        Thread.Sleep(1);
+        ushort gpioVerify = ReadWord(BASE_ADDRESS_REGISTER + 2);
+
         IT87Exit();
 
         if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
@@ -363,7 +369,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           return false;
         }
 
-        superIOs.Add(new IT87XX(chip, address, version));
+        if (gpioAddress != gpioVerify || gpioAddress < 0x100 ||
+          (gpioAddress & 0xF007) != 0) {
+          report.Append("Chip ID: 0x");
+          report.AppendLine(chip.ToString("X"));
+          report.Append("Error: Invalid GPIO address 0x");
+          report.AppendLine(gpioAddress.ToString("X",
+            CultureInfo.InvariantCulture));
+          report.AppendLine();
+          return false;
+        }
+
+        superIOs.Add(new IT87XX(chip, address, gpioAddress, version));
         return true;
       }
 
@@ -417,7 +434,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if (DetectIT87()) continue;
 
         if (DetectSMSC()) continue;
-      }  
+      }
     }
 
     public LPCIO() {
@@ -429,7 +446,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       Detect();
 
-      WinRing0.ReleaseIsaBusMutex();      
+      WinRing0.ReleaseIsaBusMutex();
     }
 
     public ISuperIO[] SuperIO {

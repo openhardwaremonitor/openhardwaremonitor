@@ -45,6 +45,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly Chip chip;
     private readonly byte version;
 
+    private readonly ushort gpioAddress;
+    private readonly int gpioCount;
+
     private readonly ushort addressReg;
     private readonly ushort dataReg;
 
@@ -77,16 +80,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       byte value = WinRing0.ReadIoPortByte(dataReg);
       valid = register == WinRing0.ReadIoPortByte(addressReg);
       return value;
-    } 
+    }
 
-    public IT87XX(Chip chip, ushort address, byte version) {
+    public byte? ReadGPIO(int index) {
+      if (index >= gpioCount)
+        return null;
+
+      return WinRing0.ReadIoPortByte((ushort)(gpioAddress + index));
+    }
+
+    public void WriteGPIO(int index, byte value) {
+      if (index >= gpioCount)
+        return;
+
+      WinRing0.WriteIoPortByte((ushort)(gpioAddress + index), value);
+    }
+
+    public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
       
       this.address = address;
       this.chip = chip;
       this.version = version;
       this.addressReg = (ushort)(address + ADDRESS_REGISTER_OFFSET);
       this.dataReg = (ushort)(address + DATA_REGISTER_OFFSET);
-      
+      this.gpioAddress = gpioAddress;
+
       // Check vendor id
       bool valid;
       byte vendorId = ReadByte(VENDOR_ID_REGISTER, out valid);       
@@ -109,6 +127,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       } else {
         voltageGain = 0.016f;
       }
+
+      // Set the number of GPIO sets
+      switch (chip) {
+        case Chip.IT8712F:
+        case Chip.IT8716F:
+        case Chip.IT8718F:
+        case Chip.IT8726F:
+          gpioCount = 5;
+          break;
+        case Chip.IT8720F:
+        case Chip.IT8721F:
+          gpioCount = 8;
+          break;
+      }
     }
 
     public Chip Chip { get { return chip; } }
@@ -126,6 +158,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         version.ToString("X", CultureInfo.InvariantCulture));
       r.Append("Base Address: 0x"); r.AppendLine(
         address.ToString("X4", CultureInfo.InvariantCulture));
+      r.Append("GPIO Address: 0x"); r.AppendLine(
+        gpioAddress.ToString("X4", CultureInfo.InvariantCulture));
       r.AppendLine();
 
       if (!WinRing0.WaitIsaBusMutex(100))
@@ -148,6 +182,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
         r.AppendLine();
       }
+      r.AppendLine();
+
+      r.AppendLine("GPIO Registers");
+      r.AppendLine();
+      for (int i = 0; i < gpioCount; i++) {
+        r.Append(" ");
+        r.Append(ReadGPIO(i).Value.ToString("X2",
+          CultureInfo.InvariantCulture));
+      }
+      r.AppendLine();
       r.AppendLine();
 
       WinRing0.ReleaseIsaBusMutex();

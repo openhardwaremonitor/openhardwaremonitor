@@ -35,8 +35,10 @@
  
 */
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using OpenHardwareMonitor.Hardware.LPC;
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
@@ -50,12 +52,32 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly List<Sensor> temperatures = new List<Sensor>();
     private readonly List<Sensor> fans = new List<Sensor>();
 
+    private delegate float? ReadValueDelegate(int index);
+    private delegate void UpdateDelegate();
+
+    // delegates for mainboard specific sensor reading code
+    private readonly ReadValueDelegate readVoltage;
+    private readonly ReadValueDelegate readTemperature;
+    private readonly ReadValueDelegate readFan;
+
+    // delegate for post update mainboard specific code
+    private readonly UpdateDelegate postUpdate;
+
+    // mainboard specific mutex
+    private readonly Mutex mutex;
+
     public SuperIOHardware(Mainboard mainboard, ISuperIO superIO, 
       Manufacturer manufacturer, Model model, ISettings settings) 
     {
       this.mainboard = mainboard;
       this.superIO = superIO;
       this.name = ChipName.GetName(superIO.Chip);
+
+      this.readVoltage = (index) => superIO.Voltages[index];
+      this.readTemperature = (index) => superIO.Temperatures[index];
+      this.readFan = (index) => superIO.Fans[index];
+
+      this.postUpdate = () => { };
 
       List<Voltage> v = new List<Voltage>();
       List<Temperature> t = new List<Temperature>();
@@ -119,6 +141,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             case Manufacturer.ASRock:
               switch (model) {
                 case Model.P55_Deluxe: // IT8720F
+                  
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+12V", 4, 30, 10));
@@ -128,8 +151,54 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   t.Add(new Temperature("Motherboard", 1));
                   f.Add(new Fan("CPU Fan", 0));
                   f.Add(new Fan("Chassis Fan #1", 1));
-                  // fan channel 2 can connect to 3 different fan headers
-                  // which fan is read is configured with gpio 83-85
+
+                  // this mutex is also used by the official ASRock tool
+                  mutex = new Mutex(false, "ASRockOCMark");
+                  
+                  bool exclusiveAccess = false;
+                  try {
+                    exclusiveAccess = mutex.WaitOne(10, false);
+                  } catch (AbandonedMutexException) { } 
+                    catch (InvalidOperationException) { }  
+
+                  // only read additional fans if we get exclusive access
+                  if (exclusiveAccess) {
+
+                    f.Add(new Fan("Chassis Fan #2", 2));
+                    f.Add(new Fan("Chassis Fan #3", 3));
+                    f.Add(new Fan("Power Fan", 4));
+
+                    readFan = (index) => {
+                      if (index < 2) {
+                        return superIO.Fans[index];
+                      } else {
+                        // get GPIO 80-87
+                        byte? gpio = superIO.ReadGPIO(7);
+                        if (!gpio.HasValue)
+                          return null;
+
+                        // read the last 3 fans based on GPIO 83-85
+                        int[] masks = { 0x05, 0x03, 0x06 };
+                        return (((gpio.Value >> 3) & 0x07) ==
+                          masks[index - 2]) ? superIO.Fans[2] : null;
+                      }
+                    };
+
+                    int fanIndex = 0;
+                    postUpdate = () => {
+                      // get GPIO 80-87
+                      byte? gpio = superIO.ReadGPIO(7);
+                      if (!gpio.HasValue)
+                        return;
+
+                      // prepare the GPIO 83-85 for the next update
+                      int[] masks = { 0x05, 0x03, 0x06 };
+                      superIO.WriteGPIO(7,
+                        (byte)((gpio.Value & 0xC7) | (masks[fanIndex] << 3)));
+                      fanIndex = (fanIndex + 1) % 3;
+                    };
+                  }
+
                   break;
                 default:
                   v.Add(new Voltage("CPU VCore", 0));
@@ -741,7 +810,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       superIO.Update();
 
       foreach (Sensor sensor in voltages) {
-        float? value = superIO.Voltages[sensor.Index];
+        float? value = readVoltage(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value + (value - sensor.Parameters[2].Value) *
             sensor.Parameters[0].Value / sensor.Parameters[1].Value;
@@ -750,7 +819,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       foreach (Sensor sensor in temperatures) {
-        float? value = superIO.Temperatures[sensor.Index];
+        float? value = readTemperature(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value + sensor.Parameters[0].Value;
           ActivateSensor(sensor);
@@ -758,13 +827,15 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       foreach (Sensor sensor in fans) {
-        float? value = superIO.Fans[sensor.Index];
+        float? value = readFan(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value;
           if (value.Value > 0)
             ActivateSensor(sensor);
         }
       }
+
+      postUpdate();
     }
 
     private class Voltage {

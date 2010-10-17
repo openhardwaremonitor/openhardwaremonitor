@@ -104,6 +104,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       WinRing0.WriteIoPortByte(
          (ushort)(address + DATA_REGISTER_OFFSET), value); 
     }
+
+    public byte? ReadGPIO(int index) {
+      return null;
+    }
+
+    public void WriteGPIO(int index, byte value) { }
    
     public W836XX(Chip chip, byte revision, ushort address) {
       this.address = address;

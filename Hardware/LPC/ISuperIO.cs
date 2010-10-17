@@ -44,6 +44,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     float?[] Temperatures { get; }
     float?[] Fans { get; }
 
+    byte? ReadGPIO(int index);
+    void WriteGPIO(int index, byte value);
+
     string GetReport();
     void Update();
   }
