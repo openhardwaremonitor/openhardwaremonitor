@@ -128,10 +128,10 @@
     <Compile Include="GUI\SensorNode.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
-    <Compile Include="Wmi\Hardware.cs" />
-    <Compile Include="Wmi\IWmiObject.cs" />
-    <Compile Include="Wmi\Sensor.cs" />
-    <Compile Include="Wmi\WmiProvider.cs">
+    <Compile Include="WMI\Hardware.cs" />
+    <Compile Include="WMI\IWmiObject.cs" />
+    <Compile Include="WMI\Sensor.cs" />
+    <Compile Include="WMI\WmiProvider.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
