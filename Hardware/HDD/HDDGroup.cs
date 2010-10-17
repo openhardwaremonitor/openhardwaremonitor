@@ -76,16 +76,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           continue;
         }
 
-        SMART.SSDLifeID ssdLifeID = GetSSDLifeID(attributes);
-        if (ssdLifeID == SMART.SSDLifeID.None) {
+        SMART.AttributeID ssdLifeID = GetSSDLifeID(attributes);
+        if (ssdLifeID == SMART.AttributeID.None) {
           SMART.AttributeID temperatureID = GetTemperatureIndex(attributes);
 
-          if (temperatureID != 0x00) {
-            hardware.Add(new HDD(name, handle, drive, temperatureID, settings));
+          if (temperatureID != SMART.AttributeID.None) {
+            hardware.Add(new HDD(name, handle, drive, temperatureID, 
+              SMART.AttributeID.None, settings));
             continue;
           }
         } else {
-          hardware.Add(new HDD(name, handle, drive, ssdLifeID, settings));
+          hardware.Add(new HDD(name, handle, drive, SMART.AttributeID.None, 
+            ssdLifeID, settings));
           continue;
         }
         
@@ -93,29 +95,28 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    private SMART.SSDLifeID GetSSDLifeID(List<SMART.DriveAttribute> attributes) {
+    private SMART.AttributeID GetSSDLifeID(List<SMART.DriveAttribute> attributes) {
       // ID E9 is present on Intel, JM, SF and Samsung
       // ID D2 is present on Indilinx
       // Neither ID has been found on a mechanical hard drive (yet),
       // So this seems like a good way to check if it's an SSD.
-      bool isKnownSSD = (attributes.Exists(attr => (int)attr.ID == 0xE9) ||
-              attributes.Exists(attr => (int)attr.ID == 0xD2)
+      bool isKnownSSD = (
+        attributes.Exists(attr => attr.ID == new SMART.AttributeID(0xE9)) ||
+        attributes.Exists(attr => attr.ID == new SMART.AttributeID(0xD2))
       );
 
-      if (!isKnownSSD) return SMART.SSDLifeID.None;
+      if (!isKnownSSD) return SMART.AttributeID.None;
 
       // We start with a traditional loop, because there are 4 unique ID's
       // that potentially identify one of the vendors
       for (int i = 0; i < attributes.Count; i++) {
 
-        switch ((int)attributes[i].ID) {
-          case 0xB4:
-            return SMART.SSDLifeID.Samsung;
-          case 0xAB:
-            return SMART.SSDLifeID.SandForce;
-          case 0xD2:
-            return SMART.SSDLifeID.Indilinx;
-        }
+        if (attributes[i].ID == SMART.SamsungAttributes.RemainingLife)
+          return SMART.SamsungAttributes.RemainingLife;
+        else if (attributes[i].ID == new SMART.AttributeID(0xAB))          
+          return  SMART.SandForceAttributes.RemainingLife;
+        else if (attributes[i].ID == new SMART.AttributeID(0xD2))   
+          return SMART.IndilinxAttributes.RemainingLife;        
       }
 
       // TODO: Find out JMicron's Life attribute ID; their unique ID = 0xE4
@@ -125,25 +126,25 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       // is whether we can find all 3; pointless to use Exists()
       int intelRegisterCount = 0;
       foreach (SMART.DriveAttribute attribute in attributes) {
-        if ((int)attribute.ID == 0xE1 ||
-          (int)attribute.ID == 0xE8 ||
-          (int)attribute.ID == 0xE9
+        if (attribute.ID == new SMART.AttributeID(0xE1) ||
+          attribute.ID == new SMART.AttributeID(0xE8) ||
+          attribute.ID == new SMART.AttributeID(0xE9)
         )
           intelRegisterCount++;
       }
 
       return (intelRegisterCount == 3)
-        ? SMART.SSDLifeID.Intel
-        : SMART.SSDLifeID.None;
+        ? SMART.IntelAttributes.RemainingLife
+        : SMART.AttributeID.None;
     }
 
     private SMART.AttributeID GetTemperatureIndex(
       List<SMART.DriveAttribute> attributes)
     {
       SMART.AttributeID[] validIds = new[] {
-        SMART.AttributeID.Temperature,
-        SMART.AttributeID.DriveTemperature,
-        SMART.AttributeID.AirflowTemperature
+        SMART.CommonAttributes.Temperature,
+        SMART.CommonAttributes.DriveTemperature,
+        SMART.CommonAttributes.AirflowTemperature
       };
 
       foreach (SMART.AttributeID validId in validIds) {
@@ -152,7 +153,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           return validId;
       }
 
-      return 0x00;
+      return SMART.AttributeID.None;
     }
 
     public IHardware[] Hardware {
@@ -201,7 +202,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             Environment.NewLine);
 
           foreach (SMART.DriveAttribute a in attributes) {
-            if (a.ID == 0) continue;
+            if (a.ID == SMART.AttributeID.None) continue;
             string raw = BitConverter.ToString(a.RawValue);
             r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
               a.ID.ToString("d").PadRight(6), 
