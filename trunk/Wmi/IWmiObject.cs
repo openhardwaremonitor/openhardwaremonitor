@@ -35,7 +35,7 @@
  
 */
 
-namespace OpenHardwareMonitor.Wmi {
+namespace OpenHardwareMonitor.WMI {
   interface IWmiObject {
     // Both of these get exposed to WMI
     string Name { get; }

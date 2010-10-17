@@ -38,7 +38,7 @@
 using System.Management.Instrumentation;
 using OpenHardwareMonitor.Hardware;
 
-namespace OpenHardwareMonitor.Wmi {
+namespace OpenHardwareMonitor.WMI {
   [InstrumentationClass(InstrumentationType.Instance)]
   public class Hardware : IWmiObject {
     #region WMI Exposed
