@@ -119,30 +119,29 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public void Update() {
       if (count == 0) {
-        List<SMART.DriveAttribute> attributes = SMART.ReadSmart(handle, drive);
+        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
+
         if (temperatureID != SMART.AttributeID.None &&
-          attributes.Exists(attr => attr.ID == temperatureID))
+          Array.Exists(attributes, attr => attr.ID == temperatureID))
         {
-          temperatureSensor.Value = attributes
-            .Find(attr => attr.ID == temperatureID)
+          temperatureSensor.Value = Array
+            .Find(attributes, attr => attr.ID == temperatureID)
             .RawValue[0];
         }
 
         if (lifeID != SMART.AttributeID.None &&
-          attributes.Exists(attr => attr.ID == lifeID))
+          Array.Exists(attributes, attr => attr.ID == lifeID))
         {
-          lifeSensor.Value = attributes
-            .Find(attr => attr.ID == lifeID)
+          lifeSensor.Value = Array
+            .Find(attributes, attr => attr.ID == lifeID)
             .AttrValue;
         }
       } else {
-        if (temperatureID != SMART.AttributeID.None) {
+        if (temperatureID != SMART.AttributeID.None)
           temperatureSensor.Value = temperatureSensor.Value;
-        }
 
-        if (lifeID != SMART.AttributeID.None) {
+        if (lifeID != SMART.AttributeID.None)
           lifeSensor.Value = lifeSensor.Value;
-        }
       }
 
       count++; count %= UPDATE_DIVIDER; 
