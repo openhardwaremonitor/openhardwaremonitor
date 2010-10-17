@@ -73,7 +73,6 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption autoStart;
     private UserOption readHddSensors;
     private UserOption showGadget;
-    private UserOption enableWmiProvider;
 
     private WmiProvider wmiProvider;
 
@@ -130,13 +129,11 @@ namespace OpenHardwareMonitor.GUI {
         minCloseMenuItem.Visible = false;
       } else { // Windows
         gadget = new SensorGadget(computer, settings, unitManager);
+        wmiProvider = new WmiProvider(computer);
       }          
 
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
-      computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
-
-      if (settings.GetValue("enableWmiProvider", false))
-        wmiProvider = new WmiProvider(computer);
+      computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);        
 
       computer.Open();
 
@@ -221,17 +218,6 @@ namespace OpenHardwareMonitor.GUI {
       showGadget.Changed += delegate(object sender, EventArgs e) {
         if (gadget != null) 
           gadget.Visible = showGadget.Value;
-      };
-
-      enableWmiProvider = new UserOption("enableWmiProvider", false,
-        wmiMenuItem, settings);
-      enableWmiProvider.Changed += delegate {
-        if (enableWmiProvider.Value && wmiProvider == null)
-          wmiProvider = new WmiProvider(computer);
-        else if (!enableWmiProvider.Value && wmiProvider != null) {
-          wmiProvider.Dispose();
-          wmiProvider = null;
-        }
       };
 
       celciusMenuItem.Checked = 
