@@ -81,72 +81,160 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       public static readonly AttributeID None = new AttributeID(0x00);
     }
 
-    // Common SMART attributes
-    public static class CommonAttributes {      
-      public static readonly AttributeID 
-        ReadErrorRate = new AttributeID(0x01);
-      public static readonly AttributeID 
-        ThroughputPerformance = new AttributeID(0x02);
-      public static readonly AttributeID 
-        SpinUpTime = new AttributeID(0x03);
-      public static readonly AttributeID 
-        StartStopCount = new AttributeID(0x04);
-      public static readonly AttributeID 
-        ReallocatedSectorsCount = new AttributeID(0x05);
-      public static readonly AttributeID 
-        ReadChannelMargin = new AttributeID(0x06);
-      public static readonly AttributeID 
-        SeekErrorRate = new AttributeID(0x07);
-      public static readonly AttributeID 
-        SeekTimePerformance = new AttributeID(0x08);
-      public static readonly AttributeID 
-        PowerOnHours = new AttributeID(0x09);
-      public static readonly AttributeID 
-        SpinRetryCount = new AttributeID(0x0A);
-      public static readonly AttributeID 
-        RecalibrationRetries = new AttributeID(0x0B);
-      public static readonly AttributeID 
-        PowerCycleCount = new AttributeID(0x0C);
-      public static readonly AttributeID 
-        SoftReadErrorRate = new AttributeID(0x0D);
-      public static readonly AttributeID 
-        AirflowTemperature = new AttributeID(0xBE);
-      public static readonly AttributeID 
-        Temperature = new AttributeID(0xC2);
-      public static readonly AttributeID 
-        HardwareECCRecovered = new AttributeID(0xC3);
-      public static readonly AttributeID 
-        ReallocationEventCount = new AttributeID(0xC4);
-      public static readonly AttributeID 
-        CurrentPendingSectorCount = new AttributeID(0xC5);
-      public static readonly AttributeID 
-        UncorrectableSectorCount = new AttributeID(0xC6);
-      public static readonly AttributeID 
-        UltraDMACRCErrorCount = new AttributeID(0xC7);
-      public static readonly AttributeID 
-        WriteErrorRate = new AttributeID(0xC8);
-      public static readonly AttributeID 
-        DriveTemperature = new AttributeID(0xE7);
+    // These are the more-or-less standard S.M.A.R.T attributes
+    // TODO: Filter out unused/obscure ones; some are interpreted differently
+    // between manufacturers
+    public static class CommonAttributes {
+      public static readonly AttributeID
+        ReadErrorRate = new AttributeID(0x01),
+        ThroughputPerformance = new AttributeID(0x02),
+        SpinUpTime = new AttributeID(0x03),
+        StartStopCount = new AttributeID(0x04),
+        ReallocatedSectorsCount = new AttributeID(0x05),
+        ReadChannelMargin = new AttributeID(0x06),
+        SeekErrorRate = new AttributeID(0x07),
+        SeekTimePerformance = new AttributeID(0x08),
+        PowerOnHours = new AttributeID(0x09),
+        SpinRetryCount = new AttributeID(0x0A),
+        RecalibrationRetries = new AttributeID(0x0B),
+        PowerCycleCount = new AttributeID(0x0C),
+        SoftReadErrorRate = new AttributeID(0x0D),
+        SataDownshiftErrorCount = new AttributeID(0xB7),
+        EndToEndError = new AttributeID(0xB8),
+        HeadStability = new AttributeID(0xB9),
+        InducedOpVibrationDetection = new AttributeID(0xBA),
+        ReportedUncorrectableErrors = new AttributeID(0xBB),
+        CommandTimeout = new AttributeID(0xBC),
+        HighFlyWrites = new AttributeID(0xBD),
+        AirflowTemperature = new AttributeID(0xBE),
+        GSenseErrorRate = new AttributeID(0xBF),
+        PowerOffRetractCount = new AttributeID(0xC0),
+        LoadCycleCount = new AttributeID(0xC1),
+        Temperature = new AttributeID(0xC2),
+        HardwareEccRecovered = new AttributeID(0xC3),
+        ReallocationEventCount = new AttributeID(0xC4),
+        CurrentPendingSectorCount = new AttributeID(0xC5),
+        UncorrectableSectorCount = new AttributeID(0xC6),
+        UltraDmaCrcErrorCount = new AttributeID(0xC7),
+        WriteErrorRate = new AttributeID(0xC8),
+        DataAddressMarkerrors = new AttributeID(0xCA),
+        RunOutCancel = new AttributeID(0xCB),
+        SoftEccCorrection = new AttributeID(0xCC),
+        ThermalAsperityRate = new AttributeID(0xCD),
+        FlyingHeight = new AttributeID(0xCE),
+        SpinHighCurrent = new AttributeID(0xCF),
+        SpinBuzz = new AttributeID(0xD0),
+        OfflineSeekPerformance = new AttributeID(0xD1),
+        VibrationDuringWrite = new AttributeID(0xD3),
+        ShockDuringWrite = new AttributeID(0xD4),
+        DiskShift = new AttributeID(0xDC),
+        GSenseErrorRateAlt = new AttributeID(0xDD), // Alternative to 0xBF
+        LoadedHours = new AttributeID(0xDE),
+        LoadUnloadRetryCount = new AttributeID(0xDF),
+        LoadFriction = new AttributeID(0xE0),
+        LoadUnloadCycleCount = new AttributeID(0xE1),
+        LoadInTime = new AttributeID(0xE2),
+        TorqueAmplificationCount = new AttributeID(0xE3),
+        PowerOffRetractCycle = new AttributeID(0xE4),
+        GMRHeadAmplitude = new AttributeID(0xE6),
+        DriveTemperature = new AttributeID(0xE7),
+        HeadFlyingHours = new AttributeID(0xF0),
+        LBAsWrittenTotal = new AttributeID(0xF1),
+        LBAsReadTotal = new AttributeID(0xF2),
+        ReadErrorRetryRate = new AttributeID(0xFA),
+        FreeFallProtection = new AttributeID(0xFE)
+      ;
     }
 
     // Indilinx SSD SMART attributes
-    public static class IndilinxAttributes {      
-      public static readonly AttributeID RemainingLife = new AttributeID(0xD1);
+    // TODO: Find out the purpose of attribute 0xD2
+    // Seems to be unique to Indilinx drives, hence its name of UnknownUnique.
+    public static class IndilinxAttributes {
+      public static readonly AttributeID
+        ReadErrorRate = CommonAttributes.ReadErrorRate,
+        PowerOnHours = CommonAttributes.PowerOnHours,
+        PowerCycleCount = CommonAttributes.PowerCycleCount,
+        InitialBadBlockCount = new AttributeID(0xB8),
+        RemainingLife = new AttributeID(0xD1),
+        ProgramFailure = new AttributeID(0xC3),
+        EraseFailure = new AttributeID(0xC4),
+        ReadFailure = new AttributeID(0xC5),
+        SectorsRead = new AttributeID(0xC6),
+        SectorsWritten = new AttributeID(0xC7),
+        ReadCommands = new AttributeID(0xC8),
+        WriteCommands = new AttributeID(0xC9),
+        BitErrors = new AttributeID(0xCA),
+        CorrectedErrors = new AttributeID(0xCB),
+        BadBlockFullFlag = new AttributeID(0xCC),
+        MaxCellcycles = new AttributeID(0xCD),
+        MinErase = new AttributeID(0xCE),
+        MaxErase = new AttributeID(0xCF),
+        AverageEraseCount = new AttributeID(0xD0),
+        UnknownUnique = new AttributeID(0xD2),
+        SataErrorCountCRC = new AttributeID(0xD3),
+        SataErrorCountHandshake = new AttributeID(0xD4)
+      ;
     }
 
     // Intel SSD SMART attributes
-    public static class IntelAttributes {      
-      public static readonly AttributeID RemainingLife = new AttributeID(0xE8);
+    // TODO: Find out the meaning behind 0xE2, 0xE3 and 0xE4
+    public static class IntelAttributes {
+      public static readonly AttributeID
+        ReadErrorRate = CommonAttributes.ReadErrorRate,
+        SpinUpTime = CommonAttributes.SpinUpTime,
+        StartStopCount = CommonAttributes.StartStopCount,
+        ReallocatedSectorsCount = CommonAttributes.ReallocatedSectorsCount,
+        PowerOnHours = CommonAttributes.PowerOnHours,
+        PowerCycleCount = CommonAttributes.PowerCycleCount,
+        EndToEndError = CommonAttributes.EndToEndError, // Only on G2 drives!
+
+        // Different from the common attribute PowerOffRetractCount, same ID
+        UnsafeShutdownCount = new AttributeID(0xC0),
+        HostWrites = new AttributeID(0xE1),
+        RemainingLife = new AttributeID(0xE8),
+        MediaWearOutIndicator = new AttributeID(0xE9)
+      ;
     }
 
     // Samsung SSD SMART attributes
-    public static class SamsungAttributes {      
-      public static readonly AttributeID RemainingLife = new AttributeID(0xB4);
+    // TODO: AF, B0, B1, B5, B6, BB, C3, C6, C7, E8, E9
+    public static class SamsungAttributes {
+      public static readonly AttributeID
+        PowerOnHours = CommonAttributes.PowerOnHours,
+        PowerCycleCount = CommonAttributes.PowerCycleCount,
+        UsedReservedBlockCountChip = new AttributeID(0xB2), // Unique
+        UsedReservedBlockCountTotal = new AttributeID(0xB3), // Unique
+        RemainingLife = new AttributeID(0xB4), // Unique
+        RuntimeBadBlockTotal = new AttributeID(0xB7)
+      ;
     }
 
     // SandForce SSD SMART attributes
-    public static class SandForceAttributes {      
-      public static readonly AttributeID RemainingLife = new AttributeID(0xE7);
+    // Note: 0xE9 and 0xEA are reserved attributes and unique
+    public static class SandForceAttributes {
+      public static readonly AttributeID
+        ReadErrorRate = CommonAttributes.ReadErrorRate,
+        RetiredBlockCount = new AttributeID(0x05),
+        PowerOnHours = CommonAttributes.PowerOnHours,
+        PowerCycleCount = CommonAttributes.PowerCycleCount,
+        ProgramFailCount = new AttributeID(0xAB), // Unique
+        EraseFailCount = new AttributeID(0xAC), // Unique
+        UnexpectedPowerLossCount = new AttributeID(0xAE), // Unique
+        WearRangeDelta = new AttributeID(0xB1), // Unique
+        ProgramFailCountAlt = new AttributeID(0xB5), // Same as 0xAB
+        EraseFailCountAlt = new AttributeID(0xB6), // Same as 0xAC
+        ReportedUncorrectableErrors =
+          CommonAttributes.ReportedUncorrectableErrors,
+        
+        Temperature = CommonAttributes.Temperature, // SF-1500 only!
+        
+        // Opposite of the common attribute HardwareECCRecovered
+        UnrecoverableECC = new AttributeID(0xC3),
+        ReallocationEventCount = new AttributeID(0xC4),
+        RemainingLife = new AttributeID(0xE7),
+        LifetimeWrites = new AttributeID(0xF1),
+        LifetimeReads = new AttributeID(0xF2)
+      ;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -329,7 +417,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         IntPtr.Zero);
     }
 
-    public static List<DriveAttribute> ReadSmart(IntPtr handle,
+    public static DriveAttribute[] ReadSmart(IntPtr handle,
       int driveNumber)
     {
       DriveCommandParameter parameter = new DriveCommandParameter();
@@ -347,9 +435,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         out result, Marshal.SizeOf(typeof(DriveSmartReadResult)), 
         out bytesReturned, IntPtr.Zero);
 
-      return (isValid)
-        ? new List<DriveAttribute>(result.Attributes)
-        : new List<DriveAttribute>();
+      return (isValid) ? result.Attributes : new DriveAttribute[0];
     }
 
     public static string ReadName(IntPtr handle, int driveNumber) {

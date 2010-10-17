@@ -68,10 +68,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           continue;
         }
 
-        List<SMART.DriveAttribute> attributes =
-          new List<SMART.DriveAttribute>(SMART.ReadSmart(handle, drive));
+        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
         
-        if (!(attributes.Count > 0)) {
+        if (attributes.Length < 1) {
           SMART.CloseHandle(handle);
           continue;
         }
@@ -95,28 +94,29 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    private SMART.AttributeID GetSSDLifeID(List<SMART.DriveAttribute> attributes) {
-      // ID E9 is present on Intel, JM, SF and Samsung
+    private SMART.AttributeID GetSSDLifeID(SMART.DriveAttribute[] attributes) {
+      // ID E9 is present on Intel, JM, SF and Samsung (different meanings)
       // ID D2 is present on Indilinx
       // Neither ID has been found on a mechanical hard drive (yet),
-      // So this seems like a good way to check if it's an SSD.
+      // so this seems like a good way to check if it's an SSD.
       bool isKnownSSD = (
-        attributes.Exists(attr => attr.ID == new SMART.AttributeID(0xE9)) ||
-        attributes.Exists(attr => attr.ID == new SMART.AttributeID(0xD2))
+        Array.Exists(attributes, attr => attr.ID == new SMART.AttributeID(0xE9)) ||
+        Array.Exists(attributes, attr => attr.ID == new SMART.AttributeID(0xD2))
       );
 
       if (!isKnownSSD) return SMART.AttributeID.None;
 
       // We start with a traditional loop, because there are 4 unique ID's
       // that potentially identify one of the vendors
-      for (int i = 0; i < attributes.Count; i++) {
-
+      for (int i = 0; i < attributes.Length; i++) {
         if (attributes[i].ID == SMART.SamsungAttributes.RemainingLife)
           return SMART.SamsungAttributes.RemainingLife;
-        else if (attributes[i].ID == new SMART.AttributeID(0xAB))          
+        
+        if (attributes[i].ID == SMART.SandForceAttributes.ProgramFailCount)
           return  SMART.SandForceAttributes.RemainingLife;
-        else if (attributes[i].ID == new SMART.AttributeID(0xD2))   
-          return SMART.IndilinxAttributes.RemainingLife;        
+        
+        if (attributes[i].ID == SMART.IndilinxAttributes.UnknownUnique)   
+          return SMART.IndilinxAttributes.RemainingLife;
       }
 
       // TODO: Find out JMicron's Life attribute ID; their unique ID = 0xE4
@@ -126,9 +126,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       // is whether we can find all 3; pointless to use Exists()
       int intelRegisterCount = 0;
       foreach (SMART.DriveAttribute attribute in attributes) {
-        if (attribute.ID == new SMART.AttributeID(0xE1) ||
-          attribute.ID == new SMART.AttributeID(0xE8) ||
-          attribute.ID == new SMART.AttributeID(0xE9)
+        if (attribute.ID == SMART.IntelAttributes.HostWrites ||
+          attribute.ID == SMART.IntelAttributes.RemainingLife ||
+          attribute.ID == SMART.IntelAttributes.MediaWearOutIndicator
         )
           intelRegisterCount++;
       }
@@ -139,7 +139,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     private SMART.AttributeID GetTemperatureIndex(
-      List<SMART.DriveAttribute> attributes)
+      SMART.DriveAttribute[] attributes)
     {
       SMART.AttributeID[] validIds = new[] {
         SMART.CommonAttributes.Temperature,
@@ -149,7 +149,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       foreach (SMART.AttributeID validId in validIds) {
         SMART.AttributeID id = validId;
-        if (attributes.Exists(attr => attr.ID == id))
+        if (Array.Exists(attributes, attr => attr.ID == id))
           return validId;
       }
 
@@ -188,9 +188,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           continue;
         }
 
-        List<SMART.DriveAttribute> attributes = SMART.ReadSmart(handle, drive);
+        SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
 
-        if (attributes != null) {
+        if (attributes.Length > 0) {
           r.AppendLine("Drive name: " + name);
           r.AppendLine();
           r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
