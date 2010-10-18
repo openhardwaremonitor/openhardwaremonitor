@@ -54,7 +54,9 @@ namespace OpenHardwareMonitor.WMI {
       Name = hardware.Name;
       Identifier = hardware.Identifier.ToString();
       HardwareType = hardware.HardwareType.ToString();
-      Parent = hardware.Parent.Identifier.ToString();
+      Parent = (hardware.Parent != null)
+        ? hardware.Parent.Identifier.ToString()
+        : "";
     }
 
     public void Update() { }
