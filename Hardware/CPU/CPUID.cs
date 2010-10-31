@@ -107,7 +107,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         throw new ArgumentOutOfRangeException("thread");
       UIntPtr mask = (UIntPtr)(1L << thread);
 
-      if (WinRing0.CpuidTx(CPUID_0, 0,
+      if (Opcode.CpuidTx(CPUID_0, 0,
           out eax, out ebx, out ecx, out edx, mask)) {
         if (eax > 0)
           maxCpuid = eax;
@@ -131,7 +131,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             break;
         }
         eax = ebx = ecx = edx = 0;
-        if (WinRing0.CpuidTx(CPUID_EXT, 0,
+        if (Opcode.CpuidTx(CPUID_EXT, 0,
           out eax, out ebx, out ecx, out edx, mask)) {
           if (eax > CPUID_EXT)
             maxCpuidExt = eax - CPUID_EXT;
@@ -149,19 +149,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       cpuidData = new uint[maxCpuid + 1, 4];
       for (uint i = 0; i < (maxCpuid + 1); i++)
-        WinRing0.CpuidTx(CPUID_0 + i, 0, 
+        Opcode.CpuidTx(CPUID_0 + i, 0, 
           out cpuidData[i, 0], out cpuidData[i, 1],
           out cpuidData[i, 2], out cpuidData[i, 3], mask);
 
       cpuidExtData = new uint[maxCpuidExt + 1, 4];
       for (uint i = 0; i < (maxCpuidExt + 1); i++)
-        WinRing0.CpuidTx(CPUID_EXT + i, 0, 
+        Opcode.CpuidTx(CPUID_EXT + i, 0, 
           out cpuidExtData[i, 0], out cpuidExtData[i, 1], 
           out cpuidExtData[i, 2], out cpuidExtData[i, 3], mask);
 
       StringBuilder nameBuilder = new StringBuilder();
       for (uint i = 2; i <= 4; i++) {
-        if (WinRing0.CpuidTx(CPUID_EXT + i, 0, 
+        if (Opcode.CpuidTx(CPUID_EXT + i, 0, 
           out eax, out ebx, out ecx, out edx, mask)) 
         {
           AppendRegister(nameBuilder, eax);

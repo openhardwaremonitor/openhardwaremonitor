@@ -62,8 +62,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte BASE_ADDRESS_REGISTER = 0x60;
 
     private byte ReadByte(byte register) {
-      WinRing0.WriteIoPortByte(registerPort, register);
-      return WinRing0.ReadIoPortByte(valuePort);
+      Ring0.WriteIoPort(registerPort, register);
+      return Ring0.ReadIoPort(valuePort);
     }
 
     private ushort ReadWord(byte register) {
@@ -72,8 +72,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     private void Select(byte logicalDeviceNumber) {
-      WinRing0.WriteIoPortByte(registerPort, DEVCIE_SELECT_REGISTER);
-      WinRing0.WriteIoPortByte(valuePort, logicalDeviceNumber);
+      Ring0.WriteIoPort(registerPort, DEVCIE_SELECT_REGISTER);
+      Ring0.WriteIoPort(valuePort, logicalDeviceNumber);
     }
 
     private void ReportUnknownChip(string type, int chip) {
@@ -99,12 +99,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
 
     private void WinbondFintekEnter() {
-      WinRing0.WriteIoPortByte(registerPort, 0x87);
-      WinRing0.WriteIoPortByte(registerPort, 0x87);
+      Ring0.WriteIoPort(registerPort, 0x87);
+      Ring0.WriteIoPort(registerPort, 0x87);
     }
 
     private void WinbondFintekExit() {
-      WinRing0.WriteIoPortByte(registerPort, 0xAA);
+      Ring0.WriteIoPort(registerPort, 0xAA);
     }
 
     private bool DetectWinbondFintek() {
@@ -308,15 +308,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
     private void IT87Enter() {
-      WinRing0.WriteIoPortByte(registerPort, 0x87);
-      WinRing0.WriteIoPortByte(registerPort, 0x01);
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
+      Ring0.WriteIoPort(registerPort, 0x87);
+      Ring0.WriteIoPort(registerPort, 0x01);
+      Ring0.WriteIoPort(registerPort, 0x55);
+      Ring0.WriteIoPort(registerPort, 0x55);
     }
 
     private void IT87Exit() {
-      WinRing0.WriteIoPortByte(registerPort, CONFIGURATION_CONTROL_REGISTER);
-      WinRing0.WriteIoPortByte(valuePort, 0x02);
+      Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
+      Ring0.WriteIoPort(valuePort, 0x02);
     }
 
     private bool DetectIT87() {
@@ -392,11 +392,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     #region SMSC
 
     private void SMSCEnter() {
-      WinRing0.WriteIoPortByte(registerPort, 0x55);
+      Ring0.WriteIoPort(registerPort, 0x55);
     }
 
     private void SMSCExit() {
-      WinRing0.WriteIoPortByte(registerPort, 0xAA);
+      Ring0.WriteIoPort(registerPort, 0xAA);
     }
 
     private bool DetectSMSC() {
@@ -438,15 +438,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public LPCIO() {
-      if (!WinRing0.IsAvailable)
+      if (!Ring0.IsOpen)
         return;
 
-      if (!WinRing0.WaitIsaBusMutex(100))
+      if (!Ring0.WaitIsaBusMutex(100))
         return;
 
       Detect();
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
     }
 
     public ISuperIO[] SuperIO {

@@ -118,13 +118,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public override void Update() {
       base.Update();
 
-      if (miscellaneousControlAddress != WinRing0.InvalidPciAddress) {
+      if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
         for (uint i = 0; i < coreTemperatures.Length; i++) {
-          if (WinRing0.WritePciConfigDwordEx(
+          if (Ring0.WritePciConfig(
             miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER,
             i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
             uint value;
-            if (WinRing0.ReadPciConfigDwordEx(
+            if (Ring0.ReadPciConfig(
               miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER, 
               out value)) 
             {
@@ -145,7 +145,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           Thread.Sleep(1);
 
           uint eax, edx;
-          if (WinRing0.RdmsrTx(FIDVID_STATUS, out eax, out edx,
+          if (Ring0.RdmsrTx(FIDVID_STATUS, out eax, out edx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) {
             // CurrFID can be found in eax bits 0-5, MaxFID in 16-21
             // 8-13 hold StartFID, we don't use that here.

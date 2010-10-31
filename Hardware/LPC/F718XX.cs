@@ -60,9 +60,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
     
     private byte ReadByte(byte register) {
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
-      return WinRing0.ReadIoPortByte((ushort)(address + DATA_REGISTER_OFFSET));
+      return Ring0.ReadIoPort((ushort)(address + DATA_REGISTER_OFFSET));
     }
 
     public byte? ReadGPIO(int index) {
@@ -94,7 +94,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine(address.ToString("X4", CultureInfo.InvariantCulture));
       r.AppendLine();
 
-      if (!WinRing0.WaitIsaBusMutex(100))
+      if (!Ring0.WaitIsaBusMutex(100))
         return r.ToString();
 
       r.AppendLine("Hardware Monitor Registers");
@@ -114,13 +114,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
       r.AppendLine();
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
 
       return r.ToString();
     }
 
     public void Update() {
-      if (!WinRing0.WaitIsaBusMutex(10))
+      if (!Ring0.WaitIsaBusMutex(10))
         return;
 
       for (int i = 0; i < voltages.Length; i++) {
@@ -173,7 +173,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fans[i] = null;        
       }
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
     }
   }
 }
