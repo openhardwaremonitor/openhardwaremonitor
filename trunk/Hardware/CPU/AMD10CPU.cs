@@ -93,15 +93,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         (UIntPtr)(1L << cpuid[0][0].Thread));
 
       uint ctlEax, ctlEdx;
-      WinRing0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
+      Ring0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
       uint ctrEax, ctrEdx;
-      WinRing0.Rdmsr(PERF_CTR_0, out ctrEax, out ctrEdx);
+      Ring0.Rdmsr(PERF_CTR_0, out ctrEax, out ctrEdx);
 
       timeStampCounterMultiplier = estimateTimeStampCounterMultiplier();
 
       // restore the performance counter registers
-      WinRing0.Wrmsr(PERF_CTL_0, ctlEax, ctlEdx);
-      WinRing0.Wrmsr(PERF_CTR_0, ctrEax, ctrEdx);
+      Ring0.Wrmsr(PERF_CTL_0, ctlEax, ctlEdx);
+      Ring0.Wrmsr(PERF_CTR_0, ctrEax, ctrEdx);
 
       // restore the thread affinity.
       NativeMethods.SetThreadAffinityMask(thread, mask);
@@ -126,14 +126,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint eax, edx;
      
       // select event "076h CPU Clocks not Halted" and enable the counter
-      WinRing0.Wrmsr(PERF_CTL_0,
+      Ring0.Wrmsr(PERF_CTL_0,
         (1 << 22) | // enable performance counter
         (1 << 17) | // count events in user mode
         (1 << 16) | // count events in operating-system mode
         0x76, 0x00000000);
 
       // set the counter to 0
-      WinRing0.Wrmsr(PERF_CTR_0, 0, 0);
+      Ring0.Wrmsr(PERF_CTR_0, 0, 0);
 
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
       uint lsbBegin, msbBegin, lsbEnd, msbEnd;
@@ -142,11 +142,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         (long)Math.Ceiling(0.001 * ticks);
       long timeEnd = timeBegin + ticks;
       while (Stopwatch.GetTimestamp() < timeBegin) { }
-      WinRing0.Rdmsr(PERF_CTR_0, out lsbBegin, out msbBegin);
+      Ring0.Rdmsr(PERF_CTR_0, out lsbBegin, out msbBegin);
       while (Stopwatch.GetTimestamp() < timeEnd) { }
-      WinRing0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
+      Ring0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
 
-      WinRing0.Rdmsr(COFVID_STATUS, out eax, out edx);
+      Ring0.Rdmsr(COFVID_STATUS, out eax, out edx);
       uint cpuDid = (eax >> 6) & 7;
       uint cpuFid = eax & 0x1F;
       double coreMultiplier = MultiplierFromIDs(cpuDid, cpuFid);
@@ -188,9 +188,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public override void Update() {
       base.Update();
 
-      if (miscellaneousControlAddress != WinRing0.InvalidPciAddress) {
+      if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
         uint value;
-        if (WinRing0.ReadPciConfigDwordEx(miscellaneousControlAddress,
+        if (Ring0.ReadPciConfig(miscellaneousControlAddress,
           REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
           coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
             coreTemperature.Parameters[0].Value;
@@ -207,7 +207,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           Thread.Sleep(1);
 
           uint curEax, curEdx;
-          if (WinRing0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
+          if (Ring0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) 
           {
             // 8:6 CpuDid: current core divisor ID

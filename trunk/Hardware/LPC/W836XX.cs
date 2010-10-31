@@ -84,24 +84,24 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly byte[] FAN_DIV_BIT2 = new byte[] { 5, 6, 7, 23, 15 };
 
     private byte ReadByte(byte bank, byte register) {
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + ADDRESS_REGISTER_OFFSET), BANK_SELECT_REGISTER);
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + DATA_REGISTER_OFFSET), bank);
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
-      return WinRing0.ReadIoPortByte(
+      return Ring0.ReadIoPort(
         (ushort)(address + DATA_REGISTER_OFFSET));
     } 
 
     private void WriteByte(byte bank, byte register, byte value) {
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + ADDRESS_REGISTER_OFFSET), BANK_SELECT_REGISTER);
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + DATA_REGISTER_OFFSET), bank);
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
-      WinRing0.WriteIoPortByte(
+      Ring0.WriteIoPort(
          (ushort)(address + DATA_REGISTER_OFFSET), value); 
     }
 
@@ -203,7 +203,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Fans { get { return fans; } }
 
     public void Update() {
-      if (!WinRing0.WaitIsaBusMutex(10))
+      if (!Ring0.WaitIsaBusMutex(10))
         return;
 
       for (int i = 0; i < voltages.Length; i++) {
@@ -291,7 +291,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           WriteByte(0, FAN_BIT_REG[i], newByte);        
       }
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
     }
 
     public string GetReport() {
@@ -306,7 +306,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine(address.ToString("X4", CultureInfo.InvariantCulture));
       r.AppendLine();
 
-      if (!WinRing0.WaitIsaBusMutex(100))
+      if (!Ring0.WaitIsaBusMutex(100))
         return r.ToString();
 
       r.AppendLine("Hardware Monitor Registers");
@@ -340,7 +340,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
       r.AppendLine();
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
 
       return r.ToString();
     }

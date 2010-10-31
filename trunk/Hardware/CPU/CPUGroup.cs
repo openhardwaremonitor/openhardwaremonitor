@@ -104,10 +104,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       // No implementation for cpuid on Unix systems
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) 
-        return;
-      
-      if (!WinRing0.IsCpuid())
-        return;
+        return;     
 
       CPUID[][] processorThreads = GetProcessorThreads();
       this.threads = new CPUID[processorThreads.Length][][];

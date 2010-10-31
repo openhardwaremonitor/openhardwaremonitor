@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Security.Permissions;
+using System.Reflection;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -86,7 +87,8 @@ namespace OpenHardwareMonitor.Hardware {
       if (open)
         return;
 
-      WinRing0.Open();
+      Ring0.Open();
+      Opcode.Open();
 
       Add(new Mainboard.MainboardGroup(settings));
       Add(new CPU.CPUGroup(settings));
@@ -262,7 +264,8 @@ namespace OpenHardwareMonitor.Hardware {
         group.Close();
       groups.Clear();
 
-      WinRing0.Close();
+      Opcode.Close();
+      Ring0.Close();
 
       open = false;
     }

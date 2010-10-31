@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -54,6 +55,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     protected readonly int processorIndex;
     protected readonly int coreCount;
     protected readonly string name;
+
+    private readonly bool hasModelSpecificRegisters;
 
     private readonly bool hasTimeStampCounter;
     private readonly bool isInvariantTimeStampCounter;
@@ -87,7 +90,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       this.processorIndex = processorIndex;
       this.coreCount = cpuid.Length;
-      this.name = cpuid[0][0].Name;      
+      this.name = cpuid[0][0].Name;    
+  
+      // check if processor has MSRs
+      if (cpuid[0][0].Data.GetLength(0) > 1
+        && (cpuid[0][0].Data[1, 3] & 0x20) != 0)
+        hasModelSpecificRegisters = true;
+      else
+        hasModelSpecificRegisters = false;
 
       // check if processor has a TSC
       if (cpuid[0][0].Data.GetLength(0) > 1
@@ -144,28 +154,26 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private static double EstimateTimeStampCounterFrequency(double timeWindow) {
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
-      uint lsbBegin, msbBegin, lsbEnd, msbEnd;
+      ulong countBegin, countEnd;
 
       Thread.BeginThreadAffinity();
       long timeBegin = Stopwatch.GetTimestamp() +
         (long)Math.Ceiling(0.001 * ticks);
       long timeEnd = timeBegin + ticks;
       while (Stopwatch.GetTimestamp() < timeBegin) { }
-      WinRing0.Rdtsc(out lsbBegin, out msbBegin);
+      countBegin = Opcode.Rdtsc();
       while (Stopwatch.GetTimestamp() < timeEnd) { }
-      WinRing0.Rdtsc(out lsbEnd, out msbEnd);
+      countEnd = Opcode.Rdtsc();
       Thread.EndThreadAffinity();
-
-      ulong countBegin = ((ulong)msbBegin << 32) | lsbBegin;
-      ulong countEnd = ((ulong)msbEnd << 32) | lsbEnd;
 
       return (((double)(countEnd - countBegin)) * Stopwatch.Frequency) /
         (timeEnd - timeBegin);
     }
 
+
     private static void AppendMSRData(StringBuilder r, uint msr, int thread) {
       uint eax, edx;
-      if (WinRing0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
+      if (Ring0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
         r.Append(" ");
         r.Append((msr).ToString("X8", CultureInfo.InvariantCulture));
         r.Append("  ");
@@ -240,6 +248,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return HardwareType.CPU; }
     }
 
+    public bool HasModelSpecificRegisters {
+      get { return hasModelSpecificRegisters; }
+    }
+
     public bool HasTimeStampCounter {
       get { return hasTimeStampCounter; }
     }
@@ -250,14 +262,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public override void Update() {
       if (hasTimeStampCounter && isInvariantTimeStampCounter) {
-        uint lsb, msb;
+
+        // make sure always the same thread is used
+        IntPtr thread = NativeMethods.GetCurrentThread();
+        UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread,
+          (UIntPtr)(1L << cpuid[0][0].Thread));
 
         // read time before and after getting the TSC to estimate the error
         long firstTime = Stopwatch.GetTimestamp();
-        WinRing0.RdtscTx(out lsb, out msb, (UIntPtr)1);
+        ulong timeStampCount = Opcode.Rdtsc();
         long time = Stopwatch.GetTimestamp();
 
-        ulong timeStampCount = ((ulong)msb << 32) | lsb;
+        // restore the thread affinity mask
+        NativeMethods.SetThreadAffinityMask(thread, mask);
+
         double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
         double error = ((double)(time - firstTime)) / Stopwatch.Frequency;
 
@@ -285,6 +303,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         if (totalLoad != null)
           totalLoad.Value = cpuLoad.GetTotalLoad();
       }
+    }
+
+    private static class NativeMethods {
+      private const string KERNEL = "kernel32.dll";
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      public static extern UIntPtr
+        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
+      public static extern IntPtr GetCurrentThread();
     }
   }
 }

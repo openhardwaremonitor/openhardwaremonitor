@@ -117,7 +117,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 uint eax, edx;
                 tjMax = new float[coreCount];
                 for (int i = 0; i < coreCount; i++) {
-                  if (WinRing0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
+                  if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
                     out edx, (UIntPtr)(1L << cpuid[i][0].Thread))) {
                     tjMax[i] = (eax >> 16) & 0xFF;
                   } else {
@@ -142,14 +142,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Atom:
         case Microarchitecture.Core: {
             uint eax, edx;
-            if (WinRing0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
+            if (Ring0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
               timeStampCounterMultiplier = 
                 ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
             }
           } break;
         case Microarchitecture.Nehalem: {
             uint eax, edx;
-            if (WinRing0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
+            if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
             }
           } break;
@@ -215,7 +215,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
-        if (WinRing0.RdmsrTx(
+        if (Ring0.RdmsrTx(
           IA32_THERM_STATUS_MSR, out eax, out edx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) {
           // if reading is valid
@@ -236,7 +236,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         uint eax, edx;
         for (int i = 0; i < coreClocks.Length; i++) {
           System.Threading.Thread.Sleep(1);
-          if (WinRing0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
+          if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
             (UIntPtr)(1L << cpuid[i][0].Thread))) 
           {
             newBusClock = 

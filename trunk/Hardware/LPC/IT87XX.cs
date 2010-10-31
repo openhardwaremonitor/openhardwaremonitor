@@ -76,9 +76,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte VOLTAGE_BASE_REG = 0x20;
 
     private byte ReadByte(byte register, out bool valid) {
-      WinRing0.WriteIoPortByte(addressReg, register);
-      byte value = WinRing0.ReadIoPortByte(dataReg);
-      valid = register == WinRing0.ReadIoPortByte(addressReg);
+      Ring0.WriteIoPort(addressReg, register);
+      byte value = Ring0.ReadIoPort(dataReg);
+      valid = register == Ring0.ReadIoPort(addressReg);
       return value;
     }
 
@@ -86,14 +86,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (index >= gpioCount)
         return null;
 
-      return WinRing0.ReadIoPortByte((ushort)(gpioAddress + index));
+      return Ring0.ReadIoPort((ushort)(gpioAddress + index));
     }
 
     public void WriteGPIO(int index, byte value) {
       if (index >= gpioCount)
         return;
 
-      WinRing0.WriteIoPortByte((ushort)(gpioAddress + index), value);
+      Ring0.WriteIoPort((ushort)(gpioAddress + index), value);
     }
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
@@ -162,7 +162,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         gpioAddress.ToString("X4", CultureInfo.InvariantCulture));
       r.AppendLine();
 
-      if (!WinRing0.WaitIsaBusMutex(100))
+      if (!Ring0.WaitIsaBusMutex(100))
         return r.ToString();
 
       r.AppendLine("Environment Controller Registers");
@@ -194,13 +194,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       r.AppendLine();
       r.AppendLine();
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
 
       return r.ToString();
     }
 
     public void Update() {
-      if (!WinRing0.WaitIsaBusMutex(10))
+      if (!Ring0.WaitIsaBusMutex(10))
         return;
 
       for (int i = 0; i < voltages.Length; i++) {
@@ -246,7 +246,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
       }
 
-      WinRing0.ReleaseIsaBusMutex();
+      Ring0.ReleaseIsaBusMutex();
     }
   } 
 }

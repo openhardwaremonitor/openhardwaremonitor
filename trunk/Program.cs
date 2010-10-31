@@ -87,17 +87,6 @@ namespace OpenHardwareMonitor {
       if (!IsFileAvailable("Aga.Controls.dll"))
         return false;
 
-      if (IntPtr.Size == 4) {
-        if (!IsFileAvailable("WinRing0.dll"))
-          return false;
-        if (!IsFileAvailable("WinRing0.sys"))
-          return false;
-      } else {
-        if (!IsFileAvailable("WinRing0x64.dll"))
-          return false;
-        if (!IsFileAvailable("WinRing0x64.sys"))
-          return false;
-      }
       return true;
     }
 
