@@ -36,7 +36,9 @@
 */
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using Microsoft.Win32.SafeHandles;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -78,7 +80,16 @@ namespace OpenHardwareMonitor.Hardware {
 
       NativeMethods.CloseServiceHandle(service);
       NativeMethods.CloseServiceHandle(manager);
-
+      
+      try {
+        // restrict the driver access to system (SY) and builtin admins (BA)
+        // TODO: replace with a call to IoCreateDeviceSecure in the driver
+        FileSecurity fileSecurity = File.GetAccessControl(@"\\.\" + id);
+        fileSecurity.SetSecurityDescriptorSddlForm(
+          "O:BAG:SYD:(A;;FA;;;SY)(A;;FA;;;BA)");
+        File.SetAccessControl(@"\\.\" + id, fileSecurity);
+      } catch { }
+      
       return true;
     }
 
