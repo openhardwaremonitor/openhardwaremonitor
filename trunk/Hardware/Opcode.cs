@@ -37,17 +37,17 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Mono.Unix.Native;
 
 namespace OpenHardwareMonitor.Hardware {
   internal static class Opcode {
+    
     private static IntPtr codeBuffer;
+    private static ulong size;
 
-    public static void Open() {
-      // No implementation for Unix systems
+    public static void Open() {  
       int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
-        return;  
-
+            
       byte[] rdtscCode;
       byte[] cpuidCode;
       if (IntPtr.Size == 4) {
@@ -55,13 +55,25 @@ namespace OpenHardwareMonitor.Hardware {
         cpuidCode = CPUID_32;
       } else {
         rdtscCode = RDTSC_64;
-        cpuidCode = CPUID_64;
+        
+        if ((p == 4) || (p == 128)) { // Unix
+          cpuidCode = CPUID_64_LINUX;
+        } else { // Windows
+          cpuidCode = CPUID_64_WINDOWS;
+        }
       }
-
-      codeBuffer = NativeMethods.VirtualAlloc(IntPtr.Zero,
-        (UIntPtr)(rdtscCode.Length + cpuidCode.Length),
-      AllocationType.COMMIT | AllocationType.RESERVE, 
-      MemoryProtection.EXECUTE_READWRITE);
+      
+      size = (ulong)(rdtscCode.Length + cpuidCode.Length);
+      
+      if ((p == 4) || (p == 128)) { // Unix
+        codeBuffer = Syscall.mmap(IntPtr.Zero, size, 
+          MmapProts.PROT_READ | MmapProts.PROT_WRITE | MmapProts.PROT_EXEC, 
+          MmapFlags.MAP_ANONYMOUS | MmapFlags.MAP_PRIVATE, -1, 0);
+      } else { // Windows
+        codeBuffer = NativeMethods.VirtualAlloc(IntPtr.Zero,
+          (UIntPtr)size, AllocationType.COMMIT | AllocationType.RESERVE, 
+          MemoryProtection.EXECUTE_READWRITE);
+      }
 
       Marshal.Copy(rdtscCode, 0, codeBuffer, rdtscCode.Length);
 
@@ -72,15 +84,20 @@ namespace OpenHardwareMonitor.Hardware {
       Marshal.Copy(cpuidCode, 0, cpuidAddress, cpuidCode.Length);
 
       Cpuid = Marshal.GetDelegateForFunctionPointer(
-        cpuidAddress, typeof(CpuidDelegate)) as CpuidDelegate;
+        cpuidAddress, typeof(CpuidDelegate)) as CpuidDelegate;         
     }
 
     public static void Close() {
       Rdtsc = null;
       Cpuid = null;
-
-      NativeMethods.VirtualFree(codeBuffer, UIntPtr.Zero, 
-        FreeType.RELEASE);
+      
+      int p = (int)Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) { // Unix
+        Syscall.munmap(codeBuffer, size);
+      } else { // Windows
+        NativeMethods.VirtualFree(codeBuffer, UIntPtr.Zero, 
+          FreeType.RELEASE);        
+      }
     }
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
@@ -99,8 +116,8 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static readonly byte[] RDTSC_64 = new byte[] {
       0x0F, 0x31,                     // rdtsc  
-      0x48, 0xC1, 0xE2, 0x20,         // shl rdx,20h  
-      0x48, 0x0B, 0xC2,               // or rax,rdx  
+      0x48, 0xC1, 0xE2, 0x20,         // shl rdx, 20h  
+      0x48, 0x0B, 0xC2,               // or rax, rdx  
       0xC3                            // ret  
     };
     
@@ -125,71 +142,83 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static readonly byte[] CPUID_32 = new byte[] {
       0x55,                           // push ebp  
-      0x8B, 0xEC,                      // mov ebp,esp  
-      0x83, 0xEC, 0x10,               // sub esp,10h  
-      0x8B, 0x45, 0x08,               // mov eax,dword ptr [ebp+8]  
-      0x8B, 0x4D, 0x0C,               // mov ecx,dword ptr [ebp+0Ch]  
+      0x8B, 0xEC,                     // mov ebp, esp  
+      0x83, 0xEC, 0x10,               // sub esp, 10h  
+      0x8B, 0x45, 0x08,               // mov eax, dword ptr [ebp+8]  
+      0x8B, 0x4D, 0x0C,               // mov ecx, dword ptr [ebp+0Ch]  
       0x53,                           // push ebx  
       0x0F, 0xA2,                     // cpuid  
       0x56,                           // push esi  
-      0x8D, 0x75, 0xF0,               // lea esi,[info]  
-      0x89, 0x06,                      // mov dword ptr [esi],eax  
-      0x8B, 0x45, 0x10,               // mov eax,dword ptr [eax]  
-      0x89, 0x5E, 0x04,               // mov dword ptr [esi+4],ebx  
-      0x89, 0x4E, 0x08,               // mov dword ptr [esi+8],ecx  
-      0x89, 0x56, 0x0C,               // mov dword ptr [esi+0Ch],edx  
-      0x8B, 0x4D, 0xF0,               // mov ecx,dword ptr [info]  
-      0x89, 0x08,                      // mov dword ptr [eax],ecx  
-      0x8B, 0x45, 0x14,               // mov eax,dword ptr [ebx]  
-      0x8B, 0x4D, 0xF4,               // mov ecx,dword ptr [ebp-0Ch]  
-      0x89, 0x08,                      // mov dword ptr [eax],ecx  
-      0x8B, 0x45, 0x18,               // mov eax,dword ptr [ecx]  
-      0x8B, 0x4D, 0xF8,               // mov ecx,dword ptr [ebp-8]  
-      0x89, 0x08,                      // mov dword ptr [eax],ecx  
-      0x8B, 0x45, 0x1C,               // mov eax,dword ptr [edx]  
-      0x8B, 0x4D, 0xFC,               // mov ecx,dword ptr [ebp-4]  
+      0x8D, 0x75, 0xF0,               // lea esi, [info]  
+      0x89, 0x06,                     // mov dword ptr [esi],eax  
+      0x8B, 0x45, 0x10,               // mov eax, dword ptr [eax]  
+      0x89, 0x5E, 0x04,               // mov dword ptr [esi+4], ebx  
+      0x89, 0x4E, 0x08,               // mov dword ptr [esi+8], ecx  
+      0x89, 0x56, 0x0C,               // mov dword ptr [esi+0Ch], edx  
+      0x8B, 0x4D, 0xF0,               // mov ecx, dword ptr [info]  
+      0x89, 0x08,                     // mov dword ptr [eax], ecx  
+      0x8B, 0x45, 0x14,               // mov eax, dword ptr [ebx]  
+      0x8B, 0x4D, 0xF4,               // mov ecx, dword ptr [ebp-0Ch]  
+      0x89, 0x08,                     // mov dword ptr [eax], ecx  
+      0x8B, 0x45, 0x18,               // mov eax, dword ptr [ecx]  
+      0x8B, 0x4D, 0xF8,               // mov ecx, dword ptr [ebp-8]  
+      0x89, 0x08,                     // mov dword ptr [eax], ecx  
+      0x8B, 0x45, 0x1C,               // mov eax, dword ptr [edx]  
+      0x8B, 0x4D, 0xFC,               // mov ecx, dword ptr [ebp-4]  
       0x5E,                           // pop esi  
-      0x89, 0x08,                     // mov dword ptr [eax],ecx  
+      0x89, 0x08,                     // mov dword ptr [eax], ecx  
       0x5B,                           // pop ebx  
       0xC9,                           // leave  
       0xC2, 0x18, 0x00                // ret 18h  
     };
              
-    private static readonly byte[] CPUID_64 = new byte[] {
-      0x48, 0x89, 0x5C, 0x24, 0x08,   // mov qword ptr [rsp+8],rbx  
-      0x8B, 0xC1,                     // mov eax,ecx  
-      0x8B, 0xCA,                     // mov ecx,edx  
-      0x0F, 0xA2,                     // cpuid  
-      0x41, 0x89, 0x00,               // mov dword ptr [r8],eax  
-      0x48, 0x8B, 0x44, 0x24, 0x28,   // mov rax,qword ptr [ecx]  
-      0x41, 0x89, 0x19,               // mov dword ptr [r9],ebx  
-      0x48, 0x8B, 0x5C, 0x24, 0x08,   // mov rbx,qword ptr [rsp+8]  
-      0x89, 0x08,                     // mov dword ptr [rax],ecx  
-      0x48, 0x8B, 0x44, 0x24, 0x30,   // mov rax,qword ptr [rsp+30h]  
-      0x89, 0x10,                     // mov dword ptr [rax],edx  
+    private static readonly byte[] CPUID_64_WINDOWS = new byte[] {
+      0x48, 0x89, 0x5C, 0x24, 0x08,   // mov qword ptr [rsp+8], rbx  
+      0x8B, 0xC1,                     // mov eax, ecx  
+      0x8B, 0xCA,                     // mov ecx, edx        
+      0x0F, 0xA2,                     // cpuid        
+      0x41, 0x89, 0x00,               // mov dword ptr [r8], eax        
+      0x48, 0x8B, 0x44, 0x24, 0x28,   // mov rax, qword ptr [rsp+28h]       
+      0x41, 0x89, 0x19,               // mov dword ptr [r9], ebx        
+      0x48, 0x8B, 0x5C, 0x24, 0x08,   // mov rbx, qword ptr [rsp+8]      
+      0x89, 0x08,                     // mov dword ptr [rax], ecx        
+      0x48, 0x8B, 0x44, 0x24, 0x30,   // mov rax, qword ptr [rsp+30h]  
+      0x89, 0x10,                     // mov dword ptr [rax], edx  
       0xC3                            // ret  
+    };
+    
+    private static readonly byte[] CPUID_64_LINUX = new byte[] {
+      0x49, 0x89, 0xD2,               // mov r10, rdx
+      0x49, 0x89, 0xCB,               // mov r11, rcx
+      0x53,                           // push rbx
+      0x89, 0xF8,                     // mov eax, edi
+      0x89, 0xF1,                     // mov ecx, esi
+      0x0F, 0xA2,                     // cpuid
+      0x41, 0x89, 0x02,               // mov dword ptr [r10], eax
+      0x41, 0x89, 0x1B,               // mov dword ptr [r11], ebx
+      0x41, 0x89, 0x08,               // mov dword ptr [r8], ecx
+      0x41, 0x89, 0x11,               // mov dword ptr [r9], edx
+      0x5B,                           // pop rbx
+      0xC3,                           // ret
     };
 
     public static bool CpuidTx(uint index, uint ecxValue, 
       out uint eax, out uint ebx, out uint ecx, out uint edx, 
-      UIntPtr threadAffinityMask) {
+      ulong threadAffinityMask) {
+      
+      ulong mask = ThreadAffinity.Set(threadAffinityMask);
 
-      IntPtr thread = NativeMethods.GetCurrentThread();
-      UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread, 
-        threadAffinityMask);
-
-      if (mask == UIntPtr.Zero) {
+      if (mask == 0) {
         eax = ebx = ecx = edx = 0;
         return false;
-      }
+      } 
 
       Cpuid(index, ecxValue, out eax, out ebx, out ecx, out edx);
 
-      NativeMethods.SetThreadAffinityMask(thread, mask);
-      
+      ThreadAffinity.Set(mask);      
       return true;
     }
-
+    
     [Flags()]
     public enum AllocationType : uint {
       COMMIT = 0x1000,
@@ -222,7 +251,7 @@ namespace OpenHardwareMonitor.Hardware {
       RELEASE = 0x8000
     }
 
-    private static class NativeMethods {
+    private static class NativeMethods {      
       private const string KERNEL = "kernel32.dll";
 
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
@@ -231,14 +260,7 @@ namespace OpenHardwareMonitor.Hardware {
 
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
       public static extern bool VirtualFree(IntPtr lpAddress, UIntPtr dwSize,
-        FreeType dwFreeType);
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern UIntPtr
-        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern IntPtr GetCurrentThread();
+        FreeType dwFreeType);                 
     }
   }
 }

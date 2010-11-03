@@ -130,8 +130,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       if (hasTimeStampCounter) {
+        ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
+        
         estimatedTimeStampCounterFrequency = 
-          EstimateTimeStampCounterFrequency();        
+          EstimateTimeStampCounterFrequency();  
+        
+        ThreadAffinity.Set(mask);
       } else {
         estimatedTimeStampCounterFrequency = 0;
       }
@@ -139,7 +143,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       timeStampCounterFrequency = estimatedTimeStampCounterFrequency;                  
     }
 
-    private static double EstimateTimeStampCounterFrequency() {
+    private static double EstimateTimeStampCounterFrequency() {           
       // preload the function
       EstimateTimeStampCounterFrequency(0);
       EstimateTimeStampCounterFrequency(0);
@@ -148,6 +152,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       List<double> estimatedFrequency = new List<double>(3);
       for (int i = 0; i < 3; i++)
         estimatedFrequency.Add(1e-6 * EstimateTimeStampCounterFrequency(0.025));
+                 
       estimatedFrequency.Sort();
       return estimatedFrequency[1];
     }
@@ -156,7 +161,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
       ulong countBegin, countEnd;
 
-      Thread.BeginThreadAffinity();
       long timeBegin = Stopwatch.GetTimestamp() +
         (long)Math.Ceiling(0.001 * ticks);
       long timeEnd = timeBegin + ticks;
@@ -164,7 +168,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       countBegin = Opcode.Rdtsc();
       while (Stopwatch.GetTimestamp() < timeEnd) { }
       countEnd = Opcode.Rdtsc();
-      Thread.EndThreadAffinity();
 
       return (((double)(countEnd - countBegin)) * Stopwatch.Frequency) /
         (timeEnd - timeBegin);
@@ -173,7 +176,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private static void AppendMSRData(StringBuilder r, uint msr, int thread) {
       uint eax, edx;
-      if (Ring0.RdmsrTx(msr, out eax, out edx, (UIntPtr)(1L << thread))) {
+      if (Ring0.RdmsrTx(msr, out eax, out edx, 1UL << thread)) {
         r.Append(" ");
         r.Append((msr).ToString("X8", CultureInfo.InvariantCulture));
         r.Append("  ");
@@ -264,9 +267,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (hasTimeStampCounter && isInvariantTimeStampCounter) {
 
         // make sure always the same thread is used
-        IntPtr thread = NativeMethods.GetCurrentThread();
-        UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread,
-          (UIntPtr)(1L << cpuid[0][0].Thread));
+        ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
 
         // read time before and after getting the TSC to estimate the error
         long firstTime = Stopwatch.GetTimestamp();
@@ -274,7 +275,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         long time = Stopwatch.GetTimestamp();
 
         // restore the thread affinity mask
-        NativeMethods.SetThreadAffinityMask(thread, mask);
+        ThreadAffinity.Set(mask);
 
         double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
         double error = ((double)(time - firstTime)) / Stopwatch.Frequency;
@@ -303,17 +304,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         if (totalLoad != null)
           totalLoad.Value = cpuLoad.GetTotalLoad();
       }
-    }
-
-    private static class NativeMethods {
-      private const string KERNEL = "kernel32.dll";
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern UIntPtr
-        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern IntPtr GetCurrentThread();
     }
   }
 }

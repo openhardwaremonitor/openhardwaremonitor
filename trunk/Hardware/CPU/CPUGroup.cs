@@ -101,10 +101,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public CPUGroup(ISettings settings) {
-      // No implementation for cpuid on Unix systems
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) 
-        return;     
 
       CPUID[][] processorThreads = GetProcessorThreads();
       this.threads = new CPUID[processorThreads.Length][][];

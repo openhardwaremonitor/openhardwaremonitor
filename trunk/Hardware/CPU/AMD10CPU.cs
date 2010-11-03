@@ -87,10 +87,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(coreClocks[i]);
       }
 
-      // set affinity to the first thread for all frequency estimations
-      IntPtr thread = NativeMethods.GetCurrentThread();
-      UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread,
-        (UIntPtr)(1L << cpuid[0][0].Thread));
+      // set affinity to the first thread for all frequency estimations     
+      ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
 
       uint ctlEax, ctlEdx;
       Ring0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
@@ -104,7 +102,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Ring0.Wrmsr(PERF_CTR_0, ctrEax, ctrEdx);
 
       // restore the thread affinity.
-      NativeMethods.SetThreadAffinityMask(thread, mask);
+      ThreadAffinity.Set(mask);
 
       Update();                   
     }
@@ -208,7 +206,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
           uint curEax, curEdx;
           if (Ring0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
-            (UIntPtr)(1L << cpuid[i][0].Thread))) 
+            1UL << cpuid[i][0].Thread)) 
           {
             // 8:6 CpuDid: current core divisor ID
             // 5:0 CpuFid: current core frequency ID
@@ -231,17 +229,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(this.busClock);
         }
       }
-    }
-
-    private static class NativeMethods {
-      private const string KERNEL = "kernel32.dll";
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern UIntPtr
-        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern IntPtr GetCurrentThread();
     }
   }
 }
