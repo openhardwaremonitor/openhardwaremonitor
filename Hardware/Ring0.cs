@@ -95,6 +95,11 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static void Open() {
+      // No implementation for Unix systems
+      int p = (int)Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128))
+        return;  
+      
       if (driver != null)
         return;
      
@@ -170,15 +175,13 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static bool RdmsrTx(uint index, out uint eax, out uint edx,
-      UIntPtr threadAffinityMask) 
+      ulong threadAffinityMask) 
     {
-      IntPtr thread = NativeMethods.GetCurrentThread();
-      UIntPtr mask = NativeMethods.SetThreadAffinityMask(thread, 
-        threadAffinityMask);
+      ulong mask = ThreadAffinity.Set(threadAffinityMask);
 
       bool result = Rdmsr(index, out eax, out edx);
 
-      NativeMethods.SetThreadAffinityMask(thread, mask);
+      ThreadAffinity.Set(mask);
       return result;
     }
 
@@ -275,17 +278,6 @@ namespace OpenHardwareMonitor.Hardware {
       input.Value = value;
 
       return driver.DeviceIOControl(IOCTL_OLS_WRITE_PCI_CONFIG, input);
-    }
-
-    private static class NativeMethods {
-      private const string KERNEL = "kernel32.dll";
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern UIntPtr
-        SetThreadAffinityMask(IntPtr handle, UIntPtr mask);
-
-      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
-      public static extern IntPtr GetCurrentThread();
     }
   }
 }

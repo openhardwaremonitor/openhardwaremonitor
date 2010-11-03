@@ -118,7 +118,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = new float[coreCount];
                 for (int i = 0; i < coreCount; i++) {
                   if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
-                    out edx, (UIntPtr)(1L << cpuid[i][0].Thread))) {
+                    out edx, 1UL << cpuid[i][0].Thread)) {
                     tjMax[i] = (eax >> 16) & 0xFF;
                   } else {
                     tjMax[i] = 100;
@@ -217,7 +217,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         uint eax, edx;
         if (Ring0.RdmsrTx(
           IA32_THERM_STATUS_MSR, out eax, out edx,
-            (UIntPtr)(1L << cpuid[i][0].Thread))) {
+            1UL << cpuid[i][0].Thread)) {
           // if reading is valid
           if ((eax & 0x80000000) != 0) {
             // get the dist from tjMax from bits 22:16
@@ -237,7 +237,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreClocks.Length; i++) {
           System.Threading.Thread.Sleep(1);
           if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-            (UIntPtr)(1L << cpuid[i][0].Thread))) 
+            1UL << cpuid[i][0].Thread)) 
           {
             newBusClock = 
               TimeStampCounterFrequency / timeStampCounterMultiplier;

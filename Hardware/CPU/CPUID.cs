@@ -105,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       if (thread >= 32)
         throw new ArgumentOutOfRangeException("thread");
-      UIntPtr mask = (UIntPtr)(1L << thread);
+      ulong mask = 1UL << thread;
 
       if (Opcode.CpuidTx(CPUID_0, 0,
           out eax, out ebx, out ecx, out edx, mask)) {
