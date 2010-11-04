@@ -37,7 +37,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Mono.Unix.Native;
+using System.Reflection;
 
 namespace OpenHardwareMonitor.Hardware {
   internal static class Opcode {
@@ -64,11 +64,28 @@ namespace OpenHardwareMonitor.Hardware {
       }
       
       size = (ulong)(rdtscCode.Length + cpuidCode.Length);
-      
-      if ((p == 4) || (p == 128)) { // Unix
-        codeBuffer = Syscall.mmap(IntPtr.Zero, size, 
-          MmapProts.PROT_READ | MmapProts.PROT_WRITE | MmapProts.PROT_EXEC, 
-          MmapFlags.MAP_ANONYMOUS | MmapFlags.MAP_PRIVATE, -1, 0);
+
+      if ((p == 4) || (p == 128)) { // Unix   
+        Assembly assembly = 
+          Assembly.Load("Mono.Posix, Version=2.0.0.0, Culture=neutral, " +
+          "PublicKeyToken=0738eb9f132ed756");
+
+        Type syscall = assembly.GetType("Mono.Unix.Native.Syscall");
+        MethodInfo mmap = syscall.GetMethod("mmap");
+
+        Type mmapProts = assembly.GetType("Mono.Unix.Native.MmapProts");
+        object mmapProtsParam = Enum.ToObject(mmapProts,
+          (int)mmapProts.GetField("PROT_READ").GetValue(null) |
+          (int)mmapProts.GetField("PROT_WRITE").GetValue(null) |
+          (int)mmapProts.GetField("PROT_EXEC").GetValue(null));
+
+        Type mmapFlags = assembly.GetType("Mono.Unix.Native.MmapFlags");
+        object mmapFlagsParam = Enum.ToObject(mmapFlags,
+          (int)mmapFlags.GetField("MAP_ANONYMOUS").GetValue(null) |
+          (int)mmapFlags.GetField("MAP_PRIVATE").GetValue(null));
+        
+        codeBuffer = (IntPtr)mmap.Invoke(null, new object[] { IntPtr.Zero, 
+          size, mmapProtsParam, mmapFlagsParam, -1, 0 });        
       } else { // Windows
         codeBuffer = NativeMethods.VirtualAlloc(IntPtr.Zero,
           (UIntPtr)size, AllocationType.COMMIT | AllocationType.RESERVE, 
@@ -93,7 +110,14 @@ namespace OpenHardwareMonitor.Hardware {
       
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) { // Unix
-        Syscall.munmap(codeBuffer, size);
+        Assembly assembly =
+          Assembly.Load("Mono.Posix, Version=2.0.0.0, Culture=neutral, " +
+          "PublicKeyToken=0738eb9f132ed756");
+
+        Type syscall = assembly.GetType("Mono.Unix.Native.Syscall");
+        MethodInfo munmap = syscall.GetMethod("munmap");
+        munmap.Invoke(null, new object[] { codeBuffer, size });
+
       } else { // Windows
         NativeMethods.VirtualFree(codeBuffer, UIntPtr.Zero, 
           FreeType.RELEASE);        
@@ -246,7 +270,7 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     [Flags]
-    enum FreeType {
+    public enum FreeType {
       DECOMMIT = 0x4000,
       RELEASE = 0x8000
     }
