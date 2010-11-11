@@ -338,13 +338,6 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SaveConfiguration() {
-      if (WindowState != FormWindowState.Minimized) {
-        settings.SetValue("mainForm.Location.X", Bounds.X);
-        settings.SetValue("mainForm.Location.Y", Bounds.Y);
-        settings.SetValue("mainForm.Width", Bounds.Width);
-        settings.SetValue("mainForm.Height", Bounds.Height);
-      }
-
       foreach (TreeColumn column in treeView.Columns)
         settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
@@ -558,6 +551,15 @@ namespace OpenHardwareMonitor.GUI {
         sensor.ResetMin();
         sensor.ResetMax();
       }));
+    }
+
+    private void MainForm_MoveOrResize(object sender, EventArgs e) {
+      if (WindowState != FormWindowState.Minimized) {
+        settings.SetValue("mainForm.Location.X", Bounds.X);
+        settings.SetValue("mainForm.Location.Y", Bounds.Y);
+        settings.SetValue("mainForm.Width", Bounds.Width);
+        settings.SetValue("mainForm.Height", Bounds.Height);
+      }
     }
   }
 }
