@@ -48,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly byte[] raw;
     private readonly Structure[] table;
 
+    private readonly Version version;
     private readonly BIOSInformation biosInformation;
     private readonly BaseBoardInformation baseBoardInformation;
 
@@ -84,19 +85,26 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         List<Structure> structureList = new List<Structure>();
 
         raw = null;
+        byte majorVersion = 0;
+        byte minorVersion = 0;
         try {
           ManagementObjectCollection collection;
           using (ManagementObjectSearcher searcher = 
             new ManagementObjectSearcher("root\\WMI", 
-              "SELECT SMBiosData FROM MSSMBios_RawSMBiosTables")) {
+              "SELECT * FROM MSSMBios_RawSMBiosTables")) {
             collection = searcher.Get();
           }
          
           foreach (ManagementObject mo in collection) {
             raw = (byte[])mo["SMBiosData"];
+            majorVersion = (byte)mo["SmbiosMajorVersion"];
+            minorVersion = (byte)mo["SmbiosMinorVersion"];            
             break;
           }
         } catch { }
+
+        if (majorVersion > 0 || minorVersion > 0)
+          version = new Version(majorVersion, minorVersion);
   
         if (raw != null && raw.Length > 0) {
           int offset = 0;
@@ -146,6 +154,11 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public string GetReport() {
       StringBuilder r = new StringBuilder();
+
+      if (version != null) {
+        r.Append("SMBIOS Version: "); r.AppendLine(version.ToString(2));
+        r.AppendLine();
+      }
 
       if (BIOS != null) {
         r.Append("BIOS Vendor: "); r.AppendLine(BIOS.Vendor);
