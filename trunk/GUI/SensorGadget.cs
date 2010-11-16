@@ -379,8 +379,8 @@ namespace OpenHardwareMonitor.GUI {
         new Rectangle(back.Width - r, back.Height - b, r, b), u);
     }
 
-    private void DrawProgress(Graphics g, int x, int y, int width, int height,
-      float progress) 
+    private void DrawProgress(Graphics g, float x, float y, 
+      float width, float height, float progress) 
     {
       g.DrawImage(barBack, 
         new RectangleF(x + width * progress, y, width * (1 - progress), height), 
@@ -474,7 +474,8 @@ namespace OpenHardwareMonitor.GUI {
               rightMargin;
           } else {
             DrawProgress(g, w - progressWidth - rightMargin,
-              y + 4, progressWidth, 6, 0.01f * sensor.Value.Value);
+              y + 0.35f * sensorLineHeight, progressWidth,
+              0.6f * sensorLineHeight, 0.01f * sensor.Value.Value);
 
             remainingWidth = w - progressWidth - rightMargin;
           }
