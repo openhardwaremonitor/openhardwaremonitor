@@ -152,7 +152,8 @@ namespace OpenHardwareMonitor.GUI {
             if (!lockPositionAndSize) {
               // prevent the window from leaving the screen
               if ((wp.flags & SWP_NOMOVE) == 0) {
-                Rectangle rect = Screen.GetWorkingArea(new Point(wp.x, wp.y));
+                Rectangle rect = Screen.GetWorkingArea(
+                  new Rectangle(wp.x, wp.y, wp.cx, wp.cy));
                 const int margin = 16;
                 wp.x = Math.Max(wp.x, rect.Left - wp.cx + margin);
                 wp.x = Math.Min(wp.x, rect.Right - margin);
@@ -194,7 +195,11 @@ namespace OpenHardwareMonitor.GUI {
             }
             
             // do not forward any move or size messages
-            wp.flags |= SWP_NOSIZE | SWP_NOMOVE;            
+            wp.flags |= SWP_NOSIZE | SWP_NOMOVE;
+
+            // suppress any frame changed events
+            wp.flags &= ~SWP_FRAMECHANGED;
+
             Marshal.StructureToPtr(wp, message.LParam, false);                      
             message.Result = IntPtr.Zero;
           } break;
@@ -383,6 +388,7 @@ namespace OpenHardwareMonitor.GUI {
     public const uint SWP_NOSIZE = 0x0001;
     public const uint SWP_NOMOVE = 0x0002;
     public const uint SWP_NOACTIVATE = 0x0010;
+    public const uint SWP_FRAMECHANGED = 0x0020;
     public const uint SWP_HIDEWINDOW = 0x0080;
     public const uint SWP_SHOWWINDOW = 0x0040;
     public const uint SWP_NOZORDER = 0x0004;
