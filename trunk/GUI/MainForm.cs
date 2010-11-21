@@ -129,6 +129,8 @@ namespace OpenHardwareMonitor.GUI {
         minCloseMenuItem.Visible = false;
       } else { // Windows
         gadget = new SensorGadget(computer, settings, unitManager);
+        gadget.HideShowCommand += hideShowClick;
+
         wmiProvider = new WmiProvider(computer);
       }          
 

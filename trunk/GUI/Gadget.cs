@@ -137,7 +137,16 @@ namespace OpenHardwareMonitor.GUI {
       remove {
         window.HitTest -= value;
       }
-    } 
+    }
+
+    public event MouseEventHandler MouseDoubleClick {
+      add {
+        window.MouseDoubleClick += value;
+      }
+      remove {
+        window.MouseDoubleClick -= value;
+      }
+    }
 
     private void CreateBuffer() {
       this.buffer = new Bitmap(window.Size.Width, window.Size.Height, 

@@ -132,6 +132,11 @@ namespace OpenHardwareMonitor.GUI {
             }
           } break;
         case WM_NCLBUTTONDBLCLK: {
+            if (MouseDoubleClick != null) {
+              MouseDoubleClick(this, new MouseEventArgs(MouseButtons.Left, 2,
+                Macros.GET_X_LPARAM(message.LParam) - location.X,
+                Macros.GET_Y_LPARAM(message.LParam) - location.Y, 0));
+            }
             message.Result = IntPtr.Zero;
           } break;
         case WM_NCRBUTTONDOWN: {
@@ -359,6 +364,8 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public event HitTestEventHandler HitTest;
+
+    public event MouseEventHandler MouseDoubleClick;
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     private struct BlendFunction {
