@@ -69,6 +69,7 @@
     <Compile Include="Hardware\CPU\CPUID.cs" />
     <Compile Include="Hardware\CPU\CPULoad.cs" />
     <Compile Include="Hardware\CPU\IntelCPU.cs" />
+    <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\Ring0.cs" />
     <Compile Include="Hardware\KernelDriver.cs" />
