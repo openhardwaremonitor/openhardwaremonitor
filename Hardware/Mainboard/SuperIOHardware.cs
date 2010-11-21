@@ -741,6 +741,24 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           f.Add(new Fan("CPU Fan", 1));
           f.Add(new Fan("Auxiliary Fan", 2));
           break;
+        case Chip.NCT6771F:
+          v.Add(new Voltage("CPU VCore", 0));
+          v.Add(new Voltage("Voltage #2", 1, true));
+          v.Add(new Voltage("AVCC", 2, 34, 34));
+          v.Add(new Voltage("3VCC", 3, 34, 34));
+          v.Add(new Voltage("Voltage #5", 4, true));
+          v.Add(new Voltage("Voltage #6", 5, true));
+          v.Add(new Voltage("Voltage #7", 6, true));
+          v.Add(new Voltage("3VSB", 7, 34, 34));
+          v.Add(new Voltage("VBAT", 8, 34, 34));
+          t.Add(new Temperature("CPU", 0));
+          t.Add(new Temperature("Auxiliary", 1));
+          t.Add(new Temperature("System", 2));
+          f.Add(new Fan("System Fan", 0));
+          f.Add(new Fan("CPU Fan", 1));
+          f.Add(new Fan("Auxiliary Fan", 2));
+          f.Add(new Fan("Auxiliary Fan #2", 4));
+          break;
         default:
           for (int i = 0; i < superIO.Voltages.Length; i++)
             v.Add(new Voltage("Voltage #" + (i + 1), i, true));
