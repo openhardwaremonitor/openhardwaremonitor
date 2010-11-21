@@ -194,6 +194,10 @@ namespace OpenHardwareMonitor.GUI {
         settings.SetValue("sensorGadget.Width", Size.Width);
         Redraw();
       };
+
+      MouseDoubleClick += delegate(object obj, MouseEventArgs args) {
+        SendHideShowCommand();
+      };
     }
 
     public override void Dispose() {
@@ -302,6 +306,13 @@ namespace OpenHardwareMonitor.GUI {
           }
         }
       Resize();
+    }
+
+    public event EventHandler HideShowCommand;
+
+    public void SendHideShowCommand() {
+      if (HideShowCommand != null)
+        HideShowCommand(this, null);
     }
 
     private Font CreateFont(float size, FontStyle style) {
