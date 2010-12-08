@@ -62,7 +62,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, bank);
       Ring0.WriteIoPort(port + ADDRESS_REGISTER_OFFSET, register);
       return Ring0.ReadIoPort(port + DATA_REGISTER_OFFSET);
-    }
+    } 
 
     // Consts 
     private const ushort NUVOTON_VENDOR_ID = 0x5CA3;
@@ -147,19 +147,23 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       for (int i = 0; i < TEMPERATURE_REG.Length; i++) {
-        float value = ReadByte(TEMPERATURE_REG[i]);
+        int value = ((sbyte)ReadByte(TEMPERATURE_REG[i])) << 1;
         if (TEMPERATURE_HALF_BIT[i] > 0) {
-          value += 0.5f * ((ReadByte(TEMPERATURE_HALF_REG[i]) >> 
+          value |= ((ReadByte(TEMPERATURE_HALF_REG[i]) >>
             TEMPERATURE_HALF_BIT[i]) & 0x1);
         }
 
         TemperatureSource source = (TemperatureSource)
           ReadByte(TEMPERATURE_SRC_REG[i]);
 
+        float? temperature = 0.5f * value;
+        if (temperature > 125 || temperature < -55)
+          temperature = null;
+
         switch (source) {
-          case TemperatureSource.CPUTIN: temperatures[0] = value; break;
-          case TemperatureSource.AUXTIN: temperatures[1] = value; break;
-          case TemperatureSource.SYSTIN: temperatures[2] = value; break;
+          case TemperatureSource.CPUTIN: temperatures[0] = temperature; break;
+          case TemperatureSource.AUXTIN: temperatures[1] = temperature; break;
+          case TemperatureSource.SYSTIN: temperatures[2] = temperature; break;
         }
       }
 
@@ -187,33 +191,35 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (!Ring0.WaitIsaBusMutex(100))
         return r.ToString();
 
+      ushort[] addresses = new ushort[] { 
+        0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070,
+        0x100, 0x110, 0x120, 0x130, 0x140, 0x150, 
+        0x200,        0x220, 0x230, 0x240, 0x250,
+        0x300,        0x320, 0x330, 0x340, 
+        0x400, 0x410, 0x420,        0x440, 0x450, 0x460, 
+        0x500,                             0x550, 
+        0x600, 0x610 ,0x620, 0x630, 0x640, 0x650, 0x660, 0x670, 
+        0xA00, 0xA10, 0xA20, 0xA30,        0xA50, 0xA60, 0xA70, 
+        0xB00, 0xB10, 0xB20, 0xB30,        0xB50, 0xB60, 0xB70, 
+        0xC00, 0xC10, 0xC20, 0xC30,        0xC50, 0xC60, 0xC70,
+        0xD00, 0xD10, 0xD20, 0xD30,        0xD50, 0xD60, 
+        0xE00, 0xE10, 0xE20, 0xE30, 
+        0xF00, 0xF10, 0xF20, 0xF30};
+
       r.AppendLine("Hardware Monitor Registers");
       r.AppendLine();
       r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
-      for (int i = 0; i <= 0x7; i++) {
-        r.Append(" ");
-        r.Append((i << 4).ToString("X3", CultureInfo.InvariantCulture));
-        r.Append("  ");
-        for (int j = 0; j <= 0xF; j++) {
+      foreach (ushort address in addresses) {
           r.Append(" ");
-          r.Append(ReadByte((ushort)((i << 4) | j)).ToString(
-            "X2", CultureInfo.InvariantCulture));
-        }
-        r.AppendLine();
-      }
-      for (int bank = 1; bank <= 15; bank++) {
-        for (int i = 0x5; i < 0x6; i++) {
-          r.Append(" ");
-          r.Append((i << 4).ToString("X3", CultureInfo.InvariantCulture));
+          r.Append(address.ToString("X3", CultureInfo.InvariantCulture));
           r.Append("  ");
-          for (int j = 0; j <= 0xF; j++) {
+          for (ushort j = 0; j <= 0xF; j++) {
             r.Append(" ");
-            r.Append(ReadByte((ushort)((bank << 8) | (i << 4) | j)).ToString(
+            r.Append(ReadByte((ushort)(address | j)).ToString(
               "X2", CultureInfo.InvariantCulture));
           }
           r.AppendLine();
-        }
       }
       r.AppendLine();
 
