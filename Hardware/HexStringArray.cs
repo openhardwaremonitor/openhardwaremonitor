@@ -39,22 +39,21 @@ using System;
 using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware {
-  internal class HexStringArray {
+  internal static class HexStringArray {
 
-    private readonly byte[] array;
+    public static byte Read(string s, ushort address) {
+      string[] lines = s.Split(new[] { '\r', '\n' }, 
+        StringSplitOptions.RemoveEmptyEntries);
 
-    public HexStringArray(string input) {
-      List<byte> list = new List<byte>();
-      foreach (string str in input.Split(' ')) {
-        string s = str.Trim();
-        if (s.Length > 0)
-          list.Add(Convert.ToByte(s, 16));
+      foreach (string line in lines) {
+        string[] array = line.Split(new[] { ' ' }, 
+          StringSplitOptions.RemoveEmptyEntries);
+
+        if (Convert.ToInt32(array[0], 16) == (address & 0xFFF0)) 
+          return Convert.ToByte(array[(address & 0x0F) + 1], 16);
       }
-      array = list.ToArray();
-    }
 
-    public byte this[int i] {
-      get { return array[i]; }
+      throw new ArgumentException();
     }
   }
 }
