@@ -54,7 +54,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly Sensor controlSensor;
     private readonly Control fanControl;
 
-    private ADLFanSpeedValue initialFanSpeedValue;
+    private bool restoreDefaultFanSpeedRequired = false;
+    private ADLFanSpeedValue initialFanSpeedValue;    
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber, ISettings settings) 
@@ -63,12 +64,6 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.adapterIndex = adapterIndex;
       this.busNumber = busNumber;
       this.deviceNumber = deviceNumber;
-
-      this.initialFanSpeedValue = new ADLFanSpeedValue();
-      this.initialFanSpeedValue.SpeedType = 
-        ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
-      ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, 
-        ref this.initialFanSpeedValue);
 
       this.temperature = new Sensor("GPU Core", 0, SensorType.Temperature, this, settings);
       this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, settings);
@@ -96,8 +91,28 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       Update();                   
     }
 
+    private void SaveDefaultFanSpeed() {
+      if (!restoreDefaultFanSpeedRequired) {        
+        initialFanSpeedValue = new ADLFanSpeedValue();
+        initialFanSpeedValue.SpeedType =
+          ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+        restoreDefaultFanSpeedRequired = 
+          ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0,
+          ref initialFanSpeedValue) == ADL.ADL_OK;
+      }
+    }
+
+    private void RestoreDefaultFanSpeed() {
+      if (restoreDefaultFanSpeedRequired) {        
+        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
+          ref this.initialFanSpeedValue);
+        restoreDefaultFanSpeedRequired = false;
+      }
+    }
+
     private void SoftwareControlValueChanged(IControl control) {
       if (control.ControlMode == ControlMode.Software) {
+        SaveDefaultFanSpeed();
         ADLFanSpeedValue adlf = new ADLFanSpeedValue();
         adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
         adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
@@ -108,14 +123,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     private void ControlModeChanged(IControl control) {
       if (control.ControlMode == ControlMode.Default) {
-        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
-          ref this.initialFanSpeedValue);
+        RestoreDefaultFanSpeed();     
       } else {
-        ADLFanSpeedValue adlf = new ADLFanSpeedValue();
-        adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
-        adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
-        adlf.FanSpeed = (int)control.SoftwareValue;
-        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0, ref adlf);
+        SoftwareControlValueChanged(control);
       }
     }
 
@@ -204,8 +214,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.fanControl.SoftwareControlValueChanged -=
         SoftwareControlValueChanged;
 
-      ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
-        ref this.initialFanSpeedValue);
+      RestoreDefaultFanSpeed();
     }
   }
 }

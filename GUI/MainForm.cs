@@ -462,6 +462,7 @@ namespace OpenHardwareMonitor.GUI {
             sensorContextMenu.MenuItems.Add(item);
           }
           if (node.Sensor.Control != null) {
+            sensorContextMenu.MenuItems.Add(new MenuItem("-"));
             IControl control = node.Sensor.Control;
             MenuItem controlItem = new MenuItem("Control");
             MenuItem defaultItem = new MenuItem("Default");
