@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2010
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -35,62 +35,27 @@
  
 */
 
-using System;
-using OpenHardwareMonitor.Collections;
-
 namespace OpenHardwareMonitor.Hardware {
-  internal abstract class Hardware : IHardware {
 
-    private readonly ListSet<ISensor> active = new ListSet<ISensor>();
+  public enum ControlMode {
+    Default,
+    Software
+  }
 
-    public IHardware[] SubHardware {
-      get { return new IHardware[0]; }
-    }
+  public interface IControl {
 
-    public virtual IHardware Parent {
-      get { return null; }
-    }
+    Identifier Identifier { get; }
 
-    public ISensor[] Sensors {
-      get { return active.ToArray(); }
-    }
+    ControlMode ControlMode { get; }
 
-    protected void ActivateSensor(ISensor sensor) {
-      if (active.Add(sensor)) 
-        if (SensorAdded != null)
-          SensorAdded(sensor);
-    }
+    float SoftwareValue { get; }
 
-    protected void DeactivateSensor(ISensor sensor) {
-      if (active.Remove(sensor))
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);     
-    }
+    void SetDefault();
 
-    #pragma warning disable 67
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67
-  
-    public abstract string Name { get; }
-    public abstract Identifier Identifier { get; }
-    public abstract HardwareType HardwareType { get; }
+    float MinSoftwareValue { get; }
+    float MaxSoftwareValue { get; }
 
-    public virtual string GetReport() {
-      return null;
-    }
+    void SetSoftware(float value);
 
-    public abstract void Update();
-
-    public void Accept(IVisitor visitor) {
-      if (visitor == null)
-        throw new ArgumentNullException("visitor");
-      visitor.VisitHardware(this);
-    }
-
-    public void Traverse(IVisitor visitor) {
-      foreach (ISensor sensor in active)
-        sensor.Accept(visitor);
-    }
   }
 }

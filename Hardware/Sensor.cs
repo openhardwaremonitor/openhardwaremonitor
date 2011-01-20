@@ -57,6 +57,7 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly Queue<SensorValue> values =
       new Queue<SensorValue>(MAX_MINUTES * 15);
     private readonly ISettings settings;
+    private IControl control;
     
     private float sum;
     private int count;
@@ -185,6 +186,15 @@ namespace OpenHardwareMonitor.Hardware {
     public void Traverse(IVisitor visitor) {
       foreach (IParameter parameter in parameters)
         parameter.Accept(visitor);
+    }
+
+    public IControl Control {
+      get {
+        return control;
+      }
+      internal set {
+        this.control = value;
+      }
     }
   }
 }

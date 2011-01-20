@@ -51,7 +51,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly Sensor memoryClock;
     private readonly Sensor coreVoltage;
     private readonly Sensor coreLoad;
-    private readonly Sensor fanControl;
+    private readonly Sensor controlSensor;
+    private readonly Control fanControl;
+
+    private ADLFanSpeedValue initialFanSpeedValue;
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber, ISettings settings) 
@@ -61,14 +64,59 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.busNumber = busNumber;
       this.deviceNumber = deviceNumber;
 
+      this.initialFanSpeedValue = new ADLFanSpeedValue();
+      this.initialFanSpeedValue.SpeedType = 
+        ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+      ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, 
+        ref this.initialFanSpeedValue);
+
       this.temperature = new Sensor("GPU Core", 0, SensorType.Temperature, this, settings);
       this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, settings);
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this, settings);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this, settings);
       this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this, settings);
-      this.fanControl = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
+      this.controlSensor = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
+
+      ADLFanSpeedInfo afsi = new ADLFanSpeedInfo();
+      if (ADL.ADL_Overdrive5_FanSpeedInfo_Get(adapterIndex, 0, ref afsi)
+        != ADL.ADL_OK) 
+      {
+        afsi.MaxPercent = 100;
+        afsi.MinPercent = 0;
+      }
+
+      this.fanControl = new Control(controlSensor, settings, afsi.MinPercent, 
+        afsi.MaxPercent);
+      this.fanControl.ControlModeChanged += ControlModeChanged;
+      this.fanControl.SoftwareControlValueChanged += 
+        SoftwareControlValueChanged;
+      ControlModeChanged(fanControl);
+      this.controlSensor.Control = fanControl;
       Update();                   
+    }
+
+    private void SoftwareControlValueChanged(IControl control) {
+      if (control.ControlMode == ControlMode.Software) {
+        ADLFanSpeedValue adlf = new ADLFanSpeedValue();
+        adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+        adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
+        adlf.FanSpeed = (int)control.SoftwareValue;
+        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0, ref adlf);
+      }
+    }
+
+    private void ControlModeChanged(IControl control) {
+      if (control.ControlMode == ControlMode.Default) {
+        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
+          ref this.initialFanSpeedValue);
+      } else {
+        ADLFanSpeedValue adlf = new ADLFanSpeedValue();
+        adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+        adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
+        adlf.FanSpeed = (int)control.SoftwareValue;
+        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0, ref adlf);
+      }
     }
 
     public int BusNumber { get { return busNumber; } }
@@ -116,10 +164,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
       if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
         == ADL.ADL_OK) {
-        fanControl.Value = adlf.FanSpeed;
-        ActivateSensor(fanControl);
+        controlSensor.Value = adlf.FanSpeed;
+        ActivateSensor(controlSensor);
       } else {
-        fanControl.Value = null;
+        controlSensor.Value = null;
       }
 
       ADLPMActivity adlp = new ADLPMActivity();
@@ -149,6 +197,15 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         coreVoltage.Value = null;
         coreLoad.Value = null;
       }
+    }
+
+    public void Close() {
+      this.fanControl.ControlModeChanged -= ControlModeChanged;
+      this.fanControl.SoftwareControlValueChanged -=
+        SoftwareControlValueChanged;
+
+      ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
+        ref this.initialFanSpeedValue);
     }
   }
 }

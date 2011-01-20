@@ -461,6 +461,34 @@ namespace OpenHardwareMonitor.GUI {
             };
             sensorContextMenu.MenuItems.Add(item);
           }
+          if (node.Sensor.Control != null) {
+            IControl control = node.Sensor.Control;
+            MenuItem controlItem = new MenuItem("Control");
+            MenuItem defaultItem = new MenuItem("Default");
+            defaultItem.Checked = control.ControlMode == ControlMode.Default;
+            controlItem.MenuItems.Add(defaultItem);
+            defaultItem.Click += delegate(object obj, EventArgs args) {
+              control.SetDefault();
+            };
+            MenuItem manualItem = new MenuItem("Manual");            
+            controlItem.MenuItems.Add(manualItem);
+            manualItem.Checked = control.ControlMode == ControlMode.Software;
+            for (int i = 0; i <= 100; i += 5) {
+              if (i <= control.MaxSoftwareValue &&
+                  i >= control.MinSoftwareValue) 
+              {
+                MenuItem item = new MenuItem(i + " %");
+                manualItem.MenuItems.Add(item);
+                item.Checked = control.ControlMode == ControlMode.Software &&
+                  Math.Round(control.SoftwareValue) == i;
+                int softwareValue = i;
+                item.Click += delegate(object obj, EventArgs args) {
+                  control.SetSoftware(softwareValue);
+                };
+              }
+            }
+            sensorContextMenu.MenuItems.Add(controlItem);
+          }
 
           sensorContextMenu.Show(treeView, new Point(m.X, m.Y));
         }
