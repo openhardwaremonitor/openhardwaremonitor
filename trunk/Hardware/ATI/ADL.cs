@@ -122,6 +122,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public const int ADL_DL_FANCTRL_SUPPORTS_PERCENT_WRITE = 2;
     public const int ADL_DL_FANCTRL_SUPPORTS_RPM_READ = 4;
     public const int ADL_DL_FANCTRL_SUPPORTS_RPM_WRITE = 8;
+    public const int ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED = 1;
 
     public const int ATI_VENDOR_ID1 = 1002;
     public const int ATI_VENDOR_ID2 = 0x1002;
@@ -149,6 +150,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public delegate int ADL_Overdrive5_FanSpeedInfo_GetDelegate(
       int adapterIndex, int thermalControllerIndex,
       ref ADLFanSpeedInfo fanSpeedInfo);
+    public delegate int ADL_Overdrive5_FanSpeedToDefault_SetDelegate(
+      int adapterIndex, int thermalControllerIndex);
+    public delegate int ADL_Overdrive5_FanSpeed_SetDelegate(int adapterIndex,
+      int thermalControllerIndex, ref	ADLFanSpeedValue fanSpeedValue);
 
     private static ADL_Main_Control_CreateDelegate
       _ADL_Main_Control_Create;
@@ -173,6 +178,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADL_Overdrive5_FanSpeed_Get;
     public static ADL_Overdrive5_FanSpeedInfo_GetDelegate
       ADL_Overdrive5_FanSpeedInfo_Get;
+    public static ADL_Overdrive5_FanSpeedToDefault_SetDelegate
+      ADL_Overdrive5_FanSpeedToDefault_Set;
+    public static ADL_Overdrive5_FanSpeed_SetDelegate
+      ADL_Overdrive5_FanSpeed_Set;
 
     private static string dllName;
 
@@ -215,6 +224,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         out ADL_Overdrive5_FanSpeed_Get);
       GetDelegate("ADL_Overdrive5_FanSpeedInfo_Get",
         out ADL_Overdrive5_FanSpeedInfo_Get);
+      GetDelegate("ADL_Overdrive5_FanSpeedToDefault_Set",
+        out ADL_Overdrive5_FanSpeedToDefault_Set);
+      GetDelegate("ADL_Overdrive5_FanSpeed_Set",
+        out ADL_Overdrive5_FanSpeed_Set);
     }
 
     static ADL() {

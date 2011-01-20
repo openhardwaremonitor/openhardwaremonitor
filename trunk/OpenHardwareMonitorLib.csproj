@@ -59,6 +59,8 @@
     <Compile Include="Hardware\ATI\ADL.cs" />
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
+    <Compile Include="Hardware\Control.cs" />
+    <Compile Include="Hardware\IControl.cs" />
     <Compile Include="Hardware\IOControlCode.cs" />
     <Compile Include="Hardware\Computer.cs" />
     <Compile Include="Hardware\CPU\AMDCPU.cs" />

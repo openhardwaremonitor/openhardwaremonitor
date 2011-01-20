@@ -144,6 +144,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public void Close() {
       try {
+        foreach (ATIGPU gpu in hardware)
+          gpu.Close();
         ADL.ADL_Main_Control_Destroy();
       } catch (Exception) { }
     }

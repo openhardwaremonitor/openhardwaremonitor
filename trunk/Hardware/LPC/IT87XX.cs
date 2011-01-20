@@ -82,6 +82,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return value;
     }
 
+    private bool WriteByte(byte register, byte value) {
+      Ring0.WriteIoPort(addressReg, register);
+      Ring0.WriteIoPort(dataReg, value);
+      return register == Ring0.ReadIoPort(addressReg);
+    }
+
     public byte? ReadGPIO(int index) {
       if (index >= gpioCount)
         return null;
