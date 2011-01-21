@@ -46,7 +46,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Unknown,
       Core,
       Atom,
-      Nehalem
+      Nehalem,
+      SandyBridge
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -65,6 +66,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       float[] result = new float[coreCount];
       for (int i = 0; i < coreCount; i++)
         result[i] = f;
+      return result;
+    }
+
+    private float[] GetTjMaxFromMSR() {
+      uint eax, edx;
+      float[] result = new float[coreCount];
+      for (int i = 0; i < coreCount; i++) {
+        if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
+          out edx, 1UL << cpuid[i][0].Thread)) {
+          result[i] = (eax >> 16) & 0xFF;
+        } else {
+          result[i] = 100;
+        }
+      }
       return result;
     }
 
@@ -111,19 +126,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 } break;
               case 0x1A: // Intel Core i7 LGA1366 (45nm)
               case 0x1E: // Intel Core i5, i7 LGA1156 (45nm)
+              case 0x1F: // Intel Core i5, i7 
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
               case 0x2C: // Intel Core i7 LGA1366 (32nm) 6 Core
+              case 0x2E: // Intel Xeon Processor 7500 series
                 microarchitecture = Microarchitecture.Nehalem;
-                uint eax, edx;
-                tjMax = new float[coreCount];
-                for (int i = 0; i < coreCount; i++) {
-                  if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
-                    out edx, 1UL << cpuid[i][0].Thread)) {
-                    tjMax[i] = (eax >> 16) & 0xFF;
-                  } else {
-                    tjMax[i] = 100;
-                  }
-                }                
+                tjMax = GetTjMaxFromMSR();
+                break;
+              case 0x2A: // Intel Core i5, i7 2xxx LGA1155 (32nm)
+              case 0x2D: // Next Generation Intel Xeon Processor
+                microarchitecture = Microarchitecture.SandyBridge;
+                tjMax = GetTjMaxFromMSR();
                 break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
@@ -147,7 +160,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
             }
           } break;
-        case Microarchitecture.Nehalem: {
+        case Microarchitecture.Nehalem: 
+        case Microarchitecture.SandyBridge: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -241,7 +255,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           {
             newBusClock = 
               TimeStampCounterFrequency / timeStampCounterMultiplier;
-            if (microarchitecture == Microarchitecture.Nehalem) {
+            if (microarchitecture == Microarchitecture.Nehalem ||
+                microarchitecture == Microarchitecture.SandyBridge) 
+            {
               uint multiplier = eax & 0xff;
               coreClocks[i].Value = (float)(multiplier * newBusClock);
             } else {
