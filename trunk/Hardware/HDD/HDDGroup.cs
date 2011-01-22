@@ -193,23 +193,21 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if (attributes.Length > 0) {
           r.AppendLine("Drive name: " + name);
           r.AppendLine();
-          r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
+          r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}",
             ("ID").PadRight(6),
             ("RawValue").PadRight(20),
             ("WorstValue").PadRight(12),
             ("AttrValue").PadRight(12),
-            ("Name"),
             Environment.NewLine);
 
           foreach (SMART.DriveAttribute a in attributes) {
             if (a.ID == SMART.AttributeID.None) continue;
             string raw = BitConverter.ToString(a.RawValue);
-            r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}{5}",
+            r.AppendFormat(CultureInfo.InvariantCulture, " {0}{1}{2}{3}{4}",
               a.ID.ToString("d").PadRight(6), 
               raw.Replace("-", " ").PadRight(20),
               a.WorstValue.ToString(CultureInfo.InvariantCulture).PadRight(12),
               a.AttrValue.ToString(CultureInfo.InvariantCulture).PadRight(12),
-              a.ID,
               Environment.NewLine);
           }
           r.AppendLine();
