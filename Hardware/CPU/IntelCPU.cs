@@ -255,15 +255,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           {
             newBusClock = 
               TimeStampCounterFrequency / timeStampCounterMultiplier;
-            if (microarchitecture == Microarchitecture.Nehalem ||
-                microarchitecture == Microarchitecture.SandyBridge) 
-            {
-              uint multiplier = eax & 0xff;
-              coreClocks[i].Value = (float)(multiplier * newBusClock);
-            } else {
-              double multiplier = ((eax >> 8) & 0x1f) + 0.5 * ((eax >> 14) & 1);
-              coreClocks[i].Value = (float)(multiplier * newBusClock);
-            }            
+            switch (microarchitecture) {
+              case Microarchitecture.Nehalem: {
+                  uint multiplier = eax & 0xff;
+                  coreClocks[i].Value = (float)(multiplier * newBusClock);
+                } break;
+              case Microarchitecture.SandyBridge: {
+                  uint multiplier = (eax >> 8) & 0xff;
+                  coreClocks[i].Value = (float)(multiplier * newBusClock);
+                } break;
+              default: {
+                  double multiplier = 
+                    ((eax >> 8) & 0x1f) + 0.5 * ((eax >> 14) & 1);
+                  coreClocks[i].Value = (float)(multiplier * newBusClock);
+                } break;
+            }         
           } else { 
             // if IA32_PERF_STATUS is not available, assume TSC frequency
             coreClocks[i].Value = (float)TimeStampCounterFrequency;
