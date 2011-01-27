@@ -57,26 +57,36 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint COFVID_STATUS = 0xC0010071;
 
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
-    private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
+    private const ushort FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
+    private const ushort FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1303;    
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
     private readonly uint miscellaneousControlAddress;
+    private readonly ushort miscellaneousControlDeviceId;
 
     private double timeStampCounterMultiplier;
 
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
     {            
-      // AMD family 10h processors support only one temperature sensor
+      // AMD family 10h/11h processors support only one temperature sensor
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
         SensorType.Temperature, this, new [] {
             new ParameterDescription("Offset [°C]", "Temperature offset.", 0)
           }, settings);
 
+      switch (family) {
+        case 0x10: miscellaneousControlDeviceId =
+          FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        case 0x11: miscellaneousControlDeviceId =
+          FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        default: miscellaneousControlDeviceId = 0; break;
+      }
+
       // get the pci address for the Miscellaneous Control registers 
       miscellaneousControlAddress = GetPciAddress(
-        MISCELLANEOUS_CONTROL_FUNCTION, MISCELLANEOUS_CONTROL_DEVICE_ID);
+        MISCELLANEOUS_CONTROL_FUNCTION, miscellaneousControlDeviceId);        
 
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       coreClocks = new Sensor[coreCount];
