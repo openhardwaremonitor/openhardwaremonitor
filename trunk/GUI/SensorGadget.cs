@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.GUI {
     private const int leftBorder = 6;
     private const int rightBorder = 7;
 
+    private readonly float scale;
     private float fontSize;
     private int iconSize;
     private int hardwareLineHeight;
@@ -107,6 +108,11 @@ namespace OpenHardwareMonitor.GUI {
         settings.SetValue("sensorGadget.Location.X", Location.X);
         settings.SetValue("sensorGadget.Location.Y", Location.Y);
       };
+
+      // get the custom to default dpi ratio
+      using (Bitmap b = new Bitmap(1, 1)) {
+        scale = b.HorizontalResolution / 96.0f;
+      }
 
       SetFontSize(settings.GetValue("sensorGadget.FontSize", 7.5f));
       Resize(settings.GetValue("sensorGadget.Width", Size.Width));
@@ -329,15 +335,18 @@ namespace OpenHardwareMonitor.GUI {
       fontSize = size;
       largeFont = CreateFont(fontSize, FontStyle.Bold);
       smallFont = CreateFont(fontSize, FontStyle.Regular);
-      iconSize = (int)Math.Round(1.5 * fontSize);
-      hardwareLineHeight = (int)Math.Round(1.66 * fontSize);
-      sensorLineHeight = (int)Math.Round(1.33 * fontSize);      
-      leftMargin = leftBorder + (int)Math.Round(0.3 * fontSize);
-      rightMargin = rightBorder + (int)Math.Round(0.3 * fontSize);
+      
+      double scaledFontSize = fontSize * scale;
+      iconSize = (int)Math.Round(1.5 * scaledFontSize);
+      hardwareLineHeight = (int)Math.Round(1.66 * scaledFontSize);
+      sensorLineHeight = (int)Math.Round(1.33 * scaledFontSize);
+      leftMargin = leftBorder + (int)Math.Round(0.3 * scaledFontSize);
+      rightMargin = rightBorder + (int)Math.Round(0.3 * scaledFontSize);
       topMargin = topBorder;
-      bottomMargin = bottomBorder + (int)Math.Round(0.3 * fontSize);
-      progressWidth = (int)Math.Round(5.3 * fontSize);
-      Resize((int)Math.Round(17.3 * fontSize));
+      bottomMargin = bottomBorder + (int)Math.Round(0.3 * scaledFontSize);
+      progressWidth = (int)Math.Round(5.3 * scaledFontSize);
+
+      Resize((int)Math.Round(17.3 * scaledFontSize));
     }
 
     private void Resize() {
