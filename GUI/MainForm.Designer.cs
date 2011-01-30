@@ -436,8 +436,7 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.NodeControls.Add(this.nodeTextBoxText);
       this.treeView.NodeControls.Add(this.nodeTextBoxValue);
       this.treeView.NodeControls.Add(this.nodeTextBoxMin);
-      this.treeView.NodeControls.Add(this.nodeTextBoxMax);
-      this.treeView.RowHeight = 18;
+      this.treeView.NodeControls.Add(this.nodeTextBoxMax);      
       this.treeView.SelectedNode = null;
       this.treeView.Size = new System.Drawing.Size(386, 354);
       this.treeView.TabIndex = 0;

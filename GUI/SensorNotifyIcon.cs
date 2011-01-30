@@ -112,7 +112,22 @@ namespace OpenHardwareMonitor.GUI {
         sensorSystemTray.SendHideShowCommand();
       };
 
-      this.bitmap = new Bitmap(16, 16, PixelFormat.Format32bppArgb);
+      // get the default dpi to create an icon with the correct size
+      float dpiX, dpiY;
+      using (Bitmap b = new Bitmap(1, 1, PixelFormat.Format32bppArgb)) {
+        dpiX = b.HorizontalResolution;
+        dpiY = b.VerticalResolution;
+      }
+
+      // adjust the size of the icon to current dpi (default is 16x16 at 96 dpi) 
+      int width = (int)Math.Round(16 * dpiX / 96);
+      int height = (int)Math.Round(16 * dpiY / 96);
+
+      // make sure it does never get smaller than 16x16
+      width = width < 16 ? 16: width;
+      height = height < 16 ? 16: height;
+
+      this.bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);      
       this.graphics = Graphics.FromImage(this.bitmap);
 
       if (Environment.OSVersion.Version.Major > 5) {
@@ -211,7 +226,8 @@ namespace OpenHardwareMonitor.GUI {
         bytes[i + 3] = (byte)(0.3 * red + 0.59 * green + 0.11 * blue);
       }
 
-      return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
+      return IconFactory.Create(bytes, bitmap.Width, bitmap.Height, 
+        PixelFormat.Format32bppArgb);
     }
 
     private Icon CreatePercentageIcon() {      
@@ -220,10 +236,10 @@ namespace OpenHardwareMonitor.GUI {
       } catch (ArgumentException) {
         graphics.Clear(Color.Black);
       }
-      graphics.FillRectangle(darkBrush, 0.5f, -0.5f, 14, 16);
+      graphics.FillRectangle(darkBrush, 0.5f, -0.5f, bitmap.Width - 2, bitmap.Height);
       float y = 0.16f * (100 - sensor.Value.Value);
-      graphics.FillRectangle(brush, 0.5f, -0.5f + y, 14, 16 - y);
-      graphics.DrawRectangle(pen, 1, 0, 13, 15);
+      graphics.FillRectangle(brush, 0.5f, -0.5f + y, bitmap.Width - 2, bitmap.Height - y);
+      graphics.DrawRectangle(pen, 1, 0, bitmap.Width - 3, bitmap.Height - 1);
 
       BitmapData data = bitmap.LockBits(
         new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -232,7 +248,8 @@ namespace OpenHardwareMonitor.GUI {
       Marshal.Copy(data.Scan0, bytes, 0, bytes.Length);
       bitmap.UnlockBits(data);
 
-      return IconFactory.Create(bytes, 16, 16, PixelFormat.Format32bppArgb);
+      return IconFactory.Create(bytes, bitmap.Width, bitmap.Height, 
+        PixelFormat.Format32bppArgb);
     }
 
     public void Update() {
