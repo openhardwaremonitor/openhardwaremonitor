@@ -76,7 +76,7 @@ namespace OpenHardwareMonitor {
 
       if (!File.Exists(path + fileName)) {
         MessageBox.Show("The following file could not be found: " + fileName + 
-          "\nPlease extract all files from the zip archive.", "Error",
+          "\nPlease extract all files from the archive.", "Error",
            MessageBoxButtons.OK, MessageBoxIcon.Error);
         return false;
       }
@@ -86,7 +86,8 @@ namespace OpenHardwareMonitor {
     private static bool AllRequiredFilesAvailable() {
       if (!IsFileAvailable("Aga.Controls.dll"))
         return false;
-
+      if (!IsFileAvailable("OpenHardwareMonitorLib.dll"))
+        return false;
       return true;
     }
 

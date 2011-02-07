@@ -91,7 +91,7 @@ namespace OpenHardwareMonitor.GUI {
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
       plotPanel.Font = SystemFonts.MessageBoxFont;
-      treeView.RowHeight = treeView.Font.Height;      
+      treeView.RowHeight = treeView.Font.Height + 1;      
       
       nodeCheckBox.IsVisibleValueNeeded += nodeCheckBox_IsVisibleValueNeeded;
       nodeCheckBox.CheckStateChanged += UpdatePlotSelection;
