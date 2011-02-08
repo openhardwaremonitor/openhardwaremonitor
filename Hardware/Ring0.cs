@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -40,12 +40,14 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
   internal static class Ring0 {
 
     private static KernelDriver driver;
     private static Mutex isaBusMutex;
+    private static readonly StringBuilder report = new StringBuilder();
 
     private const uint OLS_TYPE = 40000;
     private static IOControlCode
@@ -95,28 +97,41 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static void Open() {
-      // No implementation for Unix systems
+      // no implementation for unix systems
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128))
         return;  
       
       if (driver != null)
         return;
+
+      // clear the current report
+      report.Length = 0;
      
       driver = new KernelDriver("WinRing0_1_2_0");
       driver.Open();
 
       if (!driver.IsOpen) {
+        // driver is not loaded, try to install and open
         string fileName = Path.GetTempFileName();
         if (ExtractDriver(fileName)) {
+          if (driver.Install(fileName)) {
+            File.Delete(fileName);
+            driver.Open();
 
-          driver.Install(fileName);
-          File.Delete(fileName);
-
-          driver.Open();
-
-          if (!driver.IsOpen)
-            driver.Delete();
+            if (!driver.IsOpen) {
+              driver.Delete();
+              report.AppendLine("Status: Opening driver failed");
+            }
+          } else {
+            report.AppendLine("Status: Installing driver failed");
+            report.AppendLine();
+            report.Append("Exception: " + Marshal.GetExceptionForHR(
+              Marshal.GetHRForLastWin32Error()).Message);
+          }
+        } else {
+          report.AppendLine(
+            "Status: Extracting driver to \"" + fileName + "\" failed");
         }
       }
 
@@ -145,6 +160,16 @@ namespace OpenHardwareMonitor.Hardware {
       driver = null;
 
       isaBusMutex.Close(); 
+    }
+
+    public static string GetReport() {
+      if (report.Length > 0) {
+        report.Insert(0, "Ring0" + Environment.NewLine +
+          Environment.NewLine);
+        report.AppendLine();
+        return report.ToString();
+      } else
+        return null;
     }
 
     public static bool WaitIsaBusMutex(int millisecondsTimeout) {

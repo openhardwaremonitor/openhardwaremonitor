@@ -222,6 +222,13 @@ namespace OpenHardwareMonitor.Hardware {
         w.WriteLine(IntPtr.Size == 4 ? "32-Bit" : "64-Bit");
         w.WriteLine();
 
+        string r = Ring0.GetReport();
+        if (r != null) {
+          NewSection(w);
+          w.Write(r);
+          w.WriteLine();
+        }
+
         NewSection(w);
         w.WriteLine("Sensors");
         w.WriteLine();
