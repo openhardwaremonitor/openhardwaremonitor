@@ -112,7 +112,9 @@ namespace OpenHardwareMonitor.Hardware {
       driver.Open();
 
       if (!driver.IsOpen) {
-        // driver is not loaded, try to install and open
+        // driver is not loaded, try to reinstall and open
+
+        driver.Delete();
         string fileName = Path.GetTempFileName();
         if (ExtractDriver(fileName)) {
           if (driver.Install(fileName)) {
@@ -124,7 +126,9 @@ namespace OpenHardwareMonitor.Hardware {
               report.AppendLine("Status: Opening driver failed");
             }
           } else {
-            report.AppendLine("Status: Installing driver failed");
+            report.AppendLine("Status: Installing driver \"" + 
+              fileName + "\" failed" + 
+              (File.Exists(fileName) ? " and file exists" : ""));
             report.AppendLine();
             report.Append("Exception: " + Marshal.GetExceptionForHR(
               Marshal.GetHRForLastWin32Error()).Message);
