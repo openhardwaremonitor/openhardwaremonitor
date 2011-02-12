@@ -168,10 +168,12 @@ namespace OpenHardwareMonitor.Hardware {
 
     public static string GetReport() {
       if (report.Length > 0) {
-        report.Insert(0, "Ring0" + Environment.NewLine +
-          Environment.NewLine);
-        report.AppendLine();
-        return report.ToString();
+        StringBuilder r = new StringBuilder();
+        r.AppendLine("Ring0");
+        r.AppendLine();
+        r.Append(report);
+        r.AppendLine();
+        return r.ToString();
       } else
         return null;
     }

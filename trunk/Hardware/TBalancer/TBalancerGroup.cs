@@ -163,10 +163,12 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public string GetReport() {
       if (report.Length > 0) {
-        report.Insert(0, "FTD2XX" + Environment.NewLine +
-          Environment.NewLine);
-        report.AppendLine();
-        return report.ToString();
+        StringBuilder r = new StringBuilder();
+        r.AppendLine("FTD2XX");
+        r.AppendLine();
+        r.Append(report);
+        r.AppendLine();
+        return r.ToString();
       } else
         return null;
     }
