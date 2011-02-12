@@ -182,10 +182,12 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     public string GetReport() {
       if (report.Length > 0) {
-        report.Insert(0, "Serial Port Heatmaster" + Environment.NewLine +
-          Environment.NewLine);
-        report.AppendLine();
-        return report.ToString();
+        StringBuilder r = new StringBuilder();
+        r.AppendLine("Serial Port Heatmaster");
+        r.AppendLine();
+        r.Append(report);
+        r.AppendLine();
+        return r.ToString();
       } else
         return null;
     }
