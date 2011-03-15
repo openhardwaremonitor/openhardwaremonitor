@@ -395,7 +395,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("Voltage #5", 4, true));
                   v.Add(new Voltage("Voltage #6", 5, true));
                   v.Add(new Voltage("Voltage #7", 6, true));
-                  v.Add(new Voltage("+12V", 7, 27, 9.1f, 0, true));
+                  v.Add(new Voltage("Voltage #8", 7, true));
                   v.Add(new Voltage("VBat", 8));
                   for (int i = 0; i < superIO.Temperatures.Length; i++)
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
