@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -265,7 +265,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       if (!available)
         return;
 
-      while (serialPort.BytesToRead > 0) {
+      while (serialPort.IsOpen &&  serialPort.BytesToRead > 0) {
         byte b = (byte)serialPort.ReadByte();
         if (b == 0x0D) {
           ProcessUpdateLine(buffer.ToString());
