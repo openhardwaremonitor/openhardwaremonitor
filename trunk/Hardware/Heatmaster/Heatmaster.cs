@@ -227,9 +227,15 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
         if (int.TryParse(match.Groups[1].Value, out device)) {
           foreach (string s in match.Groups[2].Value.Split('|')) {
             string[] strings = s.Split(':');
-            int[] ints = new int[strings.Length];
+            int[] ints = new int[strings.Length];            
+            bool valid = true;
             for (int i = 0; i < ints.Length; i++)
-              ints[i] = int.Parse(strings[i], CultureInfo.InvariantCulture);
+              if (!int.TryParse(strings[i], out ints[i])) {
+                valid = false;
+                break;
+              }
+            if (!valid)
+              continue; 
             switch (device) {
               case 32:
                 if (ints.Length == 3 && ints[0] <= fans.Length) {
