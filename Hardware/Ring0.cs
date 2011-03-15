@@ -142,7 +142,7 @@ namespace OpenHardwareMonitor.Hardware {
       if (!driver.IsOpen) 
         driver = null;
 
-      isaBusMutex = new Mutex(false, "Access_ISABUS.HTP.Method");
+      isaBusMutex = new Mutex(false, "Global\\Access_ISABUS.HTP.Method");
     }
 
     public static bool IsOpen {
