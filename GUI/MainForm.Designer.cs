@@ -108,6 +108,8 @@ namespace OpenHardwareMonitor.GUI {
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
+      this.resetMenuItem = new System.Windows.Forms.MenuItem();
+      this.menuItem6 = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
@@ -203,6 +205,8 @@ namespace OpenHardwareMonitor.GUI {
             this.saveReportMenuItem,
             this.sumbitReportMenuItem,
             this.MenuItem2,
+            this.resetMenuItem,
+            this.menuItem6,
             this.exitMenuItem});
       this.fileMenuItem.Text = "File";
       // 
@@ -225,7 +229,7 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // exitMenuItem
       // 
-      this.exitMenuItem.Index = 3;
+      this.exitMenuItem.Index = 5;
       this.exitMenuItem.Text = "Exit";
       this.exitMenuItem.Click += new System.EventHandler(this.exitClick);
       // 
@@ -436,7 +440,7 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.NodeControls.Add(this.nodeTextBoxText);
       this.treeView.NodeControls.Add(this.nodeTextBoxValue);
       this.treeView.NodeControls.Add(this.nodeTextBoxMin);
-      this.treeView.NodeControls.Add(this.nodeTextBoxMax);      
+      this.treeView.NodeControls.Add(this.nodeTextBoxMax);
       this.treeView.SelectedNode = null;
       this.treeView.Size = new System.Drawing.Size(386, 354);
       this.treeView.TabIndex = 0;
@@ -452,6 +456,17 @@ namespace OpenHardwareMonitor.GUI {
       this.plotPanel.Name = "plotPanel";
       this.plotPanel.Size = new System.Drawing.Size(386, 124);
       this.plotPanel.TabIndex = 0;
+      // 
+      // resetMenuItem
+      // 
+      this.resetMenuItem.Index = 3;
+      this.resetMenuItem.Text = "Reset";
+      this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
+      // 
+      // menuItem6
+      // 
+      this.menuItem6.Index = 4;
+      this.menuItem6.Text = "-";
       // 
       // MainForm
       // 
@@ -523,6 +538,8 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem MenuItem3;
     private System.Windows.Forms.MenuItem gadgetMenuItem;
     private System.Windows.Forms.MenuItem minCloseMenuItem;
+    private System.Windows.Forms.MenuItem resetMenuItem;
+    private System.Windows.Forms.MenuItem menuItem6;
   }
 }
 

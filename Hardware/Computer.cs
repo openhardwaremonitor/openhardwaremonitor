@@ -268,9 +268,11 @@ namespace OpenHardwareMonitor.Hardware {
       if (!open)
         return;
 
-      foreach (IGroup group in groups)
-        group.Close();
-      groups.Clear();
+      while (groups.Count > 0) {
+        IGroup group = groups[groups.Count - 1];
+        Remove(group);
+        group.Close(); 
+      } 
 
       Opcode.Close();
       Ring0.Close();
