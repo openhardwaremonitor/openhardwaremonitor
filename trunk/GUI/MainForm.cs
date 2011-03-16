@@ -388,9 +388,10 @@ namespace OpenHardwareMonitor.GUI {
       Visible = false;
       SaveConfiguration();
 
-      timer.Enabled = false;
-      systemTray.Dispose();      
+      systemTray.IsMainIconEnabled = false;
+      timer.Enabled = false;            
       computer.Close();
+      systemTray.Dispose();
     }
 
     private void aboutMenuItem_Click(object sender, EventArgs e) {
@@ -592,6 +593,16 @@ namespace OpenHardwareMonitor.GUI {
         settings.SetValue("mainForm.Width", Bounds.Width);
         settings.SetValue("mainForm.Height", Bounds.Height);
       }
+    }
+
+    private void resetClick(object sender, EventArgs e) {
+      // disable the fallback MainIcon during reset, otherwise icon visibility
+      // might be lost 
+      systemTray.IsMainIconEnabled = false;
+      computer.Close();
+      computer.Open();
+      // restore the MainIcon setting
+      systemTray.IsMainIconEnabled = minimizeToTray.Value;
     }
   }
 }
