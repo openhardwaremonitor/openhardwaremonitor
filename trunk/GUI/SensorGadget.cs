@@ -362,9 +362,10 @@ namespace OpenHardwareMonitor.GUI {
           y += hardwareLineHeight;
         }
         y += pair.Value.Count * sensorLineHeight;
-      }
+      }      
+      if (sensors.Count == 0)
+        y += 4 * sensorLineHeight + hardwareLineHeight;
       y += bottomMargin;
-      y = Math.Max(y, topBorder + hardwareLineHeight + bottomBorder);
       this.Size = new Size(width, y);
     }
 
@@ -426,7 +427,9 @@ namespace OpenHardwareMonitor.GUI {
 
       if (sensors.Count == 0) {
         x = leftBorder + 1;
-        g.DrawString("Add a sensor ...", smallFont, Brushes.White,
+        g.DrawString("Right-click on a sensor in the main window and select " + 
+          "\"Show in Gadget\" to show the sensor here.", 
+          smallFont, Brushes.White,
           new Rectangle(x, y - 1, w - rightBorder - x, 0));
       }
 
