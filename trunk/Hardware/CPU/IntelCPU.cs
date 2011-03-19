@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -44,6 +44,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private enum Microarchitecture {
       Unknown,
+      NetBurst,
       Core,
       Atom,
       Nehalem,
@@ -144,6 +145,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 break;
             }
           } break;
+        case 0x0F: {
+            switch (model) {
+              case 0x00: // Pentium 4 (180nm)
+              case 0x01: // Pentium 4 (130nm)
+              case 0x02: // Pentium 4 (130nm)
+              case 0x03: // Pentium 4, Celeron D (90nm)
+              case 0x04: // Pentium 4, Pentium D, Celeron D (90nm)
+              case 0x06: // Pentium 4, Pentium D, Celeron D (65nm)
+                microarchitecture = Microarchitecture.NetBurst;
+                tjMax = Floats(100); 
+                break;
+              default:
+                microarchitecture = Microarchitecture.Unknown;
+                tjMax = Floats(100);
+                break;
+            }
+          } break;
         default:
           microarchitecture = Microarchitecture.Unknown;
           tjMax = Floats(100); 
@@ -152,6 +170,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // set timeStampCounterMultiplier
       switch (microarchitecture) {
+        case Microarchitecture.NetBurst:
         case Microarchitecture.Atom:
         case Microarchitecture.Core: {
             uint eax, edx;
@@ -167,9 +186,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
             }
           } break;
-        default:
-          timeStampCounterMultiplier = 1;
-          break;
+        default: {
+            timeStampCounterMultiplier = 1;
+            uint eax, edx;
+            if (Ring0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
+              timeStampCounterMultiplier =
+                ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
+            }
+          } break;
       }
 
       // check if processor supports a digital thermal sensor
@@ -216,6 +240,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       StringBuilder r = new StringBuilder();
       r.Append(base.GetReport());
 
+      r.Append("Microarchitecture: ");
+      r.AppendLine(microarchitecture.ToString());
       r.Append("Time Stamp Counter Multiplier: ");
       r.AppendLine(timeStampCounterMultiplier.ToString(
         CultureInfo.InvariantCulture));
