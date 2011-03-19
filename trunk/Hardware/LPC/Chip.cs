@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     W83667HGB = 0xB350,
     W83687THF = 0x8541,
     NCT6771F = 0xB470,
+    NCT6776F = 0xC330,
     F71858 = 0x0507,
     F71862 = 0x0601, 
     F71869 = 0x0814,
@@ -89,6 +90,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.W83667HGB: return "Winbond W83667HG-B";
         case Chip.W83687THF: return "Winbond W83687THF";
         case Chip.NCT6771F: return "Nuvoton NCT6771F";
+        case Chip.NCT6776F: return "Nuvoton NCT6776F";
         case Chip.Unknown: return "Unkown";
         default: return "Unknown";
       }

@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -49,6 +49,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     M4A79XTD_EVO,
     P5W_DH_Deluxe,    
     P6X58D_E,
+    P8P67_PRO,
     Rampage_Extreme,
     Rampage_II_GENE,
 

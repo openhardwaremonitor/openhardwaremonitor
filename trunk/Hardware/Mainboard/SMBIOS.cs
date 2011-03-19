@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -322,6 +322,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P5W_DH_Deluxe;
           case "P6X58D-E":
             return Model.P6X58D_E;
+          case "P8P67 PRO":
+            return Model.P8P67_PRO;
           case "Rampage Extreme":
             return Model.Rampage_Extreme;
           case "Rampage II GENE":
