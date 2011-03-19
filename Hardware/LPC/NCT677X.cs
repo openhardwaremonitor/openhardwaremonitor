@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -48,7 +48,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly float?[] voltages = new float?[9];
     private readonly float?[] temperatures = new float?[3];
-    private readonly float?[] fans = new float?[4];
+    private readonly float?[] fans = new float?[0];
 
     // Hardware Monitor
     private const uint ADDRESS_REGISTER_OFFSET = 0x05;
@@ -81,7 +81,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly int[] TEMPERATURE_HALF_BIT = { 7, 7, -1, 0, 1, 2 };
     private readonly ushort[] VOLTAGE_REG = 
       { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x550, 0x551 };
-    private readonly ushort[] FAN_RPM_REG = { 0x656, 0x658, 0x65A, 0x65C};
+    private readonly ushort[] FAN_RPM_REG = 
+      { 0x656, 0x658, 0x65A, 0x65C, 0x65E};
+
+    private readonly int minFanRPM;
 
     private enum TemperatureSource : byte {
       SYSTIN = 1,
@@ -112,7 +115,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.port = port;
 
       if (!IsNuvotonVendor())
-        return;      
+        return;
+
+      switch (chip) {
+        case LPC.Chip.NCT6771F:
+          fans = new float?[4];
+          // min value RPM value with 16-bit fan counter
+          minFanRPM = (int)(1.35e6 / 0xFFFF);
+          break;
+        case LPC.Chip.NCT6776F:
+          fans = new float?[5];
+          // min value RPM value with 13-bit fan counter
+          minFanRPM = (int)(1.35e6 / 0x1FFF);
+          break;        
+      }
     }
 
     private bool IsNuvotonVendor() {
@@ -170,7 +186,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < fans.Length; i++) {
         byte high = ReadByte(FAN_RPM_REG[i]);
         byte low = ReadByte((ushort)(FAN_RPM_REG[i] + 1));
-        fans[i] = (high << 8) | low;
+        int value = (high << 8) | low;
+
+        fans[i] = value > minFanRPM ? value : 0;
       }
 
       Ring0.ReleaseIsaBusMutex();

@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -742,22 +742,64 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           f.Add(new Fan("Auxiliary Fan", 2));
           break;
         case Chip.NCT6771F:
-          v.Add(new Voltage("CPU VCore", 0));
-          v.Add(new Voltage("Voltage #2", 1, true));
-          v.Add(new Voltage("AVCC", 2, 34, 34));
-          v.Add(new Voltage("3VCC", 3, 34, 34));
-          v.Add(new Voltage("Voltage #5", 4, true));
-          v.Add(new Voltage("Voltage #6", 5, true));
-          v.Add(new Voltage("Voltage #7", 6, true));
-          v.Add(new Voltage("3VSB", 7, 34, 34));
-          v.Add(new Voltage("VBAT", 8, 34, 34));
-          t.Add(new Temperature("CPU", 0));
-          t.Add(new Temperature("Auxiliary", 1));
-          t.Add(new Temperature("System", 2));
-          f.Add(new Fan("System Fan", 0));
-          f.Add(new Fan("CPU Fan", 1));
-          f.Add(new Fan("Auxiliary Fan", 2));
-          f.Add(new Fan("Auxiliary Fan #2", 4));
+        case Chip.NCT6776F:
+          switch (manufacturer) {
+            case Manufacturer.ASUS:
+              switch (model) {
+                case Model.P8P67_PRO: // NCT6776F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("AVCC", 2, 34, 34));
+                  v.Add(new Voltage("3VCC", 3, 34, 34));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("3VSB", 7, 34, 34));
+                  v.Add(new Voltage("VBAT", 8, 34, 34));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Auxiliary", 1));
+                  t.Add(new Temperature("System", 2));
+                  f.Add(new Fan("System Fan", 0));
+                  f.Add(new Fan("CPU Fan", 1));
+                  f.Add(new Fan("Auxiliary Fan", 2));
+                  f.Add(new Fan("Auxiliary Fan #2", 3));
+                  f.Add(new Fan("Auxiliary Fan #3", 4));
+                  break;
+                default:
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("AVCC", 2, 34, 34));
+                  v.Add(new Voltage("3VCC", 3, 34, 34));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("3VSB", 7, 34, 34));
+                  v.Add(new Voltage("VBAT", 8, 34, 34));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Auxiliary", 1));
+                  t.Add(new Temperature("System", 2));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
+            default:
+              v.Add(new Voltage("CPU VCore", 0));
+              v.Add(new Voltage("Voltage #2", 1, true));
+              v.Add(new Voltage("AVCC", 2, 34, 34));
+              v.Add(new Voltage("3VCC", 3, 34, 34));
+              v.Add(new Voltage("Voltage #5", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("3VSB", 7, 34, 34));
+              v.Add(new Voltage("VBAT", 8, 34, 34));
+              t.Add(new Temperature("CPU", 0));
+              t.Add(new Temperature("Auxiliary", 1));
+              t.Add(new Temperature("System", 2));
+              for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
+              break;
+          }
           break;
         default:
           for (int i = 0; i < superIO.Voltages.Length; i++)

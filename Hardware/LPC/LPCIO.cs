@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -220,6 +220,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0xC3:
+          switch (revision & 0xF0) {
+            case 0x30:
+              chip = Chip.NCT6776F;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
       }
       if (chip == Chip.Unknown) {
         if (id != 0 && id != 0xff) {
@@ -279,6 +286,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             superIOs.Add(new W836XX(chip, revision, address));
             break;
           case Chip.NCT6771F:
+          case Chip.NCT6776F:
             superIOs.Add(new NCT677X(chip, revision, address));
             break;
           case Chip.F71858:
