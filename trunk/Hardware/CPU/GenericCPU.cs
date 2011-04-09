@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -304,6 +304,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         if (totalLoad != null)
           totalLoad.Value = cpuLoad.GetTotalLoad();
       }
+    }
+
+    public virtual void Close() {
+
     }
   }
 }

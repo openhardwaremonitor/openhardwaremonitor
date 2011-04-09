@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -42,6 +42,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.IO;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
 
@@ -63,6 +64,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private readonly uint miscellaneousControlAddress;
     private readonly ushort miscellaneousControlDeviceId;
+
+    private readonly StreamReader temperatureReader;
 
     private double timeStampCounterMultiplier;
 
@@ -113,6 +116,25 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // restore the thread affinity.
       ThreadAffinity.Set(mask);
+
+      // the file reader for lm-sensors support on Linux
+      temperatureReader = null;
+      int p = (int)Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) {
+        string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
+        foreach (string path in devicePaths) {
+          string name = null;
+          try {
+            using (StreamReader reader = new StreamReader(path + "/device/name"))
+              name = reader.ReadLine();
+          } catch (IOException) { }
+          switch (name) {
+            case "k10temp":
+              temperatureReader = new StreamReader(path + "/device/temp1_input");
+              break;
+          }
+        }
+      }
 
       Update();                   
     }
@@ -196,16 +218,28 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public override void Update() {
       base.Update();
 
-      if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
-        uint value;
-        if (Ring0.ReadPciConfig(miscellaneousControlAddress,
-          REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
-          coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
-            coreTemperature.Parameters[0].Value;
-          ActivateSensor(coreTemperature);
-        } else {
-          DeactivateSensor(coreTemperature);
+      if (temperatureReader == null) {
+        if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
+          uint value;
+          if (Ring0.ReadPciConfig(miscellaneousControlAddress,
+            REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
+            coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
+              coreTemperature.Parameters[0].Value;
+            ActivateSensor(coreTemperature);
+          } else {
+            DeactivateSensor(coreTemperature);
+          }
         }
+      } else {
+        temperatureReader.BaseStream.Seek(0, SeekOrigin.Begin);
+        string s = temperatureReader.ReadLine();
+        try {
+          coreTemperature.Value = 0.001f *
+            long.Parse(s, CultureInfo.InvariantCulture);
+          ActivateSensor(coreTemperature);
+        } catch {
+          DeactivateSensor(coreTemperature);
+        }        
       }
 
       if (HasTimeStampCounter) {
@@ -238,6 +272,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           this.busClock.Value = (float)newBusClock;
           ActivateSensor(this.busClock);
         }
+      }
+    }
+
+    public override void Close() {
+      if (temperatureReader != null) {
+        temperatureReader.Close();
       }
     }
   }

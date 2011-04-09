@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -42,8 +42,8 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
 
-  internal class CPUGroup : IGroup { 
-    private readonly List<IHardware> hardware = new List<IHardware>();
+  internal class CPUGroup : IGroup {
+    private readonly List<GenericCPU> hardware = new List<GenericCPU>();
 
     private readonly CPUID[][][] threads;
 
@@ -207,6 +207,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return r.ToString(); 
     }
 
-    public void Close() { }
+    public void Close() {
+      foreach (GenericCPU cpu in hardware) {
+        cpu.Close();
+      }
+    }
   }
 }

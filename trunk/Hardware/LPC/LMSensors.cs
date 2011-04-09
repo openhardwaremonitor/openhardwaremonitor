@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -46,44 +46,52 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly List<LMChip> lmChips = new List<LMChip>();
 
     public LMSensors() {
-      string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
-      foreach (string path in devicePaths) {
-        string name = null;
-        try {
-          using (StreamReader reader = new StreamReader(path + "/device/name")) 
-            name = reader.ReadLine();
-        } catch (IOException) { }
-        switch (name) {
-          case "f71858fg":
-            lmChips.Add(new LMChip(Chip.F71858, path + "/device")); break;
-          case "f71862fg":
-            lmChips.Add(new LMChip(Chip.F71862, path + "/device")); break;
-          case "f71882fg":
-            lmChips.Add(new LMChip(Chip.F71882, path + "/device")); break;
-          case "f71889fg":
-            lmChips.Add(new LMChip(Chip.F71889F, path + "/device")); break;
+      string[] basePaths = Directory.GetDirectories("/sys/class/hwmon/");
+      foreach (string basePath in basePaths) {
+        foreach (string devicePath in new[] { "/device", "" }) {
+          string path = basePath + devicePath;
 
-          case "it8712":
-            lmChips.Add(new LMChip(Chip.IT8712F, path + "/device")); break;
-          case "it8716":
-            lmChips.Add(new LMChip(Chip.IT8716F, path + "/device")); break;
-          case "it8718":
-            lmChips.Add(new LMChip(Chip.IT8718F, path + "/device")); break;
-          case "it8720":
-            lmChips.Add(new LMChip(Chip.IT8720F, path + "/device")); break;
+          string name = null;
+          try {
+            using (StreamReader reader = new StreamReader(path + "/name"))
+              name = reader.ReadLine();
+          } catch (IOException) { }
 
-          case "w83627ehf":
-            lmChips.Add(new LMChip(Chip.W83627EHF, path + "/device")); break;
-          case "w83627dhg":
-            lmChips.Add(new LMChip(Chip.W83627DHG, path + "/device")); break;
-          case "w83667hg":
-            lmChips.Add(new LMChip(Chip.W83667HG, path + "/device")); break;
-          case "w83627hf":
-            lmChips.Add(new LMChip(Chip.W83627HF, path + "/device")); break;
-          case "w83627thf":
-            lmChips.Add(new LMChip(Chip.W83627THF, path + "/device")); break;
-          case "w83687thf":
-            lmChips.Add(new LMChip(Chip.W83687THF, path + "/device")); break;
+          switch (name) {
+            case "atk0110":
+              lmChips.Add(new LMChip(Chip.ATK0110, path)); break;
+
+            case "f71858fg":
+              lmChips.Add(new LMChip(Chip.F71858, path)); break;
+            case "f71862fg":
+              lmChips.Add(new LMChip(Chip.F71862, path)); break;
+            case "f71882fg":
+              lmChips.Add(new LMChip(Chip.F71882, path)); break;
+            case "f71889fg":
+              lmChips.Add(new LMChip(Chip.F71889F, path)); break;
+
+            case "it8712":
+              lmChips.Add(new LMChip(Chip.IT8712F, path)); break;
+            case "it8716":
+              lmChips.Add(new LMChip(Chip.IT8716F, path)); break;
+            case "it8718":
+              lmChips.Add(new LMChip(Chip.IT8718F, path)); break;
+            case "it8720":
+              lmChips.Add(new LMChip(Chip.IT8720F, path)); break;
+
+            case "w83627ehf":
+              lmChips.Add(new LMChip(Chip.W83627EHF, path)); break;
+            case "w83627dhg":
+              lmChips.Add(new LMChip(Chip.W83627DHG, path)); break;
+            case "w83667hg":
+              lmChips.Add(new LMChip(Chip.W83667HG, path)); break;
+            case "w83627hf":
+              lmChips.Add(new LMChip(Chip.W83627HF, path)); break;
+            case "w83627thf":
+              lmChips.Add(new LMChip(Chip.W83627THF, path)); break;
+            case "w83687thf":
+              lmChips.Add(new LMChip(Chip.W83687THF, path)); break;
+          }
         }
       }
     }
