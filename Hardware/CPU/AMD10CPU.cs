@@ -39,10 +39,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
-using System.IO;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
 
@@ -65,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private readonly uint miscellaneousControlAddress;
     private readonly ushort miscellaneousControlDeviceId;
 
-    private readonly StreamReader temperatureReader;
+    private readonly FileStream temperatureStream;
 
     private double timeStampCounterMultiplier;
 
@@ -118,7 +118,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       ThreadAffinity.Set(mask);
 
       // the file reader for lm-sensors support on Linux
-      temperatureReader = null;
+      temperatureStream = null;
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
         string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
@@ -130,7 +130,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } catch (IOException) { }
           switch (name) {
             case "k10temp":
-              temperatureReader = new StreamReader(path + "/device/temp1_input");
+              temperatureStream = new FileStream(path + "/device/temp1_input", 
+                FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
               break;
           }
         }
@@ -215,10 +216,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return 0.5 * (frequencyID + 0x10) / (1 << (int)divisorID);
     }
 
+    private string ReadFirstLine(Stream stream) {
+      StringBuilder sb = new StringBuilder();
+      try {
+        stream.Seek(0, SeekOrigin.Begin);
+        int b = stream.ReadByte();
+        while (b != -1 && b != 10) {
+          sb.Append((char)b);
+          b = stream.ReadByte();
+        }
+      } catch { }
+      return sb.ToString();
+    }
+
     public override void Update() {
       base.Update();
 
-      if (temperatureReader == null) {
+      if (temperatureStream == null) {
         if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
           uint value;
           if (Ring0.ReadPciConfig(miscellaneousControlAddress,
@@ -231,8 +245,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           }
         }
       } else {
-        temperatureReader.BaseStream.Seek(0, SeekOrigin.Begin);
-        string s = temperatureReader.ReadLine();
+        string s = ReadFirstLine(temperatureStream);
         try {
           coreTemperature.Value = 0.001f *
             long.Parse(s, CultureInfo.InvariantCulture);
@@ -276,8 +289,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public override void Close() {
-      if (temperatureReader != null) {
-        temperatureReader.Close();
+      if (temperatureStream != null) {
+        temperatureStream.Close();
       }
     }
   }
