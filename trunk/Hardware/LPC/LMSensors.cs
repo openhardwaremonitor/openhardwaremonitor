@@ -38,6 +38,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
 
@@ -116,9 +117,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       private readonly float?[] temperatures;
       private readonly float?[] fans;
 
-      private readonly StreamReader[] voltageReaders;
-      private readonly StreamReader[] temperatureReaders;
-      private readonly StreamReader[] fanReaders;
+      private readonly FileStream[] voltageStreams;
+      private readonly FileStream[] temperatureStreams;
+      private readonly FileStream[] fanStreams;
 
       public Chip Chip { get { return chip; } }
       public float?[] Voltages { get { return voltages; } }
@@ -132,21 +133,24 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         string[] voltagePaths = Directory.GetFiles(path, "in*_input");
         this.voltages = new float?[voltagePaths.Length];
-        this.voltageReaders = new StreamReader[voltagePaths.Length];
+        this.voltageStreams = new FileStream[voltagePaths.Length];
         for (int i = 0; i < voltagePaths.Length; i++)
-          voltageReaders[i] = new StreamReader(voltagePaths[i]);
+          voltageStreams[i] = new FileStream(voltagePaths[i],
+            FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         string[] temperaturePaths = Directory.GetFiles(path, "temp*_input");
         this.temperatures = new float?[temperaturePaths.Length];
-        this.temperatureReaders = new StreamReader[temperaturePaths.Length];
+        this.temperatureStreams = new FileStream[temperaturePaths.Length];
         for (int i = 0; i < temperaturePaths.Length; i++)
-          temperatureReaders[i] = new StreamReader(temperaturePaths[i]);
+          temperatureStreams[i] = new FileStream(temperaturePaths[i],
+            FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         string[] fanPaths = Directory.GetFiles(path, "fan*_input");
         this.fans = new float?[fanPaths.Length];
-        this.fanReaders = new StreamReader[fanPaths.Length];
+        this.fanStreams = new FileStream[fanPaths.Length];
         for (int i = 0; i < fanPaths.Length; i++)
-          fanReaders[i] = new StreamReader(fanPaths[i]);
+          fanStreams[i] = new FileStream(fanPaths[i],
+            FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
       }
 
       public byte? ReadGPIO(int index) {
@@ -159,12 +163,24 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return null;
       }
 
+      private string ReadFirstLine(Stream stream) {
+        StringBuilder sb = new StringBuilder();
+        try {
+          stream.Seek(0, SeekOrigin.Begin);
+          int b = stream.ReadByte();
+          while (b != -1 && b != 10) {
+            sb.Append((char)b);
+            b = stream.ReadByte();
+          }
+        } catch { }
+        return sb.ToString();
+      }
+
       public void Update() {
         for (int i = 0; i < voltages.Length; i++) {
-          voltageReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = voltageReaders[i].ReadLine();
+          string s = ReadFirstLine(voltageStreams[i]);
           try {
-            voltages[i] = 0.001f * 
+            voltages[i] = 0.001f *
               long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
             voltages[i] = null;
@@ -172,10 +188,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
 
         for (int i = 0; i < temperatures.Length; i++) {
-          temperatureReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = temperatureReaders[i].ReadLine();
+          string s = ReadFirstLine(temperatureStreams[i]);
           try {
-            temperatures[i] = 0.001f * 
+            temperatures[i] = 0.001f *
               long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
             temperatures[i] = null;
@@ -183,8 +198,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
 
         for (int i = 0; i < fans.Length; i++) {
-          fanReaders[i].BaseStream.Seek(0, SeekOrigin.Begin);
-          string s = fanReaders[i].ReadLine();
+          string s = ReadFirstLine(fanStreams[i]);
           try {
             fans[i] = long.Parse(s, CultureInfo.InvariantCulture);
           } catch {
@@ -194,12 +208,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       public void Close() {
-        foreach (StreamReader reader in voltageReaders)
-          reader.Close();
-        foreach (StreamReader reader in temperatureReaders)
-          reader.Close();
-        foreach (StreamReader reader in fanReaders)
-          reader.Close();
+        foreach (FileStream stream in voltageStreams)
+          stream.Close();
+        foreach (FileStream stream in temperatureStreams)
+          stream.Close();
+        foreach (FileStream stream in fanStreams)
+          stream.Close();
       }
     }
   }
