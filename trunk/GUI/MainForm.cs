@@ -90,8 +90,7 @@ namespace OpenHardwareMonitor.GUI {
             
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
-      plotPanel.Font = SystemFonts.MessageBoxFont;
-      treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 17);      
+      plotPanel.Font = SystemFonts.MessageBoxFont;           
       
       nodeCheckBox.IsVisibleValueNeeded += nodeCheckBox_IsVisibleValueNeeded;
       nodeCheckBox.CheckStateChanged += UpdatePlotSelection;
@@ -121,6 +120,7 @@ namespace OpenHardwareMonitor.GUI {
 
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) { // Unix
+        treeView.RowHeight = Math.Max(treeView.RowHeight, 17); 
         splitContainer.BorderStyle = BorderStyle.None;
         splitContainer.Border3DStyle = Border3DStyle.Adjust;
         splitContainer.SplitterWidth = 4;
@@ -129,6 +129,8 @@ namespace OpenHardwareMonitor.GUI {
         gadgetMenuItem.Visible = false;
         minCloseMenuItem.Visible = false;
       } else { // Windows
+        treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 17); 
+
         gadget = new SensorGadget(computer, settings, unitManager);
         gadget.HideShowCommand += hideShowClick;
 
