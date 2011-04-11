@@ -78,9 +78,9 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.okButton.Location = new System.Drawing.Point(305, 142);
+      this.okButton.Location = new System.Drawing.Point(261, 123);
       this.okButton.Name = "okButton";
-      this.okButton.Size = new System.Drawing.Size(87, 27);
+      this.okButton.Size = new System.Drawing.Size(75, 23);
       this.okButton.TabIndex = 0;
       this.okButton.Text = "OK";
       this.okButton.UseVisualStyleBackColor = true;
@@ -88,60 +88,60 @@ namespace OpenHardwareMonitor.GUI {
       // pictureBox1
       // 
       this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-      this.pictureBox1.Location = new System.Drawing.Point(12, 13);
+      this.pictureBox1.Location = new System.Drawing.Point(10, 11);
       this.pictureBox1.Name = "pictureBox1";
-      this.pictureBox1.Size = new System.Drawing.Size(56, 56);
+      this.pictureBox1.Size = new System.Drawing.Size(48, 49);
       this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
       this.pictureBox1.TabIndex = 1;
       this.pictureBox1.TabStop = false;
       // 
       // label1
       // 
-      this.label1.AutoSize = true;      
-      this.label1.Location = new System.Drawing.Point(85, 13);
-      this.label1.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+      this.label1.AutoSize = true;
+      this.label1.Location = new System.Drawing.Point(73, 11);
+      this.label1.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.label1.Name = "label1";
-      this.label1.Size = new System.Drawing.Size(179, 20);
+      this.label1.Size = new System.Drawing.Size(120, 13);
       this.label1.TabIndex = 2;
       this.label1.Text = "Open Hardware Monitor";
       // 
       // label2
       // 
       this.label2.AutoSize = true;
-      this.label2.Location = new System.Drawing.Point(86, 54);
-      this.label2.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+      this.label2.Location = new System.Drawing.Point(74, 47);
+      this.label2.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(315, 15);
+      this.label2.Size = new System.Drawing.Size(280, 13);
       this.label2.TabIndex = 3;
       this.label2.Text = "Copyright © 2009-2010 Michael Möller. All rights reserved.";
       // 
       // label3
       // 
       this.label3.AutoSize = true;
-      this.label3.Location = new System.Drawing.Point(86, 36);
-      this.label3.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+      this.label3.Location = new System.Drawing.Point(74, 31);
+      this.label3.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.label3.Name = "label3";
-      this.label3.Size = new System.Drawing.Size(132, 15);
+      this.label3.Size = new System.Drawing.Size(127, 13);
       this.label3.TabIndex = 4;
       this.label3.Text = "Version 9.0.30729.1 Beta";
       // 
       // label4
       // 
       this.label4.AutoSize = true;
-      this.label4.Location = new System.Drawing.Point(9, 95);
-      this.label4.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+      this.label4.Location = new System.Drawing.Point(8, 82);
+      this.label4.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.label4.Name = "label4";
-      this.label4.Size = new System.Drawing.Size(412, 15);
+      this.label4.Size = new System.Drawing.Size(374, 13);
       this.label4.TabIndex = 5;
       this.label4.Text = "The source code is available under the terms of the Mozilla Public License 1.1";
       // 
       // linkLabel
       // 
       this.linkLabel.AutoSize = true;
-      this.linkLabel.Location = new System.Drawing.Point(145, 0);
-      this.linkLabel.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+      this.linkLabel.Location = new System.Drawing.Point(128, 0);
+      this.linkLabel.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
       this.linkLabel.Name = "linkLabel";
-      this.linkLabel.Size = new System.Drawing.Size(176, 15);
+      this.linkLabel.Size = new System.Drawing.Size(156, 13);
       this.linkLabel.TabIndex = 6;
       this.linkLabel.TabStop = true;
       this.linkLabel.Text = "Open Hardware Monitor Project";
@@ -153,7 +153,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label5.Location = new System.Drawing.Point(0, 0);
       this.label5.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(142, 15);
+      this.label5.Size = new System.Drawing.Size(125, 13);
       this.label5.TabIndex = 7;
       this.label5.Text = "from the project website: ";
       // 
@@ -163,26 +163,26 @@ namespace OpenHardwareMonitor.GUI {
       this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
       this.flowLayoutPanel1.Controls.Add(this.label5);
       this.flowLayoutPanel1.Controls.Add(this.linkLabel);
-      this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 115);
-      this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+      this.flowLayoutPanel1.Location = new System.Drawing.Point(10, 100);
+      this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-      this.flowLayoutPanel1.Size = new System.Drawing.Size(333, 15);
+      this.flowLayoutPanel1.Size = new System.Drawing.Size(294, 13);
       this.flowLayoutPanel1.TabIndex = 8;
       // 
       // AboutBox
       // 
       this.AcceptButton = this.okButton;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
       this.AutoSize = true;
-      this.ClientSize = new System.Drawing.Size(404, 182);
+      this.ClientSize = new System.Drawing.Size(346, 158);
       this.Controls.Add(this.flowLayoutPanel1);
       this.Controls.Add(this.label4);
       this.Controls.Add(this.label3);
       this.Controls.Add(this.label2);
       this.Controls.Add(this.label1);
       this.Controls.Add(this.pictureBox1);
-      this.Controls.Add(this.okButton);      
+      this.Controls.Add(this.okButton);
       this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
       this.MaximizeBox = false;
       this.MinimizeBox = false;
