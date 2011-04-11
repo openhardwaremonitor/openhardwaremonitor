@@ -128,6 +128,8 @@ namespace OpenHardwareMonitor.GUI {
         plotPanel.BorderStyle = BorderStyle.Fixed3D;
         gadgetMenuItem.Visible = false;
         minCloseMenuItem.Visible = false;
+        minTrayMenuItem.Visible = false;
+        startMinMenuItem.Visible = false;
       } else { // Windows
         treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 17); 
 
