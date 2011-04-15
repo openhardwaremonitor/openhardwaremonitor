@@ -100,9 +100,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.AppendLine(adapterInfo[i].FunctionNumber.ToString(
                   CultureInfo.InvariantCulture));
                 report.Append("AdapterID: 0x");
-                report.AppendLine(adapterID.ToString("X", CultureInfo.InvariantCulture));
+                report.AppendLine(adapterID.ToString("X", 
+                  CultureInfo.InvariantCulture));
 
-                if (adapterID != 0 && !string.IsNullOrEmpty(adapterInfo[i].UDID) &&
+                if (!string.IsNullOrEmpty(adapterInfo[i].UDID) &&
                   (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
                    adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) {
                   bool found = false;

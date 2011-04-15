@@ -187,16 +187,22 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         if (adlp.EngineClock > 0) {
           coreClock.Value = 0.01f * adlp.EngineClock;
           ActivateSensor(coreClock);
+        } else {
+          coreClock.Value = null;
         }
 
         if (adlp.MemoryClock > 0) {
           memoryClock.Value = 0.01f * adlp.MemoryClock;
           ActivateSensor(memoryClock);
+        } else {
+          memoryClock.Value = null;
         }
 
         if (adlp.Vddc > 0) {
           coreVoltage.Value = 0.001f * adlp.Vddc;
           ActivateSensor(coreVoltage);
+        } else {
+          coreVoltage.Value = null;
         }
 
         coreLoad.Value = Math.Min(adlp.ActivityPercent, 100);                        
