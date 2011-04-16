@@ -59,7 +59,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
     private const ushort FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
-    private const ushort FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1303;    
+    private const ushort FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1303;
+    private const ushort FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703; 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
 
     private readonly uint miscellaneousControlAddress;
@@ -83,6 +84,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case 0x10: miscellaneousControlDeviceId =
           FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         case 0x11: miscellaneousControlDeviceId =
+          FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        case 0x14: miscellaneousControlDeviceId = 
           FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         default: miscellaneousControlDeviceId = 0; break;
       }

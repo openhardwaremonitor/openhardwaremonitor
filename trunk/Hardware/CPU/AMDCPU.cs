@@ -40,7 +40,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
   internal abstract class AMDCPU : GenericCPU {
 
     private const byte PCI_BUS = 0;
-    private const byte PCI_BASE_DEVICE = 24;
+    private const byte PCI_BASE_DEVICE = 0x18;
     private const byte DEVICE_VENDOR_ID_REGISTER = 0;
     private const ushort AMD_VENDOR_ID = 0x1022;
 
