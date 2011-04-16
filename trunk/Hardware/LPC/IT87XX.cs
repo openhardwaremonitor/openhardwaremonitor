@@ -56,6 +56,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly float?[] fans = new float?[0];
 
     private readonly float voltageGain;
+    private readonly bool has16bitFanCounter;
    
     // Consts
     private const byte ITE_VENDOR_ID = 0x90;
@@ -68,7 +69,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte CONFIGURATION_REGISTER = 0x00;
     private const byte TEMPERATURE_BASE_REG = 0x29;
     private const byte VENDOR_ID_REGISTER = 0x58;
-    private const byte FAN_TACHOMETER_16_BIT_ENABLE_REGISTER = 0x0c;
+    private const byte FAN_TACHOMETER_DIVISOR_REGISTER = 0x0B;
     private readonly byte[] FAN_TACHOMETER_REG = 
       new byte[] { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
     private readonly byte[] FAN_TACHOMETER_EXT_REG =
@@ -85,8 +86,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private bool WriteByte(byte register, byte value) {
       Ring0.WriteIoPort(addressReg, register);
       Ring0.WriteIoPort(dataReg, value);
-      return register == Ring0.ReadIoPort(addressReg);
-    }
+      return register == Ring0.ReadIoPort(addressReg); 
+    } 
 
     public byte? ReadGPIO(int index) {
       if (index >= gpioCount)
@@ -103,7 +104,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
-      
+
       this.address = address;
       this.chip = chip;
       this.version = version;
@@ -131,7 +132,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (chip == Chip.IT8721F) {
         voltageGain = 0.012f;
       } else {
-        voltageGain = 0.016f;
+        voltageGain = 0.016f;        
+      }
+
+      // older IT8721F revision do not have 16-bit fan counters
+      if (chip == Chip.IT8712F && version < 8) {
+        has16bitFanCounter = false;
+      } else {
+        has16bitFanCounter = true;
       }
 
       // Set the number of GPIO sets
@@ -236,19 +244,42 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           temperatures[i] = null;       
       }
 
-      for (int i = 0; i < fans.Length; i++) {
-        bool valid;
-        int value = ReadByte(FAN_TACHOMETER_REG[i], out valid);
-        if (!valid) 
-          continue;
-        value |= ReadByte(FAN_TACHOMETER_EXT_REG[i], out valid) << 8;
-        if (!valid)
-          continue;
+      if (has16bitFanCounter) {
+        for (int i = 0; i < fans.Length; i++) {
+          bool valid;
+          int value = ReadByte(FAN_TACHOMETER_REG[i], out valid);
+          if (!valid)
+            continue;
+          value |= ReadByte(FAN_TACHOMETER_EXT_REG[i], out valid) << 8;
+          if (!valid)
+            continue;
 
-        if (value > 0x3f) {
-          fans[i] = (value < 0xffff) ? 1.35e6f / ((value) * 2) : 0;
-        } else {
-          fans[i] = null;
+          if (value > 0x3f) {
+            fans[i] = (value < 0xffff) ? 1.35e6f / (value * 2) : 0;
+          } else {
+            fans[i] = null;
+          }
+        }
+      } else {
+        for (int i = 0; i < fans.Length; i++) {
+          bool valid;
+          int value = ReadByte(FAN_TACHOMETER_REG[i], out valid);
+          if (!valid)
+            continue;
+
+          int divisor = 2;
+          if (i < 2) {
+            int divisors = ReadByte(FAN_TACHOMETER_DIVISOR_REGISTER, out valid);
+            if (!valid)
+              continue;
+            divisor = 1 << ((divisors >> (3 * i)) & 0x7);
+          }
+
+          if (value > 0) {
+            fans[i] = (value < 0xff) ? 1.35e6f / (value * divisor) : 0;
+          } else {
+            fans[i] = null;
+          }
         }
       }
 
