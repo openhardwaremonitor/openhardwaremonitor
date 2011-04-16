@@ -52,9 +52,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
     private const ushort MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1103;
     private const uint THERMTRIP_STATUS_REGISTER = 0xE4;
-    private const byte THERM_SENSE_CORE_SEL_CPU0 = 0x4;
-    private const byte THERM_SENSE_CORE_SEL_CPU1 = 0x0;
-
+    
+    private readonly byte thermSenseCoreSelCPU0;
+    private readonly byte thermSenseCoreSelCPU1;
     private readonly uint miscellaneousControlAddress;
 
     public AMD0FCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
@@ -66,6 +66,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       uint model = cpuid[0][0].Model;
       if (model >= 0x69 && model != 0xc1 && model != 0x6c && model != 0x7c) 
         offset += 21;
+
+      if (model < 40) {
+        // AMD Athlon 64 Processors
+        thermSenseCoreSelCPU0 = 0x0;
+        thermSenseCoreSelCPU1 = 0x4;
+      } else {
+        // AMD NPT Family 0Fh Revision F, G have the core selection swapped
+        thermSenseCoreSelCPU0 = 0x4;
+        thermSenseCoreSelCPU1 = 0x0;
+      }
 
       // check if processor supports a digital thermal sensor 
       if (cpuid[0][0].ExtData.GetLength(0) > 7 && 
@@ -122,7 +132,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (uint i = 0; i < coreTemperatures.Length; i++) {
           if (Ring0.WritePciConfig(
             miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER,
-            i > 0 ? THERM_SENSE_CORE_SEL_CPU1 : THERM_SENSE_CORE_SEL_CPU0)) {
+            i > 0 ? thermSenseCoreSelCPU1 : thermSenseCoreSelCPU0)) {
             uint value;
             if (Ring0.ReadPciConfig(
               miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER, 
