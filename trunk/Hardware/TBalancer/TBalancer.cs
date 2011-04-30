@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -41,9 +41,8 @@ using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.TBalancer {
-  internal class TBalancer : IHardware {
+  internal class TBalancer : Hardware {
 
-    private readonly ISettings settings;
     private readonly int portIndex;    
     private readonly byte protocolVersion;
     private readonly Sensor[] digitalTemperatures = new Sensor[8];
@@ -55,7 +54,6 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private readonly Sensor[] miniNGTemperatures = new Sensor[4];
     private readonly Sensor[] miniNGFans = new Sensor[4];
     private readonly Sensor[] miniNGControls = new Sensor[4];
-    private readonly List<ISensor> active = new List<ISensor>();
     private readonly List<ISensor> deactivating = new List<ISensor>();
 
     private FT_HANDLE handle;
@@ -66,10 +64,12 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public const byte ENDFLAG = 254;
 
     private delegate void MethodDelegate();
-    private readonly MethodDelegate alternativeRequest;    
+    private readonly MethodDelegate alternativeRequest;
 
-    public TBalancer(int portIndex, byte protocolVersion, ISettings settings) {
-      this.settings = settings;
+    public TBalancer(int portIndex, byte protocolVersion, ISettings settings)
+      : base("T-Balancer bigNG",  new Identifier("bigng",
+        portIndex.ToString(CultureInfo.InvariantCulture)), settings) 
+    {
 
       this.portIndex = portIndex;
       this.protocolVersion = protocolVersion;
@@ -123,21 +123,15 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       Update(); 
     }
 
-    private void ActivateSensor(Sensor sensor) {
+    protected override void ActivateSensor(ISensor sensor) {
       deactivating.Remove(sensor);
-      if (!active.Contains(sensor)) {
-        active.Add(sensor);
-        if (SensorAdded != null)
-          SensorAdded(sensor);
-      }      
-    }
+      base.ActivateSensor(sensor);   
+    } 
 
-    private void DeactivateSensor(Sensor sensor) {
+    protected override void DeactivateSensor(ISensor sensor) {
       if (deactivating.Contains(sensor)) {
-        active.Remove(sensor);
         deactivating.Remove(sensor);
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);
+        base.DeactivateSensor(sensor);
       } else if (active.Contains(sensor)) {
         deactivating.Add(sensor);
       }     
@@ -265,34 +259,11 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       } 
     }
 
-    public HardwareType HardwareType {
+    public override HardwareType HardwareType {
       get { return HardwareType.TBalancer; }
     }
 
-    public string Name {
-      get { return "T-Balancer bigNG"; }
-    }
-
-    public Identifier Identifier {
-      get { 
-        return new Identifier("bigng",
-          this.portIndex.ToString(CultureInfo.InvariantCulture));
-      }
-    }
-
-    public IHardware[] SubHardware {
-      get { return new IHardware[0]; }
-    }
-
-    public virtual IHardware Parent {
-      get { return null; }
-    }
-
-    public ISensor[] Sensors {
-      get { return active.ToArray(); }
-    }
-
-    public string GetReport() {
+    public override string GetReport() {
       StringBuilder r = new StringBuilder();
 
       r.AppendLine("T-Balancer bigNG");
@@ -359,7 +330,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_ALL);
     }
 
-    public void Update() {
+    public override void Update() {
       while (FTD2XX.BytesToRead(handle) >= 285)
         ReadData();
       if (FTD2XX.BytesToRead(handle) == 1)
@@ -373,15 +344,5 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       FTD2XX.FT_Close(handle);
     }
 
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-
-    public void Accept(IVisitor visitor) {
-      if (visitor == null)
-        throw new ArgumentNullException("visitor");
-      visitor.VisitHardware(this);
-    }
-
-    public void Traverse(IVisitor visitor) { }
   }
 }

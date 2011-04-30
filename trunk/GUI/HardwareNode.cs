@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -50,7 +50,7 @@ namespace OpenHardwareMonitor.GUI {
     private List<TypeNode> typeNodes = new List<TypeNode>();
 
     public HardwareNode(IHardware hardware, PersistentSettings settings, 
-      UnitManager unitManager) : base(hardware.Name) 
+      UnitManager unitManager) : base() 
     {
       this.settings = settings;
       this.unitManager = unitManager;
@@ -71,6 +71,11 @@ namespace OpenHardwareMonitor.GUI {
 
       hardware.SensorAdded +=new SensorEventHandler(SensorAdded);
       hardware.SensorRemoved += new SensorEventHandler(SensorRemoved);
+    }
+
+    public override string Text {
+      get { return hardware.Name; }
+      set { hardware.Name = value; }
     }
 
     public IHardware Hardware {

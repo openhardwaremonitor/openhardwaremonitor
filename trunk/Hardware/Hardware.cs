@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -41,7 +41,19 @@ using OpenHardwareMonitor.Collections;
 namespace OpenHardwareMonitor.Hardware {
   internal abstract class Hardware : IHardware {
 
-    private readonly ListSet<ISensor> active = new ListSet<ISensor>();
+    private readonly Identifier identifier;
+    protected readonly string name;
+    private string customName;
+    protected readonly ISettings settings;
+    protected readonly ListSet<ISensor> active = new ListSet<ISensor>();
+
+    public Hardware(string name, Identifier identifier, ISettings settings) {
+      this.settings = settings;
+      this.identifier = identifier;
+      this.name = name;
+      this.customName = settings.GetValue(
+        new Identifier(Identifier, "name").ToString(), name);
+    }
 
     public IHardware[] SubHardware {
       get { return new IHardware[0]; }
@@ -51,20 +63,40 @@ namespace OpenHardwareMonitor.Hardware {
       get { return null; }
     }
 
-    public ISensor[] Sensors {
+    public virtual ISensor[] Sensors {
       get { return active.ToArray(); }
     }
 
-    protected void ActivateSensor(ISensor sensor) {
+    protected virtual void ActivateSensor(ISensor sensor) {
       if (active.Add(sensor)) 
         if (SensorAdded != null)
           SensorAdded(sensor);
     }
 
-    protected void DeactivateSensor(ISensor sensor) {
+    protected virtual void DeactivateSensor(ISensor sensor) {
       if (active.Remove(sensor))
         if (SensorRemoved != null)
           SensorRemoved(sensor);     
+    }
+
+    public string Name {
+      get {
+        return customName;
+      }
+      set {
+        if (!string.IsNullOrEmpty(value))
+          customName = value;
+        else
+          customName = name;
+        settings.SetValue(new Identifier(Identifier, "name").ToString(), 
+          customName);
+      }
+    }
+
+    public Identifier Identifier {
+      get {
+        return identifier;
+      }
     }
 
     #pragma warning disable 67
@@ -72,8 +104,7 @@ namespace OpenHardwareMonitor.Hardware {
     public event SensorEventHandler SensorRemoved;
     #pragma warning restore 67
   
-    public abstract string Name { get; }
-    public abstract Identifier Identifier { get; }
+    
     public abstract HardwareType HardwareType { get; }
 
     public virtual string GetReport() {
@@ -88,7 +119,7 @@ namespace OpenHardwareMonitor.Hardware {
       visitor.VisitHardware(this);
     }
 
-    public void Traverse(IVisitor visitor) {
+    public virtual void Traverse(IVisitor visitor) {
       foreach (ISensor sensor in active)
         sensor.Accept(visitor);
     }

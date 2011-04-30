@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -41,7 +41,6 @@ using System.Globalization;
 namespace OpenHardwareMonitor.Hardware.ATI {
   internal sealed class ATIGPU : Hardware {
 
-    private readonly string name;
     private readonly int adapterIndex;
     private readonly int busNumber;
     private readonly int deviceNumber;
@@ -59,8 +58,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber, ISettings settings) 
+      : base(name, new Identifier("atigpu", 
+        adapterIndex.ToString(CultureInfo.InvariantCulture)), settings)
     {
-      this.name = name;
       this.adapterIndex = adapterIndex;
       this.busNumber = busNumber;
       this.deviceNumber = deviceNumber;
@@ -133,16 +133,6 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public int DeviceNumber { get { return deviceNumber; } }
 
-    public override string Name {
-      get { return name; }
-    }
-
-    public override Identifier Identifier {
-      get { 
-        return new Identifier("atigpu", 
-          adapterIndex.ToString(CultureInfo.InvariantCulture)); 
-      }
-    }
 
     public override HardwareType HardwareType {
       get { return HardwareType.GpuAti; }

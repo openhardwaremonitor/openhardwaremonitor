@@ -102,7 +102,7 @@ namespace OpenHardwareMonitor.GUI {
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
       this.aboutMenuItem = new System.Windows.Forms.MenuItem();
-      this.sensorContextMenu = new System.Windows.Forms.ContextMenu();
+      this.treeContextMenu = new System.Windows.Forms.ContextMenu();
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
@@ -517,7 +517,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem hddMenuItem;
     private System.Windows.Forms.MenuItem minTrayMenuItem;
     private System.Windows.Forms.MenuItem separatorMenuItem;
-    private System.Windows.Forms.ContextMenu sensorContextMenu;
+    private System.Windows.Forms.ContextMenu treeContextMenu;
     private System.Windows.Forms.MenuItem startMinMenuItem;
     private System.Windows.Forms.MenuItem startupMenuItem;
     private System.Windows.Forms.SaveFileDialog saveFileDialog;
