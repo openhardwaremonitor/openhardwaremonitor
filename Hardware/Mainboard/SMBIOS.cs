@@ -324,6 +324,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P6X58D_E;
           case "P8P67 PRO":
             return Model.P8P67_PRO;
+          case "P8P67-M PRO":
+            return Model.P8P67_M_PRO;
           case "Rampage Extreme":
             return Model.Rampage_Extreme;
           case "Rampage II GENE":

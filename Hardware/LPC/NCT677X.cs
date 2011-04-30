@@ -47,7 +47,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly Chip chip;
 
     private readonly float?[] voltages = new float?[9];
-    private readonly float?[] temperatures = new float?[3];
+    private readonly float?[] temperatures = new float?[4];
     private readonly float?[] fans = new float?[0];
 
     // Hardware Monitor
@@ -73,12 +73,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort VOLTAGE_VBAT_REG = 0x0551;
 
     private readonly ushort[] TEMPERATURE_REG = 
-      { 0x150, 0x250, 0x27, 0x62B, 0x62C, 0x62D };
+      { 0x027, 0x73, 0x75, 0x77, 0x150, 0x250, 0x62B, 0x62C, 0x62D };
     private readonly ushort[] TEMPERATURE_HALF_REG = 
-      { 0x151, 0x251, 0, 0x62E, 0x62E, 0x62E };    
+      { 0, 0x74, 0x76, 0x78, 0x151, 0x251, 0x62E, 0x62E, 0x62E };    
     private readonly ushort[] TEMPERATURE_SRC_REG = 
-      { 0x621, 0x622, 0x623, 0x624, 0x625, 0x626 };
-    private readonly int[] TEMPERATURE_HALF_BIT = { 7, 7, -1, 0, 1, 2 };
+      { 0x621, 0x100, 0x200, 0x300, 0x622, 0x623, 0x624, 0x625, 0x626 };
+    private readonly int[] TEMPERATURE_HALF_BIT =
+      { -1, 7, 7, 7, 7, 7, 0, 1, 2 };
     private readonly ushort[] VOLTAGE_REG = 
       { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x550, 0x551 };
     private readonly ushort[] FAN_RPM_REG = 
@@ -86,19 +87,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly int minFanRPM;
 
-    private enum TemperatureSource : byte {
+    private enum SourceNCT6771F : byte {
       SYSTIN = 1,
       CPUTIN = 2,
       AUXTIN = 3,
       SMBUSMASTER = 4,
-      PECI0 = 5, 
-      PECI1 = 6, 
-      PECI2 = 7,
-      PECI3 = 8,
-      PECI4 = 9,
-      PECI5 = 10,
-      PECI6 = 11,
-      PECI7 = 12,
+      PECI_0 = 5, 
+      PECI_1 = 6, 
+      PECI_2 = 7,
+      PECI_3 = 8,
+      PECI_4 = 9,
+      PECI_5 = 10,
+      PECI_6 = 11,
+      PECI_7 = 12,
       PCH_CHIP_CPU_MAX_TEMP = 13,
       PCH_CHIP_TEMP = 14,
       PCH_CPU_TEMP = 15,
@@ -107,6 +108,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       PCH_DIM1_TEMP = 18,
       PCH_DIM2_TEMP = 19,
       PCH_DIM3_TEMP = 20
+    }
+
+    private enum SourceNCT6776F : byte {
+      SYSTIN = 1,
+      CPUTIN = 2,
+      AUXTIN = 3,
+      SMBUSMASTER_0 = 4,
+      SMBUSMASTER_1 = 5,
+      SMBUSMASTER_2 = 6,
+      SMBUSMASTER_3 = 7,
+      SMBUSMASTER_4 = 8,
+      SMBUSMASTER_5 = 9,
+      SMBUSMASTER_6 = 10,
+      SMBUSMASTER_7 = 11,
+      PECI_0 = 12,
+      PECI_1 = 13,
+      PCH_CHIP_CPU_MAX_TEMP = 14,
+      PCH_CHIP_TEMP = 15,
+      PCH_CPU_TEMP = 16,
+      PCH_MCH_TEMP = 17,
+      PCH_DIM0_TEMP = 18,
+      PCH_DIM1_TEMP = 19,
+      PCH_DIM2_TEMP = 20,
+      PCH_DIM3_TEMP = 21,
+      BYTE_TEMP = 22
     }
 
     public NCT677X(Chip chip, byte revision, ushort port) {
@@ -162,25 +188,36 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         voltages[i] = valid ? value : (float?)null;
       }
 
-      for (int i = 0; i < TEMPERATURE_REG.Length; i++) {
+      for (int i = TEMPERATURE_REG.Length - 1; i >= 0 ; i--) {
         int value = ((sbyte)ReadByte(TEMPERATURE_REG[i])) << 1;
         if (TEMPERATURE_HALF_BIT[i] > 0) {
           value |= ((ReadByte(TEMPERATURE_HALF_REG[i]) >>
             TEMPERATURE_HALF_BIT[i]) & 0x1);
         }
 
-        TemperatureSource source = (TemperatureSource)
-          ReadByte(TEMPERATURE_SRC_REG[i]);
+        byte source = ReadByte(TEMPERATURE_SRC_REG[i]);
 
         float? temperature = 0.5f * value;
         if (temperature > 125 || temperature < -55)
           temperature = null;
 
-        switch (source) {
-          case TemperatureSource.CPUTIN: temperatures[0] = temperature; break;
-          case TemperatureSource.AUXTIN: temperatures[1] = temperature; break;
-          case TemperatureSource.SYSTIN: temperatures[2] = temperature; break;
-        }
+        switch (chip) {
+          case Chip.NCT6771F:
+            switch ((SourceNCT6771F)source) {
+              case SourceNCT6771F.PECI_0: temperatures[0] = temperature; break;
+              case SourceNCT6771F.CPUTIN: temperatures[1] = temperature; break;
+              case SourceNCT6771F.AUXTIN: temperatures[2] = temperature; break;
+              case SourceNCT6771F.SYSTIN: temperatures[3] = temperature; break;
+              
+            } break;
+          case Chip.NCT6776F:
+            switch ((SourceNCT6776F)source) {
+              case SourceNCT6776F.PECI_0: temperatures[0] = temperature; break;
+              case SourceNCT6776F.CPUTIN: temperatures[1] = temperature; break;
+              case SourceNCT6776F.AUXTIN: temperatures[2] = temperature; break;
+              case SourceNCT6776F.SYSTIN: temperatures[3] = temperature; break;              
+            } break;
+        }  
       }
 
       for (int i = 0; i < fans.Length; i++) {

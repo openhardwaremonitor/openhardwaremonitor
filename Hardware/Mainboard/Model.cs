@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     P5W_DH_Deluxe,    
     P6X58D_E,
     P8P67_PRO,
+    P8P67_M_PRO,
     Rampage_Extreme,
     Rampage_II_GENE,
 
