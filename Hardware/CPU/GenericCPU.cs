@@ -54,7 +54,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     protected readonly int processorIndex;
     protected readonly int coreCount;
-    protected readonly string name;
 
     private readonly bool hasModelSpecificRegisters;
 
@@ -79,7 +78,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         return "CPU Core #" + (i + 1);
     }
 
-    public GenericCPU(int processorIndex, CPUID[][] cpuid, ISettings settings) {
+    public GenericCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
+      : base(cpuid[0][0].Name, CreateIdentifier(cpuid[0][0].Vendor, 
+      processorIndex), settings)
+    {
       this.cpuid = cpuid;
 
       this.vendor = cpuid[0][0].Vendor;
@@ -89,8 +91,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       this.stepping = cpuid[0][0].Stepping;
 
       this.processorIndex = processorIndex;
-      this.coreCount = cpuid.Length;
-      this.name = cpuid[0][0].Name;    
+      this.coreCount = cpuid.Length;  
   
       // check if processor has MSRs
       if (cpuid[0][0].Data.GetLength(0) > 1
@@ -141,6 +142,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       timeStampCounterFrequency = estimatedTimeStampCounterFrequency;                  
+    }
+
+    private static Identifier CreateIdentifier(Vendor vendor,
+      int processorIndex) 
+    {
+      string s;
+      switch (vendor) {
+        case Vendor.AMD: s = "amdcpu"; break;
+        case Vendor.Intel: s = "intelcpu"; break;
+        default: s = "genericcpu"; break;
+      }
+      return new Identifier(s,
+        processorIndex.ToString(CultureInfo.InvariantCulture));
     }
 
     private static double EstimateTimeStampCounterFrequency() {           
@@ -228,23 +242,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       return r.ToString();
-    }
-
-    public override Identifier Identifier {
-      get {
-        string s;
-        switch (vendor) {
-          case Vendor.AMD: s = "amdcpu"; break;
-          case Vendor.Intel: s = "intelcpu"; break;
-          default: s = "genericcpu"; break;
-        }
-        return new Identifier(s, 
-          processorIndex.ToString(CultureInfo.InvariantCulture));
-      }
-    }
-
-    public override string Name {
-      get { return name; }
     }
 
     public override HardwareType HardwareType {

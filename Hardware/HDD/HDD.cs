@@ -40,11 +40,10 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  internal class HDD : IHardware {
+  internal class HDD : Hardware {
 
     private const int UPDATE_DIVIDER = 30; // update only every 30s
 
-    private readonly string name;
     private readonly IntPtr handle;
     private readonly int drive;
     private int count;
@@ -57,9 +56,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public HDD(string name, IntPtr handle, int drive, 
       SMART.AttributeID temperatureID, SMART.AttributeID lifeID, 
-      ISettings settings)
+      ISettings settings) : base(name, new Identifier("hdd", 
+          drive.ToString(CultureInfo.InvariantCulture)), settings)
     {
-      this.name = name;
       this.handle = handle;
       this.drive = drive;
       this.count = 0;
@@ -78,30 +77,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       Update();
     }
 
-    public string Name {
-      get { return name; }
-    }
-
-    public Identifier Identifier {
-      get { 
-        return new Identifier("hdd", 
-          drive.ToString(CultureInfo.InvariantCulture)); 
-      }
-    }
-
-    public HardwareType HardwareType {
+    public override HardwareType HardwareType {
       get { return HardwareType.HDD; }
     }
 
-    public IHardware[] SubHardware {
-      get { return new IHardware[0]; }
-    }
-
-    public virtual IHardware Parent {
-      get { return null; }
-    }
-
-    public ISensor[] Sensors {
+    public override ISensor[] Sensors {
       get {
         if (lifeID != SMART.AttributeID.None)
           return new ISensor[] { lifeSensor };
@@ -113,11 +93,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public string GetReport() {
-      return null;
-    }
-
-    public void Update() {
+    public override void Update() {
       if (count == 0) {
         SMART.DriveAttribute[] attributes = SMART.ReadSmart(handle, drive);
 
@@ -151,18 +127,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       SMART.CloseHandle(handle);
     }
 
-    #pragma warning disable 67
-    public event SensorEventHandler SensorAdded;
-    public event SensorEventHandler SensorRemoved;
-    #pragma warning restore 67    
-
-    public void Accept(IVisitor visitor) {
-      if (visitor == null)
-        throw new ArgumentNullException("visitor");
-      visitor.VisitHardware(this);
-    }
-
-    public void Traverse(IVisitor visitor) {
+    public override void Traverse(IVisitor visitor) {
       foreach (ISensor sensor in Sensors)
         sensor.Accept(visitor);
     }

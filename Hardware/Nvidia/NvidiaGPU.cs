@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -42,7 +42,6 @@ using System.Text;
 namespace OpenHardwareMonitor.Hardware.Nvidia {
   internal class NvidiaGPU : Hardware {
 
-    private readonly string name;
     private readonly int adapterIndex;
     private readonly NvPhysicalGpuHandle handle;
     private readonly NvDisplayHandle? displayHandle;
@@ -56,13 +55,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle, 
       NvDisplayHandle? displayHandle, ISettings settings) 
+      : base(GetName(handle), new Identifier("nvidiagpu", 
+          adapterIndex.ToString(CultureInfo.InvariantCulture)), settings)
     {
-      string gpuName;
-      if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
-        this.name = "NVIDIA " + gpuName.Trim();
-      } else {
-        this.name = "NVIDIA";
-      }
       this.adapterIndex = adapterIndex;
       this.handle = handle;
       this.displayHandle = displayHandle;
@@ -110,14 +105,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       control = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
     }
 
-    public override string Name {
-      get { return name; }
-    }
-
-    public override Identifier Identifier {
-      get { 
-        return new Identifier("nvidiagpu", 
-          adapterIndex.ToString(CultureInfo.InvariantCulture)); 
+    private static string GetName(NvPhysicalGpuHandle handle) {
+      string gpuName;
+      if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
+        return "NVIDIA " + gpuName.Trim();
+      } else {
+        return "NVIDIA";
       }
     }
 

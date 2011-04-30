@@ -46,7 +46,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     private readonly Mainboard mainboard;
     private readonly ISuperIO superIO;
-    private readonly string name;
 
     private readonly List<Sensor> voltages = new List<Sensor>();
     private readonly List<Sensor> temperatures = new List<Sensor>();
@@ -68,10 +67,12 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public SuperIOHardware(Mainboard mainboard, ISuperIO superIO, 
       Manufacturer manufacturer, Model model, ISettings settings) 
+      : base(ChipName.GetName(superIO.Chip), new Identifier("lpc", 
+        superIO.Chip.ToString().ToLower(CultureInfo.InvariantCulture)), 
+        settings)
     {
       this.mainboard = mainboard;
       this.superIO = superIO;
-      this.name = ChipName.GetName(superIO.Chip);
 
       this.readVoltage = (index) => superIO.Voltages[index];
       this.readTemperature = (index) => superIO.Temperatures[index];
@@ -843,13 +844,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         }
     }
 
-    public override Identifier Identifier {
-      get { 
-        return new Identifier("lpc", 
-          superIO.Chip.ToString().ToLower(CultureInfo.InvariantCulture)); 
-      }
-    }
-
     public override HardwareType HardwareType {
       get { return HardwareType.SuperIO; }
     }
@@ -858,9 +852,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       get { return mainboard; }
     }
 
-    public override string Name {
-      get { return name; }
-    }
 
     public override string GetReport() {
       return superIO.GetReport();

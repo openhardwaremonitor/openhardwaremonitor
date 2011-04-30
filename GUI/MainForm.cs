@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s): Paul Werelds
@@ -317,7 +317,8 @@ namespace OpenHardwareMonitor.GUI {
       CancelEventArgs e) 
     {
       e.Cancel = !(treeView.CurrentNode != null &&
-        treeView.CurrentNode.Tag is SensorNode);
+        (treeView.CurrentNode.Tag is SensorNode || 
+         treeView.CurrentNode.Tag is HardwareNode));
     }
 
     private void nodeCheckBox_IsVisibleValueNeeded(object sender, 
@@ -403,7 +404,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void treeView_Click(object sender, EventArgs e) {
-      
+
       MouseEventArgs m = e as MouseEventArgs;
       if (m == null || m.Button != MouseButtons.Right)
         return;
@@ -415,35 +416,35 @@ namespace OpenHardwareMonitor.GUI {
       if (info.Node != null) {
         SensorNode node = info.Node.Tag as SensorNode;
         if (node != null && node.Sensor != null) {
-          sensorContextMenu.MenuItems.Clear();
+          treeContextMenu.MenuItems.Clear();
           if (node.Sensor.Parameters.Length > 0) {
             MenuItem item = new MenuItem("Parameters...");
             item.Click += delegate(object obj, EventArgs args) {
               ShowParameterForm(node.Sensor);
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           }
           if (nodeTextBoxText.EditEnabled) {
             MenuItem item = new MenuItem("Rename");
             item.Click += delegate(object obj, EventArgs args) {
               nodeTextBoxText.BeginEdit();
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           }
           if (node.IsVisible) {
             MenuItem item = new MenuItem("Hide");
             item.Click += delegate(object obj, EventArgs args) {
               node.IsVisible = false;
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           } else {
             MenuItem item = new MenuItem("Unhide");
             item.Click += delegate(object obj, EventArgs args) {
               node.IsVisible = true;
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           }
-          sensorContextMenu.MenuItems.Add(new MenuItem("-"));
+          treeContextMenu.MenuItems.Add(new MenuItem("-"));
           {
             MenuItem item = new MenuItem("Show in Tray");
             item.Checked = systemTray.Contains(node.Sensor);
@@ -453,7 +454,7 @@ namespace OpenHardwareMonitor.GUI {
               else
                 systemTray.Add(node.Sensor, true);
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           }
           if (gadget != null) {
             MenuItem item = new MenuItem("Show in Gadget");
@@ -465,10 +466,10 @@ namespace OpenHardwareMonitor.GUI {
                 gadget.Add(node.Sensor);
               }
             };
-            sensorContextMenu.MenuItems.Add(item);
+            treeContextMenu.MenuItems.Add(item);
           }
           if (node.Sensor.Control != null) {
-            sensorContextMenu.MenuItems.Add(new MenuItem("-"));
+            treeContextMenu.MenuItems.Add(new MenuItem("-"));
             IControl control = node.Sensor.Control;
             MenuItem controlItem = new MenuItem("Control");
             MenuItem defaultItem = new MenuItem("Default");
@@ -477,13 +478,12 @@ namespace OpenHardwareMonitor.GUI {
             defaultItem.Click += delegate(object obj, EventArgs args) {
               control.SetDefault();
             };
-            MenuItem manualItem = new MenuItem("Manual");            
+            MenuItem manualItem = new MenuItem("Manual");
             controlItem.MenuItems.Add(manualItem);
             manualItem.Checked = control.ControlMode == ControlMode.Software;
             for (int i = 0; i <= 100; i += 5) {
               if (i <= control.MaxSoftwareValue &&
-                  i >= control.MinSoftwareValue) 
-              {
+                  i >= control.MinSoftwareValue) {
                 MenuItem item = new MenuItem(i + " %");
                 manualItem.MenuItems.Add(item);
                 item.Checked = control.ControlMode == ControlMode.Software &&
@@ -494,10 +494,25 @@ namespace OpenHardwareMonitor.GUI {
                 };
               }
             }
-            sensorContextMenu.MenuItems.Add(controlItem);
+            treeContextMenu.MenuItems.Add(controlItem);
           }
 
-          sensorContextMenu.Show(treeView, new Point(m.X, m.Y));
+          treeContextMenu.Show(treeView, new Point(m.X, m.Y));
+        }
+
+        HardwareNode hardwareNode = info.Node.Tag as HardwareNode;
+        if (hardwareNode != null && hardwareNode.Hardware != null) {
+          treeContextMenu.MenuItems.Clear();
+
+          if (nodeTextBoxText.EditEnabled) {
+            MenuItem item = new MenuItem("Rename");
+            item.Click += delegate(object obj, EventArgs args) {
+              nodeTextBoxText.BeginEdit();
+            };
+            treeContextMenu.MenuItems.Add(item);
+          }
+
+          treeContextMenu.Show(treeView, new Point(m.X, m.Y));
         }
       }
     }

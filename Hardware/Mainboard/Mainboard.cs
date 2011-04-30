@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -43,12 +43,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
   internal class Mainboard : IHardware {
     private readonly SMBIOS smbios;
     private readonly string name;
-
+    private string customName;
+    private readonly ISettings settings;
     private readonly LPCIO lpcio;
     private readonly LMSensors lmSensors;
     private readonly IHardware[] superIOHardware;
 
     public Mainboard(ISettings settings) {
+      this.settings = settings;
       this.smbios = new SMBIOS();
      
       if (smbios.Board != null) {
@@ -64,6 +66,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       } else {
         this.name = Manufacturer.Unknown.ToString();
       }
+
+      this.customName = settings.GetValue(
+        new Identifier(Identifier, "name").ToString(), name);
 
       ISuperIO[] superIO;
       int p = (int)Environment.OSVersion.Platform;
@@ -84,7 +89,17 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     }
 
     public string Name {
-      get { return name; } 
+      get {
+        return customName;
+      }
+      set {
+        if (!string.IsNullOrEmpty(value))
+          customName = value;
+        else
+          customName = name;
+        settings.SetValue(new Identifier(Identifier, "name").ToString(),
+          customName);
+      }
     }
 
     public Identifier Identifier {

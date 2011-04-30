@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -52,7 +52,7 @@ namespace OpenHardwareMonitor.Hardware {
 
   public interface IHardware : IElement {
 
-    string Name { get; }
+    string Name { get; set; }
     Identifier Identifier { get; }
 
     HardwareType HardwareType { get; }

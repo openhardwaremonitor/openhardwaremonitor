@@ -134,8 +134,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       return WriteField(device, field, '"' + value + '"');
     }
 
-    public Heatmaster(string portName, ISettings settings) {
-
+    public Heatmaster(string portName, ISettings settings) 
+      : base("Heatmaster", new Identifier("heatmaster",
+        portName.TrimStart(new [] {'/'}).ToLowerInvariant()), settings)
+    {
       this.portName = portName;
       try {
         serialPort = new SerialPort(portName, 38400, Parity.None, 8,
@@ -207,17 +209,6 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     public override HardwareType HardwareType {
       get { return HardwareType.Heatmaster; }
-    }
-
-    public override Identifier Identifier {
-      get {
-        return new Identifier("heatmaster",
-          serialPort.PortName.TrimStart(new [] {'/'}).ToLowerInvariant());
-      }
-    }
-
-    public override string Name {
-      get { return "Heatmaster"; }
     }
 
     private void ProcessUpdateLine(string line) {
