@@ -129,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       fans = new float?[5];
 
       // The IT8721F uses a 12mV resultion ADC, all others 16mV
-      if (chip == Chip.IT8721F) {
+      if (chip == Chip.IT8721F || chip == Chip.IT8728F) {
         voltageGain = 0.012f;
       } else {
         voltageGain = 0.016f;        
@@ -153,6 +153,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8720F:
         case Chip.IT8721F:
           gpioCount = 8;
+          break;
+        case Chip.IT8728F:
+          gpioCount = 0;
           break;
       }
     }

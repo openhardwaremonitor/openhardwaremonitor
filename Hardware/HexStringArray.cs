@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -46,7 +46,7 @@ namespace OpenHardwareMonitor.Hardware {
         StringSplitOptions.RemoveEmptyEntries);
 
       foreach (string line in lines) {
-        string[] array = line.Split(new[] { ' ' }, 
+        string[] array = line.Split(new[] { ' ', '\t' }, 
           StringSplitOptions.RemoveEmptyEntries);
         if (array.Length == 0)
           continue; 
