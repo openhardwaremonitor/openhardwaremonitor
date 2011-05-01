@@ -425,6 +425,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           break;
 
         case Chip.IT8721F:
+        case Chip.IT8728F:
           switch (manufacturer) {
             case Manufacturer.ECS:
               switch (model) {
@@ -464,7 +465,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               v.Add(new Voltage("Voltage #1", 0, true));
               v.Add(new Voltage("Voltage #2", 1, true));
               v.Add(new Voltage("Voltage #3", 2, true));
-              v.Add(new Voltage("Analog +3.3V", 3, 10, 10, 0, true));
+              v.Add(new Voltage("Voltage #4", 3, true));
               v.Add(new Voltage("Voltage #5", 4, true));
               v.Add(new Voltage("Voltage #6", 5, true));
               v.Add(new Voltage("Voltage #7", 6, true));
