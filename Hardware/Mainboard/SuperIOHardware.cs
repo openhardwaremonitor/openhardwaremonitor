@@ -461,6 +461,42 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
               }
               break;
+            case Manufacturer.Gigabyte:
+              switch (model) {
+                case Model.P67A_UD4_B3:
+                  v.Add(new Voltage("+12V", 0, 100, 10));
+                  v.Add(new Voltage("+5V", 1, 15, 10));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("CPU VCore", 5));
+                  v.Add(new Voltage("DRAM", 6));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #2", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("System Fan #1", 3));
+                  break;
+                default:
+                  v.Add(new Voltage("Voltage #1", 0, true));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
             default:
               v.Add(new Voltage("Voltage #1", 0, true));
               v.Add(new Voltage("Voltage #2", 1, true));
