@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       
     private const uint PERF_CTL_0 = 0xC0010000;
     private const uint PERF_CTR_0 = 0xC0010004;
+    private const uint HWCR = 0xC0010015;
     private const uint P_STATE_0 = 0xC0010064;
     private const uint COFVID_STATUS = 0xC0010071;
 
@@ -69,7 +70,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private readonly FileStream temperatureStream;
 
-    private double timeStampCounterMultiplier;
+    private readonly double timeStampCounterMultiplier;
+    private readonly bool corePerformanceBoostSupport;
 
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
@@ -104,8 +106,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(coreClocks[i]);
       }
 
+      corePerformanceBoostSupport = (cpuid[0][0].ExtData[7, 3] & (1 << 9)) > 0;
+
       // set affinity to the first thread for all frequency estimations     
       ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
+
+      // disable core performance boost  
+      uint hwcrEax, hwcrEdx;
+      Ring0.Rdmsr(HWCR, out hwcrEax, out hwcrEdx);
+      if (corePerformanceBoostSupport) 
+        Ring0.Wrmsr(HWCR, hwcrEax | (1 << 25), hwcrEdx);
 
       uint ctlEax, ctlEdx;
       Ring0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
@@ -117,6 +127,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       // restore the performance counter registers
       Ring0.Wrmsr(PERF_CTL_0, ctlEax, ctlEdx);
       Ring0.Wrmsr(PERF_CTR_0, ctrEax, ctrEdx);
+
+      // restore core performance boost
+      if (corePerformanceBoostSupport)     
+        Ring0.Wrmsr(HWCR, hwcrEax, hwcrEdx);
 
       // restore the thread affinity.
       ThreadAffinity.Set(mask);
@@ -178,10 +192,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       long timeEnd = timeBegin + ticks;
       while (Stopwatch.GetTimestamp() < timeBegin) { }
       Ring0.Rdmsr(PERF_CTR_0, out lsbBegin, out msbBegin);
+
       while (Stopwatch.GetTimestamp() < timeEnd) { }
       Ring0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
-
       Ring0.Rdmsr(COFVID_STATUS, out eax, out edx);
+
       double coreMultiplier;
       if (family == 0x14) {               
         uint divisorIdMSD = (eax >> 4) & 0x1F;
@@ -206,11 +221,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         (timeEnd - timeBegin);
 
       double busFrequency = coreFrequency / coreMultiplier;
+
       return 0.25 * Math.Round(4 * TimeStampCounterFrequency / busFrequency);
     }
 
     protected override uint[] GetMSRs() {
-      return new uint[] { PERF_CTL_0, PERF_CTR_0, P_STATE_0, COFVID_STATUS };
+      return new uint[] { PERF_CTL_0, PERF_CTR_0, HWCR, P_STATE_0, 
+        COFVID_STATUS };
     }
 
     public override string GetReport() {
