@@ -60,10 +60,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private readonly bool hasTimeStampCounter;
     private readonly bool isInvariantTimeStampCounter;
     private readonly double estimatedTimeStampCounterFrequency;
+    private readonly double estimatedTimeStampCounterFrequencyError;
 
     private ulong lastTimeStampCount;
     private long lastTime;
-    private double timeStampCounterFrequency;    
+    private double timeStampCounterFrequency;
+    
 
     private readonly Vendor vendor;
 
@@ -132,9 +134,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       if (hasTimeStampCounter) {
         ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
-        
-        estimatedTimeStampCounterFrequency = 
-          EstimateTimeStampCounterFrequency();  
+
+        EstimateTimeStampCounterFrequency(
+          out estimatedTimeStampCounterFrequency, 
+          out estimatedTimeStampCounterFrequencyError);  
         
         ThreadAffinity.Set(mask);
       } else {
@@ -157,34 +160,55 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         processorIndex.ToString(CultureInfo.InvariantCulture));
     }
 
-    private static double EstimateTimeStampCounterFrequency() {           
+    private void EstimateTimeStampCounterFrequency(out double frequency, 
+      out double error) 
+  {     
+      double f, e;
+      
       // preload the function
-      EstimateTimeStampCounterFrequency(0);
-      EstimateTimeStampCounterFrequency(0);
+      EstimateTimeStampCounterFrequency(0, out f, out e);
+      EstimateTimeStampCounterFrequency(0, out f, out e);
 
-      // estimate the frequency in MHz      
-      List<double> estimatedFrequency = new List<double>(3);
-      for (int i = 0; i < 3; i++)
-        estimatedFrequency.Add(1e-6 * EstimateTimeStampCounterFrequency(0.025));
-                 
-      estimatedFrequency.Sort();
-      return estimatedFrequency[1];
+      // estimate the frequency
+      error = double.MaxValue;
+      frequency = 0;
+      for (int i = 0; i < 5; i++) {
+        EstimateTimeStampCounterFrequency(0.025, out f, out e);
+        if (e < error) {
+          error = e;
+          frequency = f;
+        }
+
+        if (error < 1e-4)
+          break;
+      }                
     }
 
-    private static double EstimateTimeStampCounterFrequency(double timeWindow) {
+    private void EstimateTimeStampCounterFrequency(double timeWindow, 
+      out double frequency, out double error) 
+    {
       long ticks = (long)(timeWindow * Stopwatch.Frequency);
       ulong countBegin, countEnd;
 
       long timeBegin = Stopwatch.GetTimestamp() +
         (long)Math.Ceiling(0.001 * ticks);
       long timeEnd = timeBegin + ticks;
+
       while (Stopwatch.GetTimestamp() < timeBegin) { }
       countBegin = Opcode.Rdtsc();
+      long afterBegin = Stopwatch.GetTimestamp();
+
       while (Stopwatch.GetTimestamp() < timeEnd) { }
       countEnd = Opcode.Rdtsc();
+      long afterEnd = Stopwatch.GetTimestamp();
 
-      return (((double)(countEnd - countBegin)) * Stopwatch.Frequency) /
-        (timeEnd - timeBegin);
+      double delta = (timeEnd - timeBegin);
+      frequency = 1e-6 * 
+        (((double)(countEnd - countBegin)) * Stopwatch.Frequency) / delta;
+
+      double beginError = (afterBegin - timeBegin) / delta;
+      double endError = (afterEnd - timeEnd) / delta;
+      error = beginError + endError;
     }
 
 
@@ -224,6 +248,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         "Timer Frequency: {0} MHz", Stopwatch.Frequency * 1e-6));
       r.AppendLine("Time Stamp Counter: " + (hasTimeStampCounter ? (
         isInvariantTimeStampCounter ? "Invariant" : "Not Invariant") : "None"));
+      r.AppendLine(string.Format(CultureInfo.InvariantCulture,
+        "Estimated Time Stamp Counter Frequency: {0} MHz",
+        Math.Round(estimatedTimeStampCounterFrequency * 100) * 0.01));
+      r.AppendLine(string.Format(CultureInfo.InvariantCulture,
+        "Estimated Time Stamp Counter Frequency Error: {0} Mhz",
+        Math.Round(estimatedTimeStampCounterFrequency *
+        estimatedTimeStampCounterFrequencyError * 1e5) * 1e-5));
       r.AppendLine(string.Format(CultureInfo.InvariantCulture,
         "Time Stamp Counter Frequency: {0} MHz",
         Math.Round(timeStampCounterFrequency * 100) * 0.01));   

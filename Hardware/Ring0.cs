@@ -66,7 +66,9 @@ namespace OpenHardwareMonitor.Hardware {
       IOCTL_OLS_READ_PCI_CONFIG = new IOControlCode(OLS_TYPE, 0x851, 
         IOControlCode.Access.Read),
       IOCTL_OLS_WRITE_PCI_CONFIG = new IOControlCode(OLS_TYPE, 0x852,
-        IOControlCode.Access.Write);
+        IOControlCode.Access.Write),
+      IOCTL_OLS_READ_MEMORY = new IOControlCode(OLS_TYPE, 0x841,
+        IOControlCode.Access.Read);
 
     private static bool ExtractDriver(string fileName) {
       string resourceName = "OpenHardwareMonitor.Hardware." +
@@ -309,6 +311,27 @@ namespace OpenHardwareMonitor.Hardware {
       input.Value = value;
 
       return driver.DeviceIOControl(IOCTL_OLS_WRITE_PCI_CONFIG, input);
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct ReadMemoryInput {
+      public ulong address;
+      public uint unitSize;
+      public uint count;
+    }
+
+    public static bool ReadMemory<T>(ulong address, ref T buffer) {
+      if (driver == null) {
+        return false;
+      }
+
+      ReadMemoryInput input = new ReadMemoryInput();
+      input.address = address;
+      input.unitSize = 1;
+      input.count = (uint)Marshal.SizeOf(buffer);
+
+      return driver.DeviceIOControl(IOCTL_OLS_READ_MEMORY, input,
+        ref buffer);
     }
   }
 }
