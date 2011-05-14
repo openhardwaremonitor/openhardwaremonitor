@@ -106,6 +106,9 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       if (restoreDefaultFanSpeedRequired) {        
         ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
           ref this.initialFanSpeedValue);
+        if ((initialFanSpeedValue.Flags &
+          ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED) == 0)
+          ADL.ADL_Overdrive5_FanSpeedToDefault_Set(adapterIndex, 0);
         restoreDefaultFanSpeedRequired = false;
       }
     }
