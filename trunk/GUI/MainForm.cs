@@ -356,7 +356,11 @@ namespace OpenHardwareMonitor.GUI {
         settings.Save(fileName);
       } catch (UnauthorizedAccessException) {
         MessageBox.Show("Access to the path '" + fileName + "' is denied. " +
-          "The current seetings could not be saved.", 
+          "The current settings could not be saved.",
+          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      } catch (IOException) {
+        MessageBox.Show("The path '" + fileName + "' is not writeable. " +
+          "The current settings could not be saved.",
           "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
       }
     }
