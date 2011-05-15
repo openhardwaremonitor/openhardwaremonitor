@@ -46,6 +46,7 @@ namespace OpenHardwareMonitor.Hardware {
   internal static class Ring0 {
 
     private static KernelDriver driver;
+    private static string fileName;
     private static Mutex isaBusMutex;
     private static readonly StringBuilder report = new StringBuilder();
 
@@ -117,10 +118,9 @@ namespace OpenHardwareMonitor.Hardware {
         // driver is not loaded, try to reinstall and open
 
         driver.Delete();
-        string fileName = Path.GetTempFileName();
+        fileName = Path.GetTempFileName();
         if (ExtractDriver(fileName)) {
           if (driver.Install(fileName)) {
-            File.Delete(fileName);
             driver.Open();
 
             if (!driver.IsOpen) {
@@ -135,10 +135,19 @@ namespace OpenHardwareMonitor.Hardware {
             report.Append("Exception: " + Marshal.GetExceptionForHR(
               Marshal.GetHRForLastWin32Error()).Message);
           }
+          
         } else {
           report.AppendLine(
             "Status: Extracting driver to \"" + fileName + "\" failed");
         }
+
+        try {
+          // try to delte the driver file
+          if (File.Exists(fileName))
+            File.Delete(fileName);
+          fileName = null;
+        } catch (IOException) { } 
+          catch (UnauthorizedAccessException) { }
       }
 
       if (!driver.IsOpen) 
@@ -165,7 +174,16 @@ namespace OpenHardwareMonitor.Hardware {
 
       driver = null;
 
-      isaBusMutex.Close(); 
+      isaBusMutex.Close();
+
+      // try to delete temporary driver file again if failed during open
+      if (fileName != null && File.Exists(fileName)) {
+        try {
+          File.Delete(fileName);
+          fileName = null;
+        } catch (IOException) { } 
+          catch (UnauthorizedAccessException) { }
+      }
     }
 
     public static string GetReport() {
