@@ -120,7 +120,7 @@ namespace OpenHardwareMonitor.GUI {
 
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) { // Unix
-        treeView.RowHeight = Math.Max(treeView.RowHeight, 17); 
+        treeView.RowHeight = Math.Max(treeView.RowHeight, 18); 
         splitContainer.BorderStyle = BorderStyle.None;
         splitContainer.Border3DStyle = Border3DStyle.Adjust;
         splitContainer.SplitterWidth = 4;
@@ -131,7 +131,7 @@ namespace OpenHardwareMonitor.GUI {
         minTrayMenuItem.Visible = false;
         startMinMenuItem.Visible = false;
       } else { // Windows
-        treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 17); 
+        treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 18); 
 
         gadget = new SensorGadget(computer, settings, unitManager);
         gadget.HideShowCommand += hideShowClick;
@@ -626,6 +626,12 @@ namespace OpenHardwareMonitor.GUI {
       computer.Open();
       // restore the MainIcon setting
       systemTray.IsMainIconEnabled = minimizeToTray.Value;
+    }
+
+    private void treeView_MouseMove(object sender, MouseEventArgs e) {
+      if ((e.Button & (MouseButtons.Left | MouseButtons.Right)) > 0) {
+        treeView.SelectedNode = treeView.GetNodeAt(e.Location);
+      }
     }
   }
 }

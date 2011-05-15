@@ -77,6 +77,8 @@ namespace OpenHardwareMonitor.GUI {
       this.saveReportMenuItem = new System.Windows.Forms.MenuItem();
       this.sumbitReportMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem2 = new System.Windows.Forms.MenuItem();
+      this.resetMenuItem = new System.Windows.Forms.MenuItem();
+      this.menuItem6 = new System.Windows.Forms.MenuItem();
       this.exitMenuItem = new System.Windows.Forms.MenuItem();
       this.viewMenuItem = new System.Windows.Forms.MenuItem();
       this.resetMinMaxMenuItem = new System.Windows.Forms.MenuItem();
@@ -108,8 +110,6 @@ namespace OpenHardwareMonitor.GUI {
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
-      this.resetMenuItem = new System.Windows.Forms.MenuItem();
-      this.menuItem6 = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
@@ -165,6 +165,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxText.LeftMargin = 3;
       this.nodeTextBoxText.ParentColumn = this.sensor;
       this.nodeTextBoxText.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
+      this.nodeTextBoxText.UseCompatibleTextRendering = true;
       // 
       // nodeTextBoxValue
       // 
@@ -173,6 +174,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxValue.LeftMargin = 3;
       this.nodeTextBoxValue.ParentColumn = this.value;
       this.nodeTextBoxValue.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
+      this.nodeTextBoxValue.UseCompatibleTextRendering = true;
       // 
       // nodeTextBoxMin
       // 
@@ -181,6 +183,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMin.LeftMargin = 3;
       this.nodeTextBoxMin.ParentColumn = this.min;
       this.nodeTextBoxMin.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
+      this.nodeTextBoxMin.UseCompatibleTextRendering = true;
       // 
       // nodeTextBoxMax
       // 
@@ -189,6 +192,7 @@ namespace OpenHardwareMonitor.GUI {
       this.nodeTextBoxMax.LeftMargin = 3;
       this.nodeTextBoxMax.ParentColumn = this.max;
       this.nodeTextBoxMax.Trimming = System.Drawing.StringTrimming.EllipsisCharacter;
+      this.nodeTextBoxMax.UseCompatibleTextRendering = true;
       // 
       // mainMenu
       // 
@@ -226,6 +230,17 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.MenuItem2.Index = 2;
       this.MenuItem2.Text = "-";
+      // 
+      // resetMenuItem
+      // 
+      this.resetMenuItem.Index = 3;
+      this.resetMenuItem.Text = "Reset";
+      this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
+      // 
+      // menuItem6
+      // 
+      this.menuItem6.Index = 4;
+      this.menuItem6.Text = "-";
       // 
       // exitMenuItem
       // 
@@ -448,6 +463,7 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.UseColumns = true;
       this.treeView.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseDoubleClick);
       this.treeView.Click += new System.EventHandler(this.treeView_Click);
+      this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       // 
       // plotPanel
       // 
@@ -456,17 +472,6 @@ namespace OpenHardwareMonitor.GUI {
       this.plotPanel.Name = "plotPanel";
       this.plotPanel.Size = new System.Drawing.Size(386, 124);
       this.plotPanel.TabIndex = 0;
-      // 
-      // resetMenuItem
-      // 
-      this.resetMenuItem.Index = 3;
-      this.resetMenuItem.Text = "Reset";
-      this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
-      // 
-      // menuItem6
-      // 
-      this.menuItem6.Index = 4;
-      this.menuItem6.Text = "-";
       // 
       // MainForm
       // 
