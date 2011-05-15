@@ -76,6 +76,8 @@ namespace OpenHardwareMonitor.GUI {
 
     private WmiProvider wmiProvider;
 
+    private bool selectionDragging = false;
+
     public MainForm() {      
       InitializeComponent();
 
@@ -629,9 +631,19 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void treeView_MouseMove(object sender, MouseEventArgs e) {
-      if ((e.Button & (MouseButtons.Left | MouseButtons.Right)) > 0) {
-        treeView.SelectedNode = treeView.GetNodeAt(e.Location);
-      }
+      selectionDragging = selectionDragging &
+        (e.Button & (MouseButtons.Left | MouseButtons.Right)) > 0; 
+
+      if (selectionDragging)
+        treeView.SelectedNode = treeView.GetNodeAt(e.Location);     
+    }
+
+    private void treeView_MouseDown(object sender, MouseEventArgs e) {
+      selectionDragging = true;
+    }
+
+    private void treeView_MouseUp(object sender, MouseEventArgs e) {
+      selectionDragging = false;
     }
   }
 }

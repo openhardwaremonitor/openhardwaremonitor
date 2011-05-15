@@ -463,7 +463,9 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.UseColumns = true;
       this.treeView.NodeMouseDoubleClick += new System.EventHandler<Aga.Controls.Tree.TreeNodeAdvMouseEventArgs>(this.treeView_NodeMouseDoubleClick);
       this.treeView.Click += new System.EventHandler(this.treeView_Click);
+      this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
+      this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
       // 
       // plotPanel
       // 
