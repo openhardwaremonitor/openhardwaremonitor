@@ -71,6 +71,27 @@ namespace OpenHardwareMonitor.Hardware {
       IOCTL_OLS_READ_MEMORY = new IOControlCode(OLS_TYPE, 0x841,
         IOControlCode.Access.Read);
 
+    private static string GetTempFileName() {
+
+      // try to get a file in the temporary folder
+      try {
+        return Path.GetTempFileName();        
+      } catch (IOException) { } 
+        catch (UnauthorizedAccessException) { }
+
+      // if this failed, we try to create one in the application folder
+      string fileName = Path.ChangeExtension(
+        Assembly.GetExecutingAssembly().Location, ".sys");
+      try {
+        using (FileStream stream = File.Create(fileName)) {
+          return fileName;
+        }        
+      } catch (IOException) { } 
+        catch (UnauthorizedAccessException) { }
+     
+      return null;
+    }
+
     private static bool ExtractDriver(string fileName) {
       string resourceName = "OpenHardwareMonitor.Hardware." +
         (IntPtr.Size == 4 ? "WinRing0.sys" : "WinRing0x64.sys");
@@ -118,8 +139,8 @@ namespace OpenHardwareMonitor.Hardware {
         // driver is not loaded, try to reinstall and open
 
         driver.Delete();
-        fileName = Path.GetTempFileName();
-        if (ExtractDriver(fileName)) {
+        fileName = GetTempFileName();
+        if (fileName != null && ExtractDriver(fileName)) {
           if (driver.Install(fileName)) {
             driver.Open();
 
@@ -128,17 +149,15 @@ namespace OpenHardwareMonitor.Hardware {
               report.AppendLine("Status: Opening driver failed");
             }
           } else {
-            report.AppendLine("Status: Installing driver \"" + 
-              fileName + "\" failed" + 
+            report.AppendLine("Status: Installing driver \"" +
+              fileName + "\" failed" +
               (File.Exists(fileName) ? " and file exists" : ""));
             report.AppendLine();
             report.Append("Exception: " + Marshal.GetExceptionForHR(
               Marshal.GetHRForLastWin32Error()).Message);
           }
-          
         } else {
-          report.AppendLine(
-            "Status: Extracting driver to \"" + fileName + "\" failed");
+          report.AppendLine("Status: Extracting driver failed");
         }
 
         try {
