@@ -39,6 +39,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
 using System.Threading;
 using System.Text;
 
@@ -172,7 +173,14 @@ namespace OpenHardwareMonitor.Hardware {
       if (!driver.IsOpen) 
         driver = null;
 
-      isaBusMutex = new Mutex(false, "Global\\Access_ISABUS.HTP.Method");
+      string mutexName = "Global\\Access_ISABUS.HTP.Method";
+      try {
+        isaBusMutex = new Mutex(false, mutexName);
+      } catch (UnauthorizedAccessException) {
+        try {
+          isaBusMutex = Mutex.OpenExisting(mutexName, MutexRights.Synchronize);
+        } catch { }
+      }
     }
 
     public static bool IsOpen {
@@ -193,7 +201,10 @@ namespace OpenHardwareMonitor.Hardware {
 
       driver = null;
 
-      isaBusMutex.Close();
+      if (isaBusMutex != null) {
+        isaBusMutex.Close();
+        isaBusMutex = null;
+      }
 
       // try to delete temporary driver file again if failed during open
       if (fileName != null && File.Exists(fileName)) {
@@ -218,6 +229,8 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static bool WaitIsaBusMutex(int millisecondsTimeout) {
+      if (isaBusMutex == null)
+        return true;
       try {
         return isaBusMutex.WaitOne(millisecondsTimeout, false);
       } catch (AbandonedMutexException) { return false; } 
@@ -225,6 +238,8 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static void ReleaseIsaBusMutex() {
+      if (isaBusMutex == null)
+        return;
       isaBusMutex.ReleaseMutex();
     }
 
