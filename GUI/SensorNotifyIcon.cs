@@ -176,6 +176,9 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private string GetString() {
+      if (!sensor.Value.HasValue)
+        return "-";
+
       switch (sensor.SensorType) {
         case SensorType.Voltage:
           return string.Format("{0:F11}", sensor.Value);
@@ -237,7 +240,8 @@ namespace OpenHardwareMonitor.GUI {
         graphics.Clear(Color.Black);
       }
       graphics.FillRectangle(darkBrush, 0.5f, -0.5f, bitmap.Width - 2, bitmap.Height);
-      float y = 0.16f * (100 - sensor.Value.Value);
+      float value = sensor.Value.GetValueOrDefault();
+      float y = 0.16f * (100 - value);
       graphics.FillRectangle(brush, 0.5f, -0.5f + y, bitmap.Width - 2, bitmap.Height - y);
       graphics.DrawRectangle(pen, 1, 0, bitmap.Width - 3, bitmap.Height - 1);
 
