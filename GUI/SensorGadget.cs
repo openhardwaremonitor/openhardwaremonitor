@@ -201,6 +201,20 @@ namespace OpenHardwareMonitor.GUI {
         Redraw();
       };
 
+      VisibleChanged += delegate(object sender, EventArgs e) {
+        Rectangle bounds = new Rectangle(Location, Size);
+        Screen screen = Screen.FromRectangle(bounds);
+        Rectangle intersection = 
+          Rectangle.Intersect(screen.WorkingArea, bounds);
+        if (intersection.Width < Math.Min(16, bounds.Width) || 
+            intersection.Height < Math.Min(16, bounds.Height)) 
+        {
+          Location = new Point(
+            screen.WorkingArea.Width / 2 - bounds.Width / 2, 
+            screen.WorkingArea.Height / 2 - bounds.Height / 2);
+        }
+      };
+
       MouseDoubleClick += delegate(object obj, MouseEventArgs args) {
         SendHideShowCommand();
       };
