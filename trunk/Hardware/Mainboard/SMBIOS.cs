@@ -350,6 +350,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.GA_MA770T_UD3;
           case "GA-MA785GMT-UD2H":
             return Model.GA_MA785GMT_UD2H;
+          case "H67A-UD3H-B3":
+            return Model.H67A_UD3H_B3;
           case "P35-DS3":
             return Model.P35_DS3;
           case "P35-DS3L":
