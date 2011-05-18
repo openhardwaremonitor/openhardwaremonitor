@@ -78,7 +78,7 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
       this.okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-      this.okButton.Location = new System.Drawing.Point(261, 123);
+      this.okButton.Location = new System.Drawing.Point(358, 110);
       this.okButton.Name = "okButton";
       this.okButton.Size = new System.Drawing.Size(75, 23);
       this.okButton.TabIndex = 0;
@@ -90,8 +90,8 @@ namespace OpenHardwareMonitor.GUI {
       this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
       this.pictureBox1.Location = new System.Drawing.Point(10, 11);
       this.pictureBox1.Name = "pictureBox1";
-      this.pictureBox1.Size = new System.Drawing.Size(48, 49);
-      this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+      this.pictureBox1.Size = new System.Drawing.Size(48, 48);
+      this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
       this.pictureBox1.TabIndex = 1;
       this.pictureBox1.TabStop = false;
       // 
@@ -111,9 +111,9 @@ namespace OpenHardwareMonitor.GUI {
       this.label2.Location = new System.Drawing.Point(74, 47);
       this.label2.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.label2.Name = "label2";
-      this.label2.Size = new System.Drawing.Size(280, 13);
+      this.label2.Size = new System.Drawing.Size(359, 13);
       this.label2.TabIndex = 3;
-      this.label2.Text = "Copyright © 2009-2011 Michael Möller. All rights reserved.";
+      this.label2.Text = "Copyright © 2009-2011 Michael Möller and contributers. All rights reserved.";
       // 
       // label3
       // 
@@ -138,7 +138,7 @@ namespace OpenHardwareMonitor.GUI {
       // linkLabel
       // 
       this.linkLabel.AutoSize = true;
-      this.linkLabel.Location = new System.Drawing.Point(128, 0);
+      this.linkLabel.Location = new System.Drawing.Point(122, 0);
       this.linkLabel.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
       this.linkLabel.Name = "linkLabel";
       this.linkLabel.Size = new System.Drawing.Size(156, 13);
@@ -151,11 +151,11 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.label5.AutoSize = true;
       this.label5.Location = new System.Drawing.Point(0, 0);
-      this.label5.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+      this.label5.Margin = new System.Windows.Forms.Padding(0);
       this.label5.Name = "label5";
-      this.label5.Size = new System.Drawing.Size(125, 13);
+      this.label5.Size = new System.Drawing.Size(122, 13);
       this.label5.TabIndex = 7;
-      this.label5.Text = "from the project website: ";
+      this.label5.Text = "from the project website:";
       // 
       // flowLayoutPanel1
       // 
@@ -166,16 +166,16 @@ namespace OpenHardwareMonitor.GUI {
       this.flowLayoutPanel1.Location = new System.Drawing.Point(10, 100);
       this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(10, 0, 10, 0);
       this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-      this.flowLayoutPanel1.Size = new System.Drawing.Size(294, 13);
+      this.flowLayoutPanel1.Size = new System.Drawing.Size(288, 13);
       this.flowLayoutPanel1.TabIndex = 8;
       // 
       // AboutBox
       // 
       this.AcceptButton = this.okButton;
-      this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+      this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+      this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
       this.AutoSize = true;
-      this.ClientSize = new System.Drawing.Size(346, 158);
+      this.ClientSize = new System.Drawing.Size(443, 145);
       this.Controls.Add(this.flowLayoutPanel1);
       this.Controls.Add(this.label4);
       this.Controls.Add(this.label3);

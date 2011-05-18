@@ -72,6 +72,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     EX58_EXTREME,
     GA_MA770T_UD3,
     GA_MA785GMT_UD2H,
+    H67A_UD3H_B3,
     P35_DS3,
     P35_DS3L,
     P55_UD4,
