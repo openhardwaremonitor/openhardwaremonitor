@@ -37,12 +37,10 @@
 
 using System;
 using System.IO;
-using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using OpenHardwareMonitor.GUI;
-using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor {
   public static class Program {
@@ -90,15 +88,6 @@ namespace OpenHardwareMonitor {
         return false;
       if (!IsFileAvailable("OpenHardwareMonitorLib.dll"))
         return false;
-
-      // check if the OpenHardwareMonitorLib assembly has the correct version
-      if (Assembly.GetAssembly(typeof(Computer)).GetName().Version !=
-        Assembly.GetExecutingAssembly().GetName().Version) {
-        MessageBox.Show(
-          "The version of the file OpenHardwareMonitorLib.dll is incompatible.", 
-          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        return false;
-      }
 
       return true;
     }
