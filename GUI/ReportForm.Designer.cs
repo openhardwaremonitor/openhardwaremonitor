@@ -95,7 +95,7 @@ namespace OpenHardwareMonitor.GUI {
       this.exitButton.Name = "exitButton";
       this.exitButton.Size = new System.Drawing.Size(75, 23);
       this.exitButton.TabIndex = 3;
-      this.exitButton.Text = "Canel";
+      this.exitButton.Text = "Cancel";
       this.exitButton.UseVisualStyleBackColor = true;
       // 
       // commentTextBox
