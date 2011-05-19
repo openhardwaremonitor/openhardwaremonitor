@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
@@ -80,6 +81,15 @@ namespace OpenHardwareMonitor.GUI {
 
     public MainForm() {      
       InitializeComponent();
+
+      // check if the OpenHardwareMonitorLib assembly has the correct version
+      if (Assembly.GetAssembly(typeof(Computer)).GetName().Version !=
+        Assembly.GetExecutingAssembly().GetName().Version) {
+        MessageBox.Show(
+          "The version of the file OpenHardwareMonitorLib.dll is incompatible.",
+          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        Environment.Exit(0);
+      }
 
       this.settings = new PersistentSettings();      
       this.settings.Load(Path.ChangeExtension(
