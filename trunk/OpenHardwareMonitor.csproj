@@ -108,6 +108,7 @@
     <Compile Include="GUI\UnitManager.cs" />
     <Compile Include="GUI\UpdateVisitor.cs" />
     <Compile Include="GUI\UserOption.cs" />
+    <Compile Include="GUI\UserRadioGroup.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
     <Compile Include="Utilities\PersistentSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

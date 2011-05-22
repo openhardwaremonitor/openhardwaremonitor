@@ -62,6 +62,7 @@ namespace OpenHardwareMonitor.GUI {
     private StartupManager startupManager = new StartupManager();
     private UpdateVisitor updateVisitor = new UpdateVisitor();
     private SensorGadget gadget;
+    private Form plotForm;
 
     private UserOption showHiddenSensors;
     private UserOption showPlot;
@@ -74,6 +75,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption autoStart;
     private UserOption readHddSensors;
     private UserOption showGadget;
+    private UserRadioGroup plotLocation;
 
     private WmiProvider wmiProvider;
 
@@ -149,8 +151,8 @@ namespace OpenHardwareMonitor.GUI {
         gadget.HideShowCommand += hideShowClick;
 
         wmiProvider = new WmiProvider(computer);
-      }          
-
+      }    
+      
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);        
 
@@ -177,12 +179,6 @@ namespace OpenHardwareMonitor.GUI {
         hiddenMenuItem, settings);
       showHiddenSensors.Changed += delegate(object sender, EventArgs e) {
         treeModel.ForceVisible = showHiddenSensors.Value;
-      };
-
-      showPlot = new UserOption("plotMenuItem", false, plotMenuItem, settings);
-      showPlot.Changed += delegate(object sender, EventArgs e) {
-        splitContainer.Panel2Collapsed = !showPlot.Value;
-        treeView.Invalidate();
       };
 
       showValue = new UserOption("valueMenuItem", true, valueMenuItem,
@@ -243,6 +239,8 @@ namespace OpenHardwareMonitor.GUI {
         unitManager.TemperatureUnit == TemperatureUnit.Celcius;
       fahrenheitMenuItem.Checked = !celciusMenuItem.Checked;
 
+      InitializePlotForm();
+
       startupMenuItem.Visible = startupManager.IsAvailable;
       
       if (startMinMenuItem.Checked) {
@@ -261,6 +259,98 @@ namespace OpenHardwareMonitor.GUI {
       Microsoft.Win32.SystemEvents.SessionEnded += delegate {
         SaveConfiguration();
       };  
+    }
+
+    private void InitializePlotForm() {
+      plotForm = new Form();
+      plotForm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
+      plotForm.ShowInTaskbar = false;
+      plotForm.StartPosition = FormStartPosition.Manual;
+      this.AddOwnedForm(plotForm);
+      plotForm.Bounds = new Rectangle {
+        X = settings.GetValue("plotForm.Location.X", -100000),
+        Y = settings.GetValue("plotForm.Location.Y", 100),
+        Width = settings.GetValue("plotForm.Width", 600),
+        Height = settings.GetValue("plotForm.Height", 400)
+      };
+
+      showPlot = new UserOption("plotMenuItem", false, plotMenuItem, settings);
+      plotLocation = new UserRadioGroup("plotLocation", 0,
+        new[] { plotWindowMenuItem, plotBottomMenuItem, plotRightMenuItem },
+        settings);
+
+      showPlot.Changed += delegate(object sender, EventArgs e) {
+        if (plotLocation.Value == 0) {
+          if (showPlot.Value && this.Visible)
+            plotForm.Show();
+          else
+            plotForm.Hide();
+        } else {
+          splitContainer.Panel2Collapsed = !showPlot.Value;
+        }
+        treeView.Invalidate();
+      };
+      plotLocation.Changed += delegate(object sender, EventArgs e) {
+        switch (plotLocation.Value) {
+          case 0:
+            splitContainer.Panel2.Controls.Clear();
+            splitContainer.Panel2Collapsed = true;
+            plotForm.Controls.Add(plotPanel);
+            if (showPlot.Value && this.Visible)
+              plotForm.Show();
+            break;
+          case 1:
+            plotForm.Controls.Clear();
+            plotForm.Hide();
+            splitContainer.Orientation = Orientation.Horizontal;
+            splitContainer.Panel2.Controls.Add(plotPanel);
+            splitContainer.Panel2Collapsed = !showPlot.Value;
+            break;
+          case 2:
+            plotForm.Controls.Clear();
+            plotForm.Hide();
+            splitContainer.Orientation = Orientation.Vertical;
+            splitContainer.Panel2.Controls.Add(plotPanel);
+            splitContainer.Panel2Collapsed = !showPlot.Value;
+            break;
+        }
+      };
+      plotForm.Closing += delegate(object sender, CancelEventArgs e) {
+        if (plotLocation.Value == 0) {
+          showPlot.Value = false;
+        }
+        e.Cancel = true;
+      };
+      EventHandler moveOrResizePlotForm = delegate(object sender, EventArgs e) {
+        if (plotForm.WindowState != FormWindowState.Minimized) {
+          settings.SetValue("plotForm.Location.X", plotForm.Bounds.X);
+          settings.SetValue("plotForm.Location.Y", plotForm.Bounds.Y);
+          settings.SetValue("plotForm.Width", plotForm.Bounds.Width);
+          settings.SetValue("plotForm.Height", plotForm.Bounds.Height);
+        }
+      };
+      plotForm.Move += moveOrResizePlotForm;
+      plotForm.Resize += moveOrResizePlotForm;
+
+      plotForm.VisibleChanged += delegate(object sender, EventArgs e) {
+        Rectangle bounds = new Rectangle(plotForm.Location, plotForm.Size);
+        Screen screen = Screen.FromRectangle(bounds);
+        Rectangle intersection =
+          Rectangle.Intersect(screen.WorkingArea, bounds);
+        if (intersection.Width < Math.Min(16, bounds.Width) ||
+            intersection.Height < Math.Min(16, bounds.Height)) {
+          plotForm.Location = new Point(
+            screen.WorkingArea.Width / 2 - bounds.Width / 2,
+            screen.WorkingArea.Height / 2 - bounds.Height / 2);
+        }
+      };
+
+      this.VisibleChanged += delegate(object sender, EventArgs e) {
+        if (this.Visible && showPlot.Value && plotLocation.Value == 0)
+          plotForm.Show();
+        else
+          plotForm.Hide();
+      };
     }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
