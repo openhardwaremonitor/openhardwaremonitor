@@ -110,6 +110,10 @@ namespace OpenHardwareMonitor.GUI {
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
       this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
+      this.plotLocationMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
@@ -326,6 +330,7 @@ namespace OpenHardwareMonitor.GUI {
             this.startupMenuItem,
             this.separatorMenuItem,
             this.temperatureUnitsMenuItem,
+            this.plotLocationMenuItem,
             this.MenuItem4,
             this.hddMenuItem});
       this.optionsMenuItem.Text = "Options";
@@ -377,12 +382,12 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // MenuItem4
       // 
-      this.MenuItem4.Index = 6;
+      this.MenuItem4.Index = 7;
       this.MenuItem4.Text = "-";
       // 
       // hddMenuItem
       // 
-      this.hddMenuItem.Index = 7;
+      this.hddMenuItem.Index = 8;
       this.hddMenuItem.Text = "Read HDD sensors";
       // 
       // helpMenuItem
@@ -475,6 +480,30 @@ namespace OpenHardwareMonitor.GUI {
       this.plotPanel.Size = new System.Drawing.Size(386, 124);
       this.plotPanel.TabIndex = 0;
       // 
+      // plotLocationMenuItem
+      // 
+      this.plotLocationMenuItem.Index = 6;
+      this.plotLocationMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.plotWindowMenuItem,
+            this.plotBottomMenuItem,
+            this.plotRightMenuItem});
+      this.plotLocationMenuItem.Text = "Plot Location";
+      // 
+      // plotWindowMenuItem
+      // 
+      this.plotWindowMenuItem.Index = 0;
+      this.plotWindowMenuItem.Text = "Window";
+      // 
+      // plotBottomMenuItem
+      // 
+      this.plotBottomMenuItem.Index = 1;
+      this.plotBottomMenuItem.Text = "Bottom";
+      // 
+      // plotRightMenuItem
+      // 
+      this.plotRightMenuItem.Index = 2;
+      this.plotRightMenuItem.Text = "Right";
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -547,6 +576,10 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem minCloseMenuItem;
     private System.Windows.Forms.MenuItem resetMenuItem;
     private System.Windows.Forms.MenuItem menuItem6;
+    private System.Windows.Forms.MenuItem plotLocationMenuItem;
+    private System.Windows.Forms.MenuItem plotWindowMenuItem;
+    private System.Windows.Forms.MenuItem plotBottomMenuItem;
+    private System.Windows.Forms.MenuItem plotRightMenuItem;
   }
 }
 
