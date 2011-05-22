@@ -121,8 +121,13 @@ namespace OpenHardwareMonitor.Hardware {
       if (buffer == null)
         return false;
 
-      using (FileStream target = new FileStream(fileName, FileMode.Create)) {
-        target.Write(buffer, 0, buffer.Length);
+      try {
+        using (FileStream target = new FileStream(fileName, FileMode.Create)) {
+          target.Write(buffer, 0, buffer.Length);
+        }
+      } catch (IOException) { 
+        // for example there is not enough space on the disk
+        return false; 
       }
 
       return true;
