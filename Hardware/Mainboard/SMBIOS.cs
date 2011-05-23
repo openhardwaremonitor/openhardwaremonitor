@@ -269,6 +269,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
       private static Manufacturer GetManufacturer(string name) {               
         switch (name) {
+          case "Alienware":
+            return Manufacturer.Alienware;
+          case "Apple Inc.":
+            return Manufacturer.Apple;
           case "ASRock":
             return Manufacturer.ASRock;
           case "ASUSTeK Computer INC.":
@@ -286,15 +290,32 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return  Manufacturer.EVGA;
           case "First International Computer, Inc.":
             return Manufacturer.FIC;
+          case "FUJITSU":
+          case "FUJITSU SIEMENS":
+            return Manufacturer.Fujitsu;
           case "Gigabyte Technology Co., Ltd.":
             return  Manufacturer.Gigabyte;
           case "Hewlett-Packard":
             return  Manufacturer.HP;
           case "IBM":
             return  Manufacturer.IBM;
+          case "Intel":
+          case "Intel Corp.":
+          case "Intel Corporation":
+          case "INTEL Corporation":
+            return Manufacturer.Intel;   
+          case "Lenovo":
+          case "LENOVO":
+            return Manufacturer.Lenovo;
+          case "Micro-Star International":
           case "MICRO-STAR INTERNATIONAL CO., LTD":
           case "MICRO-STAR INTERNATIONAL CO.,LTD":
+          case "MSI":
             return  Manufacturer.MSI;
+          case "Supermicro":
+            return Manufacturer.Supermicro;
+          case "TOSHIBA":
+            return Manufacturer.Toshiba;
           case "XFX":
             return  Manufacturer.XFX;
           case "To be filled by O.E.M.":
@@ -366,6 +387,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.X38_DS5;
           case "X58A-UD3R":
             return Model.X58A_UD3R;
+          case "Base Board Product Name":
           case "To be filled by O.E.M.":
             return Model.Unknown;
           default:

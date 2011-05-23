@@ -46,6 +46,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     F71862 = 0x0601, 
     F71869 = 0x0814,
     F71882 = 0x0541,
+    F71889AD = 0x1005,
     F71889ED = 0x0909,
     F71889F = 0x0723,
 
@@ -82,6 +83,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.F71862: return "Fintek F71862";
         case Chip.F71869: return "Fintek F71869";
         case Chip.F71882: return "Fintek F71882";
+        case Chip.F71889AD: return "Fintek F71889AD";
         case Chip.F71889ED: return "Fintek F71889ED";
         case Chip.F71889F: return "Fintek F71889F";
 

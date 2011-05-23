@@ -38,6 +38,8 @@
 namespace OpenHardwareMonitor.Hardware.Mainboard {
 
   internal enum Manufacturer {
+    Alienware,
+    Apple,
     ASRock,
     ASUS,
     Dell,
@@ -46,10 +48,15 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     EPoX,
     EVGA,
     FIC,
+    Fujitsu,
     Gigabyte,
     HP,
     IBM,
+    Intel,
+    Lenovo,
     MSI,
+    Supermicro,
+    Toshiba,
     XFX,
     Unknown    
   }

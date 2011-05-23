@@ -154,6 +154,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0x10:
+          switch (revision) {
+            case 0x05:
+              chip = Chip.F71889AD;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
         case 0x52:
           switch (revision) {
             case 0x17:
@@ -293,6 +300,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.F71862:
           case Chip.F71869:
           case Chip.F71882:
+          case Chip.F71889AD:
           case Chip.F71889ED:
           case Chip.F71889F:
             if (vendorID != FINTEK_VENDOR_ID) {
