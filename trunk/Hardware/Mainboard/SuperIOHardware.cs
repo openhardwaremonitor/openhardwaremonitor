@@ -544,6 +544,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.F71862: 
         case Chip.F71869: 
         case Chip.F71882:
+        case Chip.F71889AD: 
         case Chip.F71889ED: 
         case Chip.F71889F:
           switch (manufacturer) {
