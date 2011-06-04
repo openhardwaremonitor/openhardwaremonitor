@@ -315,12 +315,17 @@ namespace OpenHardwareMonitor.GUI {
             break;
         }
       };
-      plotForm.Closing += delegate(object sender, CancelEventArgs e) {
-        if (plotLocation.Value == 0) {
-          showPlot.Value = false;
+
+      plotForm.FormClosing += delegate(object sender, FormClosingEventArgs e) {
+        if (e.CloseReason == CloseReason.UserClosing) {
+          // just switch off the plotting when the user closes the form
+          if (plotLocation.Value == 0) {
+            showPlot.Value = false;
+          }
+          e.Cancel = true;
         }
-        e.Cancel = true;
       };
+
       EventHandler moveOrResizePlotForm = delegate(object sender, EventArgs e) {
         if (plotForm.WindowState != FormWindowState.Minimized) {
           settings.SetValue("plotForm.Location.X", plotForm.Bounds.X);
