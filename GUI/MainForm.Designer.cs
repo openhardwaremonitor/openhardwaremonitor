@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -98,7 +98,7 @@ namespace OpenHardwareMonitor.GUI {
       this.startupMenuItem = new System.Windows.Forms.MenuItem();
       this.separatorMenuItem = new System.Windows.Forms.MenuItem();
       this.temperatureUnitsMenuItem = new System.Windows.Forms.MenuItem();
-      this.celciusMenuItem = new System.Windows.Forms.MenuItem();
+      this.celsiusMenuItem = new System.Windows.Forms.MenuItem();
       this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem4 = new System.Windows.Forms.MenuItem();
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
@@ -364,15 +364,15 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.temperatureUnitsMenuItem.Index = 5;
       this.temperatureUnitsMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.celciusMenuItem,
+            this.celsiusMenuItem,
             this.fahrenheitMenuItem});
       this.temperatureUnitsMenuItem.Text = "Temperature Unit";
       // 
-      // celciusMenuItem
+      // celsiusMenuItem
       // 
-      this.celciusMenuItem.Index = 0;
-      this.celciusMenuItem.Text = "Celcius";
-      this.celciusMenuItem.Click += new System.EventHandler(this.celciusMenuItem_Click);
+      this.celsiusMenuItem.Index = 0;
+      this.celsiusMenuItem.Text = "Celsius";
+      this.celsiusMenuItem.Click += new System.EventHandler(this.celsiusMenuItem_Click);
       // 
       // fahrenheitMenuItem
       // 
@@ -566,7 +566,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem maxMenuItem;
     private System.Windows.Forms.MenuItem temperatureUnitsMenuItem;
     private System.Windows.Forms.MenuItem MenuItem4;
-    private System.Windows.Forms.MenuItem celciusMenuItem;
+    private System.Windows.Forms.MenuItem celsiusMenuItem;
     private System.Windows.Forms.MenuItem fahrenheitMenuItem;
     private System.Windows.Forms.MenuItem sumbitReportMenuItem;
     private System.Windows.Forms.MenuItem MenuItem2;
