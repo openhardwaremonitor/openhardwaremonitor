@@ -235,9 +235,9 @@ namespace OpenHardwareMonitor.GUI {
           gadget.Visible = showGadget.Value;
       };
 
-      celciusMenuItem.Checked = 
-        unitManager.TemperatureUnit == TemperatureUnit.Celcius;
-      fahrenheitMenuItem.Checked = !celciusMenuItem.Checked;
+      celsiusMenuItem.Checked = 
+        unitManager.TemperatureUnit == TemperatureUnit.Celsius;
+      fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
       InitializePlotForm();
 
@@ -689,14 +689,14 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private void celciusMenuItem_Click(object sender, EventArgs e) {
-      celciusMenuItem.Checked = true;
+    private void celsiusMenuItem_Click(object sender, EventArgs e) {
+      celsiusMenuItem.Checked = true;
       fahrenheitMenuItem.Checked = false;
-      unitManager.TemperatureUnit = TemperatureUnit.Celcius;
+      unitManager.TemperatureUnit = TemperatureUnit.Celsius;
     }
 
     private void fahrenheitMenuItem_Click(object sender, EventArgs e) {
-      celciusMenuItem.Checked = false;
+      celsiusMenuItem.Checked = false;
       fahrenheitMenuItem.Checked = true;
       unitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }

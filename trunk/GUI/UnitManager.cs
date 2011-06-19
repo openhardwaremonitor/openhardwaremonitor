@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -41,7 +41,7 @@ using System.Collections.Generic;
 namespace OpenHardwareMonitor.GUI {
 
   public enum TemperatureUnit {
-    Celcius = 0,
+    Celsius = 0,
     Fahrenheit = 1
   }
 
@@ -53,7 +53,7 @@ namespace OpenHardwareMonitor.GUI {
     public UnitManager(PersistentSettings settings) {
       this.settings = settings;
       this.temperatureUnit = (TemperatureUnit)settings.GetValue("TemperatureUnit",
-        (int)TemperatureUnit.Celcius);
+        (int)TemperatureUnit.Celsius);
     }
 
     public TemperatureUnit TemperatureUnit {
