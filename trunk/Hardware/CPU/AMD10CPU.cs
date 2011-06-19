@@ -61,7 +61,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const byte MISCELLANEOUS_CONTROL_FUNCTION = 3;
     private const ushort FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1203;
     private const ushort FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1303;
-    private const ushort FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703; 
+    private const ushort FAMILY_12H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703;
+    private const ushort FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703;
+    private const ushort FAMILY_15H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1603; 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     private const uint CLOCK_POWER_TIMING_CONTROL_0_REGISTER = 0xD4;
 
@@ -76,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public AMD10CPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
       : base(processorIndex, cpuid, settings) 
     {            
-      // AMD family 10h/11h processors support only one temperature sensor
+      // AMD family 1Xh processors support only one temperature sensor
       coreTemperature = new Sensor(
         "Core" + (coreCount > 1 ? " #1 - #" + coreCount : ""), 0,
         SensorType.Temperature, this, new [] {
@@ -88,8 +90,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           FAMILY_10H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         case 0x11: miscellaneousControlDeviceId =
           FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        case 0x12: miscellaneousControlDeviceId =
+          FAMILY_12H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         case 0x14: miscellaneousControlDeviceId = 
           FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        case 0x15: miscellaneousControlDeviceId =
+          FAMILY_15H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         default: miscellaneousControlDeviceId = 0; break;
       }
 
@@ -196,23 +202,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       while (Stopwatch.GetTimestamp() < timeEnd) { }
       Ring0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
       Ring0.Rdmsr(COFVID_STATUS, out eax, out edx);
+      double coreMultiplier = GetCoreMultiplier(eax);
 
-      double coreMultiplier;
-      if (family == 0x14) {               
-        uint divisorIdMSD = (eax >> 4) & 0x1F;
-        uint divisorIdLSD = eax & 0xF;
-        uint value = 0;
-        Ring0.ReadPciConfig(miscellaneousControlAddress,
-          CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
-        uint frequencyId = value & 0x1F;
-
-        coreMultiplier = 
-          MultiplierFromIDs(divisorIdMSD, divisorIdLSD, frequencyId);
-      } else {
-        uint cpuDid = (eax >> 6) & 7;
-        uint cpuFid = eax & 0x1F;
-        coreMultiplier = MultiplierFromIDs(cpuDid, cpuFid);
-      }
       ulong countBegin = ((ulong)msbBegin << 32) | lsbBegin;
       ulong countEnd = ((ulong)msbEnd << 32) | lsbEnd;
 
@@ -252,16 +243,48 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return r.ToString();
     }
 
-    // calculate the multiplier for family 10h based on Did and Fid
-    private static double MultiplierFromIDs(uint divisorID, uint frequencyID) {
-      return 0.5 * (frequencyID + 0x10) / (1 << (int)divisorID);
-    }
-
-    // calculate the multiplier for family 14h based on DidMSD, DidLSD and Fid
-    private static double MultiplierFromIDs(uint divisorIdMSD, 
-      uint divisorIdLSD, uint frequencyId) 
-    {
-      return (frequencyId + 0x10) / (divisorIdMSD + (divisorIdLSD * 0.25) + 1);
+    private double GetCoreMultiplier(uint cofvidEax) {
+      switch (family) {
+        case 0x10:
+        case 0x11:
+          // 8:6 CpuDid: current core divisor ID
+          // 5:0 CpuFid: current core frequency ID
+          uint cpuDid = (cofvidEax >> 6) & 7;
+          uint cpuFid = cofvidEax & 0x1F;
+          return 0.5 * (cpuFid + 0x10) / (1 << (int)cpuDid);
+        case 0x12:
+          // 8:4 CpuFid: current CPU core frequency ID
+          // 3:0 CpuDid: current CPU core divisor ID
+          uint CpuFid = (cofvidEax >> 4) & 0x1F;
+          uint CpuDid = cofvidEax & 0xF;
+          double divisor;
+          switch (CpuDid) {
+            case 0: divisor = 1; break;
+            case 1: divisor = 1.5; break;
+            case 2: divisor = 2; break;
+            case 3: divisor = 3; break;
+            case 4: divisor = 4; break;
+            case 5: divisor = 6; break;
+            case 6: divisor = 8; break;
+            case 7: divisor = 12; break;
+            case 8: divisor = 16; break;
+            default: divisor = 1; break;
+          }
+          return (CpuFid + 0x10) / divisor;
+        case 0x14:
+          // 8:4: current CPU core divisor ID most significant digit
+          // 3:0: current CPU core divisor ID least significant digit
+          uint divisorIdMSD = (cofvidEax >> 4) & 0x1F;
+          uint divisorIdLSD = cofvidEax & 0xF;
+          uint value = 0;
+          Ring0.ReadPciConfig(miscellaneousControlAddress,
+            CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
+          uint frequencyId = value & 0x1F;
+          return (frequencyId + 0x10) /
+            (divisorIdMSD + (divisorIdLSD * 0.25) + 1);
+        default:
+          return 1;
+      }
     }
 
     private string ReadFirstLine(Stream stream) {
@@ -314,22 +337,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             1UL << cpuid[i][0].Thread)) 
           {
             double multiplier;
-            if (family == 0x14) {
-              uint divisorIdMSD = (curEax >> 4) & 0x1F;
-              uint divisorIdLSD = curEax & 0xF;
-              uint value = 0;
-              Ring0.ReadPciConfig(miscellaneousControlAddress,
-                CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
-              uint frequencyId = value & 0x1F;
-              multiplier =
-                MultiplierFromIDs(divisorIdMSD, divisorIdLSD, frequencyId);
-            } else {
-              // 8:6 CpuDid: current core divisor ID
-              // 5:0 CpuFid: current core frequency ID
-              uint cpuDid = (curEax >> 6) & 7;
-              uint cpuFid = curEax & 0x1F;
-              multiplier = MultiplierFromIDs(cpuDid, cpuFid);
-            }
+            multiplier = GetCoreMultiplier(curEax);
 
             coreClocks[i].Value = 
               (float)(multiplier * TimeStampCounterFrequency / 
