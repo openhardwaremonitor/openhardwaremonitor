@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -475,7 +475,7 @@ namespace OpenHardwareMonitor.GUI {
               string format = "";
               switch (sensor.SensorType) {
                 case SensorType.Voltage:
-                  format = "{0:F2} V";
+                  format = "{0:F3} V";
                   break;
                 case SensorType.Clock:
                   format = "{0:F0} MHz";
