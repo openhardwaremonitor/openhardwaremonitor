@@ -208,12 +208,13 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       }
     }
 
-    public void Close() {
+    public override void Close() {
       this.fanControl.ControlModeChanged -= ControlModeChanged;
       this.fanControl.SoftwareControlValueChanged -=
         SoftwareControlValueChanged;
 
       RestoreDefaultFanSpeed();
+      base.Close();
     }
   }
 }

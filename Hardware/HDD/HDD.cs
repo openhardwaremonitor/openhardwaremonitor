@@ -123,8 +123,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       count++; count %= UPDATE_DIVIDER; 
     }
 
-    public void Close() {
+    public override void Close() {
       SMART.CloseHandle(handle);
+      base.Close();
     }
 
     public override void Traverse(IVisitor visitor) {

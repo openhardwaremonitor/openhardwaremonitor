@@ -348,10 +348,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
     }
 
-    public override void Close() {
+    public override void Close() {      
       if (temperatureStream != null) {
         temperatureStream.Close();
       }
+      base.Close();
     }
   }
 }

@@ -113,6 +113,13 @@ namespace OpenHardwareMonitor.Hardware {
 
     public abstract void Update();
 
+    public event HardwareEventHandler Closing;
+
+    public virtual void Close() {
+      if (Closing != null)
+        Closing(this);
+    }
+
     public void Accept(IVisitor visitor) {
       if (visitor == null)
         throw new ArgumentNullException("visitor");

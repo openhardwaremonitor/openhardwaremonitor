@@ -38,7 +38,7 @@
 namespace OpenHardwareMonitor.Hardware {
 
   public delegate void SensorEventHandler(ISensor sensor);
-
+  
   public enum HardwareType {
     Mainboard,
     SuperIO,

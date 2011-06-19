@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 20011
+  Portions created by the Initial Developer are Copyright (C) 2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):

@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -88,10 +88,12 @@ namespace OpenHardwareMonitor.GUI {
       foreach (ISensor sensor in temperatures) {
         IEnumerable<SensorValue> values = sensor.Values;
         foreach (SensorValue value in values) {
-          if (!minTempNullable.HasValue || minTempNullable > value.Value)
-            minTempNullable = value.Value;
-          if (!maxTempNullable.HasValue || maxTempNullable < value.Value)
-            maxTempNullable = value.Value;
+          if (!float.IsNaN(value.Value)) {
+            if (!minTempNullable.HasValue || minTempNullable > value.Value)
+              minTempNullable = value.Value;
+            if (!maxTempNullable.HasValue || maxTempNullable < value.Value)
+              maxTempNullable = value.Value;
+          }
         }
       }
       if (!minTempNullable.HasValue) {
@@ -140,6 +142,10 @@ namespace OpenHardwareMonitor.GUI {
         deltaTime += 2;
       while (deltaTime + 5 < maxTime && deltaTime < 100)
         deltaTime += 5;
+      while (deltaTime + 50 < maxTime && deltaTime < 1000)
+        deltaTime += 50;
+      while (deltaTime + 100 < maxTime && deltaTime < 10000)
+        deltaTime += 100;
 
       List<float> grid = new List<float>(countTime + 1);
       for (int i = 0; i <= countTime; i++) {
@@ -149,7 +155,6 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     protected override void OnPaint(PaintEventArgs e) {
-
       now = DateTime.Now - new TimeSpan(0, 0, 4);
 
       List<float> timeGrid = GetTimeGrid();
@@ -196,14 +201,18 @@ namespace OpenHardwareMonitor.GUI {
             IEnumerable<SensorValue> values = sensor.Values;
             PointF last = new PointF();
             bool first = true;
-            foreach (SensorValue value in values) {
-              PointF point = new PointF(
-                  x0 + w - w * (float)(now - value.Time).TotalMinutes / deltaTime,
-                  y0 + h - h * (value.Value - tempGrid[0]) / deltaTemp);
-              if (!first)
-                g.DrawLine(pen, last, point);
-              last = point;
-              first = false;
+            foreach (SensorValue v in values) {
+              if (!float.IsNaN(v.Value)) {
+                PointF point = new PointF(
+                    x0 + w - w * (float)(now - v.Time).TotalMinutes / deltaTime,
+                    y0 + h - h * (v.Value - tempGrid[0]) / deltaTemp);
+                if (!first) 
+                  g.DrawLine(pen, last, point);                
+                last = point;
+                first = false;
+              } else {
+                first = true;
+              }
             }
           }
         }

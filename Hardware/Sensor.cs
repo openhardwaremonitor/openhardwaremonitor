@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -38,6 +38,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.IO.Compression;
 using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -49,33 +51,31 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly int index;
     private readonly bool defaultHidden;
     private readonly SensorType sensorType;
-    private readonly IHardware hardware;
+    private readonly Hardware hardware;
     private readonly ReadOnlyArray<IParameter> parameters;
     private float? currentValue;
     private float? minValue;
     private float? maxValue;
-    private readonly Queue<SensorValue> values =
-      new Queue<SensorValue>(MAX_MINUTES * 15);
+    private readonly RingCollection<SensorValue> 
+      values = new RingCollection<SensorValue>();
     private readonly ISettings settings;
     private IControl control;
     
     private float sum;
     private int count;
-
-    private const int MAX_MINUTES = 120;
    
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware, ISettings settings) : 
+      Hardware hardware, ISettings settings) : 
       this(name, index, sensorType, hardware, null, settings) { }
 
     public Sensor(string name, int index, SensorType sensorType,
-      IHardware hardware, ParameterDescription[] parameterDescriptions, 
+      Hardware hardware, ParameterDescription[] parameterDescriptions, 
       ISettings settings) :
       this(name, index, false, sensorType, hardware,
         parameterDescriptions, settings) { }
 
     public Sensor(string name, int index, bool defaultHidden, 
-      SensorType sensorType, IHardware hardware, 
+      SensorType sensorType, Hardware hardware, 
       ParameterDescription[] parameterDescriptions, ISettings settings) 
     {           
       this.index = index;
@@ -92,6 +92,59 @@ namespace OpenHardwareMonitor.Hardware {
       this.defaultName = name; 
       this.name = settings.GetValue(
         new Identifier(Identifier, "name").ToString(), name);
+
+      GetSensorValuesFromSettings();
+
+      hardware.Closing += delegate(IHardware h) {
+        SetSensorValuesToSettings();
+      };
+    }
+
+    private void SetSensorValuesToSettings() {
+      using (MemoryStream m = new MemoryStream()) {
+        using (GZipStream c = new GZipStream(m, CompressionMode.Compress))
+        using (BinaryWriter writer = new BinaryWriter(c)) {
+          foreach (SensorValue sensorValue in values) {
+            writer.Write(sensorValue.Time.ToBinary());
+            writer.Write(sensorValue.Value);
+          }
+        }
+        settings.SetValue(new Identifier(Identifier, "values").ToString(),
+           Convert.ToBase64String(m.ToArray()));
+      }
+    }
+
+    private void GetSensorValuesFromSettings() {
+      string s = settings.GetValue(
+        new Identifier(Identifier, "values").ToString(), null);
+
+      byte[] array = null;
+      try {
+        array = Convert.FromBase64String(s);
+        using (MemoryStream m = new MemoryStream(array))
+        using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
+        using (BinaryReader reader = new BinaryReader(c)) {
+          try {
+            while (true) {
+              DateTime time = DateTime.FromBinary(reader.ReadInt64());
+              float value = reader.ReadSingle();
+              AppendValue(value, time);
+            }
+          } catch (EndOfStreamException) { }
+        }
+      } catch { }
+      if (values.Count > 0)
+        AppendValue(float.NaN, DateTime.Now);
+    }
+
+    private void AppendValue(float value, DateTime time) {
+      if (values.Count >= 2 && values.Last.Value == value && 
+        values[values.Count - 2].Value == value) {
+        values.Last = new SensorValue(value, time);
+        return;
+      } 
+
+      values.Append(new SensorValue(value, time));
     }
 
     public IHardware Hardware {
@@ -140,15 +193,15 @@ namespace OpenHardwareMonitor.Hardware {
         return currentValue; 
       }
       set {
-        while (values.Count > 0 && 
-          (DateTime.Now - values.Peek().Time).TotalMinutes > MAX_MINUTES)
-          values.Dequeue();
+        DateTime now = DateTime.Now;
+        while (values.Count > 0 && (now - values.First.Time).TotalDays > 1)
+          values.Remove();
 
         if (value.HasValue) {
           sum += value.Value;
           count++;
           if (count == 4) {
-            values.Enqueue(new SensorValue(sum / count, DateTime.Now));
+            AppendValue(sum / count, now);
             sum = 0;
             count = 0;
           }

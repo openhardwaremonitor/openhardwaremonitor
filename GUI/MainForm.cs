@@ -501,12 +501,11 @@ namespace OpenHardwareMonitor.GUI {
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
-      Visible = false;
-      SaveConfiguration();
-
+      Visible = false;      
       systemTray.IsMainIconEnabled = false;
       timer.Enabled = false;            
       computer.Close();
+      SaveConfiguration();
       systemTray.Dispose();
     }
 

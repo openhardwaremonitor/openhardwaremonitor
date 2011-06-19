@@ -340,8 +340,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       alternativeRequest.BeginInvoke(null, null);
     }
 
-    public void Close() {
+    public override void Close() {
       FTD2XX.FT_Close(handle);
+      base.Close();
     }
 
   }

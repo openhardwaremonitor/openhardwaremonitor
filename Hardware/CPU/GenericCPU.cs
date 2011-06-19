@@ -333,9 +333,5 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           totalLoad.Value = cpuLoad.GetTotalLoad();
       }
     }
-
-    public virtual void Close() {
-
-    }
   }
 }
