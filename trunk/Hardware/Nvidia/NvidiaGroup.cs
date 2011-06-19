@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -43,7 +43,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
   internal class NvidiaGroup : IGroup {
    
-    private readonly List<IHardware> hardware = new List<IHardware>();
+    private readonly List<Hardware> hardware = new List<Hardware>();
     private readonly StringBuilder report = new StringBuilder();
 
     public NvidiaGroup(ISettings settings) {
@@ -125,6 +125,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return report.ToString();
     }
 
-    public void Close() { }
+    public void Close() {
+      foreach (Hardware gpu in hardware)
+        gpu.Close();      
+    }
   }
 }

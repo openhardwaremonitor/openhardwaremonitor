@@ -47,7 +47,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly ISettings settings;
     private readonly LPCIO lpcio;
     private readonly LMSensors lmSensors;
-    private readonly IHardware[] superIOHardware;
+    private readonly Hardware[] superIOHardware;
 
     public Mainboard(ISettings settings) {
       this.settings = settings;
@@ -80,7 +80,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         superIO = lpcio.SuperIO;
       }
       
-      superIOHardware = new IHardware[superIO.Length];
+      superIOHardware = new Hardware[superIO.Length];
       for (int i = 0; i < superIO.Length; i++)
         superIOHardware[i] = new SuperIOHardware(this, superIO[i], 
           smbios.Board != null ? smbios.Board.Manufacturer : 
@@ -132,6 +132,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     public void Close() {
       if (lmSensors != null)
         lmSensors.Close();
+      foreach (Hardware hardware in superIOHardware)
+        hardware.Close();
     }
 
     public IHardware[] SubHardware {

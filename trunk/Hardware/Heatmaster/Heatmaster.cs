@@ -285,10 +285,11 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       return r.ToString();
     }
 
-    public void Close() {
+    public override void Close() {
       serialPort.Close();
       serialPort.Dispose();
       serialPort = null;
+      base.Close();
     }
 
     public void Dispose() {
