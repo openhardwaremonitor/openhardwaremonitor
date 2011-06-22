@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -37,25 +37,22 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.Drawing.Text;
 using System.Windows.Forms;
 
 namespace OpenHardwareMonitor.GUI {
   public abstract class Gadget : IDisposable {
 
     private GadgetWindow window;
-    private Bitmap buffer;
-    private Graphics graphics;
 
     public Gadget() {
       this.window = new GadgetWindow();
-      CreateBuffer();
+      this.window.Paint += delegate(object sender, PaintEventArgs e) {
+        OnPaint(e);
+      };
     }
 
     public virtual void Dispose() {
-      DisposeBuffer();
+      window.Dispose();
     }
 
     public Point Location {
@@ -148,27 +145,6 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private void CreateBuffer() {
-      this.buffer = new Bitmap(window.Size.Width, window.Size.Height, 
-        PixelFormat.Format32bppArgb);
-      this.graphics = Graphics.FromImage(this.buffer);
-      if (Environment.OSVersion.Version.Major > 5) {
-        this.graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
-        this.graphics.SmoothingMode = SmoothingMode.HighQuality;
-      }
-    }
-
-    private void DisposeBuffer() {
-      if (buffer != null) {
-        this.buffer.Dispose();
-        this.buffer = null;
-      }
-      if (graphics != null) {
-        this.graphics.Dispose();
-        this.graphics = null;
-      }
-    }
-
     public bool Visible {
       get {
         return window.Visible;
@@ -187,17 +163,7 @@ namespace OpenHardwareMonitor.GUI {
     public event EventHandler VisibleChanged;
 
     public void Redraw() {
-      if (!window.Visible)
-        return;
-      
-      if (window.Size != buffer.Size) {
-        DisposeBuffer();
-        CreateBuffer();
-      }
-
-      OnPaint(new PaintEventArgs(graphics, 
-        new Rectangle(Point.Empty, window.Size)));
-      window.Update(buffer);
+      window.Redraw();
     }
 
     protected abstract void OnPaint(PaintEventArgs e);
