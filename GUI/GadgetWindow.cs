@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2010
+  Portions created by the Initial Developer are Copyright (C) 2010-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -37,13 +37,15 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace OpenHardwareMonitor.GUI {
 
-  public class GadgetWindow : NativeWindow {
+  public class GadgetWindow : NativeWindow, IDisposable {
 
     private bool visible = false;
     private bool lockPositionAndSize = false;
@@ -53,6 +55,9 @@ namespace OpenHardwareMonitor.GUI {
     private Size size = new Size(130, 84);
     private ContextMenu contextMenu = null;
     private MethodInfo commandDispatch;
+    private IntPtr handleBitmapDC;
+    private Size bufferSize;
+    private Graphics graphics;
 
     public GadgetWindow() {
       Type commandType = 
@@ -73,6 +78,8 @@ namespace OpenHardwareMonitor.GUI {
           WindowAttribute.DWMWA_EXCLUDED_FROM_PEEK, ref value,
           Marshal.SizeOf(value));
       } catch (DllNotFoundException) { } catch (EntryPointNotFoundException) { }
+
+      CreateBuffer();
     }
 
     private void ShowDesktopChanged(bool showDesktop) {
@@ -223,35 +230,66 @@ namespace OpenHardwareMonitor.GUI {
       return blend;
     }
 
-    public void Update(Bitmap bitmap) {
-      IntPtr screen = NativeMethods.GetDC(IntPtr.Zero);
-      IntPtr memory = NativeMethods.CreateCompatibleDC(screen);
-      IntPtr newHBitmap = IntPtr.Zero;
-      IntPtr oldHBitmap = IntPtr.Zero;
+    private void CreateBuffer() {      
+      IntPtr handleScreenDC = NativeMethods.GetDC(IntPtr.Zero);
+      handleBitmapDC = NativeMethods.CreateCompatibleDC(handleScreenDC);
+      NativeMethods.ReleaseDC(IntPtr.Zero, handleScreenDC);
+      bufferSize = size;
 
-      try {
-        newHBitmap = bitmap.GetHbitmap(Color.Black);
-        oldHBitmap = NativeMethods.SelectObject(memory, newHBitmap);
+      BitmapInfo info = new BitmapInfo();
+      info.Size = Marshal.SizeOf(info);
+      info.Width = size.Width;
+      info.Height = -size.Height;
+      info.BitCount = 32;
+      info.Planes = 1;
+
+      IntPtr ptr;
+      IntPtr hBmp = NativeMethods.CreateDIBSection(handleBitmapDC, ref info, 0, 
+        out ptr, IntPtr.Zero, 0);
+      IntPtr hBmpOld = NativeMethods.SelectObject(handleBitmapDC, hBmp);
+      NativeMethods.DeleteObject(hBmpOld);
+      
+      graphics = Graphics.FromHdc(handleBitmapDC);
+
+      if (Environment.OSVersion.Version.Major > 5) {
+        this.graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
+        this.graphics.SmoothingMode = SmoothingMode.HighQuality;
+      } 
+    }
+
+    private void DisposeBuffer() {
+      graphics.Dispose();
+      NativeMethods.DeleteDC(handleBitmapDC);
+    }
+
+    public virtual void Dispose() {
+      DisposeBuffer();
+    } 
+
+    public PaintEventHandler Paint; 
+
+    public void Redraw() {
+      if (!visible || Paint == null)
+        return;
+
+      if (size != bufferSize) {
+        DisposeBuffer();
+        CreateBuffer();
+      }
+
+      Paint(this, 
+        new PaintEventArgs(graphics, new Rectangle(Point.Empty, size))); 
 
         Point pointSource = Point.Empty;
         BlendFunction blend = CreateBlendFunction();
 
-        NativeMethods.UpdateLayeredWindow(Handle, screen, IntPtr.Zero,
-          ref size, memory, ref pointSource, 0, ref blend, ULW_ALPHA);
+        NativeMethods.UpdateLayeredWindow(Handle, IntPtr.Zero, IntPtr.Zero,
+          ref size, handleBitmapDC, ref pointSource, 0, ref blend, ULW_ALPHA);
 
         // make sure the window is at the right location
-        NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 
-          location.X, location.Y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE | 
+        NativeMethods.SetWindowPos(Handle, IntPtr.Zero,
+          location.X, location.Y, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE |
           SWP_NOZORDER | SWP_NOSENDCHANGING);
-
-      } finally {        
-        if (newHBitmap != IntPtr.Zero) {
-          NativeMethods.SelectObject(memory, oldHBitmap);
-          NativeMethods.DeleteObject(newHBitmap);
-        }
-        NativeMethods.DeleteDC(memory);
-        NativeMethods.ReleaseDC(IntPtr.Zero, screen);
-      }
     }
 
     public byte Opacity {
@@ -386,6 +424,22 @@ namespace OpenHardwareMonitor.GUI {
       public uint flags;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BitmapInfo {
+      public Int32 Size;
+      public Int32 Width;
+      public Int32 Height;
+      public Int16 Planes;
+      public Int16 BitCount;
+      public Int32 Compression;
+      public Int32 SizeImage;
+      public Int32 XPelsPerMeter;
+      public Int32 YPelsPerMeter;
+      public Int32 ClrUsed;
+      public Int32 ClrImportant;
+      public Int32 Colors;
+    }
+
     public static readonly IntPtr HWND_BOTTOM = (IntPtr)1;
     public static readonly IntPtr HWND_TOPMOST = (IntPtr)(-1);
 
@@ -499,6 +553,11 @@ namespace OpenHardwareMonitor.GUI {
 
       [DllImport(GDI, CallingConvention = CallingConvention.Winapi)]
       public static extern IntPtr CreateCompatibleDC(IntPtr hDC);
+
+      [DllImport(GDI, CallingConvention = CallingConvention.Winapi)]
+      public static extern IntPtr CreateDIBSection(IntPtr hdc, 
+        [In] ref BitmapInfo pbmi, uint pila, out IntPtr ppvBits, 
+        IntPtr hSection, uint dwOffset);
 
       [DllImport(GDI, CallingConvention = CallingConvention.Winapi)]
       [return: MarshalAs(UnmanagedType.Bool)]
