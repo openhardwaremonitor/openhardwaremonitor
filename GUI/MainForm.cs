@@ -99,6 +99,11 @@ namespace OpenHardwareMonitor.GUI {
 
       this.unitManager = new UnitManager(settings);
 
+      // make sure the buffers used for double buffering are not disposed 
+      // after each draw call
+      BufferedGraphicsManager.Current.MaximumBuffer =
+        Screen.PrimaryScreen.Bounds.Size;  
+
       // set the DockStyle here, to avoid conflicts with the MainMenu
       this.splitContainer.Dock = DockStyle.Fill;
             
@@ -258,7 +263,7 @@ namespace OpenHardwareMonitor.GUI {
       // Make sure the settings are saved when the user logs off
       Microsoft.Win32.SystemEvents.SessionEnded += delegate {
         SaveConfiguration();
-      };  
+      };
     }
 
     private void InitializePlotForm() {
