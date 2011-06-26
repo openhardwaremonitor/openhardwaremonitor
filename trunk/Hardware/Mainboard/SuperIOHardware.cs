@@ -499,10 +499,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
                 case Model.Z68X_UD7_B3: // IT8728F
                   v.Add(new Voltage("VTT", 0));
-                  v.Add(new Voltage("+5V", 1, 15, 10));
+                  v.Add(new Voltage("+3.3V", 1, 13.3f, 20.5f));
                   v.Add(new Voltage("+12V", 2, 68, 22));
-                  v.Add(new Voltage("Voltage #4", 3, true));
-                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("+5V", 3, 14.3f, 20));
                   v.Add(new Voltage("CPU VCore", 5));
                   v.Add(new Voltage("DRAM", 6));
                   v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
