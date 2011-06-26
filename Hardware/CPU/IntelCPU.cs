@@ -52,6 +52,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     private readonly Sensor[] coreTemperatures;
+    private readonly Sensor packageTemperature;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
 
@@ -62,6 +63,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint IA32_TEMPERATURE_TARGET = 0x01A2;
     private const uint IA32_PERF_STATUS = 0x0198;
     private const uint MSR_PLATFORM_INFO = 0xCE;
+    private const uint IA32_PACKAGE_THERM_STATUS = 0x1B1;
 
     private float[] Floats(float f) {
       float[] result = new float[coreCount];
@@ -196,15 +198,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } break;
       }
 
-      // check if processor supports a digital thermal sensor
+      // check if processor supports a digital thermal sensor at core level
       if (cpuid[0][0].Data.GetLength(0) > 6 &&
-        (cpuid[0][0].Data[6, 0] & 1) != 0) {
+        (cpuid[0][0].Data[6, 0] & 1) != 0) 
+      {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i,
             SensorType.Temperature, this, new [] { 
               new ParameterDescription(
-                "TjMax [°C]", "TjMax temperature of the core.\n" + 
+                "TjMax [°C]", "TjMax temperature of the core sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
               new ParameterDescription("TSlope [°C]", 
                 "Temperature slope of the digital thermal sensor.\n" + 
@@ -214,6 +217,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       } else {
         coreTemperatures = new Sensor[0];
       }
+
+      // check if processor supports a digital thermal sensor at package level
+      if (cpuid[0][0].Data.GetLength(0) > 6 &&
+        (cpuid[0][0].Data[6, 0] & 0x40) != 0) 
+      {
+          packageTemperature = new Sensor("CPU Package", 
+            coreTemperatures.Length, SensorType.Temperature, this, new[] { 
+              new ParameterDescription(
+                "TjMax [°C]", "TjMax temperature of the package sensor.\n" + 
+                "Temperature = TjMax - TSlope * Value.", tjMax[0]), 
+              new ParameterDescription("TSlope [°C]", 
+                "Temperature slope of the digital thermal sensor.\n" + 
+                "Temperature = TjMax - TSlope * Value.", 1)}, settings);
+        ActivateSensor(packageTemperature);
+      } 
 
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       coreClocks = new Sensor[coreCount];
@@ -232,7 +250,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         MSR_PLATFORM_INFO,
         IA32_PERF_STATUS ,
         IA32_THERM_STATUS_MSR,
-        IA32_TEMPERATURE_TARGET
+        IA32_TEMPERATURE_TARGET,
+        IA32_PACKAGE_THERM_STATUS
       };
     }
 
@@ -268,6 +287,21 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } else {
             coreTemperatures[i].Value = null;
           }
+        }
+      }
+
+      if (packageTemperature != null) {
+        uint eax, edx;
+        if (Ring0.RdmsrTx(
+          IA32_THERM_STATUS_MSR, out eax, out edx,
+            1UL << cpuid[0][0].Thread)) {
+          // get the dist from tjMax from bits 22:16
+          float deltaT = ((eax & 0x007F0000) >> 16);
+          float tjMax = packageTemperature.Parameters[0].Value;
+          float tSlope = packageTemperature.Parameters[1].Value;
+          packageTemperature.Value = tjMax - tSlope * deltaT;
+        } else {
+          packageTemperature.Value = null;
         }
       }
 
