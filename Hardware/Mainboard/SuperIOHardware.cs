@@ -497,6 +497,25 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #2", 3));
                   break;
+                case Model.Z68X_UD7_B3: // IT8728F
+                  v.Add(new Voltage("VTT", 0));
+                  v.Add(new Voltage("+5V", 1, 15, 10));
+                  v.Add(new Voltage("+12V", 2, 68, 22));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("CPU VCore", 5));
+                  v.Add(new Voltage("DRAM", 6));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));
+                  t.Add(new Temperature("System 3", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("Power Fan", 1));
+                  f.Add(new Fan("System Fan #1", 2));
+                  f.Add(new Fan("System Fan #2", 3));
+                  f.Add(new Fan("System Fan #3", 4));
+                  break;
                 default:
                   v.Add(new Voltage("Voltage #1", 0, true));
                   v.Add(new Voltage("Voltage #2", 1, true));

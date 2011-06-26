@@ -387,6 +387,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.X38_DS5;
           case "X58A-UD3R":
             return Model.X58A_UD3R;
+          case "Z68X-UD7-B3":
+            return Model.Z68X_UD7_B3;
           case "Base Board Product Name":
           case "To be filled by O.E.M.":
             return Model.Unknown;

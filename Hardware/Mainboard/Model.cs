@@ -80,6 +80,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     P67A_UD4_B3,
     X38_DS5,
     X58A_UD3R,
+    Z68X_UD7_B3,
 
     // Unknown
     Unknown    
