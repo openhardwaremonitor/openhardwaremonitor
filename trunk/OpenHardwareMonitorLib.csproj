@@ -61,6 +61,7 @@
     <Compile Include="Hardware\ATI\ATIGPU.cs" />
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\Control.cs" />
+    <Compile Include="Hardware\FirmwareTable.cs" />
     <Compile Include="Hardware\IControl.cs" />
     <Compile Include="Hardware\IOControlCode.cs" />
     <Compile Include="Hardware\Computer.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Hardware\CPU\CPULoad.cs" />
     <Compile Include="Hardware\CPU\IntelCPU.cs" />
     <Compile Include="Hardware\LPC\NCT677X.cs" />
+    <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\Ring0.cs" />
     <Compile Include="Hardware\KernelDriver.cs" />

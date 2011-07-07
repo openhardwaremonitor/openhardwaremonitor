@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s): Paul Werelds
@@ -462,7 +462,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           chars[i + 1] = (char)bytes[i];
         }
 
-        return new string(chars).Trim();
+        return new string(chars).Trim(new char[] {' ', '\0'});
       }
     }
 

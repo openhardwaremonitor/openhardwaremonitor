@@ -124,6 +124,13 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       if (lpcio != null)
         r.Append(lpcio.GetReport());
 
+      byte[] table = 
+        FirmwareTable.GetTable(FirmwareTable.Provider.ACPI, "TAMG");
+      if (table != null) {
+        GigabyteTAMG tamg = new GigabyteTAMG(table);
+        r.Append(tamg.GetReport());
+      }
+
       return r.ToString();
     }
 
