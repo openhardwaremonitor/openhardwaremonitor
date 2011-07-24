@@ -293,7 +293,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (packageTemperature != null) {
         uint eax, edx;
         if (Ring0.RdmsrTx(
-          IA32_THERM_STATUS_MSR, out eax, out edx,
+          IA32_PACKAGE_THERM_STATUS, out eax, out edx,
             1UL << cpuid[0][0].Thread)) {
           // get the dist from tjMax from bits 22:16
           float deltaT = ((eax & 0x007F0000) >> 16);
