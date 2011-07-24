@@ -49,6 +49,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     M4A79XTD_EVO,
     P5W_DH_Deluxe,    
     P6X58D_E,
+    P8P67,
     P8P67_EVO,
     P8P67_PRO,
     P8P67_M_PRO,
