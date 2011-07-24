@@ -820,6 +820,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           switch (manufacturer) {
             case Manufacturer.ASUS:
               switch (model) {
+                case Model.P8P67_EVO: // NCT6776F
                 case Model.P8P67_PRO: // NCT6776F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+12V", 1, 11, 1));

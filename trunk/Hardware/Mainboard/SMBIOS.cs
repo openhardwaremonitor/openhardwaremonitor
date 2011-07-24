@@ -343,6 +343,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P5W_DH_Deluxe;
           case "P6X58D-E":
             return Model.P6X58D_E;
+          case "P8P67 EVO":
+            return Model.P8P67_EVO;
           case "P8P67 PRO":
             return Model.P8P67_PRO;
           case "P8P67-M PRO":
