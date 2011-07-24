@@ -155,7 +155,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     protected override void OnPaint(PaintEventArgs e) {
-      now = DateTime.Now - new TimeSpan(0, 0, 4);
+      now = DateTime.UtcNow - new TimeSpan(0, 0, 4);
 
       List<float> timeGrid = GetTimeGrid();
       List<float> tempGrid = GetTemperatureGrid();
