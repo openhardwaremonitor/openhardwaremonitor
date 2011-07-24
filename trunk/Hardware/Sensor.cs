@@ -134,7 +134,7 @@ namespace OpenHardwareMonitor.Hardware {
         }
       } catch { }
       if (values.Count > 0)
-        AppendValue(float.NaN, DateTime.Now);
+        AppendValue(float.NaN, DateTime.UtcNow);
     }
 
     private void AppendValue(float value, DateTime time) {
@@ -193,7 +193,7 @@ namespace OpenHardwareMonitor.Hardware {
         return currentValue; 
       }
       set {
-        DateTime now = DateTime.Now;
+        DateTime now = DateTime.UtcNow;
         while (values.Count > 0 && (now - values.First.Time).TotalDays > 1)
           values.Remove();
 
