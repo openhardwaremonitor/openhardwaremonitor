@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -62,43 +62,49 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     private readonly CPUID[][] cpuid;
 
-    private long systemTime;
     private long[] idleTimes;
+    private long[] totalTimes;
 
     private float totalLoad;
     private readonly float[] coreLoads;
 
     private readonly bool available;
 
-    private static long[] GetIdleTimes() {      
+    private static bool GetTimes(out long[] idle, out long[] total) {      
       SystemProcessorPerformanceInformation[] informations = new
         SystemProcessorPerformanceInformation[64];
 
       int size = Marshal.SizeOf(typeof(SystemProcessorPerformanceInformation));
 
+      idle = null;
+      total = null;
+
       IntPtr returnLength;
       if (NativeMethods.NtQuerySystemInformation(
         SystemInformationClass.SystemProcessorPerformanceInformation,
         informations, informations.Length * size, out returnLength) != 0)
-        return null;
+        return false;
 
-      long[] result = new long[(int)returnLength / size];
+      idle = new long[(int)returnLength / size];
+      total = new long[(int)returnLength / size];
 
-      for (int i = 0; i < result.Length; i++)
-        result[i] = informations[i].IdleTime;
+      for (int i = 0; i < idle.Length; i++) {
+        idle[i] = informations[i].IdleTime;
+        total[i] = informations[i].KernelTime + informations[i].UserTime;
+      }
 
-      return result;
+      return true;
     }
 
     public CPULoad(CPUID[][] cpuid) {
       this.cpuid = cpuid;
       this.coreLoads = new float[cpuid.Length];         
-      this.systemTime = DateTime.Now.Ticks;
       this.totalLoad = 0;
       try {
-        this.idleTimes = GetIdleTimes();
+        GetTimes(out idleTimes, out totalTimes);
       } catch (Exception) {
         this.idleTimes = null;
+        this.totalTimes = null;
       }
       if (idleTimes != null)
         available = true;
@@ -120,13 +126,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (this.idleTimes == null)
         return;
 
-      long newSystemTime = DateTime.Now.Ticks;
-      long[] newIdleTimes = GetIdleTimes();
+      long[] newIdleTimes;
+      long[] newTotalTimes;
 
-      if (newSystemTime - this.systemTime < 10000)
+      if (!GetTimes(out newIdleTimes, out newTotalTimes))
         return;
 
-      if (newIdleTimes == null)
+      for (int i = 0; i < Math.Min(newTotalTimes.Length, totalTimes.Length); i++) 
+        if (newTotalTimes[i] - this.totalTimes[i] < 100000)
+          return;
+
+      if (newIdleTimes == null || newTotalTimes == null)
         return;
 
       float total = 0;
@@ -135,27 +145,28 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         float value = 0;
         for (int j = 0; j < cpuid[i].Length; j++) {
           long index = cpuid[i][j].Thread;
-          if (index < newIdleTimes.Length) {
-            long delta = newIdleTimes[index] - this.idleTimes[index];
-            value += delta;
-            total += delta;
+          if (index < newIdleTimes.Length && index < totalTimes.Length) {
+            float idle = 
+              (float)(newIdleTimes[index] - this.idleTimes[index]) /
+              (float)(newTotalTimes[index] - this.totalTimes[index]);
+            value += idle;
+            total += idle;
             count++;
           }
         }
-        value = 1.0f - value / (cpuid[i].Length * 
-          (newSystemTime - this.systemTime));
+        value = 1.0f - value / cpuid[i].Length;
         value = value < 0 ? 0 : value;
         coreLoads[i] = value * 100;
       }
       if (count > 0) {
-        total = 1.0f - total / (count * (newSystemTime - this.systemTime));
+        total = 1.0f - total / count;
         total = total < 0 ? 0 : total;
       } else {
         total = 0;
       }
       this.totalLoad = total * 100;
 
-      this.systemTime = newSystemTime;
+      this.totalTimes = newTotalTimes;
       this.idleTimes = newIdleTimes;
     }
 
