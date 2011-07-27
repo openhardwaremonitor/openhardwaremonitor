@@ -217,6 +217,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\level.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\power.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />
