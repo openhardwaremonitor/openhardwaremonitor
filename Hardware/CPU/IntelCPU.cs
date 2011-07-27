@@ -55,6 +55,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private readonly Sensor packageTemperature;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
+    private readonly Sensor packagePower;
+    private readonly Sensor coresPower;
 
     private readonly Microarchitecture microarchitecture;
     private readonly double timeStampCounterMultiplier;
@@ -64,6 +66,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint IA32_PERF_STATUS = 0x0198;
     private const uint MSR_PLATFORM_INFO = 0xCE;
     private const uint IA32_PACKAGE_THERM_STATUS = 0x1B1;
+    private const uint MSR_RAPL_POWER_UNIT = 0x606;
+    private const uint MSR_PKG_ENERY_STATUS = 0x611;
+    private const uint MSR_PP0_ENERY_STATUS = 0x639;
+
+    private float energyUnitMultiplier = 0;
+    private DateTime lastPackageTime;
+    private uint lastPackageEnergyConsumed;
+    private DateTime lastCoresTime;
+    private uint lastCoresEnergyConsumed;
+
+
 
     private float[] Floats(float f) {
       float[] result = new float[coreCount];
@@ -242,6 +255,33 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           ActivateSensor(coreClocks[i]);
       }
 
+      if (microarchitecture == Microarchitecture.SandyBridge) {
+        uint eax, edx;
+        if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out eax, out edx))
+          energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1FF));
+
+
+        if (energyUnitMultiplier != 0 && 
+          Ring0.Rdmsr(MSR_PKG_ENERY_STATUS, out eax, out edx)) 
+        {
+          lastPackageTime = DateTime.UtcNow;
+          lastPackageEnergyConsumed = eax;
+          packagePower = new Sensor("CPU Package", 0, SensorType.Power, this, 
+            settings);          
+          ActivateSensor(packagePower);
+        }
+
+        if (energyUnitMultiplier != 0 &&
+          Ring0.Rdmsr(MSR_PP0_ENERY_STATUS, out eax, out edx)) 
+        {
+          lastCoresTime = DateTime.UtcNow;
+          lastCoresEnergyConsumed = eax;
+          coresPower = new Sensor("CPU Cores", 1, SensorType.Power, this,
+            settings);
+          ActivateSensor(coresPower);
+        }
+      }
+
       Update();
     }
 
@@ -251,7 +291,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         IA32_PERF_STATUS ,
         IA32_THERM_STATUS_MSR,
         IA32_TEMPERATURE_TARGET,
-        IA32_PACKAGE_THERM_STATUS
+        IA32_PACKAGE_THERM_STATUS,
+        MSR_RAPL_POWER_UNIT,
+        MSR_PKG_ENERY_STATUS,
+        MSR_PP0_ENERY_STATUS
       };
     }
 
@@ -338,6 +381,37 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         if (newBusClock > 0) {
           this.busClock.Value = (float)newBusClock;
           ActivateSensor(this.busClock);
+        }
+      }
+
+
+      if (packagePower != null) {
+        uint eax, edx;
+        if (Ring0.Rdmsr(MSR_PKG_ENERY_STATUS, out eax, out edx)) {
+          DateTime time = DateTime.UtcNow;    
+          uint energyConsumed = eax;
+          float deltaTime = (float)(time - lastPackageTime).TotalSeconds;
+          if (deltaTime > 0.01) {
+            packagePower.Value = energyUnitMultiplier * 
+              unchecked(energyConsumed - lastPackageEnergyConsumed) / deltaTime;
+            lastPackageTime = time;
+            lastPackageEnergyConsumed = energyConsumed;
+          }
+        }         
+      }
+
+      if (coresPower != null) {
+        uint eax, edx;
+        if (Ring0.Rdmsr(MSR_PP0_ENERY_STATUS, out eax, out edx)) {
+          DateTime time = DateTime.UtcNow;
+          uint energyConsumed = eax;
+          float deltaTime = (float)(time - lastCoresTime).TotalSeconds;
+          if (deltaTime > 0.01) {
+            coresPower.Value = energyUnitMultiplier *
+              unchecked(energyConsumed - lastCoresEnergyConsumed) / deltaTime;
+            lastCoresTime = time;
+            lastCoresEnergyConsumed = energyConsumed;
+          }
         }
       }
     }

@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -196,6 +196,8 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F0}", sensor.Value);
         case SensorType.Level:
           return string.Format("{0:F0}", sensor.Value);
+        case SensorType.Power:
+          return string.Format("{0:F0}", sensor.Value);
       }
       return "-";
     }
@@ -283,6 +285,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Flow: format = "\n{0}: {1:F0} L/h"; break;
         case SensorType.Control: format = "\n{0}: {1:F1} %"; break;
         case SensorType.Level: format = "\n{0}: {1:F1} %"; break;
+        case SensorType.Power: format = "\n{0}: {1:F0} W"; break;
       }
       string formattedValue = string.Format(format, sensor.Name, sensor.Value);
       string hardwareName = sensor.Hardware.Name;

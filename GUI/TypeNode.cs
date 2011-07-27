@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -79,6 +79,10 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Level:
           this.Image = Utilities.EmbeddedResources.GetImage("level.png");
           this.Text = "Levels";
+          break;
+        case SensorType.Power:
+          this.Image = Utilities.EmbeddedResources.GetImage("power.png");
+          this.Text = "Powers";
           break;
       }
 
