@@ -515,6 +515,9 @@ namespace OpenHardwareMonitor.GUI {
                 case SensorType.Flow:
                   format = "{0:F0} L/h";
                   break;
+                case SensorType.Power:
+                  format = "{0:F1} W";
+                  break;
               }
 
               if (sensor.SensorType == SensorType.Temperature &&
