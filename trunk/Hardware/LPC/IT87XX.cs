@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -128,8 +128,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       temperatures = new float?[3];
       fans = new float?[5];
 
-      // The IT8721F uses a 12mV resultion ADC, all others 16mV
-      if (chip == Chip.IT8721F || chip == Chip.IT8728F) {
+      // IT8721F, IT8728F and IT8772E uses a 12mV resultion ADC, all others 16mV
+      if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8772E) 
+      {
         voltageGain = 0.012f;
       } else {
         voltageGain = 0.016f;        
@@ -155,6 +156,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           gpioCount = 8;
           break;
         case Chip.IT8728F:
+        case Chip.IT8772E:
           gpioCount = 0;
           break;
       }

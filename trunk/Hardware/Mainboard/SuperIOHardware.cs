@@ -89,7 +89,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.IT8716F:
         case Chip.IT8718F:
         case Chip.IT8720F: 
-        case Chip.IT8726F:
+        case Chip.IT8726F:        
           switch (manufacturer) {
             case Manufacturer.ASUS:
               switch (model) {
@@ -426,6 +426,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
         case Chip.IT8721F:
         case Chip.IT8728F:
+        case Chip.IT8772E:
           switch (manufacturer) {
             case Manufacturer.ECS:
               switch (model) {

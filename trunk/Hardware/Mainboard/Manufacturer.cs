@@ -55,6 +55,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     Intel,
     Lenovo,
     MSI,
+    Shuttle,
     Supermicro,
     Toshiba,
     XFX,
