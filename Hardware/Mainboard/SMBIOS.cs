@@ -311,7 +311,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "MICRO-STAR INTERNATIONAL CO., LTD":
           case "MICRO-STAR INTERNATIONAL CO.,LTD":
           case "MSI":
-            return  Manufacturer.MSI;
+            return Manufacturer.MSI;
+          case "Shuttle":
+            return Manufacturer.Shuttle;
           case "Supermicro":
             return Manufacturer.Supermicro;
           case "TOSHIBA":

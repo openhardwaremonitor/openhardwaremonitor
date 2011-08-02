@@ -61,7 +61,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     LP_DK_P55_T3eH9,
 
     // ECS
-
     A890GXM_A,
 
     // EVGA

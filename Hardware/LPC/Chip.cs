@@ -57,6 +57,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     IT8721F = 0x8721,
     IT8726F = 0x8726,
     IT8728F = 0x8728,
+    IT8772E = 0x8772,
 
     NCT6771F = 0xB470,
     NCT6776F = 0xC330,
@@ -94,6 +95,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F: return "ITE IT8721F";
         case Chip.IT8726F: return "ITE IT8726F";
         case Chip.IT8728F: return "ITE IT8728F";
+        case Chip.IT8772E: return "ITE IT8772E";
 
         case Chip.NCT6771F: return "Nuvoton NCT6771F";
         case Chip.NCT6776F: return "Nuvoton NCT6776F";
