@@ -83,6 +83,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     X58A_UD3R,
     Z68X_UD7_B3,
 
+    // Shuttle
+    FH67,
+
     // Unknown
     Unknown    
   }

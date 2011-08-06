@@ -87,7 +87,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort(addressReg, register);
       Ring0.WriteIoPort(dataReg, value);
       return register == Ring0.ReadIoPort(addressReg); 
-    } 
+    }
 
     public byte? ReadGPIO(int index) {
       if (index >= gpioCount)
@@ -128,7 +128,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       temperatures = new float?[3];
       fans = new float?[5];
 
-      // IT8721F, IT8728F and IT8772E uses a 12mV resultion ADC, all others 16mV
+      // IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, all others 16mV
       if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8772E) 
       {
         voltageGain = 0.012f;
