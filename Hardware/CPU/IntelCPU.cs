@@ -69,6 +69,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint MSR_RAPL_POWER_UNIT = 0x606;
     private const uint MSR_PKG_ENERY_STATUS = 0x611;
     private const uint MSR_PP0_ENERY_STATUS = 0x639;
+    private const uint MSR_PP1_ENERY_STATUS = 0x641;
 
     private float energyUnitMultiplier = 0;
     private DateTime lastPackageTime;
@@ -294,7 +295,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         IA32_PACKAGE_THERM_STATUS,
         MSR_RAPL_POWER_UNIT,
         MSR_PKG_ENERY_STATUS,
-        MSR_PP0_ENERY_STATUS
+        MSR_PP0_ENERY_STATUS,
+        MSR_PP1_ENERY_STATUS
       };
     }
 

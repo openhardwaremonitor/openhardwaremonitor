@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     private readonly Version version;
     private readonly BIOSInformation biosInformation;
+    private readonly SystemInformation systemInformation;
     private readonly BaseBoardInformation baseBoardInformation;
 
     private static string ReadSysFS(string path) {
@@ -76,7 +77,13 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         string boardVersion = ReadSysFS("/sys/class/dmi/id/board_version");        
         this.baseBoardInformation = new BaseBoardInformation(
           boardVendor, boardName, boardVersion, null);
-        
+
+        string systemVendor = ReadSysFS("/sys/class/dmi/id/sys_vendor");
+        string productName = ReadSysFS("/sys/class/dmi/id/product_name");
+        string productVersion = ReadSysFS("/sys/class/dmi/id/product_version");    
+        this.systemInformation = new SystemInformation(systemVendor, 
+          productName, productVersion, null, null);
+
         string biosVendor = ReadSysFS("/sys/class/dmi/id/bios_vendor");
         string biosVersion = ReadSysFS("/sys/class/dmi/id/bios_version");
         this.biosInformation = new BIOSInformation(biosVendor, biosVersion);
@@ -139,6 +146,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                 this.biosInformation = new BIOSInformation(
                   type, handle, data, stringsList.ToArray());
                 structureList.Add(this.biosInformation); break;
+              case 0x01:
+                this.systemInformation = new SystemInformation(
+                  type, handle, data, stringsList.ToArray());
+                structureList.Add(this.systemInformation); break;
               case 0x02: this.baseBoardInformation = new BaseBoardInformation(
                   type, handle, data, stringsList.ToArray());
                 structureList.Add(this.baseBoardInformation); break;
@@ -163,6 +174,16 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       if (BIOS != null) {
         r.Append("BIOS Vendor: "); r.AppendLine(BIOS.Vendor);
         r.Append("BIOS Version: "); r.AppendLine(BIOS.Version);
+        r.AppendLine();
+      }
+
+      if (System != null) {
+        r.Append("System Manufacturer: ");
+        r.AppendLine(System.ManufacturerName);
+        r.Append("System Name: ");
+        r.AppendLine(System.ProductName);
+        r.Append("System Version: ");
+        r.AppendLine(System.Version);
         r.AppendLine();
       }
 
@@ -199,6 +220,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public BIOSInformation BIOS {
       get { return biosInformation; }
+    }
+
+    public SystemInformation System {
+      get { return systemInformation; }
     }
 
     public BaseBoardInformation Board {
@@ -256,6 +281,48 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       public string Vendor { get { return vendor; } }
 
       public string Version { get { return version; } }
+    }
+
+    public class SystemInformation : Structure {
+
+      private readonly string manufacturerName;
+      private readonly string productName;
+      private readonly string version;
+      private readonly string serialNumber;
+      private readonly string family;
+
+      public SystemInformation(string manufacturerName, string productName, 
+        string version, string serialNumber, string family) 
+        : base (0x01, 0, null, null) 
+      {
+        this.manufacturerName = manufacturerName;
+        this.productName = productName;
+        this.version = version;
+        this.serialNumber = serialNumber;
+        this.family = family;
+      }
+
+      public SystemInformation(byte type, ushort handle, byte[] data,
+        string[] strings)
+        : base(type, handle, data, strings) 
+      {
+        this.manufacturerName = GetString(0x04);
+        this.productName = GetString(0x05);
+        this.version = GetString(0x06);
+        this.serialNumber = GetString(0x07);
+        this.family = GetString(0x1A);
+      }
+
+      public string ManufacturerName { get { return manufacturerName; } }
+
+      public string ProductName { get { return productName; } }
+
+      public string Version { get { return version; } }
+
+      public string SerialNumber { get { return serialNumber; } }
+
+      public string Family { get { return family; } }
+
     }
 
     public class BaseBoardInformation : Structure {
@@ -395,6 +462,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.X58A_UD3R;
           case "Z68X-UD7-B3":
             return Model.Z68X_UD7_B3;
+          case "FH67":
+            return Model.FH67;
           case "Base Board Product Name":
           case "To be filled by O.E.M.":
             return Model.Unknown;

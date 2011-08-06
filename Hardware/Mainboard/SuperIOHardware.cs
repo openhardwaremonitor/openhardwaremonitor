@@ -533,6 +533,38 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   break;
               }
               break;
+            case Manufacturer.Shuttle:
+              switch (model) {
+                case Model.FH67: // IT8772E 
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("PCH VCCIO", 2));
+                  v.Add(new Voltage("CPU VCCIO", 3));
+                  v.Add(new Voltage("Graphic Voltage", 4));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));                  
+                  f.Add(new Fan("Fan #1", 0));
+                  f.Add(new Fan("CPU Fan", 1));
+                  break;
+                default:
+                  v.Add(new Voltage("Voltage #1", 0, true));
+                  v.Add(new Voltage("Voltage #2", 1, true));
+                  v.Add(new Voltage("Voltage #3", 2, true));
+                  v.Add(new Voltage("Voltage #4", 3, true));
+                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("Voltage #6", 5, true));
+                  v.Add(new Voltage("Voltage #7", 6, true));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  for (int i = 0; i < superIO.Temperatures.Length; i++)
+                    t.Add(new Temperature("Temperature #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  break;
+              }
+              break;
             default:
               v.Add(new Voltage("Voltage #1", 0, true));
               v.Add(new Voltage("Voltage #2", 1, true));
