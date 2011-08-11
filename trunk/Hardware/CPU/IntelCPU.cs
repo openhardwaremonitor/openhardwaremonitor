@@ -55,8 +55,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private readonly Sensor packageTemperature;
     private readonly Sensor[] coreClocks;
     private readonly Sensor busClock;
-    private readonly Sensor packagePower;
-    private readonly Sensor coresPower;
+    private readonly Sensor[] powerSensors;
 
     private readonly Microarchitecture microarchitecture;
     private readonly double timeStampCounterMultiplier;
@@ -68,15 +67,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint IA32_PACKAGE_THERM_STATUS = 0x1B1;
     private const uint MSR_RAPL_POWER_UNIT = 0x606;
     private const uint MSR_PKG_ENERY_STATUS = 0x611;
+    private const uint MSR_DRAM_ENERGY_STATUS = 0x619;
     private const uint MSR_PP0_ENERY_STATUS = 0x639;
     private const uint MSR_PP1_ENERY_STATUS = 0x641;
 
+    private readonly uint[] energyStatusMSRs = { MSR_PKG_ENERY_STATUS, 
+      MSR_PP0_ENERY_STATUS, MSR_PP1_ENERY_STATUS, MSR_DRAM_ENERGY_STATUS };
+    private readonly string[] powerSensorLabels = 
+      { "CPU Package", "CPU Cores", "CPU Graphics", "CPU DRAM" };
     private float energyUnitMultiplier = 0;
-    private DateTime lastPackageTime;
-    private uint lastPackageEnergyConsumed;
-    private DateTime lastCoresTime;
-    private uint lastCoresEnergyConsumed;
-
+    private DateTime[] lastEnergyTime;
+    private uint[] lastEnergyConsumed;
 
 
     private float[] Floats(float f) {
@@ -101,8 +102,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     public IntelCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
-      : base(processorIndex, cpuid, settings) 
-    {
+      : base(processorIndex, cpuid, settings) {
       // set tjMax
       float[] tjMax;
       switch (family) {
@@ -157,7 +157,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
-                tjMax = Floats(100); 
+                tjMax = Floats(100);
                 break;
             }
           } break;
@@ -170,7 +170,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x04: // Pentium 4, Pentium D, Celeron D (90nm)
               case 0x06: // Pentium 4, Pentium D, Celeron D (65nm)
                 microarchitecture = Microarchitecture.NetBurst;
-                tjMax = Floats(100); 
+                tjMax = Floats(100);
                 break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
@@ -180,7 +180,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } break;
         default:
           microarchitecture = Microarchitecture.Unknown;
-          tjMax = Floats(100); 
+          tjMax = Floats(100);
           break;
       }
 
@@ -191,11 +191,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Core: {
             uint eax, edx;
             if (Ring0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
-              timeStampCounterMultiplier = 
+              timeStampCounterMultiplier =
                 ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
             }
           } break;
-        case Microarchitecture.Nehalem: 
+        case Microarchitecture.Nehalem:
         case Microarchitecture.SandyBridge: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
@@ -214,12 +214,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // check if processor supports a digital thermal sensor at core level
       if (cpuid[0][0].Data.GetLength(0) > 6 &&
-        (cpuid[0][0].Data[6, 0] & 1) != 0) 
-      {
+        (cpuid[0][0].Data[6, 0] & 1) != 0) {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i,
-            SensorType.Temperature, this, new [] { 
+            SensorType.Temperature, this, new[] { 
               new ParameterDescription(
                 "TjMax [°C]", "TjMax temperature of the core sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", tjMax[i]), 
@@ -234,10 +233,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // check if processor supports a digital thermal sensor at package level
       if (cpuid[0][0].Data.GetLength(0) > 6 &&
-        (cpuid[0][0].Data[6, 0] & 0x40) != 0) 
-      {
-          packageTemperature = new Sensor("CPU Package", 
-            coreTemperatures.Length, SensorType.Temperature, this, new[] { 
+        (cpuid[0][0].Data[6, 0] & 0x40) != 0) {
+        packageTemperature = new Sensor("CPU Package",
+          coreTemperatures.Length, SensorType.Temperature, this, new[] { 
               new ParameterDescription(
                 "TjMax [°C]", "TjMax temperature of the package sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", tjMax[0]), 
@@ -245,7 +243,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 "Temperature slope of the digital thermal sensor.\n" + 
                 "Temperature = TjMax - TSlope * Value.", 1)}, settings);
         ActivateSensor(packageTemperature);
-      } 
+      }
 
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       coreClocks = new Sensor[coreCount];
@@ -257,29 +255,26 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       if (microarchitecture == Microarchitecture.SandyBridge) {
+
+        powerSensors = new Sensor[energyStatusMSRs.Length];
+        lastEnergyTime = new DateTime[energyStatusMSRs.Length];
+        lastEnergyConsumed = new uint[energyStatusMSRs.Length];
+
         uint eax, edx;
         if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out eax, out edx))
           energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1FF));
 
+        if (energyUnitMultiplier != 0) {
+          for (int i = 0; i < energyStatusMSRs.Length; i++) {
+            if (!Ring0.Rdmsr(energyStatusMSRs[i], out eax, out edx))
+              continue;
 
-        if (energyUnitMultiplier != 0 && 
-          Ring0.Rdmsr(MSR_PKG_ENERY_STATUS, out eax, out edx)) 
-        {
-          lastPackageTime = DateTime.UtcNow;
-          lastPackageEnergyConsumed = eax;
-          packagePower = new Sensor("CPU Package", 0, SensorType.Power, this, 
-            settings);          
-          ActivateSensor(packagePower);
-        }
-
-        if (energyUnitMultiplier != 0 &&
-          Ring0.Rdmsr(MSR_PP0_ENERY_STATUS, out eax, out edx)) 
-        {
-          lastCoresTime = DateTime.UtcNow;
-          lastCoresEnergyConsumed = eax;
-          coresPower = new Sensor("CPU Cores", 1, SensorType.Power, this,
-            settings);
-          ActivateSensor(coresPower);
+            lastEnergyTime[i] = DateTime.UtcNow;
+            lastEnergyConsumed[i] = eax;
+            powerSensors[i] = new Sensor(powerSensorLabels[i], i,
+              SensorType.Power, this, settings);
+            ActivateSensor(powerSensors[i]);
+          }
         }
       }
 
@@ -287,7 +282,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     protected override uint[] GetMSRs() {
-      return new [] {
+      return new[] {
         MSR_PLATFORM_INFO,
         IA32_PERF_STATUS ,
         IA32_THERM_STATUS_MSR,
@@ -295,6 +290,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         IA32_PACKAGE_THERM_STATUS,
         MSR_RAPL_POWER_UNIT,
         MSR_PKG_ENERY_STATUS,
+        MSR_DRAM_ENERGY_STATUS,
         MSR_PP0_ENERY_STATUS,
         MSR_PP1_ENERY_STATUS
       };
@@ -356,9 +352,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         for (int i = 0; i < coreClocks.Length; i++) {
           System.Threading.Thread.Sleep(1);
           if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-            1UL << cpuid[i][0].Thread)) 
-          {
-            newBusClock = 
+            1UL << cpuid[i][0].Thread)) {
+            newBusClock =
               TimeStampCounterFrequency / timeStampCounterMultiplier;
             switch (microarchitecture) {
               case Microarchitecture.Nehalem: {
@@ -370,12 +365,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
               default: {
-                  double multiplier = 
+                  double multiplier =
                     ((eax >> 8) & 0x1f) + 0.5 * ((eax >> 14) & 1);
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
-            }         
-          } else { 
+            }
+          } else {
             // if IA32_PERF_STATUS is not available, assume TSC frequency
             coreClocks[i].Value = (float)TimeStampCounterFrequency;
           }
@@ -386,34 +381,26 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
+      if (powerSensors != null) {
+        foreach (Sensor sensor in powerSensors) {
+          if (sensor == null)
+            continue;
 
-      if (packagePower != null) {
-        uint eax, edx;
-        if (Ring0.Rdmsr(MSR_PKG_ENERY_STATUS, out eax, out edx)) {
-          DateTime time = DateTime.UtcNow;    
-          uint energyConsumed = eax;
-          float deltaTime = (float)(time - lastPackageTime).TotalSeconds;
-          if (deltaTime > 0.01) {
-            packagePower.Value = energyUnitMultiplier * 
-              unchecked(energyConsumed - lastPackageEnergyConsumed) / deltaTime;
-            lastPackageTime = time;
-            lastPackageEnergyConsumed = energyConsumed;
-          }
-        }         
-      }
+          uint eax, edx;
+          if (!Ring0.Rdmsr(energyStatusMSRs[sensor.Index], out eax, out edx))
+            continue;
 
-      if (coresPower != null) {
-        uint eax, edx;
-        if (Ring0.Rdmsr(MSR_PP0_ENERY_STATUS, out eax, out edx)) {
           DateTime time = DateTime.UtcNow;
           uint energyConsumed = eax;
-          float deltaTime = (float)(time - lastCoresTime).TotalSeconds;
-          if (deltaTime > 0.01) {
-            coresPower.Value = energyUnitMultiplier *
-              unchecked(energyConsumed - lastCoresEnergyConsumed) / deltaTime;
-            lastCoresTime = time;
-            lastCoresEnergyConsumed = energyConsumed;
-          }
+          float deltaTime =
+            (float)(time - lastEnergyTime[sensor.Index]).TotalSeconds;
+          if (deltaTime < 0.01)
+            continue;
+
+          sensor.Value = energyUnitMultiplier * unchecked(
+            energyConsumed - lastEnergyConsumed[sensor.Index]) / deltaTime;
+          lastEnergyTime[sensor.Index] = time;
+          lastEnergyConsumed[sensor.Index] = energyConsumed;
         }
       }
     }
