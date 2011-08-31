@@ -116,6 +116,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       private readonly float?[] voltages;
       private readonly float?[] temperatures;
       private readonly float?[] fans;
+      private readonly float?[] controls;
 
       private readonly FileStream[] voltageStreams;
       private readonly FileStream[] temperatureStreams;
@@ -125,7 +126,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       public float?[] Voltages { get { return voltages; } }
       public float?[] Temperatures { get { return temperatures; } }
       public float?[] Fans { get { return fans; } }
-
+      public float?[] Controls { get { return controls; } }
 
       public LMChip(Chip chip, string path) {
         this.path = path;
@@ -151,6 +152,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         for (int i = 0; i < fanPaths.Length; i++)
           fanStreams[i] = new FileStream(fanPaths[i],
             FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        this.controls = new float?[0];
       }
 
       public byte? ReadGPIO(int index) {
@@ -162,6 +165,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       public string GetReport() {
         return null;
       }
+
+      public void SetControl(int index, byte? value) { }   
 
       private string ReadFirstLine(Stream stream) {
         StringBuilder sb = new StringBuilder();

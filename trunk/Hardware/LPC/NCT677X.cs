@@ -49,6 +49,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly float?[] voltages = new float?[9];
     private readonly float?[] temperatures = new float?[4];
     private readonly float?[] fans = new float?[0];
+    private readonly float?[] controls = new float?[3];
 
     // Hardware Monitor
     private const uint ADDRESS_REGISTER_OFFSET = 0x05;
@@ -62,6 +63,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, bank);
       Ring0.WriteIoPort(port + ADDRESS_REGISTER_OFFSET, register);
       return Ring0.ReadIoPort(port + DATA_REGISTER_OFFSET);
+    }
+
+    private void WriteByte(ushort address, byte value) {
+      byte bank = (byte)(address >> 8);
+      byte register = (byte)(address & 0xFF);
+      Ring0.WriteIoPort(port + ADDRESS_REGISTER_OFFSET, BANK_SELECT_REGISTER);
+      Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, bank);
+      Ring0.WriteIoPort(port + ADDRESS_REGISTER_OFFSET, register);
+      Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, value);
     } 
 
     // Consts 
@@ -84,8 +94,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x550, 0x551 };
     private readonly ushort[] FAN_RPM_REG = 
       { 0x656, 0x658, 0x65A, 0x65C, 0x65E};
+    private readonly ushort[] FAN_PWM_OUT_REG = 
+      { 0x001, 0x003, 0x011 };
+    private readonly ushort[] FAN_PWM_COMMAND_REG = 
+      { 0x109, 0x209, 0x309 };
+    private readonly ushort[] FAN_CONTROL_MODE_REG = 
+      { 0x102, 0x202, 0x302 };
 
     private readonly int minFanRPM;
+
+    private bool[] restoreDefaultFanControlRequired = { false, false, false };
+    private byte[] initialFanControlMode = new byte[3];
+    private byte[] initialFanPwmCommand = new byte[3];
 
     private enum SourceNCT6771F : byte {
       SYSTIN = 1,
@@ -168,10 +188,47 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     public void WriteGPIO(int index, byte value) { }
 
+
+    private void SaveDefaultFanControl(int index) {
+      if (!restoreDefaultFanControlRequired[index]) {
+        initialFanControlMode[index] = ReadByte(FAN_CONTROL_MODE_REG[index]);
+        initialFanPwmCommand[index] = ReadByte(FAN_PWM_COMMAND_REG[index]);
+        restoreDefaultFanControlRequired[index] = true;
+      }
+    }
+
+    private void RestoreDefaultFanControl(int index) {
+      if (restoreDefaultFanControlRequired[index]) {
+        WriteByte(FAN_CONTROL_MODE_REG[index], initialFanControlMode[index]);
+        WriteByte(FAN_PWM_COMMAND_REG[index], initialFanPwmCommand[index]);
+        restoreDefaultFanControlRequired[index] = false;
+      }
+    }
+
+    public void SetControl(int index, byte? value) {
+      if (!Ring0.WaitIsaBusMutex(10))
+        return;
+
+      if (value.HasValue) {
+        SaveDefaultFanControl(index);
+
+        // set manual mode
+        WriteByte(FAN_CONTROL_MODE_REG[index], 0);
+
+        // set output value
+        WriteByte(FAN_PWM_COMMAND_REG[index], value.Value);  
+      } else {
+        RestoreDefaultFanControl(index);
+      }
+
+      Ring0.ReleaseIsaBusMutex();
+    }   
+
     public Chip Chip { get { return chip; } }
     public float?[] Voltages { get { return voltages; } }
     public float?[] Temperatures { get { return temperatures; } }
     public float?[] Fans { get { return fans; } }
+    public float?[] Controls { get { return controls; } }
 
     public void Update() {
       if (!Ring0.WaitIsaBusMutex(10))
@@ -226,6 +283,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         int value = (high << 8) | low;
 
         fans[i] = value > minFanRPM ? value : 0;
+      }
+
+      for (int i = 0; i < controls.Length; i++) {
+        int value = ReadByte(FAN_PWM_OUT_REG[i]);
+        controls[i] = value / 2.55f;
       }
 
       Ring0.ReleaseIsaBusMutex();
