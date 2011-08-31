@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly float?[] voltages = new float?[0];
     private readonly float?[] temperatures = new float?[0];
     private readonly float?[] fans = new float?[0];
+    private readonly float?[] controls = new float?[0];
 
     private readonly float voltageGain;
     private readonly bool has16bitFanCounter;
@@ -102,6 +103,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       Ring0.WriteIoPort((ushort)(gpioAddress + index), value);
     }
+
+    public void SetControl(int index, byte? value) { }   
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
 
@@ -166,6 +169,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Voltages { get { return voltages; } }
     public float?[] Temperatures { get { return temperatures; } }
     public float?[] Fans { get { return fans; } }
+    public float?[] Controls { get { return controls; } }
 
     public string GetReport() {
       StringBuilder r = new StringBuilder();

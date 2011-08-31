@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly List<Sensor> voltages = new List<Sensor>();
     private readonly List<Sensor> temperatures = new List<Sensor>();
     private readonly List<Sensor> fans = new List<Sensor>();
+    private readonly List<Sensor> controls = new List<Sensor>();
 
     private delegate float? ReadValueDelegate(int index);
     private delegate void UpdateDelegate();
@@ -58,6 +59,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly ReadValueDelegate readVoltage;
     private readonly ReadValueDelegate readTemperature;
     private readonly ReadValueDelegate readFan;
+    private readonly ReadValueDelegate readControl;
 
     // delegate for post update mainboard specific code
     private readonly UpdateDelegate postUpdate;
@@ -77,12 +79,14 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       this.readVoltage = (index) => superIO.Voltages[index];
       this.readTemperature = (index) => superIO.Temperatures[index];
       this.readFan = (index) => superIO.Fans[index];
+      this.readControl = (index) => superIO.Controls[index];
 
       this.postUpdate = () => { };
 
       List<Voltage> v = new List<Voltage>();
       List<Temperature> t = new List<Temperature>();
       List<Fan> f = new List<Fan>();
+      List<Ctrl> c = new List<Ctrl>();
 
       switch (superIO.Chip) {
         case Chip.IT8712F:
@@ -870,6 +874,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("CPU Fan", 1));
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("Chassis Fan #2", 3));
+                  c.Add(new Ctrl("Chassis Fan #2", 0));
+                  c.Add(new Ctrl("CPU Fan", 1));
+                  c.Add(new Ctrl("Chassis Fan #1", 2));
                   break;
                 case Model.P8P67_M_PRO: // NCT6776F
                   v.Add(new Voltage("CPU VCore", 0));
@@ -934,6 +941,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             t.Add(new Temperature("Temperature #" + (i + 1), i));
           for (int i = 0; i < superIO.Fans.Length; i++)
             f.Add(new Fan("Fan #" + (i + 1), i));
+          for (int i = 0; i < superIO.Controls.Length; i++)
+            c.Add(new Ctrl("Fan Control #" + (i + 1), i));
           break;
       }
 
@@ -967,6 +976,30 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             this, settings);
           fans.Add(sensor);
         }
+
+      foreach (Ctrl ctrl in c) {
+        int index = ctrl.Index;
+        if (index < superIO.Controls.Length) {
+          Sensor sensor = new Sensor(ctrl.Name, index, SensorType.Control,
+            this, settings);
+          Control control = new Control(sensor, settings, 0, 100);
+          control.ControlModeChanged += (cc) => {
+            if (cc.ControlMode == ControlMode.Default) {
+              superIO.SetControl(index, null);
+            } else {
+              superIO.SetControl(index, (byte)(cc.SoftwareValue * 2.55));
+            }
+          };
+          control.SoftwareControlValueChanged += (cc) => {
+            if (cc.ControlMode == ControlMode.Software) 
+              superIO.SetControl(index, (byte)(cc.SoftwareValue * 2.55));
+          };
+          if (control.ControlMode == ControlMode.Software) 
+            superIO.SetControl(index, (byte)(control.SoftwareValue * 2.55));
+          sensor.Control = control;
+          controls.Add(sensor);
+        }
+      }
     }
 
     public override HardwareType HardwareType {
@@ -1011,7 +1044,23 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         }
       }
 
+      foreach (Sensor sensor in controls) {
+        float? value = readControl(sensor.Index);
+        if (value.HasValue) {
+          sensor.Value = value;
+          ActivateSensor(sensor);
+        }
+      }
+
       postUpdate();
+    }
+
+    public override void Close() {
+      foreach (Sensor sensor in controls) {
+        // restore all controls back to default
+        superIO.SetControl(sensor.Index, null);
+      }
+      base.Close();
     }
 
     private class Voltage {
@@ -1060,6 +1109,16 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       public readonly int Index;
 
       public Fan(string name, int index) {
+        this.Name = name;
+        this.Index = index;
+      }
+    }
+
+    private class Ctrl {
+      public readonly string Name;
+      public readonly int Index;
+
+      public Ctrl(string name, int index) {
         this.Name = name;
         this.Index = index;
       }

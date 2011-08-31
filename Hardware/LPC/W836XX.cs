@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly float?[] voltages = new float?[0];
     private readonly float?[] temperatures = new float?[0];    
     private readonly float?[] fans = new float?[0];
+    private readonly float?[] controls = new float?[0];
 
     private readonly bool[] peciTemperature = new bool[0];
     private readonly byte[] voltageRegister = new byte[0];
@@ -110,7 +111,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public void WriteGPIO(int index, byte value) { }
-   
+
+    public void SetControl(int index, byte? value) { }   
+
     public W836XX(Chip chip, byte revision, ushort address) {
       this.address = address;
       this.revision = revision;
@@ -201,6 +204,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Voltages { get { return voltages; } }
     public float?[] Temperatures { get { return temperatures; } }
     public float?[] Fans { get { return fans; } }
+    public float?[] Controls { get { return controls; } }
 
     public void Update() {
       if (!Ring0.WaitIsaBusMutex(10))

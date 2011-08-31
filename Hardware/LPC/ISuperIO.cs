@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -40,14 +40,21 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     Chip Chip { get; }
 
+    // get voltage, temperature, fan and control channel values
     float?[] Voltages { get; }
     float?[] Temperatures { get; }
     float?[] Fans { get; }
+    float?[] Controls { get; }
 
+    // set control value, null = auto    
+    void SetControl(int index, byte? value);         
+
+    // read and write GPIO
     byte? ReadGPIO(int index);
     void WriteGPIO(int index, byte value);
 
     string GetReport();
+
     void Update();
   }
 }

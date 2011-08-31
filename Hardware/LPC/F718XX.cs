@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -47,6 +47,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly float?[] voltages;
     private readonly float?[] temperatures;
     private readonly float?[] fans;
+    private readonly float?[] controls;
 
     // Hardware Monitor
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
@@ -71,6 +72,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     public void WriteGPIO(int index, byte value) { }
 
+    public void SetControl(int index, byte? value) { }   
+
     public F718XX(Chip chip, ushort address) {
       this.address = address;
       this.chip = chip;
@@ -78,12 +81,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       voltages = new float?[chip == Chip.F71858 ? 3 : 9];
       temperatures = new float?[3];
       fans = new float?[chip == Chip.F71882 || chip == Chip.F71858? 4 : 3];
+      controls = new float?[0];
     }
 
     public Chip Chip { get { return chip; } }
     public float?[] Voltages { get { return voltages; } }
     public float?[] Temperatures { get { return temperatures; } }
     public float?[] Fans { get { return fans; } }
+    public float?[] Controls { get { return controls; } }
 
     public string GetReport() {
       StringBuilder r = new StringBuilder();
