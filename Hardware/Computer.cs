@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -98,7 +98,7 @@ namespace OpenHardwareMonitor.Hardware {
       Add(new Heatmaster.HeatmasterGroup(settings));
 
       if (hddEnabled)
-        Add(new HDD.HDDGroup(settings));
+        Add(new HDD.HarddriveGroup(settings));
 
       open = true;
     }
@@ -109,11 +109,11 @@ namespace OpenHardwareMonitor.Hardware {
       [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
       set {
         if (open && value && !hddEnabled) {
-          Add(new HDD.HDDGroup(settings));
+          Add(new HDD.HarddriveGroup(settings));
         } else if (open && !value && hddEnabled) {
           List<IGroup> list = new List<IGroup>();
           foreach (IGroup group in groups)
-            if (group is HDD.HDDGroup)
+            if (group is HDD.HarddriveGroup)
               list.Add(group);
           foreach (IGroup group in list)
             Remove(group);

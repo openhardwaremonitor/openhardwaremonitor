@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -35,62 +35,19 @@
  
 */
 
-using System;
-using System.Collections.Generic;
-using OpenHardwareMonitor.Collections;
+namespace OpenHardwareMonitor.Hardware.HDD {
+  using System.Collections.Generic;
 
-namespace OpenHardwareMonitor.Hardware {
+  [NamePrefix("PLEXTOR")]
+  internal class SSDPlextor : AbstractHarddrive {
 
-  public enum SensorType {
-    Voltage, // V
-    Clock, // MHz
-    Temperature, // °C
-    Load, // %
-    Fan, // RPM
-    Flow, // L/h
-    Control, // %
-    Level, // %
-    Power, // W
-    Data, // GB = 2^30 Bytes
+    private static readonly IEnumerable<SmartAttribute> smartAttributes =
+      new List<SmartAttribute> {
+      new SmartAttribute(0x09, SmartAttributeNames.PowerOnHours, RawToInt),
+      new SmartAttribute(0x0C, SmartAttributeNames.PowerCycleCount, RawToInt),
+    };
+
+    public SSDPlextor(ISmart smart, string name, int index, ISettings settings)
+      : base(smart, name, index, smartAttributes, settings) { }
   }
-
-  public struct SensorValue {
-    private readonly float value;
-    private readonly DateTime time;
-
-    public SensorValue(float value, DateTime time) {
-      this.value = value;
-      this.time = time;
-    }
-
-    public float Value { get { return value; } }
-    public DateTime Time { get { return time; } }
-  }
-
-  public interface ISensor : IElement {
-
-    IHardware Hardware { get; }
-
-    SensorType SensorType { get; }
-    Identifier Identifier { get; }
-
-    string Name { get; set; }
-    int Index { get; }
-
-    bool IsDefaultHidden { get; }
-
-    IReadOnlyArray<IParameter> Parameters { get; }
-
-    float? Value { get; }
-    float? Min { get; }
-    float? Max { get; }
-
-    void ResetMin();
-    void ResetMax();
-
-    IEnumerable<SensorValue> Values { get; }
-
-    IControl Control { get; }
-  }
-
 }

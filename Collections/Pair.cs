@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2011
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -37,60 +37,31 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Collections;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Collections {
 
-  public enum SensorType {
-    Voltage, // V
-    Clock, // MHz
-    Temperature, // °C
-    Load, // %
-    Fan, // RPM
-    Flow, // L/h
-    Control, // %
-    Level, // %
-    Power, // W
-    Data, // GB = 2^30 Bytes
-  }
+  public struct Pair<F, S> {
+    private F first;
+    private S second;
 
-  public struct SensorValue {
-    private readonly float value;
-    private readonly DateTime time;
-
-    public SensorValue(float value, DateTime time) {
-      this.value = value;
-      this.time = time;
+    public Pair(F first, S second) {
+      this.first = first;
+      this.second = second;
     }
 
-    public float Value { get { return value; } }
-    public DateTime Time { get { return time; } }
+    public F First {
+      get { return first; }
+      set { first = value; }
+    }
+
+    public S Second {
+      get { return second; }
+      set { second = value; }
+    }
+
+    public override int GetHashCode() {
+      return (first != null ? first.GetHashCode() : 0) ^
+        (second != null ? second.GetHashCode() : 0);
+    }
   }
-
-  public interface ISensor : IElement {
-
-    IHardware Hardware { get; }
-
-    SensorType SensorType { get; }
-    Identifier Identifier { get; }
-
-    string Name { get; set; }
-    int Index { get; }
-
-    bool IsDefaultHidden { get; }
-
-    IReadOnlyArray<IParameter> Parameters { get; }
-
-    float? Value { get; }
-    float? Min { get; }
-    float? Max { get; }
-
-    void ResetMin();
-    void ResetMax();
-
-    IEnumerable<SensorValue> Values { get; }
-
-    IControl Control { get; }
-  }
-
 }

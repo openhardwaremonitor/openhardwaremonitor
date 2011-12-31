@@ -20,6 +20,8 @@
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
+    Paul Werelds
+    Roland Reinl <roland-reinl@gmx.de>
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -37,60 +39,45 @@
 
 using System;
 using System.Collections.Generic;
-using OpenHardwareMonitor.Collections;
+using System.Globalization;
+using System.Text;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Hardware.HDD {
+  internal class HarddriveGroup : IGroup {
 
-  public enum SensorType {
-    Voltage, // V
-    Clock, // MHz
-    Temperature, // °C
-    Load, // %
-    Fan, // RPM
-    Flow, // L/h
-    Control, // %
-    Level, // %
-    Power, // W
-    Data, // GB = 2^30 Bytes
-  }
+    private const int MAX_DRIVES = 32;
 
-  public struct SensorValue {
-    private readonly float value;
-    private readonly DateTime time;
+    private readonly List<AbstractHarddrive> hardware = 
+      new List<AbstractHarddrive>();
 
-    public SensorValue(float value, DateTime time) {
-      this.value = value;
-      this.time = time;
+    public HarddriveGroup(ISettings settings) {
+      int p = (int)Environment.OSVersion.Platform;
+      if (p == 4 || p == 128) return;
+
+      ISmart smart = new WindowsSmart();
+
+      for (int drive = 0; drive < MAX_DRIVES; drive++) {
+        AbstractHarddrive instance =
+          AbstractHarddrive.CreateInstance(smart, drive, settings);
+        if (instance != null) {
+          this.hardware.Add(instance);
+        }
+      }
     }
 
-    public float Value { get { return value; } }
-    public DateTime Time { get { return time; } }
+    public IHardware[] Hardware {
+      get {
+        return hardware.ToArray();
+      }
+    }
+
+    public string GetReport() {
+      return null;
+    }
+
+    public void Close() {
+      foreach (AbstractHarddrive hdd in hardware) 
+        hdd.Close();
+    }
   }
-
-  public interface ISensor : IElement {
-
-    IHardware Hardware { get; }
-
-    SensorType SensorType { get; }
-    Identifier Identifier { get; }
-
-    string Name { get; set; }
-    int Index { get; }
-
-    bool IsDefaultHidden { get; }
-
-    IReadOnlyArray<IParameter> Parameters { get; }
-
-    float? Value { get; }
-    float? Min { get; }
-    float? Max { get; }
-
-    void ResetMin();
-    void ResetMax();
-
-    IEnumerable<SensorValue> Values { get; }
-
-    IControl Control { get; }
-  }
-
 }

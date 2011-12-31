@@ -198,6 +198,8 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F0}", sensor.Value);
         case SensorType.Power:
           return string.Format("{0:F0}", sensor.Value);
+        case SensorType.Data:
+          return string.Format("{0:F0}", sensor.Value);
       }
       return "-";
     }
@@ -286,6 +288,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Control: format = "\n{0}: {1:F1} %"; break;
         case SensorType.Level: format = "\n{0}: {1:F1} %"; break;
         case SensorType.Power: format = "\n{0}: {1:F0} W"; break;
+        case SensorType.Data: format = "\n{0}: {1:F0} GB"; break;
       }
       string formattedValue = string.Format(format, sensor.Name, sensor.Value);
       string hardwareName = sensor.Hardware.Name;

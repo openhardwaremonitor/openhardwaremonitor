@@ -76,6 +76,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Control: format = "{0:F1} %"; break;
         case SensorType.Level: format = "{0:F1} %"; break;
         case SensorType.Power: format = "{0:F1} W"; break;
+        case SensorType.Data: format = "{0:F1} GB"; break;
       }
 
       bool hidden = settings.GetValue(new Identifier(sensor.Identifier, 
