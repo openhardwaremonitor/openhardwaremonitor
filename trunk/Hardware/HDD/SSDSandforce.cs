@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -65,8 +65,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         SensorType.Data, 1)
     };
 
-    public SSDSandforce(ISmart smart, string name, int index, 
-      ISettings settings) 
-      : base(smart, name, index, smartAttributes, settings) { }
+    public SSDSandforce(ISmart smart, string name, string firmwareRevision, 
+      int index, ISettings settings) 
+      : base(smart, name, firmwareRevision,  index, smartAttributes, settings) 
+    { }
   }
 }

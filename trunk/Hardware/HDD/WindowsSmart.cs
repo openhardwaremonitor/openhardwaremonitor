@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s): 
@@ -327,9 +327,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         out bytesReturned, IntPtr.Zero); 
 
       return (isValid) ? result.Thresholds : new DriveThresholdValue[0];
-    } 
+    }
 
-    public string ReadName(IntPtr handle, int driveNumber) {
+    private string GetString(byte[] bytes) {   
+      char[] chars = new char[bytes.Length];
+      for (int i = 0; i < bytes.Length; i += 2) {
+        chars[i] = (char)bytes[i + 1];
+        chars[i + 1] = (char)bytes[i];
+      }
+      return new string(chars).Trim(new char[] { ' ', '\0' });
+    }
+
+    public bool ReadNameAndFirmwareRevision(IntPtr handle, int driveNumber, 
+      out string name, out string firmwareRevision) 
+    {
       DriveCommandParameter parameter = new DriveCommandParameter();
       DriveIdentifyResult result;
       uint bytesReturned;
@@ -342,19 +353,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         out result, Marshal.SizeOf(typeof(DriveIdentifyResult)), 
         out bytesReturned, IntPtr.Zero);
 
-      if (!valid)
-        return null;
-      else {
-
-        byte[] bytes = result.Identify.ModelNumber;
-        char[] chars = new char[bytes.Length];
-        for (int i = 0; i < bytes.Length; i += 2) {
-          chars[i] = (char)bytes[i + 1];
-          chars[i + 1] = (char)bytes[i];
-        }
-
-        return new string(chars).Trim(new char[] {' ', '\0'});
+      if (!valid) {
+        name = null;
+        firmwareRevision = null;
+        return false;
       }
+
+      name = GetString(result.Identify.ModelNumber);
+      firmwareRevision = GetString(result.Identify.FirmwareRevision);
+      return true;
     }
 
     public void CloseHandle(IntPtr handle) {

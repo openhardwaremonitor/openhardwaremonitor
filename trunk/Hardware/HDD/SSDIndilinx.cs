@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Roland Reinl <roland-reinl@gmx.de>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -68,8 +68,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
      new SmartAttribute(0xD4, SmartAttributeNames.SataErrorCountHandshake),
     };
 
-    public SSDIndilinx(ISmart smart, string name, int index, ISettings settings)
-      : base(smart, name, index, smartAttributes, settings) { }
+    public SSDIndilinx(ISmart smart, string name, string firmwareRevision, 
+      int index, ISettings settings)
+      : base(smart, name, firmwareRevision, index, smartAttributes, settings) {}
   }
 }
 
