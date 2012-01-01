@@ -46,6 +46,8 @@ using OpenHardwareMonitor.Hardware;
 namespace OpenHardwareMonitor.GUI {
   public class PlotPanel : UserControl {
 
+    private PersistentSettings settings;
+
     private DateTime now;
     private List<ISensor> clocks = new List<ISensor>();
     private List<ISensor> temperatures = new List<ISensor>();
@@ -58,12 +60,18 @@ namespace OpenHardwareMonitor.GUI {
     private Brush lightBrush;
     private Pen lightPen;
 
-    public PlotPanel() {
+    private UserRadioGroup timeWindowRadioGroup;
+
+    public PlotPanel(PersistentSettings settings) {
+      this.settings = settings;
+
       this.SetStyle(ControlStyles.DoubleBuffer |
         ControlStyles.UserPaint |
         ControlStyles.AllPaintingInWmPaint |
         ControlStyles.ResizeRedraw, true);
       this.UpdateStyles();
+
+      CreateContextMenu();
 
       centerlower = new StringFormat();
       centerlower.Alignment = StringAlignment.Center;
@@ -79,6 +87,34 @@ namespace OpenHardwareMonitor.GUI {
 
       lightBrush = new SolidBrush(Color.FromArgb(245, 245, 245));
       lightPen = new Pen(Color.FromArgb(200, 200, 200));
+    }
+
+    private void CreateContextMenu() {
+      MenuItem timeWindow = new MenuItem("Time Scale");
+      
+      MenuItem[] timeWindowMenuItems = 
+        { new MenuItem("Auto"), 
+          new MenuItem("5 min"),
+          new MenuItem("10 min"),
+          new MenuItem("20 min"),
+          new MenuItem("30 min"),
+          new MenuItem("45 min"),
+          new MenuItem("1 h"),
+          new MenuItem("1.5 h"),
+          new MenuItem("2 h"),
+          new MenuItem("3 h"),
+          new MenuItem("6 h"),
+          new MenuItem("12 h"),
+          new MenuItem("24 h") };
+
+      foreach (MenuItem mi in timeWindowMenuItems)
+        timeWindow.MenuItems.Add(mi);
+
+      timeWindowRadioGroup = new UserRadioGroup("timeWindow", 0, 
+        timeWindowMenuItems, settings);
+
+      this.ContextMenu = new ContextMenu();
+      this.ContextMenu.MenuItems.Add(timeWindow);
     }
 
     private List<float> GetTemperatureGrid() {
@@ -125,26 +161,34 @@ namespace OpenHardwareMonitor.GUI {
 
     private List<float> GetTimeGrid() {
 
-      float maxTime = 5;
-      if (temperatures.Count > 0) {
-        IEnumerator<SensorValue> enumerator =
-          temperatures[0].Values.GetEnumerator();
-        if (enumerator.MoveNext()) {
-          maxTime = (float)(now - enumerator.Current.Time).TotalMinutes;
+      float maxTime;
+      if (timeWindowRadioGroup.Value == 0) { // Auto
+        maxTime = 5;
+        if (temperatures.Count > 0) {
+          IEnumerator<SensorValue> enumerator =
+            temperatures[0].Values.GetEnumerator();
+          if (enumerator.MoveNext()) {
+            maxTime = (float)(now - enumerator.Current.Time).TotalMinutes;
+          }
         }
+      } else {
+        float[] maxTimes = 
+          { 5, 10, 20, 30, 45, 60, 90, 120, 180, 360, 720, 1440 };
+
+        maxTime = maxTimes[timeWindowRadioGroup.Value - 1];
       }
 
       int countTime = 10;
       float deltaTime = 5;
-      while (deltaTime + 1 < maxTime && deltaTime < 10)
+      while (deltaTime + 1 <= maxTime && deltaTime < 10)
         deltaTime += 1;
-      while (deltaTime + 2 < maxTime && deltaTime < 30)
+      while (deltaTime + 2 <= maxTime && deltaTime < 30)
         deltaTime += 2;
-      while (deltaTime + 5 < maxTime && deltaTime < 100)
+      while (deltaTime + 5 <= maxTime && deltaTime < 100)
         deltaTime += 5;
-      while (deltaTime + 50 < maxTime && deltaTime < 1000)
+      while (deltaTime + 50 <= maxTime && deltaTime < 1000)
         deltaTime += 50;
-      while (deltaTime + 100 < maxTime && deltaTime < 10000)
+      while (deltaTime + 100 <= maxTime && deltaTime < 10000)
         deltaTime += 100;
 
       List<float> grid = new List<float>(countTime + 1);

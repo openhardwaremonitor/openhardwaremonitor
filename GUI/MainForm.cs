@@ -63,6 +63,7 @@ namespace OpenHardwareMonitor.GUI {
     private UpdateVisitor updateVisitor = new UpdateVisitor();
     private SensorGadget gadget;
     private Form plotForm;
+    private PlotPanel plotPanel;
 
     private UserOption showHiddenSensors;
     private UserOption showPlot;
@@ -109,7 +110,10 @@ namespace OpenHardwareMonitor.GUI {
             
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
-      plotPanel.Font = SystemFonts.MessageBoxFont;           
+
+      plotPanel = new PlotPanel(settings);
+      plotPanel.Font = SystemFonts.MessageBoxFont;
+      plotPanel.Dock = DockStyle.Fill;
       
       nodeCheckBox.IsVisibleValueNeeded += nodeCheckBox_IsVisibleValueNeeded;
       nodeCheckBox.CheckStateChanged += UpdatePlotSelection;
