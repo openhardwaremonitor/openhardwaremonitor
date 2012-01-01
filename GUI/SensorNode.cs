@@ -82,6 +82,9 @@ namespace OpenHardwareMonitor.GUI {
       bool hidden = settings.GetValue(new Identifier(sensor.Identifier, 
         "hidden").ToString(), sensor.IsDefaultHidden);
       base.IsVisible = !hidden;
+
+      this.Plot = settings.GetValue(new Identifier(sensor.Identifier, 
+        "plot").ToString(), false);
     }
 
     public override string Text {
@@ -100,8 +103,16 @@ namespace OpenHardwareMonitor.GUI {
 
     public bool Plot {
       get { return plot; }
-      set { plot = value; }
+      set { 
+        plot = value;
+        settings.SetValue(new Identifier(sensor.Identifier, "plot").ToString(), 
+          value);
+        if (PlotSelectionChanged != null)
+          PlotSelectionChanged(this, null);
+      }
     }
+
+    public event EventHandler PlotSelectionChanged;
 
     public ISensor Sensor {
       get { return sensor; }

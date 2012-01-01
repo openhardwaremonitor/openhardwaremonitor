@@ -116,7 +116,6 @@ namespace OpenHardwareMonitor.GUI {
       plotPanel.Dock = DockStyle.Fill;
       
       nodeCheckBox.IsVisibleValueNeeded += nodeCheckBox_IsVisibleValueNeeded;
-      nodeCheckBox.CheckStateChanged += UpdatePlotSelection;
       nodeTextBoxText.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxValue.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMin.DrawText += nodeTextBoxText_DrawText;
@@ -160,14 +159,7 @@ namespace OpenHardwareMonitor.GUI {
         gadget.HideShowCommand += hideShowClick;
 
         wmiProvider = new WmiProvider(computer);
-      }    
-      
-      computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
-      computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);        
-
-      computer.Open();
-
-      timer.Enabled = true;
+      }
 
       plotColorPalette = new Color[13];
       plotColorPalette[0] = Color.Blue;
@@ -183,6 +175,13 @@ namespace OpenHardwareMonitor.GUI {
       plotColorPalette[10] = Color.MediumSeaGreen;
       plotColorPalette[11] = Color.Olive;
       plotColorPalette[12] = Color.Firebrick;
+      
+      computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
+      computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);        
+
+      computer.Open();
+
+      timer.Enabled = true;
 
       showHiddenSensors = new UserOption("hiddenMenuItem", false,
         hiddenMenuItem, settings);
@@ -234,7 +233,6 @@ namespace OpenHardwareMonitor.GUI {
         settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
-        UpdatePlotSelection(null, null);
       };
 
       showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem,
@@ -368,28 +366,32 @@ namespace OpenHardwareMonitor.GUI {
     }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
-      Node hardwareNode = new HardwareNode(hardware, settings, unitManager);
+      HardwareNode hardwareNode = 
+        new HardwareNode(hardware, settings, unitManager);
+      hardwareNode.PlotSelectionChanged += PlotSelectionChanged;
+
       node.Nodes.Add(hardwareNode);
       foreach (IHardware subHardware in hardware.SubHardware)
         SubHardwareAdded(subHardware, hardwareNode);  
     }
 
-    private void HardwareAdded(IHardware hardware) {
-      Node hardwareNode = new HardwareNode(hardware, settings, unitManager);
-      root.Nodes.Add(hardwareNode);
-      foreach (IHardware subHardware in hardware.SubHardware)
-        SubHardwareAdded(subHardware, hardwareNode);     
+    private void HardwareAdded(IHardware hardware) {      
+      SubHardwareAdded(hardware, root);
+      PlotSelectionChanged(this, null);
     }
 
-    private void HardwareRemoved(IHardware hardware) {      
-      List<Node> nodesToRemove = new List<Node>();
+    private void HardwareRemoved(IHardware hardware) {
+      List<HardwareNode> nodesToRemove = new List<HardwareNode>();
       foreach (Node node in root.Nodes) {
         HardwareNode hardwareNode = node as HardwareNode;
         if (hardwareNode != null && hardwareNode.Hardware == hardware)
-          nodesToRemove.Add(node);
+          nodesToRemove.Add(hardwareNode);
       }
-      foreach (Node node in nodesToRemove)
-        root.Nodes.Remove(node);
+      foreach (HardwareNode hardwareNode in nodesToRemove) {
+        root.Nodes.Remove(hardwareNode);
+        hardwareNode.PlotSelectionChanged -= PlotSelectionChanged;
+      }
+      PlotSelectionChanged(this, null);
     }
 
     private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {       
@@ -407,15 +409,13 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private void UpdatePlotSelection(object sender, 
-      TreePathEventArgs e) 
-    {
+    private void PlotSelectionChanged(object sender, EventArgs e) {
       List<ISensor> selected = new List<ISensor>();
       IDictionary<ISensor, Color> colors = new Dictionary<ISensor, Color>();
       int colorIndex = 0;
       foreach (TreeNodeAdv node in treeView.AllNodes) {
         SensorNode sensorNode = node.Tag as SensorNode;
-        if (sensorNode != null && 
+        if (sensorNode != null &&
           sensorNode.Sensor.SensorType == SensorType.Temperature) {
           if (sensorNode.Plot) {
             colors.Add(sensorNode.Sensor,
