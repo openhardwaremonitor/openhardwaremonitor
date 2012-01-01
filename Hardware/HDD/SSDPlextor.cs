@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2011
+  Portions created by the Initial Developer are Copyright (C) 2011-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -47,7 +47,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0x0C, SmartAttributeNames.PowerCycleCount, RawToInt),
     };
 
-    public SSDPlextor(ISmart smart, string name, int index, ISettings settings)
-      : base(smart, name, index, smartAttributes, settings) { }
+    public SSDPlextor(ISmart smart, string name, string firmwareRevision, 
+      int index, ISettings settings)
+      : base(smart, name, firmwareRevision, index, smartAttributes, settings) {}
   }
 }

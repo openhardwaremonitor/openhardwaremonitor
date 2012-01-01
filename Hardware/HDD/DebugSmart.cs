@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2011
+  Portions created by the Initial Developer are Copyright (C) 2011-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -219,11 +219,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return drives[driveNumber].DriveThresholdValues;
     }
 
-    public string ReadName(IntPtr handle, int driveNumber) {
+    public bool ReadNameAndFirmwareRevision(IntPtr handle, int driveNumber, 
+      out string name, out string firmwareRevision) {
       if (handle != (IntPtr)driveNumber)
         throw new ArgumentOutOfRangeException();
 
-      return drives[driveNumber].Name;
+      name = drives[driveNumber].Name;
+      firmwareRevision = "";
+      return true;
     }
 
     public void CloseHandle(IntPtr handle) { }

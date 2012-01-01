@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s): 
@@ -57,6 +57,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       typeof(GenericHarddisk)
     };
 
+    private string firmwareRevision;
     private readonly ISmart smart;
 
     private readonly IntPtr handle;
@@ -66,11 +67,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private IList<SmartAttribute> smartAttributes;
     private IDictionary<SmartAttribute, Sensor> sensors;
 
-    protected AbstractHarddrive(ISmart smart, string name, int index, 
+    protected AbstractHarddrive(ISmart smart, string name, 
+      string firmwareRevision, int index, 
       IEnumerable<SmartAttribute> smartAttributes, ISettings settings) 
       : base(name, new Identifier("hdd",
         index.ToString(CultureInfo.InvariantCulture)), settings)
     {
+      this.firmwareRevision = firmwareRevision;
       this.smart = smart;
       handle = smart.OpenDrive(index);
 
@@ -92,7 +95,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       if (deviceHandle == smart.InvalidHandle) 
         return null;
 
-      string name = smart.ReadName(deviceHandle, driveIndex);
+      string name;
+      string firmwareRevision;
+      bool nameValid = smart.ReadNameAndFirmwareRevision(deviceHandle, 
+        driveIndex, out name, out firmwareRevision);
       bool smartEnabled = smart.EnableSmart(deviceHandle, driveIndex);
 
       DriveAttributeValue[] values = {};
@@ -101,7 +107,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       smart.CloseHandle(deviceHandle);
 
-      if (string.IsNullOrEmpty(name)) 
+      if (!nameValid || string.IsNullOrEmpty(name)) 
         return null;
 
       foreach (Type type in hddTypes) {
@@ -136,8 +142,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         // check if there is a matching name prefix for this type
         foreach (NamePrefixAttribute prefix in namePrefixes) {
           if (name.StartsWith(prefix.Prefix, StringComparison.InvariantCulture)) 
-            return Activator.CreateInstance(type, smart, name, driveIndex, 
-              settings) as AbstractHarddrive;
+            return Activator.CreateInstance(type, smart, name, firmwareRevision,
+              driveIndex, settings) as AbstractHarddrive;
         }
       }
 
@@ -222,6 +228,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         r.AppendLine(this.GetType().Name);
         r.AppendLine();
         r.AppendLine("Drive name: " + name);
+        r.AppendLine("Firmware version: " + firmwareRevision);
         r.AppendLine();
         r.AppendFormat(CultureInfo.InvariantCulture, 
           " {0}{1}{2}{3}{4}{5}{6}{7}",
