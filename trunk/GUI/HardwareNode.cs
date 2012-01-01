@@ -108,9 +108,14 @@ namespace OpenHardwareMonitor.GUI {
             if (n != null && n.Sensor == sensor)
               sensorNode = n;
           }
-          typeNode.Nodes.Remove(sensorNode);
-          UpdateNode(typeNode);
+          if (sensorNode != null) {
+            sensorNode.PlotSelectionChanged -= SensorPlotSelectionChanged;
+            typeNode.Nodes.Remove(sensorNode);
+            UpdateNode(typeNode);
+          }
         }
+      if (PlotSelectionChanged != null)
+        PlotSelectionChanged(this, null);
     }
 
     private void InsertSorted(Node node, ISensor sensor) {
@@ -119,7 +124,13 @@ namespace OpenHardwareMonitor.GUI {
         ((SensorNode)node.Nodes[i]).Sensor.Index < sensor.Index)
         i++;
       SensorNode sensorNode = new SensorNode(sensor, settings, unitManager);
+      sensorNode.PlotSelectionChanged += SensorPlotSelectionChanged;
       node.Nodes.Insert(i, sensorNode);
+    }
+
+    private void SensorPlotSelectionChanged(object sender, EventArgs e) {
+      if (PlotSelectionChanged != null)
+        PlotSelectionChanged(this, null);
     }
 
     private void SensorAdded(ISensor sensor) {
@@ -128,6 +139,10 @@ namespace OpenHardwareMonitor.GUI {
           InsertSorted(typeNode, sensor);
           UpdateNode(typeNode);          
         }
-    }    
+      if (PlotSelectionChanged != null)
+        PlotSelectionChanged(this, null);
+    }
+
+    public event EventHandler PlotSelectionChanged;
   }
 }
