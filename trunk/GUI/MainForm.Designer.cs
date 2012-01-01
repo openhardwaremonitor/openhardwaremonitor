@@ -108,8 +108,7 @@ namespace OpenHardwareMonitor.GUI {
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
-      this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-      this.plotPanel = new OpenHardwareMonitor.GUI.PlotPanel();
+      this.treeView = new Aga.Controls.Tree.TreeViewAdv();      
       this.plotLocationMenuItem = new System.Windows.Forms.MenuItem();
       this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
       this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
@@ -431,7 +430,6 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // splitContainer.Panel2
       // 
-      this.splitContainer.Panel2.Controls.Add(this.plotPanel);
       this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
       this.splitContainer.Size = new System.Drawing.Size(386, 483);
       this.splitContainer.SplitterDistance = 354;
@@ -471,14 +469,6 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
-      // 
-      // plotPanel
-      // 
-      this.plotPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this.plotPanel.Location = new System.Drawing.Point(0, 0);
-      this.plotPanel.Name = "plotPanel";
-      this.plotPanel.Size = new System.Drawing.Size(386, 124);
-      this.plotPanel.TabIndex = 0;
       // 
       // plotLocationMenuItem
       // 
@@ -542,7 +532,6 @@ namespace OpenHardwareMonitor.GUI {
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMin;
     private Aga.Controls.Tree.NodeControls.NodeTextBox nodeTextBoxMax;
     private SplitContainerAdv splitContainer;
-    private PlotPanel plotPanel;
     private System.Windows.Forms.MenuItem viewMenuItem;
     private System.Windows.Forms.MenuItem plotMenuItem;
     private Aga.Controls.Tree.NodeControls.NodeCheckBox nodeCheckBox;
