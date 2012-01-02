@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       typeof(SSDIntel),
       typeof(SSDSandforce),
       typeof(SSDIndilinx),
+      typeof(SSDSamsung),
       typeof(GenericHarddisk)
     };
 
@@ -233,7 +234,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         r.AppendFormat(CultureInfo.InvariantCulture, 
           " {0}{1}{2}{3}{4}{5}{6}{7}",
           ("ID").PadRight(3),
-          ("Description").PadRight(32),
+          ("Description").PadRight(35),
           ("Raw Value").PadRight(13),
           ("Worst").PadRight(6),
           ("Value").PadRight(6),
@@ -268,7 +269,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           r.AppendFormat(CultureInfo.InvariantCulture, 
             " {0}{1}{2}{3}{4}{5}{6}{7}",
             value.Identifier.ToString("X2").PadRight(3),
-            description.PadRight(32),
+            description.PadRight(35),
             raw.Replace("-", "").PadRight(13),
             value.WorstValue.ToString(CultureInfo.InvariantCulture).PadRight(6),
             value.AttrValue.ToString(CultureInfo.InvariantCulture).PadRight(6),

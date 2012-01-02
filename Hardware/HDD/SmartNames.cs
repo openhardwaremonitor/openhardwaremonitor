@@ -40,7 +40,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   /// <summary>
   /// Localization class for SMART attribute names.
   /// </summary>
-  internal static class SmartAttributeNames {
+  internal static class SmartNames {
 
     public static string AirflowTemperature {
       get { return "Airflow Temperature"; }
@@ -426,18 +426,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return "Host Writes"; }
     }
 
-    public static string UsedReservedBlockCountChip {
-      get { return "Used Reserved Block Count Chip"; }
-    }
-
-    public static string UsedReservedBlockCountTotal {
-      get { return "Used Reserved Block Count Total"; }
-    }
-
-    public static string RuntimeBadBlockTotal {
-      get { return "Runtime Bad Block Total"; }
-    }
-
     public static string HostReads {
       get { return "Host Reads"; }
     }
@@ -445,5 +433,65 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public static string MediaWearOutIndicator {
       get { return "Media Wear Out Indicator"; }
     }    
+
+    public static string ProgramFailCountChip {
+      get { return "Program Fail Count (Chip)"; }
+    }
+
+    public static string EraseFailCountChip {
+      get { return "Erase Fail Count (Chip)"; }
+    }
+
+    public static string WearLevelingCount {
+      get { return "Wear Leveling Count"; }
+    }
+
+    public static string UsedReservedBlockCountChip {
+      get { return "Used Reserved Block Count (Chip)"; }
+    }
+
+    public static string UsedReservedBlockCountTotal {
+      get { return "Used Reserved Block Count (Total)"; }
+    }
+
+    public static string ProgramFailCountTotal {
+      get { return "Program Fail Count (Total)"; }
+    }
+
+    public static string EraseFailCountTotal {
+      get { return "Erase Fail Count (Total)"; }
+    }
+
+    public static string RuntimeBadBlockTotal {
+      get { return "Runtime Bad Block Total"; }
+    }
+
+    public static string UncorrectableErrorCount {
+      get { return "Uncorrectable Error Count"; }
+    }
+
+    public static string TemperatureExceedCount {
+      get { return "Temperature Exceed Count"; }
+    }
+
+    public static string ECCRate {
+      get { return "ECC Rate"; }
+    }
+
+    public static string OffLineUncorrectableErrorCount {
+      get { return "Off-Line Uncorrectable Error Count"; }
+    }
+
+    public static string CRCErrorCount {
+      get { return "CRC Error Count"; }
+    }
+
+    public static string SupercapStatus {
+      get { return "Supercap Status"; }
+    }
+
+    public static string ExceptionModeStatus {
+      get { return "Exception Mode Status"; }
+    }
   }
 }
