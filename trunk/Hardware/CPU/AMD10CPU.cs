@@ -246,42 +246,46 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private double GetCoreMultiplier(uint cofvidEax) {
       switch (family) {
         case 0x10:
-        case 0x11:
-          // 8:6 CpuDid: current core divisor ID
-          // 5:0 CpuFid: current core frequency ID
-          uint cpuDid = (cofvidEax >> 6) & 7;
-          uint cpuFid = cofvidEax & 0x1F;
-          return 0.5 * (cpuFid + 0x10) / (1 << (int)cpuDid);
-        case 0x12:
-          // 8:4 CpuFid: current CPU core frequency ID
-          // 3:0 CpuDid: current CPU core divisor ID
-          uint CpuFid = (cofvidEax >> 4) & 0x1F;
-          uint CpuDid = cofvidEax & 0xF;
-          double divisor;
-          switch (CpuDid) {
-            case 0: divisor = 1; break;
-            case 1: divisor = 1.5; break;
-            case 2: divisor = 2; break;
-            case 3: divisor = 3; break;
-            case 4: divisor = 4; break;
-            case 5: divisor = 6; break;
-            case 6: divisor = 8; break;
-            case 7: divisor = 12; break;
-            case 8: divisor = 16; break;
-            default: divisor = 1; break;
+        case 0x11: 
+        case 0x15: {
+            // 8:6 CpuDid: current core divisor ID
+            // 5:0 CpuFid: current core frequency ID
+            uint cpuDid = (cofvidEax >> 6) & 7;
+            uint cpuFid = cofvidEax & 0x1F;
+            return 0.5 * (cpuFid + 0x10) / (1 << (int)cpuDid);
           }
-          return (CpuFid + 0x10) / divisor;
-        case 0x14:
-          // 8:4: current CPU core divisor ID most significant digit
-          // 3:0: current CPU core divisor ID least significant digit
-          uint divisorIdMSD = (cofvidEax >> 4) & 0x1F;
-          uint divisorIdLSD = cofvidEax & 0xF;
-          uint value = 0;
-          Ring0.ReadPciConfig(miscellaneousControlAddress,
-            CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
-          uint frequencyId = value & 0x1F;
-          return (frequencyId + 0x10) /
-            (divisorIdMSD + (divisorIdLSD * 0.25) + 1);
+        case 0x12: {
+            // 8:4 CpuFid: current CPU core frequency ID
+            // 3:0 CpuDid: current CPU core divisor ID
+            uint cpuFid = (cofvidEax >> 4) & 0x1F;
+            uint cpuDid = cofvidEax & 0xF;
+            double divisor;
+            switch (cpuDid) {
+              case 0: divisor = 1; break;
+              case 1: divisor = 1.5; break;
+              case 2: divisor = 2; break;
+              case 3: divisor = 3; break;
+              case 4: divisor = 4; break;
+              case 5: divisor = 6; break;
+              case 6: divisor = 8; break;
+              case 7: divisor = 12; break;
+              case 8: divisor = 16; break;
+              default: divisor = 1; break;
+            }
+            return (cpuFid + 0x10) / divisor;
+          }
+        case 0x14: {
+            // 8:4: current CPU core divisor ID most significant digit
+            // 3:0: current CPU core divisor ID least significant digit
+            uint divisorIdMSD = (cofvidEax >> 4) & 0x1F;
+            uint divisorIdLSD = cofvidEax & 0xF;
+            uint value = 0;
+            Ring0.ReadPciConfig(miscellaneousControlAddress,
+              CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
+            uint frequencyId = value & 0x1F;
+            return (frequencyId + 0x10) /
+              (divisorIdMSD + (divisorIdLSD * 0.25) + 1);
+          }
         default:
           return 1;
       }
@@ -308,8 +312,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           uint value;
           if (Ring0.ReadPciConfig(miscellaneousControlAddress,
             REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
-            coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
-              coreTemperature.Parameters[0].Value;
+            if (family == 0x15 && (value & 0x30000) == 0x30000) {
+              coreTemperature.Value = ((value >> 21) & 0x7FC) / 8.0f +
+                coreTemperature.Parameters[0].Value - 49;
+            } else {
+              coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
+                coreTemperature.Parameters[0].Value;
+            }
             ActivateSensor(coreTemperature);
           } else {
             DeactivateSensor(coreTemperature);

@@ -174,8 +174,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       cpuBrandString = nameBuilder.ToString().Trim();
       nameBuilder.Replace("(R)", " ");
       nameBuilder.Replace("(TM)", " ");
-      nameBuilder.Replace("(tm)", " ");
+      nameBuilder.Replace("(tm)", "");
       nameBuilder.Replace("CPU", "");
+      nameBuilder.Replace("Quad-Core Processor", "");
+      nameBuilder.Replace("Six-Core Processor", "");
+      nameBuilder.Replace("Eight-Core Processor", "");
       for (int i = 0; i < 10; i++) nameBuilder.Replace("  ", " ");
       name = nameBuilder.ToString();
       if (name.Contains("@"))
