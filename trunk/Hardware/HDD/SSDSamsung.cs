@@ -16,12 +16,10 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2012
+  Portions created by the Initial Developer are Copyright (C) 2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
-    Paul Werelds
-    Roland Reinl <roland-reinl@gmx.de>
 
   Alternatively, the contents of this file may be used under the terms of
   either the GNU General Public License Version 2 or later (the "GPL"), or
@@ -40,40 +38,40 @@
 namespace OpenHardwareMonitor.Hardware.HDD {
   using System.Collections.Generic;
 
-  [NamePrefix("INTEL SSD"), 
-   RequireSmart(0xE1), RequireSmart(0xE8), RequireSmart(0xE9)]
-  internal class SSDIntel : AbstractHarddrive {
+  [NamePrefix(""), RequireSmart(0xB0), RequireSmart(0xB1), RequireSmart(0xB2), 
+    RequireSmart(0xB3), RequireSmart(0xB4), RequireSmart(0xB5), 
+    RequireSmart(0xB6), RequireSmart(0xB7)]
+  internal class SSDSamsung : AbstractHarddrive {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
-
-      new SmartAttribute(0x01, SmartNames.ReadErrorRate),
-      new SmartAttribute(0x03, SmartNames.SpinUpTime),
-      new SmartAttribute(0x04, SmartNames.StartStopCount, RawToInt),
-      new SmartAttribute(0x05, SmartNames.ReallocatedSectorsCount),
       new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
       new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
-      new SmartAttribute(0xAA, SmartNames.AvailableReservedSpace),
-      new SmartAttribute(0xAB, SmartNames.ProgramFailCount),
-      new SmartAttribute(0xAC, SmartNames.EraseFailCount),
-      new SmartAttribute(0xB8, SmartNames.EndToEndError),
-      new SmartAttribute(0xC0, SmartNames.UnsafeShutdownCount), 
-      new SmartAttribute(0xE1, SmartNames.HostWrites, 
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
-        SensorType.Data, 0),
-      new SmartAttribute(0xE8, SmartNames.RemainingLife, 
+      new SmartAttribute(0xAF, SmartNames.ProgramFailCountChip, RawToInt),
+      new SmartAttribute(0xB0, SmartNames.EraseFailCountChip, RawToInt),
+      new SmartAttribute(0xB1, SmartNames.WearLevelingCount, RawToInt),
+      new SmartAttribute(0xB2, SmartNames.UsedReservedBlockCountChip, RawToInt),
+      new SmartAttribute(0xB3, SmartNames.UsedReservedBlockCountTotal, RawToInt),
+
+      // Unused Reserved Block Count (Total)
+      new SmartAttribute(0xB4, SmartNames.RemainingLife,
         null, SensorType.Level, 0),
-      new SmartAttribute(0xE9, SmartNames.MediaWearOutIndicator),
-      new SmartAttribute(0xF1, SmartNames.HostWrites,
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
-        SensorType.Data, 0),
-      new SmartAttribute(0xF2, SmartNames.HostReads, 
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
-        SensorType.Data, 1),      
+      
+      new SmartAttribute(0xB5, SmartNames.ProgramFailCountTotal, RawToInt),
+      new SmartAttribute(0xB6, SmartNames.EraseFailCountTotal, RawToInt),
+      new SmartAttribute(0xB7, SmartNames.RuntimeBadBlockTotal, RawToInt),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
+      new SmartAttribute(0xBE, SmartNames.TemperatureExceedCount, RawToInt),
+      new SmartAttribute(0xC2, SmartNames.AirflowTemperature),
+      new SmartAttribute(0xC3, SmartNames.ECCRate),
+      new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
+      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt),
+      new SmartAttribute(0xC9, SmartNames.SupercapStatus),
+      new SmartAttribute(0xCA, SmartNames.ExceptionModeStatus)
     };
 
-    public SSDIntel(ISmart smart, string name, string firmwareRevision, 
+    public SSDSamsung(ISmart smart, string name, string firmwareRevision,
       int index, ISettings settings)
-      : base(smart, name, firmwareRevision, index, smartAttributes, settings) {}
+      : base(smart, name, firmwareRevision, index, smartAttributes, settings) { }
   }
 }

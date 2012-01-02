@@ -69,12 +69,13 @@
     <Compile Include="Hardware\HDD\HDDGeneric.cs" />
     <Compile Include="Hardware\HDD\ISmart.cs" />
     <Compile Include="Hardware\HDD\SmartAttribute.cs" />
-    <Compile Include="Hardware\HDD\SmartAttributeNames.cs" />
+    <Compile Include="Hardware\HDD\SmartNames.cs" />
     <Compile Include="Hardware\HDD\RequireSmartAttribute.cs" />
     <Compile Include="Hardware\HDD\NamePrefixAttribute.cs" />
     <Compile Include="Hardware\HDD\SSDIndilinx.cs" />
     <Compile Include="Hardware\HDD\SSDIntel.cs" />
     <Compile Include="Hardware\HDD\SSDPlextor.cs" />
+    <Compile Include="Hardware\HDD\SSDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSandforce.cs" />
     <Compile Include="Hardware\IControl.cs" />
     <Compile Include="Hardware\IOControlCode.cs" />

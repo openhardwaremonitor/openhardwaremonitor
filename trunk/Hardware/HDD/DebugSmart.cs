@@ -46,7 +46,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   internal class DebugSmart : ISmart {
 
     private Drive[] drives = {
-      new Drive("KINGSTON SNV425S264GB", 16,
+      new Drive("KINGSTON SNV425S264GB", null, 16,
         @" 01 000000000000 100 100      
            02 000000000000 100 100      
            03 000000000000 100 100      
@@ -65,7 +65,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            AA 07007B000000 100 100      
            AD 0E1E71304919 100 100"),
 
-      new Drive("PLEXTOR  PX-128M2S", 16, 
+      new Drive("PLEXTOR  PX-128M2S", "1.03", 16, 
         @" 01 000000000000 100 100 0   
            03 000000000000 100 100 0   
            04 000000000000 100 100 0   
@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            C6 000000000000 100 100 0   
            C7 000000000000 100 100 0"),
 
-      new Drive("OCZ-VERTEX2", 16, 
+      new Drive("OCZ-VERTEX2", "1.25", 16, 
         @" 01 DADAD5000000 100 106 50
            05 000000000000 100 100 3 
            09 DF0900004A2F 100 100 0 
@@ -105,7 +105,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            F1 000600000000 0   0   0 
            F2 801200000000 0   0   0"),
       
-      new Drive("WDC WD5000AADS-00S9B0", 10, 
+      new Drive("WDC WD5000AADS-00S9B0", null, 10, 
         @" 1   000000000000 200 200         
            3   820D00000000 149 150         
            4   610800000000 98  98          
@@ -127,7 +127,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            5   000000000000 0   0           
            1   000000000000 0   0"),
 
-      new Drive("INTEL SSDSA2M080G2GC", 10, 
+      new Drive("INTEL SSDSA2M080G2GC", null, 10, 
         @" 3   000000000000 100 100         
            4   000000000000 100 100         
            5   010000000000 100 100         
@@ -143,7 +143,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            184 000000000000 100 100         
            1   000000000000 0   0"),
 
-      new Drive("OCZ-VERTEX", 10, 
+      new Drive("OCZ-VERTEX", null, 10, 
         @" 1   000000000000 0   8   
            9   000000000000 30  99  
            12  000000000000 0   15  
@@ -167,7 +167,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
            212 000000000000 0   0   
            213 000000000000 0   0"),
  
-      new Drive("INTEL SSDSA2CW120G3", 16,
+      new Drive("INTEL SSDSA2CW120G3", null, 16,
         @"03 000000000000 100 100 0
           04 000000000000 100 100 0
           05 000000000000 100 100 0
@@ -186,7 +186,26 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           E8 000000000000 100 100 0
           E9 000000000000 100 100 0
           F1 FF4300000000 100 100 0
-          F2 264F00000000 100 100 0")
+          F2 264F00000000 100 100 0"),
+
+     new Drive("CORSAIR CMFSSD-128GBG2D", "VBM19C1Q", 16, 
+       @"09 100900000000 99  99  0 
+         0C 560200000000 99  99  0 
+         AF 000000000000 100 100 10
+         B0 000000000000 100 100 10
+         B1 2A0000000000 99  99  17
+         B2 180000000000 60  60  10
+         B3 4B0000000000 98  98  10
+         B4 B50E00000000 98  98  10
+         B5 000000000000 100 100 10
+         B6 000000000000 100 100 10
+         B7 000000000000 100 100 10
+         BB 000000000000 100 100 0 
+         C3 000000000000 200 200 0 
+         C6 000000000000 100 100 0 
+         C7 810100000000 253 253 0 
+         E8 240000000000 60  60  10
+         E9 630594120000 92  92  0")
       };
 
     public IntPtr OpenDrive(int driveNumber) {
@@ -225,7 +244,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         throw new ArgumentOutOfRangeException();
 
       name = drives[driveNumber].Name;
-      firmwareRevision = "";
+      firmwareRevision = drives[driveNumber].FirmwareVersion;
       return true;
     }
 
@@ -234,8 +253,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private class Drive {
 
-      public Drive(string name, int idBase, string value) {
+      public Drive(string name, string firmware, int idBase, string value) {
         this.Name = name;
+        this.FirmwareVersion = firmware;
 
         string[] lines = value.Split(new[] { '\r', '\n' }, 
           StringSplitOptions.RemoveEmptyEntries);
@@ -280,6 +300,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       public DriveThresholdValue[] DriveThresholdValues { get; private set; }
 
       public string Name { get; private set; }
+
+      public string FirmwareVersion { get; private set; }
     }
 
     public IntPtr InvalidHandle { get { return (IntPtr)(-1); } }
