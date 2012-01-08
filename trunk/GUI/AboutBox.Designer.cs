@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -113,7 +113,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(359, 13);
       this.label2.TabIndex = 3;
-      this.label2.Text = "Copyright © 2009-2011 Michael Möller and contributers. All rights reserved.";
+      this.label2.Text = "Copyright © 2009-2012 Michael Möller and contributers. All rights reserved.";
       // 
       // label3
       // 
