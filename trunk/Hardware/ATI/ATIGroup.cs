@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -87,8 +87,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                 report.Append("Present: ");
                 report.AppendLine(adapterInfo[i].Present.ToString(
                   CultureInfo.InvariantCulture));
-                report.Append("VendorID: ");
-                report.AppendLine(adapterInfo[i].VendorID.ToString(
+                report.Append("VendorID: 0x");
+                report.AppendLine(adapterInfo[i].VendorID.ToString("X",
                   CultureInfo.InvariantCulture));
                 report.Append("BusNumber: ");
                 report.AppendLine(adapterInfo[i].BusNumber.ToString(
@@ -104,8 +104,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                   CultureInfo.InvariantCulture));
 
                 if (!string.IsNullOrEmpty(adapterInfo[i].UDID) &&
-                  (adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID1 ||
-                   adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID2)) {
+                  adapterInfo[i].VendorID == ADL.ATI_VENDOR_ID) 
+                {
                   bool found = false;
                   foreach (ATIGPU gpu in hardware)
                     if (gpu.BusNumber == adapterInfo[i].BusNumber &&

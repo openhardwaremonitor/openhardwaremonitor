@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2010
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -37,6 +37,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
   
@@ -124,8 +125,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public const int ADL_DL_FANCTRL_SUPPORTS_RPM_WRITE = 8;
     public const int ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED = 1;
 
-    public const int ATI_VENDOR_ID1 = 1002;
-    public const int ATI_VENDOR_ID2 = 0x1002;
+    public const int ATI_VENDOR_ID = 0x1002;
 
     private delegate int ADL_Main_Control_CreateDelegate(
       ADL_Main_Memory_AllocDelegate callback, int enumConnectedAdapters);
@@ -261,6 +261,23 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           Marshal.PtrToStructure((IntPtr)((long)ptr + i * elementSize),
           typeof(ADLAdapterInfo));
       Marshal.FreeHGlobal(ptr);
+
+      // the ADLAdapterInfo.VendorID field reported by ADL is wrong on 
+      // Windows systems (parse error), so we fix this here
+      for (int i = 0; i < info.Length; i++) {
+        // try Windows UDID format
+        Match m = Regex.Match(info[i].UDID, "PCI_VEN_([A-Fa-f0-9]{1,4})&.*");
+        if (m.Success && m.Groups.Count == 2) {
+          info[i].VendorID = Convert.ToInt32(m.Groups[1].Value, 16);
+          continue;
+        }
+        // if above failed, try Unix UDID format
+        m = Regex.Match(info[i].UDID, "[0-9]+:[0-9]+:([0-9]+):[0-9]+:[0-9]+");
+        if (m.Success && m.Groups.Count == 2) {
+          info[i].VendorID = Convert.ToInt32(m.Groups[1].Value, 10);
+        }
+      }
+
       return result;
     }
 
