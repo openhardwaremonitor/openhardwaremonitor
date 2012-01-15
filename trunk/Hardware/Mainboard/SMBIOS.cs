@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -343,6 +343,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "ASRock":
             return Manufacturer.ASRock;
           case "ASUSTeK Computer INC.":
+          case "ASUSTeK COMPUTER INC.":
             return Manufacturer.ASUS;
           case "Dell Inc.":
             return Manufacturer.Dell;
@@ -420,6 +421,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P8P67_PRO;
           case "P8P67-M PRO":
             return Model.P8P67_M_PRO;
+          case "P9X79":
+            return Model.P9X79;
           case "Rampage Extreme":
             return Model.Rampage_Extreme;
           case "Rampage II GENE":
