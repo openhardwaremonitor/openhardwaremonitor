@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s): Paul Werelds
@@ -657,10 +657,10 @@ namespace OpenHardwareMonitor.GUI {
       const int SC_CLOSE = 0xF060;
 
       if (minimizeToTray.Value && 
-        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_MINIMIZE) {
+        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt64() == SC_MINIMIZE) {
         SysTrayHideShow();
-      } else if(minimizeOnClose.Value && 
-        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt32() == SC_CLOSE) {
+      } else if (minimizeOnClose.Value &&
+        m.Msg == WM_SYSCOMMAND && m.WParam.ToInt64() == SC_CLOSE) {
         /*
          * Apparently the user wants to minimize rather than close
          * Now we still need to check if we're going to the tray or not
