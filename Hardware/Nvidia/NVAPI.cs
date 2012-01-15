@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -299,6 +299,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       nvDisplayDriverVersion);
     public delegate NvStatus NvAPI_GetInterfaceVersionStringDelegate(
       StringBuilder version);
+    public delegate NvStatus NvAPI_GPU_GetPCIIdentifiersDelegate(
+      NvPhysicalGpuHandle gpuHandle, out uint deviceId, out uint subSystemId, 
+      out uint revisionId, out uint extDeviceId);
 
     private static readonly bool available;
     private static readonly nvapi_QueryInterfaceDelegate nvapi_QueryInterface;
@@ -332,6 +335,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvAPI_GPU_GetMemoryInfo;
     public static readonly NvAPI_GetDisplayDriverVersionDelegate
       NvAPI_GetDisplayDriverVersion;
+    public static readonly NvAPI_GPU_GetPCIIdentifiersDelegate
+      NvAPI_GPU_GetPCIIdentifiers;
 
     private NVAPI() { }
 
@@ -406,6 +411,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         GetDelegate(0x774AA982, out NvAPI_GPU_GetMemoryInfo);
         GetDelegate(0xF951A4D1, out NvAPI_GetDisplayDriverVersion);
         GetDelegate(0x01053FA5, out _NvAPI_GetInterfaceVersionString);
+        GetDelegate(0x2DDFB66E, out NvAPI_GPU_GetPCIIdentifiers);
 
         available = true;
       }

@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -264,6 +264,25 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         }
       }
       r.AppendLine();
+
+      if (NVAPI.NvAPI_GPU_GetPCIIdentifiers != null) {
+        uint deviceId, subSystemId, revisionId, extDeviceId;
+
+        NvStatus status = NVAPI.NvAPI_GPU_GetPCIIdentifiers(handle, 
+          out deviceId, out subSystemId, out revisionId, out extDeviceId);
+
+        if (status == NvStatus.OK) {
+          r.Append("DeviceID: 0x");
+          r.AppendLine(deviceId.ToString("X", CultureInfo.InvariantCulture));
+          r.Append("SubSystemID: 0x");
+          r.AppendLine(subSystemId.ToString("X", CultureInfo.InvariantCulture));
+          r.Append("RevisionID: 0x");
+          r.AppendLine(revisionId.ToString("X", CultureInfo.InvariantCulture));
+          r.Append("ExtDeviceID: 0x");
+          r.AppendLine(extDeviceId.ToString("X", CultureInfo.InvariantCulture));
+          r.AppendLine();
+        }
+      }
 
       if (NVAPI.NvAPI_GPU_GetThermalSettings != null) {
         NvGPUThermalSettings settings = new NvGPUThermalSettings();
