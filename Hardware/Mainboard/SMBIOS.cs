@@ -411,6 +411,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.M4A79XTD_EVO;
           case "P5W DH Deluxe":
             return Model.P5W_DH_Deluxe;
+          case "P6T":
+            return Model.P6T;
           case "P6X58D-E":
             return Model.P6X58D_E;
           case "P8P67":

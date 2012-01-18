@@ -760,6 +760,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Manufacturer.ASUS:
               switch (model) {
+                case Model.P6T: // W83667HG
                 case Model.P6X58D_E: // W83667HG                 
                 case Model.Rampage_II_GENE: // W83667HG 
                   v.Add(new Voltage("CPU VCore", 0));
