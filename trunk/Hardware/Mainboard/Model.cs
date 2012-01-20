@@ -81,6 +81,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     P55_UD4,
     P55M_UD4,
     P67A_UD4_B3,
+    P8Z68_V_PRO,
     X38_DS5,
     X58A_UD3R,
     Z68X_UD7_B3,

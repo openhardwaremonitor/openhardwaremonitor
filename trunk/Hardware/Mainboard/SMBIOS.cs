@@ -461,6 +461,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P55M_UD4;
           case "P67A-UD4-B3":
             return Model.P67A_UD4_B3;
+          case "P8Z68-V PRO":
+            return Model.P8Z68_V_PRO;
           case "X38-DS5":
             return Model.X38_DS5;
           case "X58A-UD3R":
