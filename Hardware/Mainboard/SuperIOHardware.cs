@@ -897,6 +897,22 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 3));
                   f.Add(new Fan("Auxiliary Fan", 4));
                   break;
+                case Model.P8Z68_V_PRO: // NCT6776F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("+12V", 1, 11, 1));
+                  v.Add(new Voltage("Analog +3.3V", 2, 34, 34));
+                  v.Add(new Voltage("+3.3V", 3, 34, 34));
+                  v.Add(new Voltage("+5V", 4, 12, 3));
+                  v.Add(new Voltage("Standby +3.3V", 7, 34, 34));
+                  v.Add(new Voltage("VBAT", 8, 34, 34));
+                  t.Add(new Temperature("CPU", 0));
+                  t.Add(new Temperature("Auxiliary", 2));
+                  t.Add(new Temperature("Motherboard", 3));
+                  for (int i = 0; i < superIO.Fans.Length; i++)
+                    f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan #" + (i + 1), i));
+                  break;
                 case Model.P9X79: // NCT6776F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("+12V", 1, 11, 1));
