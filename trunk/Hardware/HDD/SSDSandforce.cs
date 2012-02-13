@@ -39,7 +39,7 @@
 namespace OpenHardwareMonitor.Hardware.HDD {
   using System.Collections.Generic;
 
-  [NamePrefix(""), RequireSmart(0xAB)]
+  [NamePrefix(""), RequireSmart(0xAB), RequireSmart(0xB1)]
   internal class SSDSandforce : AbstractHarddrive {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
