@@ -44,30 +44,58 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
-      new SmartAttribute(0x05, SmartNames.RetiredBlockCount),
+      new SmartAttribute(0x01, SmartNames.RawReadErrorRate),
+      new SmartAttribute(0x05, SmartNames.RetiredBlockCount, RawToInt),
       new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
       new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
-      new SmartAttribute(0xAB, SmartNames.ProgramFailCount),
-      new SmartAttribute(0xAC, SmartNames.EraseFailCount),
-      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount),
-      new SmartAttribute(0xB1, SmartNames.WearRangeDelta),
-      new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount),
-      new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount),
+      new SmartAttribute(0xAB, SmartNames.ProgramFailCount, RawToInt),
+      new SmartAttribute(0xAC, SmartNames.EraseFailCount, RawToInt),
+      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
+      new SmartAttribute(0xB1, SmartNames.WearRangeDelta, RawToInt),
+      new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount, RawToInt),
+      new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToInt),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
+      new SmartAttribute(0xC2, SmartNames.Temperature, 
+        (byte[] raw, byte value) => { return value; }), 
       new SmartAttribute(0xC3, SmartNames.UnrecoverableEcc), 
-      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount),
-      new SmartAttribute(0xE7, SmartNames.RemainingLife, 
-        null, SensorType.Level, 0),
-      new SmartAttribute(0xF1, SmartNames.HostWrites, 
-        (byte[] r, byte v) => { return RawToInt(r, v); }, 
+      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
+      new SmartAttribute(0xE7, SmartNames.RemainingLife, null, 
+        SensorType.Level, 0),
+      new SmartAttribute(0xE9, SmartNames.ControllerWritesToNAND, RawToInt,
         SensorType.Data, 0),
-      new SmartAttribute(0xF2, SmartNames.HostReads, 
-        (byte[] r, byte v) => { return RawToInt(r, v); }, 
-        SensorType.Data, 1)
+      new SmartAttribute(0xEA, SmartNames.HostWritesToController, RawToInt, 
+        SensorType.Data, 1),
+      new SmartAttribute(0xF1, SmartNames.HostWrites, RawToInt, 
+        SensorType.Data, 1),
+      new SmartAttribute(0xF2, SmartNames.HostReads, RawToInt, 
+        SensorType.Data, 2)
     };
+
+    private Sensor writeAmplification;
 
     public SSDSandforce(ISmart smart, string name, string firmwareRevision, 
       int index, ISettings settings) 
       : base(smart, name, firmwareRevision,  index, smartAttributes, settings) 
-    { }
+    {
+      this.writeAmplification = new Sensor("Write Amplification", 1, 
+        SensorType.Level, this, settings);    
+    }
+
+    public override void UpdateAdditionalSensors(DriveAttributeValue[] values) {
+      float? controllerWritesToNAND = null;
+      float? hostWritesToController = null;
+      foreach (DriveAttributeValue value in values) {
+        if (value.Identifier == 0xE9)
+          controllerWritesToNAND = RawToInt(value.RawValue, value.AttrValue);
+
+        if (value.Identifier == 0xEA)
+          hostWritesToController = RawToInt(value.RawValue, value.AttrValue);
+      }
+      if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
+        writeAmplification.Value = 100 *
+          controllerWritesToNAND.Value / hostWritesToController.Value;
+        ActivateSensor(writeAmplification);
+      }
+    }
   }
 }

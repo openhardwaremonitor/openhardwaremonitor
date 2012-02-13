@@ -493,5 +493,17 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public static string ExceptionModeStatus {
       get { return "Exception Mode Status"; }
     }
+
+    public static string ControllerWritesToNAND {
+      get { return "Controller Writes to NAND"; }
+    }
+
+    public static string HostWritesToController {
+      get { return "Host Writes to Controller"; }
+    }
+
+    public static string RawReadErrorRate {
+      get { return "Raw Read Error Rate"; }
+    }
   }
 }

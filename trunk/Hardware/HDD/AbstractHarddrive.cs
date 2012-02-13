@@ -183,6 +183,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             settings);
 
           sensors.Add(attribute, sensor);
+          ActivateSensor(sensor);
           sensorTypeAndChannels.Add(pair);
         }     
       }
@@ -192,13 +193,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return HardwareType.HDD; }
     }
 
-    public override ISensor[] Sensors {
-      get {
-        Sensor[] array = new Sensor[sensors.Count];
-        sensors.Values.CopyTo(array, 0);
-        return array;
-      }
-    }
+    public virtual void UpdateAdditionalSensors(DriveAttributeValue[] values) {}
 
     public override void Update() {
       if (count == 0) {
@@ -212,7 +207,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
               sensor.Value = attribute.ConvertValue(value);
             }
           }
-        }        
+        }
+
+        UpdateAdditionalSensors(values);
       }
 
       count++; 
