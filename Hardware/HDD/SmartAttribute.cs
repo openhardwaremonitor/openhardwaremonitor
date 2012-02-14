@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2011
+  Portions created by the Initial Developer are Copyright (C) 2011-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -75,15 +75,17 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     /// <param name="sensorChannel">If there exists more than one attribute with 
     /// the same sensor channel and type, then a sensor is created only for the  
     /// first attribute.</param>
+    /// <param name="defaultHiddenSensor">True to hide the sensor initially.</param>
     public SmartAttribute(byte identifier, string name,
       RawValueConversion rawValueConversion, SensorType? sensorType, 
-      int sensorChannel) 
+      int sensorChannel, bool defaultHiddenSensor = false) 
     {
       this.Identifier = identifier;
       this.Name = name;
       this.rawValueConversion = rawValueConversion;
       this.SensorType = sensorType;
       this.SensorChannel = sensorChannel;
+      this.DefaultHiddenSensor = defaultHiddenSensor;
     }
 
     /// <summary>
@@ -96,6 +98,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public SensorType? SensorType { get; private set; }
 
     public int SensorChannel { get; private set; }
+
+    public bool DefaultHiddenSensor { get; private set; }
 
     public bool HasRawValueConversion {
       get {
