@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -50,8 +50,9 @@ namespace OpenHardwareMonitor.Hardware {
     Flow, // L/h
     Control, // %
     Level, // %
+    Factor, // 1
     Power, // W
-    Data, // GB = 2^30 Bytes
+    Data, // GB = 2^30 Bytes    
   }
 
   public struct SensorValue {

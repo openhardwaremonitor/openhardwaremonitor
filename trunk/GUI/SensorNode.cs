@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -77,6 +77,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Level: format = "{0:F1} %"; break;
         case SensorType.Power: format = "{0:F1} W"; break;
         case SensorType.Data: format = "{0:F1} GB"; break;
+        case SensorType.Factor: format = "{0:F3}"; break;
       }
 
       bool hidden = settings.GetValue(new Identifier(sensor.Identifier, 

@@ -55,8 +55,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount, RawToInt),
       new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToInt),
       new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xC2, SmartNames.Temperature, 
-        (byte[] raw, byte value) => { return value; }), 
+      new SmartAttribute(0xC2, SmartNames.Temperature, (byte[] raw, byte value) 
+        => { return value; }, SensorType.Temperature, 0, true), 
       new SmartAttribute(0xC3, SmartNames.UnrecoverableEcc), 
       new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
       new SmartAttribute(0xE7, SmartNames.RemainingLife, null, 
@@ -78,7 +78,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       : base(smart, name, firmwareRevision,  index, smartAttributes, settings) 
     {
       this.writeAmplification = new Sensor("Write Amplification", 1, 
-        SensorType.Level, this, settings);    
+        SensorType.Factor, this, settings);    
     }
 
     public override void UpdateAdditionalSensors(DriveAttributeValue[] values) {
@@ -92,7 +92,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           hostWritesToController = RawToInt(value.RawValue, value.AttrValue);
       }
       if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
-        writeAmplification.Value = 100 *
+        writeAmplification.Value = 
           controllerWritesToNAND.Value / hostWritesToController.Value;
         ActivateSensor(writeAmplification);
       }

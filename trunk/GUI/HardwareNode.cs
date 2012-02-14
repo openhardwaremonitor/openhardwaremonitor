@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -57,16 +57,8 @@ namespace OpenHardwareMonitor.GUI {
       this.hardware = hardware;
       this.Image = HardwareTypeImage.Instance.GetImage(hardware.HardwareType);
 
-      typeNodes.Add(new TypeNode(SensorType.Voltage));
-      typeNodes.Add(new TypeNode(SensorType.Clock));      
-      typeNodes.Add(new TypeNode(SensorType.Temperature));
-      typeNodes.Add(new TypeNode(SensorType.Load));
-      typeNodes.Add(new TypeNode(SensorType.Fan));
-      typeNodes.Add(new TypeNode(SensorType.Flow));
-      typeNodes.Add(new TypeNode(SensorType.Control));
-      typeNodes.Add(new TypeNode(SensorType.Level));
-      typeNodes.Add(new TypeNode(SensorType.Power));
-      typeNodes.Add(new TypeNode(SensorType.Data));
+      foreach (SensorType sensorType in Enum.GetValues(typeof(SensorType)))
+        typeNodes.Add(new TypeNode(sensorType));
 
       foreach (ISensor sensor in hardware.Sensors)
         SensorAdded(sensor);
