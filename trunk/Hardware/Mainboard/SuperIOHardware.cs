@@ -430,6 +430,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
         case Chip.IT8721F:
         case Chip.IT8728F:
+        case Chip.IT8771E:
         case Chip.IT8772E:
           switch (manufacturer) {
             case Manufacturer.ECS:

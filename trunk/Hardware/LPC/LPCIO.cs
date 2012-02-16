@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -364,6 +364,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case 0x8721: chip = Chip.IT8721F; break;
         case 0x8726: chip = Chip.IT8726F; break;
         case 0x8728: chip = Chip.IT8728F; break;
+        case 0x8771: chip = Chip.IT8771E; break;
         case 0x8772: chip = Chip.IT8772E; break;
         default: chip = Chip.Unknown; break;
       }
