@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -57,6 +57,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     IT8721F = 0x8721,
     IT8726F = 0x8726,
     IT8728F = 0x8728,
+    IT8771E = 0x8771,
     IT8772E = 0x8772,
 
     NCT6771F = 0xB470,
@@ -95,6 +96,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F: return "ITE IT8721F";
         case Chip.IT8726F: return "ITE IT8726F";
         case Chip.IT8728F: return "ITE IT8728F";
+        case Chip.IT8771E: return "ITE IT8771E";
         case Chip.IT8772E: return "ITE IT8772E";
 
         case Chip.NCT6771F: return "Nuvoton NCT6771F";

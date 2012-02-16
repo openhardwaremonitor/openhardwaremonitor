@@ -16,7 +16,7 @@
 
   The Initial Developer of the Original Code is 
   Michael Möller <m.moeller@gmx.ch>.
-  Portions created by the Initial Developer are Copyright (C) 2009-2011
+  Portions created by the Initial Developer are Copyright (C) 2009-2012
   the Initial Developer. All Rights Reserved.
 
   Contributor(s):
@@ -102,7 +102,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return;
 
       Ring0.WriteIoPort((ushort)(gpioAddress + index), value);
-    }
+    } 
 
     public void SetControl(int index, byte? value) { }   
 
@@ -132,7 +132,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       fans = new float?[5];
 
       // IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, all others 16mV
-      if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8772E) 
+      if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8771E 
+        || chip == Chip.IT8772E) 
       {
         voltageGain = 0.012f;
       } else {
@@ -159,6 +160,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           gpioCount = 8;
           break;
         case Chip.IT8728F:
+        case Chip.IT8771E:
         case Chip.IT8772E:
           gpioCount = 0;
           break;
