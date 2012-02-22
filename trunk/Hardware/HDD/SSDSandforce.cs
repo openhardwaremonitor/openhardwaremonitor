@@ -92,8 +92,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           hostWritesToController = RawToInt(value.RawValue, value.AttrValue);
       }
       if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
-        writeAmplification.Value = 
-          controllerWritesToNAND.Value / hostWritesToController.Value;
+        if (hostWritesToController.Value > 0)
+          writeAmplification.Value =
+            controllerWritesToNAND.Value / hostWritesToController.Value;
+        else
+          writeAmplification.Value = 0;
         ActivateSensor(writeAmplification);
       }
     }
