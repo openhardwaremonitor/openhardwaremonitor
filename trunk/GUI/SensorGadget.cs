@@ -40,6 +40,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
+using System.IO;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
@@ -48,8 +49,10 @@ namespace OpenHardwareMonitor.GUI {
     private UnitManager unitManager;
 
     private Image back = Utilities.EmbeddedResources.GetImage("gadget.png");
+    private Image image = null;
+    private Image fore = null;
     private Image barBack = Utilities.EmbeddedResources.GetImage("barback.png");
-    private Image barBlue = Utilities.EmbeddedResources.GetImage("barblue.png");
+    private Image barFore = Utilities.EmbeddedResources.GetImage("barblue.png");
     private const int topBorder = 6;
     private const int bottomBorder = 7;
     private const int leftBorder = 6;
@@ -102,6 +105,42 @@ namespace OpenHardwareMonitor.GUI {
       this.alignRightStringFormat = new StringFormat();
       this.alignRightStringFormat.Alignment = StringAlignment.Far;
       this.alignRightStringFormat.FormatFlags = StringFormatFlags.NoWrap;
+
+      if (File.Exists("gadget_background.png")) {
+        try { 
+          Image newBack = new Bitmap("gadget_background.png");
+          back.Dispose();
+          back = newBack;
+        } catch { }
+      }
+
+      if (File.Exists("gadget_image.png")) {
+        try {
+          image = new Bitmap("gadget_image.png"); 
+        } catch {}
+      }
+
+      if (File.Exists("gadget_foreground.png")) {
+        try {
+          fore = new Bitmap("gadget_foreground.png"); 
+        } catch { }
+      }
+
+      if (File.Exists("gadget_bar_background.png")) {
+        try {
+          Image newBarBack = new Bitmap("gadget_bar_background.png");
+          barBack.Dispose();
+          barBack = newBarBack;
+        } catch { }
+      }
+
+      if (File.Exists("gadget_bar_foreground.png")) {
+        try {
+          Image newBarColor = new Bitmap("gadget_bar_foreground.png");
+          barFore.Dispose();
+          barFore = newBarColor;
+        } catch { }
+      }
 
       this.Location = new Point(
         settings.GetValue("sensorGadget.Location.X", 100),
@@ -245,14 +284,24 @@ namespace OpenHardwareMonitor.GUI {
       back.Dispose();
       back = null;
 
-      barBlue.Dispose();
-      barBlue = null;
+      barFore.Dispose();
+      barFore = null;
 
       barBack.Dispose();
       barBack = null;
 
       background.Dispose();
       background = null;
+
+      if (image != null) {
+        image.Dispose();
+        image = null;
+      }
+
+      if (fore != null) {
+        fore.Dispose();
+        fore = null;
+      }
 
       base.Dispose();
     }
@@ -397,6 +446,33 @@ namespace OpenHardwareMonitor.GUI {
       this.Size = new Size(width, y);
     }
 
+    private void DrawImageWidthBorder(Graphics g, int width, int height, 
+      Image back, int t, int b, int l, int r) 
+    {
+      GraphicsUnit u = GraphicsUnit.Pixel;
+
+      g.DrawImage(back, new Rectangle(0, 0, l, t),
+            new Rectangle(0, 0, l, t), u);
+      g.DrawImage(back, new Rectangle(l, 0, width - l - r, t),
+        new Rectangle(l, 0, back.Width - l - r, t), u);
+      g.DrawImage(back, new Rectangle(width - r, 0, r, t),
+        new Rectangle(back.Width - r, 0, r, t), u);
+
+      g.DrawImage(back, new Rectangle(0, t, l, height - t - b),
+        new Rectangle(0, t, l, back.Height - t - b), u);
+      g.DrawImage(back, new Rectangle(l, t, width - l - r, height - t - b),
+        new Rectangle(l, t, back.Width - l - r, back.Height - t - b), u);
+      g.DrawImage(back, new Rectangle(width - r, t, r, height - t - b),
+        new Rectangle(back.Width - r, t, r, back.Height - t - b), u);
+
+      g.DrawImage(back, new Rectangle(0, height - b, l, b),
+        new Rectangle(0, back.Height - b, l, b), u);
+      g.DrawImage(back, new Rectangle(l, height - b, width - l - r, b),
+        new Rectangle(l, back.Height - b, back.Width - l - r, b), u);
+      g.DrawImage(back, new Rectangle(width - r, height - b, r, b),
+        new Rectangle(back.Width - r, back.Height - b, r, b), u);
+    }
+
     private void DrawBackground(Graphics g) {
       int w = Size.Width;
       int h = Size.Height;      
@@ -407,33 +483,36 @@ namespace OpenHardwareMonitor.GUI {
         background = new Bitmap(w, h, PixelFormat.Format32bppPArgb);
         using (Graphics graphics = Graphics.FromImage(background)) {
 
-          int t = topBorder;
-          int b = bottomBorder;
-          int l = leftBorder;
-          int r = rightBorder;
+          DrawImageWidthBorder(graphics, w, h, back, topBorder, bottomBorder, 
+            leftBorder, rightBorder);    
+      
+          if (fore != null)
+            DrawImageWidthBorder(graphics, w, h, fore, topBorder, bottomBorder,
+            leftBorder, rightBorder);
 
-          GraphicsUnit u = GraphicsUnit.Pixel;
+          if (image != null) {
+            int width = w - leftBorder - rightBorder;
+            int height = h - topBorder - bottomBorder;
+            float xRatio = width / (float)image.Width;
+            float yRatio = height / (float)image.Height;
+            float destWidth, destHeight;
+            float xOffset, yOffset;
+            if (xRatio < yRatio) {
+              destWidth = width;
+              destHeight = image.Height * xRatio;
+              xOffset = 0;
+              yOffset = 0.5f * (height - destHeight);
+            } else {
+              destWidth = image.Width * yRatio;
+              destHeight = height;
+              xOffset = 0.5f * (width - destWidth);
+              yOffset = 0;
+            }
 
-          graphics.DrawImage(back, new Rectangle(0, 0, l, t),
-            new Rectangle(0, 0, l, t), u);
-          graphics.DrawImage(back, new Rectangle(l, 0, w - l - r, t),
-            new Rectangle(l, 0, back.Width - l - r, t), u);
-          graphics.DrawImage(back, new Rectangle(w - r, 0, r, t),
-            new Rectangle(back.Width - r, 0, r, t), u);
-
-          graphics.DrawImage(back, new Rectangle(0, t, l, h - t - b),
-            new Rectangle(0, t, l, back.Height - t - b), u);
-          graphics.DrawImage(back, new Rectangle(l, t, w - l - r, h - t - b),
-            new Rectangle(l, t, back.Width - l - r, back.Height - t - b), u);
-          graphics.DrawImage(back, new Rectangle(w - r, t, r, h - t - b),
-            new Rectangle(back.Width - r, t, r, back.Height - t - b), u);
-
-          graphics.DrawImage(back, new Rectangle(0, h - b, l, b),
-            new Rectangle(0, back.Height - b, l, b), u);
-          graphics.DrawImage(back, new Rectangle(l, h - b, w - l - r, b),
-            new Rectangle(l, back.Height - b, back.Width - l - r, b), u);
-          graphics.DrawImage(back, new Rectangle(w - r, h - b, r, b),
-            new Rectangle(back.Width - r, back.Height - b, r, b), u);
+            graphics.DrawImage(image,
+              new RectangleF(leftBorder + xOffset, topBorder + yOffset, 
+                destWidth, destHeight));
+          }
         }
       }
 
@@ -448,9 +527,9 @@ namespace OpenHardwareMonitor.GUI {
         new RectangleF(barBack.Width * progress, 0, 
           (1 - progress) * barBack.Width, barBack.Height), 
         GraphicsUnit.Pixel);
-      g.DrawImage(barBlue,
+      g.DrawImage(barFore,
         new RectangleF(x, y, width * progress, height),
-        new RectangleF(0, 0, progress * barBlue.Width, barBlue.Height),
+        new RectangleF(0, 0, progress * barFore.Width, barFore.Height),
         GraphicsUnit.Pixel);
     }
 
