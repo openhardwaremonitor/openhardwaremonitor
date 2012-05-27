@@ -60,6 +60,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
@@ -75,6 +76,12 @@
     <Compile Include="GUI\HardwareTypeImage.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI\PortForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\PortForm.Designer.cs">
+      <DependentUpon>PortForm.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\ReportForm.cs">
       <SubType>Form</SubType>
@@ -111,6 +118,7 @@
     <Compile Include="GUI\UserOption.cs" />
     <Compile Include="GUI\UserRadioGroup.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
+    <Compile Include="Utilities\HttpServer.cs" />
     <Compile Include="Utilities\PersistentSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\AboutBox.cs">
@@ -141,6 +149,9 @@
     <EmbeddedResource Include="GUI\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\PortForm.resx">
+      <DependentUpon>PortForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">
     </EmbeddedResource>
@@ -227,6 +238,49 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\factor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\js\jquery-ui-1.8.16.custom.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\jquery.tmpl.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\jquery.treeTable.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\ohm_web.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\images\toggle-collapse-dark.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-collapse-light.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-expand-dark.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-expand-light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_dadada_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_ffffff_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_inset-soft_95_fef1ec_1x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_222222_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_2e83ff_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_454545_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_888888_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_cd0a0a_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\jquery-ui-1.8.16.custom.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\css\jquery.treeTable.css" />
+    <EmbeddedResource Include="Resources\Web\css\ohm_web.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\images\transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\js\jquery-1.7.2.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\knockout-2.1.0.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\knockout.mapping-latest.min.js" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

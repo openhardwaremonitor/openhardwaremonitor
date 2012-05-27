@@ -6,6 +6,7 @@
  
   Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds <paul@werelds.net>
+	Copyright (C) 2012 Prince Samuel <prince.samuel@gmail.com>
 
 */
 
@@ -20,6 +21,7 @@ using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.WMI;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
@@ -51,8 +53,10 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption readHddSensors;
     private UserOption showGadget;
     private UserRadioGroup plotLocation;
-
     private WmiProvider wmiProvider;
+
+    private UserOption runWebServer;
+    private HttpServer server;
 
     private bool selectionDragging = false;
 
@@ -220,6 +224,18 @@ namespace OpenHardwareMonitor.GUI {
         unitManager.TemperatureUnit == TemperatureUnit.Celsius;
       fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
+      server = new HttpServer(root, this.settings.GetValue("listenerPort", 8085));
+      runWebServer = new UserOption("runWebServerMenuItem", false,
+        runWebServerMenuItem, settings);
+      runWebServer.Changed += delegate(object sender, EventArgs e)
+      {
+          if (runWebServer.Value)
+              runWebServer.Value = server.startHTTPListener();
+          else
+              server.stopHTTPListener();
+      };
+
+
       InitializePlotForm();
 
       startupMenuItem.Visible = startupManager.IsAvailable;
@@ -239,6 +255,9 @@ namespace OpenHardwareMonitor.GUI {
       // Make sure the settings are saved when the user logs off
       Microsoft.Win32.SystemEvents.SessionEnded += delegate {
         SaveConfiguration();
+        if (runWebServer.Value) 
+            server.Quit();
+
       };
     }
 
@@ -440,6 +459,8 @@ namespace OpenHardwareMonitor.GUI {
         settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
 
+      this.settings.SetValue("listenerPort", server.ListenerPort);
+
       string fileName = Path.ChangeExtension(
           System.Windows.Forms.Application.ExecutablePath, ".config");
       try {
@@ -489,6 +510,8 @@ namespace OpenHardwareMonitor.GUI {
       timer.Enabled = false;            
       computer.Close();
       SaveConfiguration();
+      if (runWebServer.Value)
+          server.Quit();
       systemTray.Dispose();
     }
 
@@ -732,5 +755,14 @@ namespace OpenHardwareMonitor.GUI {
     private void treeView_MouseUp(object sender, MouseEventArgs e) {
       selectionDragging = false;
     }
+
+    private void serverPortMenuItem_Click(object sender, EventArgs e) {
+      new PortForm(this).ShowDialog();
+    }
+
+    public HttpServer Server {
+      get { return server; }
+    }
+
   }
 }

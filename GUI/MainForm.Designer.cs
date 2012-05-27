@@ -75,6 +75,9 @@ namespace OpenHardwareMonitor.GUI {
       this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem4 = new System.Windows.Forms.MenuItem();
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
+			this.webMenuItem = new System.Windows.Forms.MenuItem();
+      this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
+      this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
       this.aboutMenuItem = new System.Windows.Forms.MenuItem();
       this.treeContextMenu = new System.Windows.Forms.ContextMenu();
@@ -304,7 +307,8 @@ namespace OpenHardwareMonitor.GUI {
             this.temperatureUnitsMenuItem,
             this.plotLocationMenuItem,
             this.MenuItem4,
-            this.hddMenuItem});
+            this.hddMenuItem,
+						this.webMenuItem});
       this.optionsMenuItem.Text = "Options";
       // 
       // startMinMenuItem
@@ -361,6 +365,20 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.hddMenuItem.Index = 8;
       this.hddMenuItem.Text = "Read HDD sensors";
+			// 
+			// webMenuItem
+			// 
+			this.webMenuItem.Index = 9;
+			this.webMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+					this.runWebServerMenuItem,
+					this.serverPortMenuItem});
+			this.webMenuItem.Text = "Remote Web Server";
+			// 
+			// serverPortMenuItem
+			// 
+			this.serverPortMenuItem.Index = 1;
+			this.serverPortMenuItem.Text = "Port";
+			this.serverPortMenuItem.Click += new System.EventHandler(this.serverPortMenuItem_Click);
       // 
       // helpMenuItem
       // 
@@ -542,6 +560,9 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem plotWindowMenuItem;
     private System.Windows.Forms.MenuItem plotBottomMenuItem;
     private System.Windows.Forms.MenuItem plotRightMenuItem;
+		private System.Windows.Forms.MenuItem webMenuItem;
+    private System.Windows.Forms.MenuItem runWebServerMenuItem;
+    private System.Windows.Forms.MenuItem serverPortMenuItem;
   }
 }
 
