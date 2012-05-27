@@ -373,6 +373,11 @@ namespace OpenHardwareMonitor.GUI {
 					this.runWebServerMenuItem,
 					this.serverPortMenuItem});
 			this.webMenuItem.Text = "Remote Web Server";
+      // 
+      // runWebServerMenuItem
+      // 
+      this.runWebServerMenuItem.Index = 0;
+      this.runWebServerMenuItem.Text = "Run";
 			// 
 			// serverPortMenuItem
 			// 
