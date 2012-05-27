@@ -233,7 +233,7 @@ namespace Aga.Controls.Tree.NodeControls
                 backgroundBrush = SystemBrushes.InactiveBorder;
 			}
 			else if (context.DrawSelection == DrawSelectionMode.FullRowSelect)
-				textColor = SystemColors.HighlightText;
+				textColor = SystemColors.ControlText;
 
 			if (!context.Enabled)
 				textColor = SystemColors.GrayText;

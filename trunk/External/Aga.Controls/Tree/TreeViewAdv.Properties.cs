@@ -326,8 +326,7 @@ namespace Aga.Controls.Tree
 			}
 		}
 
-        // Tahoma is the default font
-        private static Font _font = new Font("Tahoma", 8.25F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0)), false);
+        private static Font _font = SystemFonts.MessageBoxFont; 
         /// <summary>
         /// The font to render <see cref="TreeViewAdv"/> content in.
         /// </summary>
