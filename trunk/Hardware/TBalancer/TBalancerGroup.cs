@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -32,14 +32,14 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         catch (ArgumentNullException) { return; }
         catch (EntryPointNotFoundException) { return; }
         catch (BadImageFormatException) { return; }
-     
+   
       FT_DEVICE_INFO_NODE[] info = new FT_DEVICE_INFO_NODE[numDevices];
       if (FTD2XX.FT_GetDeviceInfoList(info, ref numDevices) != FT_STATUS.FT_OK) 
       {
         report.AppendLine("Status: FT_GetDeviceInfoList failed");        
         return;
       }
-
+ 
       // make sure numDevices is not larger than the info array
       if (numDevices > info.Length)
         numDevices = (uint)info.Length;
@@ -121,10 +121,11 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         if (isValid) {
           report.AppendLine("Status: OK");
-          hardware.Add(new TBalancer(i, protocolVersion, settings));
-          return;
+          hardware.Add(new TBalancer(i, protocolVersion, settings));          
         }
-        report.AppendLine();
+
+        if (i < numDevices - 1)
+          report.AppendLine();
       }
     }
 
