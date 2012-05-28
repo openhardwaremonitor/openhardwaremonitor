@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -21,7 +21,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Core,
       Atom,
       Nehalem,
-      SandyBridge
+      SandyBridge,
+      IvyBridge
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -119,13 +120,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x1F: // Intel Core i5, i7 
               case 0x25: // Intel Core i3, i5, i7 LGA1156 (32nm)
               case 0x2C: // Intel Core i7 LGA1366 (32nm) 6 Core
-              case 0x2E: // Intel Xeon Processor 7500 series
+              case 0x2E: // Intel Xeon Processor 7500 series (45nm)
+              case 0x2F: // Intel Xeon Processor (32nm)
                 microarchitecture = Microarchitecture.Nehalem;
                 tjMax = GetTjMaxFromMSR();
                 break;
               case 0x2A: // Intel Core i5, i7 2xxx LGA1155 (32nm)
-              case 0x2D: // Next Generation Intel Xeon Processor
+              case 0x2D: // Next Generation Intel Xeon, i7 3xxx LGA2011 (32nm)
                 microarchitecture = Microarchitecture.SandyBridge;
+                tjMax = GetTjMaxFromMSR();
+                break;
+              case 0x3A: // Intel Core i5, i7 3xxx LGA1155 (22nm)
+                microarchitecture = Microarchitecture.IvyBridge;
                 tjMax = GetTjMaxFromMSR();
                 break;
               default:
@@ -169,25 +175,23 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             }
           } break;
         case Microarchitecture.Nehalem:
-        case Microarchitecture.SandyBridge: {
+        case Microarchitecture.SandyBridge:
+        case Microarchitecture.IvyBridge: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
             }
           } break;
-        default: {
-            timeStampCounterMultiplier = 1;
-            uint eax, edx;
-            if (Ring0.Rdmsr(IA32_PERF_STATUS, out eax, out edx)) {
-              timeStampCounterMultiplier =
-                ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
-            }
-          } break;
+        default: 
+          timeStampCounterMultiplier = 0;
+          break;
       }
 
       // check if processor supports a digital thermal sensor at core level
       if (cpuid[0][0].Data.GetLength(0) > 6 &&
-        (cpuid[0][0].Data[6, 0] & 1) != 0) {
+        (cpuid[0][0].Data[6, 0] & 1) != 0 && 
+        microarchitecture != Microarchitecture.Unknown) 
+      {
         coreTemperatures = new Sensor[coreCount];
         for (int i = 0; i < coreTemperatures.Length; i++) {
           coreTemperatures[i] = new Sensor(CoreString(i), i,
@@ -206,7 +210,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       // check if processor supports a digital thermal sensor at package level
       if (cpuid[0][0].Data.GetLength(0) > 6 &&
-        (cpuid[0][0].Data[6, 0] & 0x40) != 0) {
+        (cpuid[0][0].Data[6, 0] & 0x40) != 0 && 
+        microarchitecture != Microarchitecture.Unknown) 
+      {
         packageTemperature = new Sensor("CPU Package",
           coreTemperatures.Length, SensorType.Temperature, this, new[] { 
               new ParameterDescription(
@@ -223,12 +229,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       for (int i = 0; i < coreClocks.Length; i++) {
         coreClocks[i] =
           new Sensor(CoreString(i), i + 1, SensorType.Clock, this, settings);
-        if (HasTimeStampCounter)
+        if (HasTimeStampCounter && microarchitecture != Microarchitecture.Unknown)
           ActivateSensor(coreClocks[i]);
       }
 
-      if (microarchitecture == Microarchitecture.SandyBridge) {
-
+      if (microarchitecture == Microarchitecture.SandyBridge ||
+          microarchitecture == Microarchitecture.IvyBridge) 
+      {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
         lastEnergyConsumed = new uint[energyStatusMSRs.Length];
@@ -319,7 +326,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      if (HasTimeStampCounter) {
+      if (HasTimeStampCounter && timeStampCounterMultiplier > 0) {
         double newBusClock = 0;
         uint eax, edx;
         for (int i = 0; i < coreClocks.Length; i++) {
@@ -333,7 +340,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   uint multiplier = eax & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
-              case Microarchitecture.SandyBridge: {
+              case Microarchitecture.SandyBridge:
+              case Microarchitecture.IvyBridge: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
