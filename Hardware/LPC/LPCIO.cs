@@ -122,6 +122,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           } break;
         case 0x09:
           switch (revision) {
+            case 0x01:
+              chip = Chip.F71808E;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
             case 0x09:
               chip = Chip.F71889ED;
               logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
@@ -276,6 +280,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.F71889AD:
           case Chip.F71889ED:
           case Chip.F71889F:
+          case Chip.F71808E:
             if (vendorID != FINTEK_VENDOR_ID) {
               report.Append("Chip ID: 0x");
               report.AppendLine(chip.ToString("X"));

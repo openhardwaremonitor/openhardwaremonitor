@@ -52,8 +52,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.chip = chip;
 
       voltages = new float?[chip == Chip.F71858 ? 3 : 9];
-      temperatures = new float?[3];
-      fans = new float?[chip == Chip.F71882 || chip == Chip.F71858? 4 : 3];
+      temperatures = new float?[chip == Chip.F71808E ? 2 : 3];
+      fans = new float?[chip == Chip.F71882 || chip == Chip.F71858 ? 4 : 3];
       controls = new float?[0];
     }
 
@@ -102,8 +102,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return;
 
       for (int i = 0; i < voltages.Length; i++) {
-        int value = ReadByte((byte)(VOLTAGE_BASE_REG + i));
-        voltages[i] = 0.008f * value;
+        if (chip == Chip.F71808E && i == 6) {
+          // 0x26 is reserved on F71808E
+          voltages[i] = 0;
+        } else {
+          int value = ReadByte((byte)(VOLTAGE_BASE_REG + i));
+          voltages[i] = 0.008f * value;
+        }
       }
      
       for (int i = 0; i < temperatures.Length; i++) {

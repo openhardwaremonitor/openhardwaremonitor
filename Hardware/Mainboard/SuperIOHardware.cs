@@ -576,6 +576,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.F71889AD: 
         case Chip.F71889ED: 
         case Chip.F71889F:
+        case Chip.F71808E:
           switch (manufacturer) {
             case Manufacturer.EVGA:
               switch (model) {
@@ -620,7 +621,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               v.Add(new Voltage("Voltage #4", 3, true));
               v.Add(new Voltage("Voltage #5", 4, true));
               v.Add(new Voltage("Voltage #6", 5, true));
-              v.Add(new Voltage("Voltage #7", 6, true));
+              if (superIO.Chip != Chip.F71808E) 
+                  v.Add(new Voltage("Voltage #7", 6, true)); 
               v.Add(new Voltage("VSB3V", 7, 150, 150));
               v.Add(new Voltage("VBat", 8, 150, 150));
               for (int i = 0; i < superIO.Temperatures.Length; i++)
