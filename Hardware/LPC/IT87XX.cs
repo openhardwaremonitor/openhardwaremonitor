@@ -102,7 +102,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       voltages = new float?[9];
       temperatures = new float?[3];
-      fans = new float?[5];
+      fans = new float?[chip == Chip.IT8705F ? 3 : 5];
 
       // IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, all others 16mV
       if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8771E 
@@ -113,8 +113,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         voltageGain = 0.016f;        
       }
 
-      // older IT8721F revision do not have 16-bit fan counters
-      if (chip == Chip.IT8712F && version < 8) {
+      // older IT8705F and IT8721F revisions do not have 16-bit fan counters
+      if ((chip == Chip.IT8705F && version < 3) || 
+          (chip == Chip.IT8712F && version < 8)) 
+      {
         has16bitFanCounter = false;
       } else {
         has16bitFanCounter = true;
@@ -132,6 +134,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F:
           gpioCount = 8;
           break;
+        case Chip.IT8705F: 
         case Chip.IT8728F:
         case Chip.IT8771E:
         case Chip.IT8772E:

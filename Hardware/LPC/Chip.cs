@@ -24,6 +24,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     F71889F = 0x0723,
     F71808E = 0x0901,
 
+    IT8705F = 0x8705,
     IT8712F = 0x8712,
     IT8716F = 0x8716,
     IT8718F = 0x8718,
@@ -64,6 +65,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.F71889F: return "Fintek F71889F";
         case Chip.F71808E: return "Fintek F71808E";
 
+        case Chip.IT8705F: return "ITE IT8705F";
         case Chip.IT8712F: return "ITE IT8712F";
         case Chip.IT8716F: return "ITE IT8716F";
         case Chip.IT8718F: return "ITE IT8718F";        
