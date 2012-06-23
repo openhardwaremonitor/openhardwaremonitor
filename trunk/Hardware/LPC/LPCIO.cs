@@ -309,7 +309,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     #region ITE
 
     private const byte IT87_ENVIRONMENT_CONTROLLER_LDN = 0x04;
-    private const byte IT87_GPIO_LDN = 0x07;
+    private const byte IT8705_GPIO_LDN = 0x05;
+    private const byte IT87XX_GPIO_LDN = 0x07;
     private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
     private void IT87Enter() {
@@ -335,6 +336,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       ushort chipID = ReadWord(CHIP_ID_REGISTER);
       Chip chip;
       switch (chipID) {
+        case 0x8705: chip = Chip.IT8705F; break;
         case 0x8712: chip = Chip.IT8712F; break;
         case 0x8716: chip = Chip.IT8716F; break;
         case 0x8718: chip = Chip.IT8718F; break;
@@ -360,11 +362,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
 
-        Select(IT87_GPIO_LDN);
-        ushort gpioAddress = ReadWord(BASE_ADDRESS_REGISTER + 2);
-        Thread.Sleep(1);
-        ushort gpioVerify = ReadWord(BASE_ADDRESS_REGISTER + 2);
-
+        ushort gpioAddress;
+        ushort gpioVerify;
+        if (chip == Chip.IT8705F) {
+          Select(IT8705_GPIO_LDN);
+          gpioAddress = ReadWord(BASE_ADDRESS_REGISTER);
+          Thread.Sleep(1);
+          gpioVerify = ReadWord(BASE_ADDRESS_REGISTER);
+        } else {
+          Select(IT87XX_GPIO_LDN);
+          gpioAddress = ReadWord(BASE_ADDRESS_REGISTER + 2);
+          Thread.Sleep(1);
+          gpioVerify = ReadWord(BASE_ADDRESS_REGISTER + 2);
+        }
+        
         IT87Exit();
 
         if (address != verify || address < 0x100 || (address & 0xF007) != 0) {

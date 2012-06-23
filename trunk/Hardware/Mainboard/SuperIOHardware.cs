@@ -62,6 +62,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       List<Ctrl> c = new List<Ctrl>();
 
       switch (superIO.Chip) {
+        case Chip.IT8705F:
         case Chip.IT8712F:
         case Chip.IT8716F:
         case Chip.IT8718F:
