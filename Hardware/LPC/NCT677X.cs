@@ -46,7 +46,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, bank);
       Ring0.WriteIoPort(port + ADDRESS_REGISTER_OFFSET, register);
       Ring0.WriteIoPort(port + DATA_REGISTER_OFFSET, value);
-    } 
+    }
 
     // Consts 
     private const ushort NUVOTON_VENDOR_ID = 0x5CA3;
@@ -215,6 +215,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           alternateTemperatureRegister = new ushort?[] 
             { null, null, null, null };
           break;
+
         case Chip.NCT6779D:
           fans = new float?[5];
           fanRpmBaseRegister = 0x4C0;
@@ -354,7 +355,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if ((temperatureSourceMask & (1 << temperaturesSource[i])) > 0)
           continue;
 
-        temperatures[i] = ReadByte(alternateTemperatureRegister[i].Value);
+        float? temperature = (sbyte)
+          ReadByte(alternateTemperatureRegister[i].Value);
+
+        if (temperature > 125 || temperature < -55)
+          temperature = null;
+
+        temperatures[i] = temperature;
       }
 
       for (int i = 0; i < fans.Length; i++) {
