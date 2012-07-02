@@ -258,7 +258,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 7, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 7, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -272,7 +272,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 7, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 7, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -281,7 +281,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
-                case Model.EX58_EXTREME: // IT8720F 
+                case Model.EX58_EXTREME: // IT8720F                 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
@@ -300,7 +300,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 7, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 7, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -310,12 +310,15 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 3));
                   break;
                 case Model.P55_UD4: // IT8720F
-                case Model.P55M_UD4: // IT8720F
+                case Model.P55A_UD3: // IT8720F
+                case Model.P55M_UD4: // IT8720F                
+                case Model.H55_USB3: // IT8720F
+                case Model.EX58_UD3R: // IT8720F 
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 5, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 5, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 2));
@@ -324,12 +327,40 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #1", 3));
                   break;
-                case Model.GA_MA770T_UD3: // IT8720F
+                case Model.H55N_USB3: // IT8720F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 4, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 5, 24.3f, 8.2f));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan", 1));
+                  break;
+                case Model.G41M_Combo: // IT8718F
+                case Model.G41MT_S2: // IT8718F
+                case Model.G41MT_S2P: // IT8718F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10));
+                  v.Add(new Voltage("+12V", 7, 24.3f, 8.2f));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("CPU", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan", 1));
+                  break;
+                case Model.GA_MA770T_UD3: // IT8720F
+                case Model.GA_MA770T_UD3P: // IT8720F
+                case Model.GA_MA78LM_S2H: // IT8718F
+                case Model.GA_MA790X_UD3P: // IT8720F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10));
+                  v.Add(new Voltage("+12V", 4, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -338,12 +369,13 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("System Fan #2", 2));
                   f.Add(new Fan("Power Fan", 3));
                   break;
+                case Model.GA_MA785GM_US2H: // IT8718F
                 case Model.GA_MA785GMT_UD2H: // IT8718F
                   v.Add(new Voltage("CPU VCore", 0));
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 4, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 4, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -356,7 +388,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   v.Add(new Voltage("DRAM", 1));
                   v.Add(new Voltage("+3.3V", 2));
                   v.Add(new Voltage("+5V", 3, 6.8f, 10));
-                  v.Add(new Voltage("+12V", 5, 27, 9.1f));
+                  v.Add(new Voltage("+12V", 5, 24.3f, 8.2f));
                   v.Add(new Voltage("VBat", 8));
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 1));
@@ -443,12 +475,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Manufacturer.Gigabyte:
               switch (model) {
-                case Model.P67A_UD4_B3: // IT8728F
-                  v.Add(new Voltage("+12V", 0, 100, 10));
-                  v.Add(new Voltage("+5V", 1, 15, 10));
-                  v.Add(new Voltage("Voltage #3", 2, true));
-                  v.Add(new Voltage("Voltage #4", 3, true));
-                  v.Add(new Voltage("Voltage #5", 4, true));
+                case Model.H61M_DS2_REV_1_2: // IT8728F
+                case Model.H61M_USB3_B3_REV_2_0: // IT8728F
+                  v.Add(new Voltage("VTT", 0));
+                  v.Add(new Voltage("+12V", 2, 30.9f, 10));
                   v.Add(new Voltage("CPU VCore", 5));
                   v.Add(new Voltage("DRAM", 6));
                   v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
@@ -456,16 +486,13 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   t.Add(new Temperature("System", 0));
                   t.Add(new Temperature("CPU", 2));
                   f.Add(new Fan("CPU Fan", 0));
-                  f.Add(new Fan("System Fan #2", 1));
-                  f.Add(new Fan("Power Fan", 2));
-                  f.Add(new Fan("System Fan #1", 3));
+                  f.Add(new Fan("System Fan", 1));
                   break;
                 case Model.H67A_UD3H_B3: // IT8728F
+                case Model.H67A_USB3_B3: // IT8728F                
                   v.Add(new Voltage("VTT", 0));
                   v.Add(new Voltage("+5V", 1, 15, 10));
-                  v.Add(new Voltage("+12V", 2, 68, 22));
-                  v.Add(new Voltage("Voltage #4", 3, true));
-                  v.Add(new Voltage("Voltage #5", 4, true));
+                  v.Add(new Voltage("+12V", 2, 30.9f, 10));
                   v.Add(new Voltage("CPU VCore", 5));
                   v.Add(new Voltage("DRAM", 6));
                   v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
@@ -477,11 +504,47 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("Power Fan", 2));
                   f.Add(new Fan("System Fan #2", 3));
                   break;
+                case Model.Z68A_D3H_B3: // IT8728F
+                  v.Add(new Voltage("VTT", 0));
+                  v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
+                  v.Add(new Voltage("+12V", 2, 30.9f, 10));
+                  v.Add(new Voltage("+5V", 3, 7.15f, 10));
+                  v.Add(new Voltage("CPU VCore", 5));
+                  v.Add(new Voltage("DRAM", 6));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #1", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("System Fan #2", 3));
+                  break;
+                case Model.P67A_UD3_B3: // IT8728F
+                case Model.P67A_UD3R_B3: // IT8728F
+                case Model.P67A_UD4_B3: // IT8728F                
+                case Model.Z68AP_D3: // IT8728F
+                case Model.Z68X_UD3H_B3: // IT8728F               
+                  v.Add(new Voltage("VTT", 0));
+                  v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
+                  v.Add(new Voltage("+12V", 2, 30.9f, 10));
+                  v.Add(new Voltage("+5V", 3, 7.15f, 10));
+                  v.Add(new Voltage("CPU VCore", 5));
+                  v.Add(new Voltage("DRAM", 6));
+                  v.Add(new Voltage("Standby +3.3V", 7, 10, 10));
+                  v.Add(new Voltage("VBat", 8, 10, 10));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 2));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #2", 1));
+                  f.Add(new Fan("Power Fan", 2));
+                  f.Add(new Fan("System Fan #1", 3));
+                  break;                
                 case Model.Z68X_UD7_B3: // IT8728F
                   v.Add(new Voltage("VTT", 0));
-                  v.Add(new Voltage("+3.3V", 1, 13.3f, 20.5f));
-                  v.Add(new Voltage("+12V", 2, 68, 22));
-                  v.Add(new Voltage("+5V", 3, 14.3f, 20));
+                  v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
+                  v.Add(new Voltage("+12V", 2, 30.9f, 10));
+                  v.Add(new Voltage("+5V", 3, 7.15f, 10));
                   v.Add(new Voltage("CPU VCore", 5));
                   v.Add(new Voltage("DRAM", 6));
                   v.Add(new Voltage("Standby +3.3V", 7, 10, 10));

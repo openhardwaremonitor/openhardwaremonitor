@@ -328,18 +328,18 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "EPoX COMPUTER CO., LTD":
             return Manufacturer.EPoX;
           case "EVGA":
-            return  Manufacturer.EVGA;
+            return Manufacturer.EVGA;
           case "First International Computer, Inc.":
             return Manufacturer.FIC;
           case "FUJITSU":
           case "FUJITSU SIEMENS":
             return Manufacturer.Fujitsu;
           case "Gigabyte Technology Co., Ltd.":
-            return  Manufacturer.Gigabyte;
+            return Manufacturer.Gigabyte;
           case "Hewlett-Packard":
-            return  Manufacturer.HP;
+            return Manufacturer.HP;
           case "IBM":
-            return  Manufacturer.IBM;
+            return Manufacturer.IBM;
           case "Intel":
           case "Intel Corp.":
           case "Intel Corporation":
@@ -418,20 +418,52 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.EP45_UD3R;
           case "EX58-EXTREME":
             return Model.EX58_EXTREME;
+          case "EX58-UD3R":
+            return Model.EX58_UD3R;
+          case "G41M-Combo":
+            return Model.G41M_Combo;
+          case "G41MT-S2":
+            return Model.G41MT_S2;
+          case "G41MT-S2P":
+            return Model.G41MT_S2P;
           case "GA-MA770T-UD3":
             return Model.GA_MA770T_UD3;
+          case "GA-MA770T-UD3P":
+            return Model.GA_MA770T_UD3P;
+          case "GA-MA785GM-US2H":
+            return Model.GA_MA785GM_US2H;
           case "GA-MA785GMT-UD2H":
             return Model.GA_MA785GMT_UD2H;
+          case "GA-MA78LM-S2H":
+            return Model.GA_MA78LM_S2H;
+          case "GA-MA790X-UD3P":
+            return Model.GA_MA790X_UD3P;
+          case "H55-USB3":
+            return Model.H55_USB3;
+          case "H55N-USB3":
+            return Model.H55N_USB3;
+          case "H61M-DS2 REV 1.2":
+            return Model.H61M_DS2_REV_1_2;
+          case "H61M-USB3-B3 REV 2.0":
+            return Model.H61M_USB3_B3_REV_2_0;
           case "H67A-UD3H-B3":
             return Model.H67A_UD3H_B3;
+          case "H67A-USB3-B3":
+            return Model.H67A_USB3_B3;
           case "P35-DS3":
             return Model.P35_DS3;
           case "P35-DS3L":
             return Model.P35_DS3L;
           case "P55-UD4":
             return Model.P55_UD4;
+          case "P55A-UD3":
+            return Model.P55A_UD3;
           case "P55M-UD4":
             return Model.P55M_UD4;
+          case "P67A-UD3-B3":
+            return Model.P67A_UD3_B3;
+          case "P67A-UD3R-B3":
+            return Model.P67A_UD3R_B3;
           case "P67A-UD4-B3":
             return Model.P67A_UD4_B3;
           case "P8Z68-V PRO":
@@ -440,6 +472,12 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.X38_DS5;
           case "X58A-UD3R":
             return Model.X58A_UD3R;
+          case "Z68A-D3H-B3":
+            return Model.Z68A_D3H_B3;
+          case "Z68AP-D3":
+            return Model.Z68AP_D3;
+          case "Z68X-UD3H-B3":
+            return Model.Z68X_UD3H_B3;
           case "Z68X-UD7-B3":
             return Model.Z68X_UD7_B3;
           case "FH67":
