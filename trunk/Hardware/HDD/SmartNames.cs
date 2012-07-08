@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2011-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
   Copyright (C) 2011 Roland Reinl <roland-reinl@gmx.de>
 	
 */
@@ -477,6 +477,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public static string RawReadErrorRate {
       get { return "Raw Read Error Rate"; }
+    }
+
+    public static string NewFailingBlockCount {
+      get { return "New Failing Block Count"; }
+    }
+
+    public static string Non4kAlignedAccess {
+      get { return "Non-4k Aligned Access"; }
+    }
+
+    public static string FactoryBadBlockCount {
+      get { return "Factory Bad Block Count"; }
     }
   }
 }

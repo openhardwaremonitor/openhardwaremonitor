@@ -74,6 +74,7 @@
     <Compile Include="Hardware\HDD\NamePrefixAttribute.cs" />
     <Compile Include="Hardware\HDD\SSDIndilinx.cs" />
     <Compile Include="Hardware\HDD\SSDIntel.cs" />
+    <Compile Include="Hardware\HDD\SSDMicron.cs" />
     <Compile Include="Hardware\HDD\SSDPlextor.cs" />
     <Compile Include="Hardware\HDD\SSDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSandforce.cs" />
