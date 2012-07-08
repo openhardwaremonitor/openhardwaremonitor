@@ -396,6 +396,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             return Model.P8P67_PRO;
           case "P8P67-M PRO":
             return Model.P8P67_M_PRO;
+          case "P8Z77-V":
+            return Model.P8Z77_V;
           case "P9X79":
             return Model.P9X79;
           case "Rampage Extreme":
@@ -481,7 +483,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           case "Z68X-UD7-B3":
             return Model.Z68X_UD7_B3;
           case "FH67":
-            return Model.FH67;
+            return Model.FH67;		  
           case "Base Board Product Name":
           case "To be filled by O.E.M.":
             return Model.Unknown;
