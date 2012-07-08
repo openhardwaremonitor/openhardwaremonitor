@@ -66,7 +66,7 @@ namespace OpenHardwareMonitor.Hardware {
       this.name = settings.GetValue(
         new Identifier(Identifier, "name").ToString(), name);
 
-      GetSensorValuesFromSettings();
+      GetSensorValuesFromSettings();      
 
       hardware.Closing += delegate(IHardware h) {
         SetSensorValuesToSettings();
@@ -88,12 +88,12 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private void GetSensorValuesFromSettings() {
-      string s = settings.GetValue(
-        new Identifier(Identifier, "values").ToString(), null);
+      string name = new Identifier(Identifier, "values").ToString();
+      string s = settings.GetValue(name, null);
 
-      byte[] array = null;
       try {
-        array = Convert.FromBase64String(s);
+        byte[] array = Convert.FromBase64String(s);
+        s = null;
         using (MemoryStream m = new MemoryStream(array))
         using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
         using (BinaryReader reader = new BinaryReader(c)) {
@@ -108,6 +108,9 @@ namespace OpenHardwareMonitor.Hardware {
       } catch { }
       if (values.Count > 0)
         AppendValue(float.NaN, DateTime.UtcNow);
+
+      // remove the value string from the settings to reduce memory usage
+      settings.Remove(name);
     }
 
     private void AppendValue(float value, DateTime time) {
