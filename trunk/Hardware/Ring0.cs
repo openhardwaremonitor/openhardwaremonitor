@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -75,7 +75,8 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static bool ExtractDriver(string fileName) {
       string resourceName = "OpenHardwareMonitor.Hardware." +
-        (IntPtr.Size == 4 ? "WinRing0.sys" : "WinRing0x64.sys");
+        (OperatingSystem.Is64BitOperatingSystem() ? "WinRing0x64.sys" : 
+        "WinRing0.sys");
 
       string[] names =
         Assembly.GetExecutingAssembly().GetManifestResourceNames();

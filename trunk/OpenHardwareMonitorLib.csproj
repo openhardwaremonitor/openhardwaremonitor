@@ -92,6 +92,7 @@
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Opcode.cs" />
+    <Compile Include="Hardware\OperatingSystem.cs" />
     <Compile Include="Hardware\Ring0.cs" />
     <Compile Include="Hardware\KernelDriver.cs" />
     <Compile Include="Hardware\Hardware.cs" />

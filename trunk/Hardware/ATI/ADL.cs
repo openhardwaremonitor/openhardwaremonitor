@@ -162,7 +162,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       where T : class 
     {
       DllImportAttribute attribute = new DllImportAttribute(dllName);
-      attribute.CallingConvention = CallingConvention.StdCall;
+      attribute.CallingConvention = CallingConvention.Cdecl;
       attribute.PreserveSig = true;
       attribute.EntryPoint = entryPoint;
       PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
