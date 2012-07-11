@@ -51,6 +51,12 @@ namespace OpenHardwareMonitor.GUI {
       this.sumbitReportMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem2 = new System.Windows.Forms.MenuItem();
       this.resetMenuItem = new System.Windows.Forms.MenuItem();
+      this.menuItem5 = new System.Windows.Forms.MenuItem();
+      this.mainboardMenuItem = new System.Windows.Forms.MenuItem();
+      this.cpuMenuItem = new System.Windows.Forms.MenuItem();
+      this.gpuMenuItem = new System.Windows.Forms.MenuItem();
+      this.fanControllerMenuItem = new System.Windows.Forms.MenuItem();
+      this.hddMenuItem = new System.Windows.Forms.MenuItem();
       this.menuItem6 = new System.Windows.Forms.MenuItem();
       this.exitMenuItem = new System.Windows.Forms.MenuItem();
       this.viewMenuItem = new System.Windows.Forms.MenuItem();
@@ -73,9 +79,12 @@ namespace OpenHardwareMonitor.GUI {
       this.temperatureUnitsMenuItem = new System.Windows.Forms.MenuItem();
       this.celsiusMenuItem = new System.Windows.Forms.MenuItem();
       this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotLocationMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
       this.MenuItem4 = new System.Windows.Forms.MenuItem();
-      this.hddMenuItem = new System.Windows.Forms.MenuItem();
-			this.webMenuItem = new System.Windows.Forms.MenuItem();
+      this.webMenuItem = new System.Windows.Forms.MenuItem();
       this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
       this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
@@ -84,13 +93,8 @@ namespace OpenHardwareMonitor.GUI {
       this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
-      this.treeView = new Aga.Controls.Tree.TreeViewAdv();      
-      this.plotLocationMenuItem = new System.Windows.Forms.MenuItem();
-      this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
-      this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
-      this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
+      this.treeView = new Aga.Controls.Tree.TreeViewAdv();
       this.splitContainer.Panel1.SuspendLayout();
-      this.splitContainer.Panel2.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -189,6 +193,7 @@ namespace OpenHardwareMonitor.GUI {
             this.sumbitReportMenuItem,
             this.MenuItem2,
             this.resetMenuItem,
+            this.menuItem5,
             this.menuItem6,
             this.exitMenuItem});
       this.fileMenuItem.Text = "File";
@@ -216,14 +221,50 @@ namespace OpenHardwareMonitor.GUI {
       this.resetMenuItem.Text = "Reset";
       this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
       // 
+      // menuItem5
+      // 
+      this.menuItem5.Index = 4;
+      this.menuItem5.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.mainboardMenuItem,
+            this.cpuMenuItem,
+            this.gpuMenuItem,
+            this.fanControllerMenuItem,
+            this.hddMenuItem});
+      this.menuItem5.Text = "Hardware";
+      // 
+      // mainboardMenuItem
+      // 
+      this.mainboardMenuItem.Index = 0;
+      this.mainboardMenuItem.Text = "Mainboard";
+      // 
+      // cpuMenuItem
+      // 
+      this.cpuMenuItem.Index = 1;
+      this.cpuMenuItem.Text = "CPU";
+      // 
+      // gpuMenuItem
+      // 
+      this.gpuMenuItem.Index = 2;
+      this.gpuMenuItem.Text = "GPU";
+      // 
+      // fanControllerMenuItem
+      // 
+      this.fanControllerMenuItem.Index = 3;
+      this.fanControllerMenuItem.Text = "Fan Controllers";
+      // 
+      // hddMenuItem
+      // 
+      this.hddMenuItem.Index = 4;
+      this.hddMenuItem.Text = "Hard Disk Drives";
+      // 
       // menuItem6
       // 
-      this.menuItem6.Index = 4;
+      this.menuItem6.Index = 5;
       this.menuItem6.Text = "-";
       // 
       // exitMenuItem
       // 
-      this.exitMenuItem.Index = 5;
+      this.exitMenuItem.Index = 6;
       this.exitMenuItem.Text = "Exit";
       this.exitMenuItem.Click += new System.EventHandler(this.exitClick);
       // 
@@ -307,8 +348,7 @@ namespace OpenHardwareMonitor.GUI {
             this.temperatureUnitsMenuItem,
             this.plotLocationMenuItem,
             this.MenuItem4,
-            this.hddMenuItem,
-						this.webMenuItem});
+            this.webMenuItem});
       this.optionsMenuItem.Text = "Options";
       // 
       // startMinMenuItem
@@ -356,34 +396,53 @@ namespace OpenHardwareMonitor.GUI {
       this.fahrenheitMenuItem.Text = "Fahrenheit";
       this.fahrenheitMenuItem.Click += new System.EventHandler(this.fahrenheitMenuItem_Click);
       // 
+      // plotLocationMenuItem
+      // 
+      this.plotLocationMenuItem.Index = 6;
+      this.plotLocationMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.plotWindowMenuItem,
+            this.plotBottomMenuItem,
+            this.plotRightMenuItem});
+      this.plotLocationMenuItem.Text = "Plot Location";
+      // 
+      // plotWindowMenuItem
+      // 
+      this.plotWindowMenuItem.Index = 0;
+      this.plotWindowMenuItem.Text = "Window";
+      // 
+      // plotBottomMenuItem
+      // 
+      this.plotBottomMenuItem.Index = 1;
+      this.plotBottomMenuItem.Text = "Bottom";
+      // 
+      // plotRightMenuItem
+      // 
+      this.plotRightMenuItem.Index = 2;
+      this.plotRightMenuItem.Text = "Right";
+      // 
       // MenuItem4
       // 
       this.MenuItem4.Index = 7;
       this.MenuItem4.Text = "-";
       // 
-      // hddMenuItem
+      // webMenuItem
       // 
-      this.hddMenuItem.Index = 8;
-      this.hddMenuItem.Text = "Read HDD sensors";
-			// 
-			// webMenuItem
-			// 
-			this.webMenuItem.Index = 9;
-			this.webMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-					this.runWebServerMenuItem,
-					this.serverPortMenuItem});
-			this.webMenuItem.Text = "Remote Web Server";
+      this.webMenuItem.Index = 8;
+      this.webMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.runWebServerMenuItem,
+            this.serverPortMenuItem});
+      this.webMenuItem.Text = "Remote Web Server";
       // 
       // runWebServerMenuItem
       // 
       this.runWebServerMenuItem.Index = 0;
       this.runWebServerMenuItem.Text = "Run";
-			// 
-			// serverPortMenuItem
-			// 
-			this.serverPortMenuItem.Index = 1;
-			this.serverPortMenuItem.Text = "Port";
-			this.serverPortMenuItem.Click += new System.EventHandler(this.serverPortMenuItem_Click);
+      // 
+      // serverPortMenuItem
+      // 
+      this.serverPortMenuItem.Index = 1;
+      this.serverPortMenuItem.Text = "Port";
+      this.serverPortMenuItem.Click += new System.EventHandler(this.serverPortMenuItem_Click);
       // 
       // helpMenuItem
       // 
@@ -466,30 +525,6 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
       // 
-      // plotLocationMenuItem
-      // 
-      this.plotLocationMenuItem.Index = 6;
-      this.plotLocationMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.plotWindowMenuItem,
-            this.plotBottomMenuItem,
-            this.plotRightMenuItem});
-      this.plotLocationMenuItem.Text = "Plot Location";
-      // 
-      // plotWindowMenuItem
-      // 
-      this.plotWindowMenuItem.Index = 0;
-      this.plotWindowMenuItem.Text = "Window";
-      // 
-      // plotBottomMenuItem
-      // 
-      this.plotBottomMenuItem.Index = 1;
-      this.plotBottomMenuItem.Text = "Bottom";
-      // 
-      // plotRightMenuItem
-      // 
-      this.plotRightMenuItem.Index = 2;
-      this.plotRightMenuItem.Text = "Right";
-      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -506,7 +541,6 @@ namespace OpenHardwareMonitor.GUI {
       this.ResizeEnd += new System.EventHandler(this.MainForm_MoveOrResize);
       this.Move += new System.EventHandler(this.MainForm_MoveOrResize);
       this.splitContainer.Panel1.ResumeLayout(false);
-      this.splitContainer.Panel2.ResumeLayout(false);
       this.splitContainer.ResumeLayout(false);
       this.ResumeLayout(false);
 
@@ -568,6 +602,11 @@ namespace OpenHardwareMonitor.GUI {
 		private System.Windows.Forms.MenuItem webMenuItem;
     private System.Windows.Forms.MenuItem runWebServerMenuItem;
     private System.Windows.Forms.MenuItem serverPortMenuItem;
+    private System.Windows.Forms.MenuItem menuItem5;
+    private System.Windows.Forms.MenuItem mainboardMenuItem;
+    private System.Windows.Forms.MenuItem cpuMenuItem;
+    private System.Windows.Forms.MenuItem gpuMenuItem;
+    private System.Windows.Forms.MenuItem fanControllerMenuItem;
   }
 }
 

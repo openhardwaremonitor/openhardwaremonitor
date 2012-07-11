@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -23,7 +23,12 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly ISettings settings;
 
     private bool open;
-    private bool hddEnabled;    
+
+    private bool mainboardEnabled;
+    private bool cpuEnabled;
+    private bool gpuEnabled;
+    private bool fanControllerEnabled;
+    private bool hddEnabled;        
 
     public Computer() {
       this.settings = new Settings();
@@ -53,6 +58,17 @@ namespace OpenHardwareMonitor.Hardware {
       if (HardwareRemoved != null)
         foreach (IHardware hardware in group.Hardware)
           HardwareRemoved(hardware);
+
+      group.Close();
+    }
+
+    private void RemoveType<T>() where T : IGroup {
+      List<IGroup> list = new List<IGroup>();
+      foreach (IGroup group in groups)
+        if (group is T)
+          list.Add(group);
+      foreach (IGroup group in list)
+        Remove(group);
     }
 
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
@@ -63,33 +79,104 @@ namespace OpenHardwareMonitor.Hardware {
       Ring0.Open();
       Opcode.Open();
 
-      Add(new Mainboard.MainboardGroup(settings));
-      Add(new CPU.CPUGroup(settings));
-      Add(new ATI.ATIGroup(settings));
-      Add(new Nvidia.NvidiaGroup(settings));      
-      Add(new TBalancer.TBalancerGroup(settings));
-      Add(new Heatmaster.HeatmasterGroup(settings));
+      if (mainboardEnabled)
+        Add(new Mainboard.MainboardGroup(settings));
+      
+      if (cpuEnabled)
+        Add(new CPU.CPUGroup(settings));
+
+      if (gpuEnabled) {
+        Add(new ATI.ATIGroup(settings));
+        Add(new Nvidia.NvidiaGroup(settings));
+      }
+
+      if (fanControllerEnabled) {
+        Add(new TBalancer.TBalancerGroup(settings));
+        Add(new Heatmaster.HeatmasterGroup(settings));
+      }
 
       if (hddEnabled)
         Add(new HDD.HarddriveGroup(settings));
 
       open = true;
     }
-    
+
+    public bool MainboardEnabled {
+      get { return mainboardEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != mainboardEnabled) {
+          if (value)
+            Add(new Mainboard.MainboardGroup(settings));
+          else
+            RemoveType<Mainboard.MainboardGroup>();
+        }
+        mainboardEnabled = value;
+      }
+    }
+
+    public bool CPUEnabled {
+      get { return cpuEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != cpuEnabled) {
+          if (value)
+            Add(new CPU.CPUGroup(settings));
+          else
+            RemoveType<CPU.CPUGroup>();
+        }
+        cpuEnabled = value;
+      }
+    }
+
+    public bool GPUEnabled {
+      get { return gpuEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != gpuEnabled) {
+          if (value) {
+            Add(new ATI.ATIGroup(settings));
+            Add(new Nvidia.NvidiaGroup(settings));
+          } else {
+            RemoveType<ATI.ATIGroup>();
+            RemoveType<Nvidia.NvidiaGroup>();
+          }
+        }
+        gpuEnabled = value;
+      }
+    }
+
+    public bool FanControllerEnabled {
+      get { return fanControllerEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != fanControllerEnabled) {
+          if (value) {
+            Add(new TBalancer.TBalancerGroup(settings));
+            Add(new Heatmaster.HeatmasterGroup(settings));
+          } else {
+            RemoveType<TBalancer.TBalancerGroup>();
+            RemoveType<Heatmaster.HeatmasterGroup>();
+          }
+        }
+        fanControllerEnabled = value;
+      }
+    }
+
     public bool HDDEnabled {
       get { return hddEnabled; }
 
       [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
       set {
-        if (open && value && !hddEnabled) {
-          Add(new HDD.HarddriveGroup(settings));
-        } else if (open && !value && hddEnabled) {
-          List<IGroup> list = new List<IGroup>();
-          foreach (IGroup group in groups)
-            if (group is HDD.HarddriveGroup)
-              list.Add(group);
-          foreach (IGroup group in list)
-            Remove(group);
+        if (open && value != hddEnabled) {
+          if (value)
+            Add(new HDD.HarddriveGroup(settings));
+          else
+            RemoveType<HDD.HarddriveGroup>();
         }
         hddEnabled = value;
       }
@@ -243,8 +330,7 @@ namespace OpenHardwareMonitor.Hardware {
 
       while (groups.Count > 0) {
         IGroup group = groups[groups.Count - 1];
-        Remove(group);
-        group.Close(); 
+        Remove(group);         
       } 
 
       Opcode.Close();
