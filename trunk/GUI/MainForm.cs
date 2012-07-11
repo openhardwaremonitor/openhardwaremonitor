@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -50,7 +51,13 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption minimizeToTray;
     private UserOption minimizeOnClose;
     private UserOption autoStart;
+
+    private UserOption readMainboardSensors;
+    private UserOption readCpuSensors;
+    private UserOption readGpuSensors;
+    private UserOption readFanControllersSensors;
     private UserOption readHddSensors;
+
     private UserOption showGadget;
     private UserRadioGroup plotLocation;
     private WmiProvider wmiProvider;
@@ -207,6 +214,30 @@ namespace OpenHardwareMonitor.GUI {
         }
       };
 
+      readMainboardSensors = new UserOption("mainboardMenuItem", true, 
+        mainboardMenuItem, settings);
+      readMainboardSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.MainboardEnabled = readMainboardSensors.Value;
+      };
+
+      readCpuSensors = new UserOption("cpuMenuItem", true,
+        cpuMenuItem, settings);
+      readCpuSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.CPUEnabled = readCpuSensors.Value;
+      };
+
+      readGpuSensors = new UserOption("gpuMenuItem", true,
+        gpuMenuItem, settings);
+      readGpuSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.GPUEnabled = readGpuSensors.Value;
+      };
+
+      readFanControllersSensors = new UserOption("fanControllerMenuItem", true,
+        fanControllerMenuItem, settings);
+      readFanControllersSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.FanControllerEnabled = readFanControllersSensors.Value;
+      };
+
       readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem,
         settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
@@ -227,14 +258,12 @@ namespace OpenHardwareMonitor.GUI {
       server = new HttpServer(root, this.settings.GetValue("listenerPort", 8085));
       runWebServer = new UserOption("runWebServerMenuItem", false,
         runWebServerMenuItem, settings);
-      runWebServer.Changed += delegate(object sender, EventArgs e)
-      {
-          if (runWebServer.Value)
-              runWebServer.Value = server.startHTTPListener();
-          else
-              server.stopHTTPListener();
+      runWebServer.Changed += delegate(object sender, EventArgs e) {
+        if (runWebServer.Value)
+          runWebServer.Value = server.startHTTPListener();
+        else
+          server.stopHTTPListener();
       };
-
 
       InitializePlotForm();
 
@@ -357,13 +386,23 @@ namespace OpenHardwareMonitor.GUI {
           plotForm.Hide();
       };
     }
+
+    private void InsertSorted(Collection<Node> nodes, HardwareNode node) {
+      int i = 0;
+      while (i < nodes.Count && nodes[i] is HardwareNode &&
+        ((HardwareNode)nodes[i]).Hardware.HardwareType < 
+          node.Hardware.HardwareType)
+        i++;
+      nodes.Insert(i, node);
+    }
     
     private void SubHardwareAdded(IHardware hardware, Node node) {
       HardwareNode hardwareNode = 
         new HardwareNode(hardware, settings, unitManager);
       hardwareNode.PlotSelectionChanged += PlotSelectionChanged;
 
-      node.Nodes.Add(hardwareNode);
+      InsertSorted(node.Nodes, hardwareNode);
+
       foreach (IHardware subHardware in hardware.SubHardware)
         SubHardwareAdded(subHardware, hardwareNode);  
     }
