@@ -581,7 +581,7 @@ namespace OpenHardwareMonitor.GUI {
               if (sensor.SensorType == SensorType.Temperature &&
                 unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
                 formatted = string.Format("{0:F1} °F",
-                  sensor.Value * 1.8 + 32);
+                  UnitManager.CelsiusToFahrenheit(sensor.Value));
               } else {
                 formatted = string.Format(format, sensor.Value);
               }
