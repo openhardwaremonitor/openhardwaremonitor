@@ -21,6 +21,8 @@ using OpenHardwareMonitor.Utilities;
 namespace OpenHardwareMonitor.GUI {
   public class SensorNotifyIcon : IDisposable {
 
+    private UnitManager unitManager;
+
     private ISensor sensor;
     private NotifyIcon notifyIcon;
     private Bitmap bitmap;
@@ -31,10 +33,12 @@ namespace OpenHardwareMonitor.GUI {
     private Brush darkBrush;
     private Pen pen;
     private Font font;
+    private Font smallFont;
 
     public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor,
-      bool balloonTip, PersistentSettings settings) 
+      bool balloonTip, PersistentSettings settings, UnitManager unitManager) 
     {
+      this.unitManager = unitManager;
       this.sensor = sensor;
       this.notifyIcon = new NotifyIcon();
 
@@ -50,6 +54,7 @@ namespace OpenHardwareMonitor.GUI {
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
       this.font = SystemFonts.MessageBoxFont;
+      this.smallFont = new Font(font.FontFamily, font.Size * 0.8f);
 
       ContextMenu contextMenu = new ContextMenu();
       MenuItem hideShowItem = new MenuItem("Hide/Show");
@@ -145,7 +150,8 @@ namespace OpenHardwareMonitor.GUI {
         darkBrush.Dispose();
       pen.Dispose();
       graphics.Dispose();      
-      bitmap.Dispose();      
+      bitmap.Dispose();
+      smallFont.Dispose();
     }
 
     private string GetString() {
@@ -159,8 +165,12 @@ namespace OpenHardwareMonitor.GUI {
           return string.Format("{0:F1}", 1e-3f * sensor.Value);
         case SensorType.Load: 
           return string.Format("{0:F0}", sensor.Value);
-        case SensorType.Temperature: 
-          return string.Format("{0:F0}", sensor.Value);
+        case SensorType.Temperature:
+          if (unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit)
+            return string.Format("{0:F0}", 
+              UnitManager.CelsiusToFahrenheit(sensor.Value));
+          else 
+            return string.Format("{0:F0}", sensor.Value);
         case SensorType.Fan: 
           return string.Format("{0:F1}", 1e-3f * sensor.Value);
         case SensorType.Flow:
@@ -180,10 +190,16 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private Icon CreateTransparentIcon() {
+      string text = GetString();
+      int count = 0;
+      for (int i = 0; i < text.Length; i++)
+        if ((text[i] >= '0' && text[i] <= '9') || text[i] == '-')
+          count++;
+      bool small = count > 2;
 
       graphics.Clear(Color.Black);
-      TextRenderer.DrawText(graphics, GetString(), font,
-        new Point(-2, 0), Color.White, Color.Black);        
+      TextRenderer.DrawText(graphics, text, small ? smallFont : font,
+        new Point(-2, small ? 1 : 0), Color.White, Color.Black);        
 
       BitmapData data = bitmap.LockBits(
         new Rectangle(0, 0, bitmap.Width, bitmap.Height),
@@ -267,6 +283,15 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Factor: format = "\n{0}: {1:F3} GB"; break;
       }
       string formattedValue = string.Format(format, sensor.Name, sensor.Value);
+
+      if (sensor.SensorType == SensorType.Temperature &&
+        unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) 
+      {
+        format = "\n{0}: {1:F1} °F";
+        formattedValue = string.Format(format, sensor.Name,
+          UnitManager.CelsiusToFahrenheit(sensor.Value));
+      }
+
       string hardwareName = sensor.Hardware.Name;
       hardwareName = hardwareName.Substring(0, 
         Math.Min(63 - formattedValue.Length, hardwareName.Length));

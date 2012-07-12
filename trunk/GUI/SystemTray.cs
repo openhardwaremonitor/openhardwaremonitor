@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -20,13 +20,17 @@ namespace OpenHardwareMonitor.GUI {
   public class SystemTray : IDisposable {
     private IComputer computer;
     private PersistentSettings settings;
+    private UnitManager unitManager;
     private List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
     private bool mainIconEnabled = false;
     private NotifyIcon mainIcon;
 
-    public SystemTray(IComputer computer, PersistentSettings settings) {
+    public SystemTray(IComputer computer, PersistentSettings settings,
+      UnitManager unitManager) 
+    {
       this.computer = computer;
       this.settings = settings;
+      this.unitManager = unitManager;
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
 
@@ -103,7 +107,7 @@ namespace OpenHardwareMonitor.GUI {
       if (Contains(sensor)) {
         return;
       } else {        
-        list.Add(new SensorNotifyIcon(this, sensor, balloonTip, settings));
+        list.Add(new SensorNotifyIcon(this, sensor, balloonTip, settings, unitManager));
         UpdateMainIconVisibilty();
         settings.SetValue(new Identifier(sensor.Identifier, "tray").ToString(), true);
       }

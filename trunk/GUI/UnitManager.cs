@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -35,6 +35,10 @@ namespace OpenHardwareMonitor.GUI {
         this.temperatureUnit = value;
         this.settings.SetValue("TemperatureUnit", (int)temperatureUnit);
       }
+    }
+
+    public static float? CelsiusToFahrenheit(float? valueInCelsius) {
+      return valueInCelsius * 1.8f + 32;
     }
   }
 }

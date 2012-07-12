@@ -121,7 +121,7 @@ namespace OpenHardwareMonitor.GUI {
 
       this.computer = new Computer(settings);
 
-      systemTray = new SystemTray(computer, settings);
+      systemTray = new SystemTray(computer, settings, unitManager);
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
