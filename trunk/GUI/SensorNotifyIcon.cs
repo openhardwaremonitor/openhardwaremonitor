@@ -24,7 +24,7 @@ namespace OpenHardwareMonitor.GUI {
     private UnitManager unitManager;
 
     private ISensor sensor;
-    private NotifyIcon notifyIcon;
+    private NotifyIconAdv notifyIcon;
     private Bitmap bitmap;
     private Graphics graphics;
     private Color color;
@@ -40,7 +40,7 @@ namespace OpenHardwareMonitor.GUI {
     {
       this.unitManager = unitManager;
       this.sensor = sensor;
-      this.notifyIcon = new NotifyIcon();
+      this.notifyIcon = new NotifyIconAdv();
 
       Color defaultColor = Color.Black;
       if (sensor.SensorType == SensorType.Load ||
