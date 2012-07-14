@@ -23,7 +23,7 @@ namespace OpenHardwareMonitor.GUI {
     private UnitManager unitManager;
     private List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
     private bool mainIconEnabled = false;
-    private NotifyIcon mainIcon;
+    private NotifyIconAdv mainIcon;
 
     public SystemTray(IComputer computer, PersistentSettings settings,
       UnitManager unitManager) 
@@ -34,7 +34,7 @@ namespace OpenHardwareMonitor.GUI {
       computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
 
-      this.mainIcon = new NotifyIcon();
+      this.mainIcon = new NotifyIconAdv();
 
       ContextMenu contextMenu = new ContextMenu();
       MenuItem hideShowItem = new MenuItem("Hide/Show");
