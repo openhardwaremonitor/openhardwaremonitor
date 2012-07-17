@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -76,14 +76,19 @@ namespace OpenHardwareMonitor.Hardware {
     private void SetSensorValuesToSettings() {
       using (MemoryStream m = new MemoryStream()) {
         using (GZipStream c = new GZipStream(m, CompressionMode.Compress))
-        using (BinaryWriter writer = new BinaryWriter(c)) {
+        using (BufferedStream b = new BufferedStream(c, 65536))
+        using (BinaryWriter writer = new BinaryWriter(b)) {
+          long t = 0;
           foreach (SensorValue sensorValue in values) {
-            writer.Write(sensorValue.Time.ToBinary());
+            long v = sensorValue.Time.ToBinary();
+            writer.Write(v - t);
+            t = v;
             writer.Write(sensorValue.Value);
           }
+          writer.Flush();
         }
         settings.SetValue(new Identifier(Identifier, "values").ToString(),
-           Convert.ToBase64String(m.ToArray()));
+          Convert.ToBase64String(m.ToArray()));
       }
     }
 
@@ -98,8 +103,10 @@ namespace OpenHardwareMonitor.Hardware {
         using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
         using (BinaryReader reader = new BinaryReader(c)) {
           try {
+            long t = 0;
             while (true) {
-              DateTime time = DateTime.FromBinary(reader.ReadInt64());
+              t += reader.ReadInt64();
+              DateTime time = DateTime.FromBinary(t);              
               float value = reader.ReadSingle();
               AppendValue(value, time);
             }
