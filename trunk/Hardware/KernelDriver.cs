@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -25,12 +25,14 @@ namespace OpenHardwareMonitor.Hardware {
       this.id = id;
     }
    
-    public bool Install(string path) {
+    public bool Install(string path, out string errorMessage) {
       IntPtr manager = NativeMethods.OpenSCManager(null, null,
         ServiceControlManagerAccessRights.SC_MANAGER_ALL_ACCESS);
 
-      if (manager == IntPtr.Zero)
+      if (manager == IntPtr.Zero) {
+        errorMessage = "OpenSCManager returned zero.";
         return false;
+      }
 
       IntPtr service = NativeMethods.CreateService(manager, id, id,
         ServiceAccessRights.SERVICE_ALL_ACCESS,
@@ -42,13 +44,22 @@ namespace OpenHardwareMonitor.Hardware {
         if (Marshal.GetHRForLastWin32Error() == ERROR_SERVICE_EXISTS)
           service = NativeMethods.OpenService(manager, id,
             ServiceAccessRights.SERVICE_ALL_ACCESS);
-        else
+        else {
+          errorMessage = "CreateService returned the error: " +
+            Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message;
+          NativeMethods.CloseServiceHandle(manager);    
           return false;
+        }
       }
 
       if (!NativeMethods.StartService(service, 0, null)) {
-        if (Marshal.GetHRForLastWin32Error() != ERROR_SERVICE_ALREADY_RUNNING)
+        if (Marshal.GetHRForLastWin32Error() != ERROR_SERVICE_ALREADY_RUNNING) {
+          errorMessage = "StartService returned the error: " +
+            Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message;
+          NativeMethods.CloseServiceHandle(service);
+          NativeMethods.CloseServiceHandle(manager);
           return false;
+        }
       }
 
       NativeMethods.CloseServiceHandle(service);
@@ -62,7 +73,8 @@ namespace OpenHardwareMonitor.Hardware {
           "O:BAG:SYD:(A;;FA;;;SY)(A;;FA;;;BA)");
         File.SetAccessControl(@"\\.\" + id, fileSecurity);
       } catch { }
-      
+
+      errorMessage = null;
       return true;
     }
 
