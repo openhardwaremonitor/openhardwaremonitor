@@ -127,7 +127,8 @@ namespace OpenHardwareMonitor.Hardware {
 
         fileName = GetTempFileName();
         if (fileName != null && ExtractDriver(fileName)) {
-          if (driver.Install(fileName)) {
+          string installError;
+          if (driver.Install(fileName, out installError)) {
             driver.Open();
 
             if (!driver.IsOpen) {
@@ -135,10 +136,13 @@ namespace OpenHardwareMonitor.Hardware {
               report.AppendLine("Status: Opening driver failed after install");
             }
           } else {
+            string errorFirstInstall = installError;
+   
             // install failed, try to delete and reinstall
             driver.Delete();
 
-            if (driver.Install(fileName)) {
+            string errorSecondInstall;
+            if (driver.Install(fileName, out errorSecondInstall)) {
               driver.Open();
 
               if (!driver.IsOpen) {
@@ -150,9 +154,8 @@ namespace OpenHardwareMonitor.Hardware {
               report.AppendLine("Status: Installing driver \"" +
                 fileName + "\" failed" +
                 (File.Exists(fileName) ? " and file exists" : ""));
-              report.AppendLine();
-              report.Append("Exception: " + Marshal.GetExceptionForHR(
-                Marshal.GetHRForLastWin32Error()).Message);
+              report.AppendLine("First Exception: " + errorFirstInstall);
+              report.AppendLine("Second Exception: " + errorSecondInstall);
             }
           }
         } else {
