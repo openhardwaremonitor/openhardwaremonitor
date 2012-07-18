@@ -173,7 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Resources\app.manifest" />
+    <None Include="Resources\app.manifest">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup>

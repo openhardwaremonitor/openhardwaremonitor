@@ -53,8 +53,6 @@ namespace OpenHardwareMonitor.GUI {
         "traycolor").ToString(), defaultColor);      
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
-      this.font = SystemFonts.MessageBoxFont;
-      this.smallFont = new Font(font.FontFamily, font.Size * 0.8f);
 
       ContextMenu contextMenu = new ContextMenu();
       MenuItem hideShowItem = new MenuItem("Hide/Show");
@@ -88,7 +86,7 @@ namespace OpenHardwareMonitor.GUI {
       this.notifyIcon.ContextMenu = contextMenu;
       this.notifyIcon.DoubleClick += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendHideShowCommand();
-      };
+      };      
 
       // get the default dpi to create an icon with the correct size
       float dpiX, dpiY;
@@ -102,8 +100,22 @@ namespace OpenHardwareMonitor.GUI {
       int height = (int)Math.Round(16 * dpiY / 96);
 
       // make sure it does never get smaller than 16x16
-      width = width < 16 ? 16: width;
-      height = height < 16 ? 16: height;
+      width = width < 16 ? 16 : width;
+      height = height < 16 ? 16 : height;
+
+      // adjust the font size to the icon size
+      FontFamily family = SystemFonts.MessageBoxFont.FontFamily;
+      float baseSize;
+      switch (family.Name) {
+        case "Segoe UI": baseSize = 12; break;
+        case "Tahoma": baseSize = 11; break;
+        default: baseSize = 12; break;
+      }
+
+      this.font = new Font(family,
+        baseSize * width / 16.0f, GraphicsUnit.Pixel);
+      this.smallFont = new Font(family, 
+        0.75f * baseSize * width / 16.0f, GraphicsUnit.Pixel);
 
       this.bitmap = new Bitmap(width, height, PixelFormat.Format32bppArgb);      
       this.graphics = Graphics.FromImage(this.bitmap);
@@ -151,6 +163,7 @@ namespace OpenHardwareMonitor.GUI {
       pen.Dispose();
       graphics.Dispose();      
       bitmap.Dispose();
+      font.Dispose();
       smallFont.Dispose();
     }
 
@@ -169,7 +182,7 @@ namespace OpenHardwareMonitor.GUI {
           if (unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit)
             return string.Format("{0:F0}", 
               UnitManager.CelsiusToFahrenheit(sensor.Value));
-          else 
+          else
             return string.Format("{0:F0}", sensor.Value);
         case SensorType.Fan: 
           return string.Format("{0:F1}", 1e-3f * sensor.Value);
