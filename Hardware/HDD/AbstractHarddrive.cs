@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using OpenHardwareMonitor.Collections;
 
@@ -42,6 +43,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private IList<SmartAttribute> smartAttributes;
     private IDictionary<SmartAttribute, Sensor> sensors;
 
+    private DriveInfo[] driveInfos;
+    private Sensor usageSensor;
+
     protected AbstractHarddrive(ISmart smart, string name, 
       string firmwareRevision, int index, 
       IEnumerable<SmartAttribute> smartAttributes, ISettings settings) 
@@ -58,6 +62,17 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       this.count = 0;
 
       this.smartAttributes = new List<SmartAttribute>(smartAttributes);
+
+      string[] logicalDrives = smart.GetLogicalDrives(index);
+      List<DriveInfo> driveInfoList = new List<DriveInfo>(logicalDrives.Length);
+      foreach (string logicalDrive in logicalDrives) {
+        try {
+          DriveInfo di = new DriveInfo(logicalDrive);
+          if (di.TotalSize > 0) 
+            driveInfoList.Add(new DriveInfo(logicalDrive));
+        } catch (ArgumentException) { } catch (IOException) { }
+      }
+      driveInfos = driveInfoList.ToArray();
 
       CreateSensors();
     }
@@ -83,7 +98,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       smart.CloseHandle(deviceHandle);
 
       if (!nameValid || string.IsNullOrEmpty(name)) 
-        return null;
+        return null;      
 
       foreach (Type type in hddTypes) {
         // get the array of name prefixes for the current type
@@ -161,6 +176,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           sensorTypeAndChannels.Add(pair);
         }     
       }
+
+      if (driveInfos.Length > 0) {
+        usageSensor = 
+          new Sensor("Used Space", 0, SensorType.Load, this, settings);
+        ActivateSensor(usageSensor);
+      }
     }
 
     public override HardwareType HardwareType {
@@ -184,6 +205,16 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         }
 
         UpdateAdditionalSensors(values);
+
+        if (usageSensor != null) {
+          long totalSize = 0;
+          long totalFreeSpace = 0;
+          for (int i = 0; i < driveInfos.Length; i++) {
+            totalSize += driveInfos[i].TotalSize;
+            totalFreeSpace += driveInfos[i].TotalFreeSpace;
+          }
+          usageSensor.Value = 100.0f - (100.0f * totalFreeSpace) / totalSize;
+        }
       }
 
       count++; 
@@ -201,7 +232,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         r.AppendLine();
         r.AppendLine("Drive name: " + name);
         r.AppendLine("Firmware version: " + firmwareRevision);
-        r.AppendLine();
+        r.AppendLine();    
         r.AppendFormat(CultureInfo.InvariantCulture, 
           " {0}{1}{2}{3}{4}{5}{6}{7}",
           ("ID").PadRight(3),
@@ -250,6 +281,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
               CultureInfo.InvariantCulture) : "-").PadRight(8),
             Environment.NewLine);
         }
+        r.AppendLine();
+      }
+
+      foreach (DriveInfo di in driveInfos) {
+        r.AppendLine("Logical drive name: " + di.Name);
+        r.AppendLine("Format: " + di.DriveFormat);
+        r.AppendLine("Total size: " + di.TotalSize);
+        r.AppendLine("Total free space: " + di.TotalFreeSpace);
         r.AppendLine();
       }
 
