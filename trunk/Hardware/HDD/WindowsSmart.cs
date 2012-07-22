@@ -12,6 +12,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Management;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -339,6 +340,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public void CloseHandle(IntPtr handle) {
       NativeMethods.CloseHandle(handle);
+    }
+
+    public string[] GetLogicalDrives(int driveIndex) {
+      List<string> list = new List<string>();
+      try {
+        using (ManagementObjectSearcher s = new ManagementObjectSearcher(
+            "root\\CIMV2",
+            "SELECT * FROM Win32_DiskPartition " +
+            "WHERE DiskIndex = " + driveIndex))
+        using (ManagementObjectCollection dpc = s.Get())
+        foreach (ManagementObject dp in dpc) 
+          using (ManagementObjectCollection ldc = 
+            dp.GetRelated("Win32_LogicalDisk"))
+          foreach (ManagementBaseObject ld in ldc) 
+            list.Add(((string)ld["Name"]).TrimEnd(':')); 
+      } catch { }
+      return list.ToArray();
     }
 
     protected static class NativeMethods {

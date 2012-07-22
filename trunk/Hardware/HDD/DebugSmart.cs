@@ -412,6 +412,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public IntPtr InvalidHandle { get { return (IntPtr)(-1); } }
+
+    public string[] GetLogicalDrives(int driveIndex) {
+      return new string[0];
+    }
   }
 
 #endif

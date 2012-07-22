@@ -30,5 +30,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     void CloseHandle(IntPtr handle);
 
     IntPtr InvalidHandle { get; }
+
+    string[] GetLogicalDrives(int driveIndex);
   }
 }
