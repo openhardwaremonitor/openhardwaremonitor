@@ -52,6 +52,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
     <Reference Include="System.Management" />
   </ItemGroup>
@@ -91,8 +92,11 @@
     <Compile Include="Hardware\CPU\IntelCPU.cs" />
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
+    <Compile Include="Hardware\Mainboard\Identification.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\OperatingSystem.cs" />
+    <Compile Include="Hardware\RAM\GenericRAM.cs" />
+    <Compile Include="Hardware\RAM\RAMGroup.cs" />
     <Compile Include="Hardware\Ring0.cs" />
     <Compile Include="Hardware\KernelDriver.cs" />
     <Compile Include="Hardware\Hardware.cs" />
@@ -120,7 +124,7 @@
     <Compile Include="Hardware\Mainboard\MainboardGroup.cs" />
     <Compile Include="Hardware\Mainboard\Manufacturer.cs" />
     <Compile Include="Hardware\Mainboard\Model.cs" />
-    <Compile Include="Hardware\Mainboard\SMBIOS.cs" />
+    <Compile Include="Hardware\SMBIOS.cs" />
     <Compile Include="Hardware\Mainboard\SuperIOHardware.cs" />
     <Compile Include="Hardware\Nvidia\NVAPI.cs" />
     <Compile Include="Hardware\Nvidia\NvidiaGPU.cs" />

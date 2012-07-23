@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -22,19 +22,25 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly LMSensors lmSensors;
     private readonly Hardware[] superIOHardware;
 
-    public Mainboard(ISettings settings) {
+    public Mainboard(SMBIOS smbios, ISettings settings) {
       this.settings = settings;
-      this.smbios = new SMBIOS();
-     
+      this.smbios = smbios;
+
+      Manufacturer manufacturer = smbios.Board == null ? Manufacturer.Unknown :
+        Identification.GetManufacturer(smbios.Board.ManufacturerName);
+
+      Model model = smbios.Board == null ? Model.Unknown : 
+        Identification.GetModel(smbios.Board.ProductName);
+
       if (smbios.Board != null) {
         if (!string.IsNullOrEmpty(smbios.Board.ProductName)) {
-          if (smbios.Board.Manufacturer == Manufacturer.Unknown)
+          if (manufacturer == Manufacturer.Unknown)
             this.name = smbios.Board.ProductName;
           else
-            this.name = smbios.Board.Manufacturer + " " +
+            this.name = manufacturer + " " +
               smbios.Board.ProductName;
         } else {
-          this.name = smbios.Board.Manufacturer.ToString();
+          this.name = manufacturer.ToString();
         }
       } else {
         this.name = Manufacturer.Unknown.ToString();
@@ -55,10 +61,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       
       superIOHardware = new Hardware[superIO.Length];
       for (int i = 0; i < superIO.Length; i++)
-        superIOHardware[i] = new SuperIOHardware(this, superIO[i], 
-          smbios.Board != null ? smbios.Board.Manufacturer : 
-          Manufacturer.Unknown, smbios.Board != null ? smbios.Board.Model :
-          Model.Unknown, settings);
+        superIOHardware[i] = new SuperIOHardware(this, superIO[i],
+          manufacturer, model, settings);
     }
 
     public string Name {

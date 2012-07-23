@@ -315,6 +315,8 @@ namespace OpenHardwareMonitor.Utilities
                     return "chip.png";
                 case HardwareType.TBalancer:
                     return "bigng.png";
+                case HardwareType.RAM:
+                    return "chip.png";
                 default:
                     return "cpu.png";
             }

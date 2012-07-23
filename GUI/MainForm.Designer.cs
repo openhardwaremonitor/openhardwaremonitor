@@ -94,6 +94,7 @@ namespace OpenHardwareMonitor.GUI {
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+      this.ramMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -227,6 +228,7 @@ namespace OpenHardwareMonitor.GUI {
       this.menuItem5.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.mainboardMenuItem,
             this.cpuMenuItem,
+            this.ramMenuItem,
             this.gpuMenuItem,
             this.fanControllerMenuItem,
             this.hddMenuItem});
@@ -244,17 +246,17 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // gpuMenuItem
       // 
-      this.gpuMenuItem.Index = 2;
+      this.gpuMenuItem.Index = 3;
       this.gpuMenuItem.Text = "GPU";
       // 
       // fanControllerMenuItem
       // 
-      this.fanControllerMenuItem.Index = 3;
+      this.fanControllerMenuItem.Index = 4;
       this.fanControllerMenuItem.Text = "Fan Controllers";
       // 
       // hddMenuItem
       // 
-      this.hddMenuItem.Index = 4;
+      this.hddMenuItem.Index = 5;
       this.hddMenuItem.Text = "Hard Disk Drives";
       // 
       // menuItem6
@@ -525,6 +527,11 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
       // 
+      // ramMenuItem
+      // 
+      this.ramMenuItem.Index = 2;
+      this.ramMenuItem.Text = "RAM";
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -607,6 +614,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem cpuMenuItem;
     private System.Windows.Forms.MenuItem gpuMenuItem;
     private System.Windows.Forms.MenuItem fanControllerMenuItem;
+    private System.Windows.Forms.MenuItem ramMenuItem;
   }
 }
 

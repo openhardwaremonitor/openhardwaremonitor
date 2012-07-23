@@ -16,7 +16,13 @@ namespace OpenHardwareMonitor.Hardware {
 
     IHardware[] Hardware { get; }
 
+    bool MainboardEnabled { get; }
+    bool CPUEnabled { get; }
+    bool RAMEnabled { get; }
+    bool GPUEnabled { get; }
+    bool FanControllerEnabled { get; }
     bool HDDEnabled { get; }
+
 
     string GetReport();
 

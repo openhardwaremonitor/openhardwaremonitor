@@ -16,11 +16,12 @@ namespace OpenHardwareMonitor.Hardware {
     Mainboard,
     SuperIO,
     CPU,
+    RAM,
     GpuNvidia,
     GpuAti,    
     TBalancer,
     Heatmaster,
-    HDD,     
+    HDD
   }
 
   public interface IHardware : IElement {

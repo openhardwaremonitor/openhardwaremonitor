@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private UserOption readMainboardSensors;
     private UserOption readCpuSensors;
+    private UserOption readRamSensors;
     private UserOption readGpuSensors;
     private UserOption readFanControllersSensors;
     private UserOption readHddSensors;
@@ -224,6 +225,12 @@ namespace OpenHardwareMonitor.GUI {
         cpuMenuItem, settings);
       readCpuSensors.Changed += delegate(object sender, EventArgs e) {
         computer.CPUEnabled = readCpuSensors.Value;
+      };
+
+      readRamSensors = new UserOption("ramMenuItem", true,
+        ramMenuItem, settings);
+      readRamSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.RAMEnabled = readRamSensors.Value;
       };
 
       readGpuSensors = new UserOption("gpuMenuItem", true,
