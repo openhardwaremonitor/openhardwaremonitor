@@ -22,13 +22,16 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly List<IGroup> groups = new List<IGroup>();
     private readonly ISettings settings;
 
+    private SMBIOS smbios;
+
     private bool open;
 
     private bool mainboardEnabled;
     private bool cpuEnabled;
+    private bool ramEnabled;
     private bool gpuEnabled;
     private bool fanControllerEnabled;
-    private bool hddEnabled;        
+    private bool hddEnabled;    
 
     public Computer() {
       this.settings = new Settings();
@@ -76,14 +79,19 @@ namespace OpenHardwareMonitor.Hardware {
       if (open)
         return;
 
+      this.smbios = new SMBIOS();
+
       Ring0.Open();
       Opcode.Open();
 
       if (mainboardEnabled)
-        Add(new Mainboard.MainboardGroup(settings));
+        Add(new Mainboard.MainboardGroup(smbios, settings));
       
       if (cpuEnabled)
         Add(new CPU.CPUGroup(settings));
+
+      if (ramEnabled)
+        Add(new RAM.RAMGroup(smbios, settings));
 
       if (gpuEnabled) {
         Add(new ATI.ATIGroup(settings));
@@ -108,7 +116,7 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         if (open && value != mainboardEnabled) {
           if (value)
-            Add(new Mainboard.MainboardGroup(settings));
+            Add(new Mainboard.MainboardGroup(smbios, settings));
           else
             RemoveType<Mainboard.MainboardGroup>();
         }
@@ -130,6 +138,21 @@ namespace OpenHardwareMonitor.Hardware {
         cpuEnabled = value;
       }
     }
+
+    public bool RAMEnabled {
+      get { return ramEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != ramEnabled) {
+          if (value)
+            Add(new RAM.RAMGroup(smbios, settings));
+          else
+            RemoveType<RAM.RAMGroup>();
+        }
+        ramEnabled = value;
+      }
+    }    
 
     public bool GPUEnabled {
       get { return gpuEnabled; }
@@ -335,6 +358,8 @@ namespace OpenHardwareMonitor.Hardware {
 
       Opcode.Close();
       Ring0.Close();
+
+      this.smbios = null;
 
       open = false;
     }

@@ -56,6 +56,9 @@ namespace OpenHardwareMonitor.GUI {
           case HardwareType.TBalancer:
             image = Utilities.EmbeddedResources.GetImage("bigng.png");
             break;
+          case HardwareType.RAM:
+            image = Utilities.EmbeddedResources.GetImage("chip.png");
+            break;
           default:
             image = new Bitmap(1, 1);
             break;

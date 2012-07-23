@@ -13,9 +13,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     private readonly Mainboard[] mainboards;
 
-    public MainboardGroup(ISettings settings) {
+    public MainboardGroup(SMBIOS smbios, ISettings settings) {
       mainboards = new Mainboard[1];
-      mainboards[0] = new Mainboard(settings);
+      mainboards[0] = new Mainboard(smbios, settings);
     }
 
     public void Close() {
