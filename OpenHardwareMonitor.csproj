@@ -73,9 +73,7 @@
     <Compile Include="GUI\GadgetWindow.cs" />
     <Compile Include="GUI\Gadget.cs" />
     <Compile Include="GUI\HardwareTypeImage.cs" />
-    <Compile Include="GUI\NotifyIconAdv.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="GUI\NotifyIconAdv.cs" />
     <Compile Include="GUI\PlotPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
