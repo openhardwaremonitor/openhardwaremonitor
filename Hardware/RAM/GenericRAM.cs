@@ -8,7 +8,7 @@
 	
 */
 
-using Microsoft.VisualBasic.Devices;
+using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.RAM {
   internal class GenericRAM : Hardware {
@@ -16,16 +16,14 @@ namespace OpenHardwareMonitor.Hardware.RAM {
     private Sensor loadSensor;
     private Sensor availableMemory;
 
-    private ComputerInfo computerInfo;
-
     public GenericRAM(string name, ISettings settings)
       : base(name, new Identifier("ram"), settings)
     {   
-      computerInfo = new ComputerInfo();
       loadSensor = new Sensor("Memory", 0, SensorType.Load, this, settings);
       ActivateSensor(loadSensor);
 
-      availableMemory = new Sensor("Available Memory", 0, SensorType.Data, this, settings);
+      availableMemory = new Sensor("Available Memory", 0, SensorType.Data, this, 
+        settings);
       ActivateSensor(availableMemory);
     }
 
@@ -36,12 +34,39 @@ namespace OpenHardwareMonitor.Hardware.RAM {
     }
 
     public override void Update() {
-      loadSensor.Value = 100.0f - 
-        (100.0f * computerInfo.AvailablePhysicalMemory) / 
-        computerInfo.TotalPhysicalMemory;
+      NativeMethods.MemoryStatusEx status = new NativeMethods.MemoryStatusEx();
+      status.Length = checked((uint)Marshal.SizeOf(
+          typeof(NativeMethods.MemoryStatusEx)));
 
-      availableMemory.Value = (float)computerInfo.AvailablePhysicalMemory /
+      if (!NativeMethods.GlobalMemoryStatusEx(ref status))
+        return;
+
+      loadSensor.Value = 100.0f -
+        (100.0f * status.AvailablePhysicalMemory) /
+        status.TotalPhysicalMemory;
+
+      availableMemory.Value = (float)status.AvailablePhysicalMemory /
         (1024 * 1024 * 1024);
+    }
+
+    private class NativeMethods {
+      [StructLayout(LayoutKind.Sequential)]
+      public struct MemoryStatusEx {
+        public uint Length;
+        public uint MemoryLoad;
+        public ulong TotalPhysicalMemory;
+        public ulong AvailablePhysicalMemory;
+        public ulong TotalPageFile;
+        public ulong AvailPageFile;
+        public ulong TotalVirtual;
+        public ulong AvailVirtual;
+        public ulong AvailExtendedVirtual;
+      }
+
+      [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      internal static extern bool GlobalMemoryStatusEx(
+        ref NativeMethods.MemoryStatusEx buffer);
     }
   }
 }

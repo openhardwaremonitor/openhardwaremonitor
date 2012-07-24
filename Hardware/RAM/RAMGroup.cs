@@ -8,12 +8,22 @@
 	
 */
 
+using System;
+
 namespace OpenHardwareMonitor.Hardware.RAM {
   internal class RAMGroup : IGroup {
 
     private IHardware[] hardware;
 
     public RAMGroup(SMBIOS smbios, ISettings settings) {
+
+      // No implementation for RAM on Unix systems
+      int p = (int)Environment.OSVersion.Platform;
+      if ((p == 4) || (p == 128)) {
+        hardware = new IHardware[0];
+        return;
+      }
+
       string name;
       if (smbios.MemoryDevices.Length > 0) {
         name = smbios.MemoryDevices[0].ManufacturerName + " " + 
