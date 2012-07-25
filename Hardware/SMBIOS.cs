@@ -183,6 +183,10 @@ namespace OpenHardwareMonitor.Hardware {
         r.AppendLine(MemoryDevices[i].ManufacturerName);
         r.Append("Memory Device [" + i + "] Part Number: ");
         r.AppendLine(MemoryDevices[i].PartNumber);
+        r.Append("Memory Device [" + i + "] Device Locator: ");
+        r.AppendLine(MemoryDevices[i].DeviceLocator);
+        r.Append("Memory Device [" + i + "] Bank Locator: ");
+        r.AppendLine(MemoryDevices[i].BankLocator);
         r.AppendLine();
       }
 
@@ -357,31 +361,34 @@ namespace OpenHardwareMonitor.Hardware {
 
     public class MemoryDevice : Structure {
 
+      private readonly string deviceLocator;
+      private readonly string bankLocator;
       private readonly string manufacturerName;
       private readonly string serialNumber;
-      private readonly string partNumber;
-
-      public MemoryDevice(string manufacturerName, string serialNumber,
-        string partNumber)
-        : base(0x11, 0, null, null) {
-        this.manufacturerName = manufacturerName;
-        this.serialNumber = serialNumber;
-        this.partNumber = partNumber;
-      }
+      private readonly string partNumber;      
 
       public MemoryDevice(byte type, ushort handle, byte[] data,
         string[] strings)
-        : base(type, handle, data, strings) {
+        : base(type, handle, data, strings) 
+      {
+        this.deviceLocator = GetString(0x10).Trim();
+        this.bankLocator = GetString(0x11).Trim();
         this.manufacturerName = GetString(0x17).Trim();
         this.serialNumber = GetString(0x18).Trim();
         this.partNumber = GetString(0x1A).Trim();
       }
+
+      public string DeviceLocator { get { return deviceLocator; } }
+
+      public string BankLocator { get { return bankLocator; } }
 
       public string ManufacturerName { get { return manufacturerName; } }
 
       public string SerialNumber { get { return serialNumber; } }
 
       public string PartNumber { get { return partNumber; } }
+
+       
 
     }
   }
