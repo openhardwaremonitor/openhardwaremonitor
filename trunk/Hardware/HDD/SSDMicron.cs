@@ -8,8 +8,10 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware.HDD {
-  using System.Collections.Generic;
+using System.Collections.Generic;
+using OpenHardwareMonitor.Collections;
+
+namespace OpenHardwareMonitor.Hardware.HDD {  
 
   [NamePrefix(""), RequireSmart(0xAA), RequireSmart(0xAB), RequireSmart(0xAC), 
    RequireSmart(0xAD), RequireSmart(0xAE), RequireSmart(0xCA)]
@@ -28,7 +30,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xAD, SmartNames.WearLevelingCount, RawToInt),
       new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
       new SmartAttribute(0xB5, SmartNames.Non4kAlignedAccess, 
-        (byte[] raw, byte value) => { return 6e4f * ((raw[5] << 8) | raw[4]); }),
+        (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
+          => { return 6e4f * ((raw[5] << 8) | raw[4]); }),
       new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToInt),
       new SmartAttribute(0xBB, SmartNames.ReportedUncorrectableErrors, RawToInt),
       new SmartAttribute(0xBC, SmartNames.CommandTimeout, RawToInt),
@@ -38,10 +41,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
       new SmartAttribute(0xC7, SmartNames.UltraDmaCrcErrorCount, RawToInt),
       new SmartAttribute(0xCA, SmartNames.RemainingLife, 
-        (byte[] raw, byte value) => { return 100 - RawToInt(raw, value); }, 
+        (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
+          => { return 100 - RawToInt(raw, value, p); }, 
         SensorType.Level, 0),
       new SmartAttribute(0xCE, SmartNames.WriteErrorRate, 
-         (byte[] raw, byte value) => { return 6e4f * ((raw[1] << 8) | raw[0]); }),
+         (byte[] raw, byte value, IReadOnlyArray<IParameter> p)
+           => { return 6e4f * ((raw[1] << 8) | raw[0]); }),
     };
 
     public SSDMicron(ISmart smart, string name, string firmwareRevision, 
