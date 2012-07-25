@@ -11,6 +11,7 @@
 
 using System;
 using System.Collections.Generic;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal class SmartAttribute {
@@ -49,9 +50,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     /// the same sensor channel and type, then a sensor is created only for the  
     /// first attribute.</param>
     /// <param name="defaultHiddenSensor">True to hide the sensor initially.</param>
+    /// <param name="parameterDescriptions">Description for the parameters of the sensor 
+    /// (or null).</param>
     public SmartAttribute(byte identifier, string name,
       RawValueConversion rawValueConversion, SensorType? sensorType, 
-      int sensorChannel, bool defaultHiddenSensor = false) 
+      int sensorChannel, bool defaultHiddenSensor = false,
+      ParameterDescription[] parameterDescriptions = null) 
     {
       this.Identifier = identifier;
       this.Name = name;
@@ -59,6 +63,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       this.SensorType = sensorType;
       this.SensorChannel = sensorChannel;
       this.DefaultHiddenSensor = defaultHiddenSensor;
+      this.ParameterDescriptions = parameterDescriptions;
     }
 
     /// <summary>
@@ -74,20 +79,25 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public bool DefaultHiddenSensor { get; private set; }
 
+    public ParameterDescription[] ParameterDescriptions { get; private set; }
+
     public bool HasRawValueConversion {
       get {
         return rawValueConversion != null;
       }
     }
 
-    public float ConvertValue(DriveAttributeValue value) {
+    public float ConvertValue(DriveAttributeValue value, 
+      IReadOnlyArray<IParameter> parameters) 
+    {
       if (rawValueConversion == null) {
         return value.AttrValue;
       } else {
-        return rawValueConversion(value.RawValue, value.AttrValue);
+        return rawValueConversion(value.RawValue, value.AttrValue, parameters);
       }
     }
 
-    public delegate float RawValueConversion(byte[] rawValue, byte value);
+    public delegate float RawValueConversion(byte[] rawValue, byte value,
+      IReadOnlyArray<IParameter> parameters);
   }
 }

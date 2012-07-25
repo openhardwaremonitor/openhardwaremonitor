@@ -10,9 +10,11 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware.HDD {
-  using System.Collections.Generic;
+using System.Collections.Generic;
+using OpenHardwareMonitor.Collections;
 
+namespace OpenHardwareMonitor.Hardware.HDD {
+   
   [NamePrefix("INTEL SSD"), 
    RequireSmart(0xE1), RequireSmart(0xE8), RequireSmart(0xE9)]
   internal class SSDIntel : AbstractHarddrive {
@@ -32,16 +34,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xB8, SmartNames.EndToEndError),
       new SmartAttribute(0xC0, SmartNames.UnsafeShutdownCount), 
       new SmartAttribute(0xE1, SmartNames.HostWrites, 
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return RawToInt(r, v, p) / 0x20; }, 
         SensorType.Data, 0),
       new SmartAttribute(0xE8, SmartNames.RemainingLife, 
         null, SensorType.Level, 0),
       new SmartAttribute(0xE9, SmartNames.MediaWearOutIndicator),
       new SmartAttribute(0xF1, SmartNames.HostWrites,
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return RawToInt(r, v, p) / 0x20; }, 
         SensorType.Data, 0),
       new SmartAttribute(0xF2, SmartNames.HostReads, 
-        (byte[] r, byte v) => { return RawToInt(r, v) / 0x20; }, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return RawToInt(r, v, p) / 0x20; }, 
         SensorType.Data, 1),      
     };
 

@@ -169,7 +169,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if (!sensorTypeAndChannels.Contains(pair)) {
           Sensor sensor = new Sensor(attribute.Name, 
             attribute.SensorChannel, attribute.DefaultHiddenSensor, 
-            attribute.SensorType.Value, this, null, settings);
+            attribute.SensorType.Value, this, attribute.ParameterDescriptions, 
+            settings);
 
           sensors.Add(attribute, sensor);
           ActivateSensor(sensor);
@@ -199,7 +200,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           foreach (DriveAttributeValue value in values) {
             if (value.Identifier == attribute.Identifier) {
               Sensor sensor = keyValuePair.Value;
-              sensor.Value = attribute.ConvertValue(value);
+              sensor.Value = attribute.ConvertValue(value, sensor.Parameters);
             }
           }
         }
@@ -261,7 +262,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             if (a.Identifier == value.Identifier) {
               description = a.Name;
               if (a.HasRawValueConversion | a.SensorType.HasValue)
-                physical = a.ConvertValue(value);
+                physical = a.ConvertValue(value, null);
               else
                 physical = null;
             }
@@ -295,7 +296,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return r.ToString();
     }
 
-    protected static float RawToInt(byte[] raw, byte value) {
+    protected static float RawToInt(byte[] raw, byte value,
+      IReadOnlyArray<IParameter> parameters) 
+    {
       return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
     }
 

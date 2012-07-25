@@ -9,8 +9,10 @@
 	
 */
 
+using System.Collections.Generic;
+using OpenHardwareMonitor.Collections;
+
 namespace OpenHardwareMonitor.Hardware.HDD {
-  using System.Collections.Generic;
 
   [NamePrefix(""), RequireSmart(0xAB), RequireSmart(0xB1)]
   internal class SSDSandforce : AbstractHarddrive {
@@ -28,8 +30,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount, RawToInt),
       new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToInt),
       new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xC2, SmartNames.Temperature, (byte[] raw, byte value) 
-        => { return value; }, SensorType.Temperature, 0, true), 
+      new SmartAttribute(0xC2, SmartNames.Temperature, 
+        (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
+          => { return value + (p == null ? 0 : p[0].Value); }, 
+        SensorType.Temperature, 0, true, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", 0) }), 
       new SmartAttribute(0xC3, SmartNames.UnrecoverableEcc), 
       new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
       new SmartAttribute(0xE7, SmartNames.RemainingLife, null, 
@@ -59,10 +66,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       float? hostWritesToController = null;
       foreach (DriveAttributeValue value in values) {
         if (value.Identifier == 0xE9)
-          controllerWritesToNAND = RawToInt(value.RawValue, value.AttrValue);
+          controllerWritesToNAND = RawToInt(value.RawValue, value.AttrValue, null);
 
         if (value.Identifier == 0xEA)
-          hostWritesToController = RawToInt(value.RawValue, value.AttrValue);
+          hostWritesToController = RawToInt(value.RawValue, value.AttrValue, null);
       }
       if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
         if (hostWritesToController.Value > 0)

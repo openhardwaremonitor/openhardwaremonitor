@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
 
@@ -82,9 +83,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xFE, SmartNames.FreeFallProtection),
 
       new SmartAttribute(0xC2, SmartNames.Temperature, 
-        (byte[] r, byte v) => { return r[0]; }, SensorType.Temperature, 0),
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return r[0] + (p == null ? 0 : p[0].Value); }, 
+          SensorType.Temperature, 0, false, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xE7, SmartNames.Temperature, 
-        (byte[] r, byte v) => { return r[0]; }, SensorType.Temperature, 0),
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return r[0] + (p == null ? 0 : p[0].Value); }, 
+          SensorType.Temperature, 0, false, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xBE, SmartNames.TemperatureDifferenceFrom100, 
         null, SensorType.Temperature, 0)
     };
