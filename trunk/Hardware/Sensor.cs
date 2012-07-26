@@ -99,6 +99,7 @@ namespace OpenHardwareMonitor.Hardware {
       try {
         byte[] array = Convert.FromBase64String(s);
         s = null;
+        DateTime now = DateTime.UtcNow;
         using (MemoryStream m = new MemoryStream(array))
         using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
         using (BinaryReader reader = new BinaryReader(c)) {
@@ -106,7 +107,9 @@ namespace OpenHardwareMonitor.Hardware {
             long t = 0;
             while (true) {
               t += reader.ReadInt64();
-              DateTime time = DateTime.FromBinary(t);              
+              DateTime time = DateTime.FromBinary(t);
+              if (time > now)
+                break;
               float value = reader.ReadSingle();
               AppendValue(value, time);
             }
