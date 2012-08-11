@@ -98,13 +98,29 @@ namespace OpenHardwareMonitor.Hardware {
       try {
         using (FileStream target = new FileStream(fileName, FileMode.Create)) {
           target.Write(buffer, 0, buffer.Length);
+          target.Flush();
         }
       } catch (IOException) { 
         // for example there is not enough space on the disk
         return false; 
       }
 
-      return true;
+      // make sure the file is actually writen to the file system
+      for (int i = 0; i < 20; i++) {
+        try {
+          if (File.Exists(fileName) &&
+            new FileInfo(fileName).Length == buffer.Length) 
+          {
+            return true;
+          }
+          Thread.Sleep(100);
+        } catch (IOException) {
+          Thread.Sleep(10);
+        }
+      }
+      
+      // file still has not the right size, something is wrong
+      return false;
     }
 
     public static void Open() {
@@ -140,6 +156,9 @@ namespace OpenHardwareMonitor.Hardware {
    
             // install failed, try to delete and reinstall
             driver.Delete();
+
+            // wait a short moment to give the OS a chance to remove the driver
+            Thread.Sleep(2000);
 
             string errorSecondInstall;
             if (driver.Install(fileName, out errorSecondInstall)) {
