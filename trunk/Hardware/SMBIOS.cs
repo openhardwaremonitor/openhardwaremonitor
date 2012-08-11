@@ -25,6 +25,7 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly BIOSInformation biosInformation;
     private readonly SystemInformation systemInformation;
     private readonly BaseBoardInformation baseBoardInformation;
+    private readonly ProcessorInformation processorInformation;
     private readonly MemoryDevice[] memoryDevices;
 
     private static string ReadSysFS(string path) {
@@ -84,7 +85,7 @@ namespace OpenHardwareMonitor.Hardware {
             minorVersion = (byte)mo["SmbiosMinorVersion"];            
             break;
           }
-        } catch { }
+        } catch { }      
 
         if (majorVersion > 0 || minorVersion > 0)
           version = new Version(majorVersion, minorVersion);
@@ -129,6 +130,9 @@ namespace OpenHardwareMonitor.Hardware {
               case 0x02: this.baseBoardInformation = new BaseBoardInformation(
                   type, handle, data, stringsList.ToArray());
                 structureList.Add(this.baseBoardInformation); break;
+              case 0x04: this.processorInformation = new ProcessorInformation(
+                  type, handle, data, stringsList.ToArray());
+                structureList.Add(this.processorInformation); break;
               case 0x11: MemoryDevice m = new MemoryDevice(
                   type, handle, data, stringsList.ToArray());
                 memoryDeviceList.Add(m);
@@ -178,6 +182,23 @@ namespace OpenHardwareMonitor.Hardware {
         r.AppendLine();
       }
 
+      if (Processor != null) {
+        r.Append("Processor Manufacturer: ");
+        r.AppendLine(Processor.ManufacturerName);
+        r.Append("Processor Version: ");
+        r.AppendLine(Processor.Version);
+        r.Append("Processor Core Count: ");
+        r.AppendLine(Processor.CoreCount.ToString());
+        r.Append("Processor Core Enabled: ");
+        r.AppendLine(Processor.CoreEnabled.ToString());
+        r.Append("Processor Thread Count: ");
+        r.AppendLine(Processor.ThreadCount.ToString());
+        r.Append("Processor External Clock: ");
+        r.Append(Processor.ExternalClock);
+        r.AppendLine(" Mhz");
+        r.AppendLine();
+      }
+
       for (int i = 0; i < MemoryDevices.Length; i++) {        
         r.Append("Memory Device [" + i + "] Manufacturer: ");
         r.AppendLine(MemoryDevices[i].ManufacturerName);
@@ -187,6 +208,9 @@ namespace OpenHardwareMonitor.Hardware {
         r.AppendLine(MemoryDevices[i].DeviceLocator);
         r.Append("Memory Device [" + i + "] Bank Locator: ");
         r.AppendLine(MemoryDevices[i].BankLocator);
+        r.Append("Memory Device [" + i + "] Speed: ");
+        r.Append(MemoryDevices[i].Speed);
+        r.AppendLine(" MHz");
         r.AppendLine();
       }
 
@@ -223,6 +247,11 @@ namespace OpenHardwareMonitor.Hardware {
       get { return baseBoardInformation; }
     }
 
+
+    public ProcessorInformation Processor {
+      get { return processorInformation; }
+    }
+
     public MemoryDevice[] MemoryDevices {
       get { return memoryDevices; }
     }
@@ -233,6 +262,20 @@ namespace OpenHardwareMonitor.Hardware {
 
       private readonly byte[] data;
       private readonly string[] strings;
+
+      protected int GetByte(int offset) {
+        if (offset < data.Length && offset >= 0)
+          return data[offset];
+        else
+          return 0;
+      }
+
+      protected int GetWord(int offset) {
+        if (offset + 1 < data.Length && offset >= 0)
+          return (data[offset + 1] << 8) | data[offset];
+        else
+          return 0;
+      }
 
       protected string GetString(int offset) {
         if (offset < data.Length && data[offset] > 0 &&
@@ -359,13 +402,41 @@ namespace OpenHardwareMonitor.Hardware {
 
     }
 
+    public class ProcessorInformation : Structure {
+
+      public ProcessorInformation(byte type, ushort handle, byte[] data,
+        string[] strings)
+        : base(type, handle, data, strings) 
+      {
+        this.ManufacturerName = GetString(0x07).Trim();
+        this.Version = GetString(0x10).Trim();
+        this.CoreCount = GetByte(0x23);
+        this.CoreEnabled = GetByte(0x24);
+        this.ThreadCount = GetByte(0x25);
+        this.ExternalClock = GetWord(0x12);
+      }
+
+      public string ManufacturerName { get; private set; }
+
+      public string Version { get; private set; }
+
+      public int CoreCount { get; private set; }
+
+      public int CoreEnabled { get; private set; }
+
+      public int ThreadCount { get; private set; }
+     
+      public int ExternalClock { get; private set; }
+    }
+
     public class MemoryDevice : Structure {
 
       private readonly string deviceLocator;
       private readonly string bankLocator;
       private readonly string manufacturerName;
       private readonly string serialNumber;
-      private readonly string partNumber;      
+      private readonly string partNumber;
+      private readonly int speed;
 
       public MemoryDevice(byte type, ushort handle, byte[] data,
         string[] strings)
@@ -376,6 +447,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.manufacturerName = GetString(0x17).Trim();
         this.serialNumber = GetString(0x18).Trim();
         this.partNumber = GetString(0x1A).Trim();
+        this.speed = GetWord(0x15);
       }
 
       public string DeviceLocator { get { return deviceLocator; } }
@@ -388,7 +460,7 @@ namespace OpenHardwareMonitor.Hardware {
 
       public string PartNumber { get { return partNumber; } }
 
-       
+      public int Speed { get { return speed; } }
 
     }
   }

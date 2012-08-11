@@ -647,6 +647,7 @@ namespace OpenHardwareMonitor.GUI {
               if (i <= control.MaxSoftwareValue &&
                   i >= control.MinSoftwareValue) {
                 MenuItem item = new MenuItem(i + " %");
+                item.RadioCheck = true;
                 manualItem.MenuItems.Add(item);
                 item.Checked = control.ControlMode == ControlMode.Software &&
                   Math.Round(control.SoftwareValue) == i;
