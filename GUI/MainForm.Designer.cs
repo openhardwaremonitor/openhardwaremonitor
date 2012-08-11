@@ -54,6 +54,7 @@ namespace OpenHardwareMonitor.GUI {
       this.menuItem5 = new System.Windows.Forms.MenuItem();
       this.mainboardMenuItem = new System.Windows.Forms.MenuItem();
       this.cpuMenuItem = new System.Windows.Forms.MenuItem();
+      this.ramMenuItem = new System.Windows.Forms.MenuItem();
       this.gpuMenuItem = new System.Windows.Forms.MenuItem();
       this.fanControllerMenuItem = new System.Windows.Forms.MenuItem();
       this.hddMenuItem = new System.Windows.Forms.MenuItem();
@@ -94,7 +95,6 @@ namespace OpenHardwareMonitor.GUI {
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-      this.ramMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -244,6 +244,11 @@ namespace OpenHardwareMonitor.GUI {
       this.cpuMenuItem.Index = 1;
       this.cpuMenuItem.Text = "CPU";
       // 
+      // ramMenuItem
+      // 
+      this.ramMenuItem.Index = 2;
+      this.ramMenuItem.Text = "RAM";
+      // 
       // gpuMenuItem
       // 
       this.gpuMenuItem.Index = 3;
@@ -389,12 +394,14 @@ namespace OpenHardwareMonitor.GUI {
       // celsiusMenuItem
       // 
       this.celsiusMenuItem.Index = 0;
+      this.celsiusMenuItem.RadioCheck = true;
       this.celsiusMenuItem.Text = "Celsius";
       this.celsiusMenuItem.Click += new System.EventHandler(this.celsiusMenuItem_Click);
       // 
       // fahrenheitMenuItem
       // 
       this.fahrenheitMenuItem.Index = 1;
+      this.fahrenheitMenuItem.RadioCheck = true;
       this.fahrenheitMenuItem.Text = "Fahrenheit";
       this.fahrenheitMenuItem.Click += new System.EventHandler(this.fahrenheitMenuItem_Click);
       // 
@@ -410,16 +417,19 @@ namespace OpenHardwareMonitor.GUI {
       // plotWindowMenuItem
       // 
       this.plotWindowMenuItem.Index = 0;
+      this.plotWindowMenuItem.RadioCheck = true;
       this.plotWindowMenuItem.Text = "Window";
       // 
       // plotBottomMenuItem
       // 
       this.plotBottomMenuItem.Index = 1;
+      this.plotBottomMenuItem.RadioCheck = true;
       this.plotBottomMenuItem.Text = "Bottom";
       // 
       // plotRightMenuItem
       // 
       this.plotRightMenuItem.Index = 2;
+      this.plotRightMenuItem.RadioCheck = true;
       this.plotRightMenuItem.Text = "Right";
       // 
       // MenuItem4
@@ -526,11 +536,6 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
-      // 
-      // ramMenuItem
-      // 
-      this.ramMenuItem.Index = 2;
-      this.ramMenuItem.Text = "RAM";
       // 
       // MainForm
       // 
