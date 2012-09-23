@@ -41,13 +41,13 @@ namespace OpenHardwareMonitor.Hardware {
         null);
 
       if (service == IntPtr.Zero) {
-        if (Marshal.GetHRForLastWin32Error() == ERROR_SERVICE_EXISTS)
-          service = NativeMethods.OpenService(manager, id,
-            ServiceAccessRights.SERVICE_ALL_ACCESS);
-        else {
+        if (Marshal.GetHRForLastWin32Error() == ERROR_SERVICE_EXISTS) {
+          errorMessage = "Service already exists";
+          return false;
+        } else {
           errorMessage = "CreateService returned the error: " +
             Marshal.GetExceptionForHR(Marshal.GetHRForLastWin32Error()).Message;
-          NativeMethods.CloseServiceHandle(manager);    
+          NativeMethods.CloseServiceHandle(manager);
           return false;
         }
       }
