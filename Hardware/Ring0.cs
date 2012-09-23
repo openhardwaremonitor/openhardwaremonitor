@@ -46,29 +46,29 @@ namespace OpenHardwareMonitor.Hardware {
         IOControlCode.Access.Read);
 
     private static string GetTempFileName() {
-
-      // try to get a file in the temporary folder
-      try {
-        return Path.GetTempFileName();        
-      } catch (IOException) { 
-          // some I/O exception
-        } 
-        catch (UnauthorizedAccessException) { 
-          // we do not have the right to create a file in the temp folder
-        }
-        catch (NotSupportedException) {
-          // invalid path format of the TMP system environment variable
-        }
-
-      // if this failed, we try to create one in the application folder
+      
+      // try to create one in the application folder
       string fileName = Path.ChangeExtension(
-        Assembly.GetExecutingAssembly().Location, ".sys");
+        Assembly.GetEntryAssembly().Location, ".sys");
       try {
         using (FileStream stream = File.Create(fileName)) {
           return fileName;
         }        
       } catch (IOException) { } 
         catch (UnauthorizedAccessException) { }
+
+      // if this failed, try to get a file in the temporary folder
+      try {
+        return Path.GetTempFileName();        
+      } catch (IOException) { 
+          // some I/O exception
+      } 
+      catch (UnauthorizedAccessException) { 
+        // we do not have the right to create a file in the temp folder
+      }
+      catch (NotSupportedException) {
+        // invalid path format of the TMP system environment variable
+      }
      
       return null;
     }

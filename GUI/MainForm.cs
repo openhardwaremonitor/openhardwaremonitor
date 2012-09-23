@@ -290,6 +290,7 @@ namespace OpenHardwareMonitor.GUI {
 
       // Make sure the settings are saved when the user logs off
       Microsoft.Win32.SystemEvents.SessionEnded += delegate {
+        computer.Close();
         SaveConfiguration();
         if (runWebServer.Value) 
             server.Quit();
