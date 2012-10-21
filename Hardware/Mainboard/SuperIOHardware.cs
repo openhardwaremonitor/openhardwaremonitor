@@ -113,6 +113,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -247,6 +249,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -443,6 +447,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -461,6 +467,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                 t.Add(new Temperature("Temperature #" + (i + 1), i));
               for (int i = 0; i < superIO.Fans.Length; i++)
                 f.Add(new Fan("Fan #" + (i + 1), i));
+              for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Ctrl("Fan Control #" + (i + 1), i));
               break;
           }
           break;
@@ -501,6 +509,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -603,6 +613,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -635,6 +647,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                     t.Add(new Temperature("Temperature #" + (i + 1), i));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -652,6 +666,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                 t.Add(new Temperature("Temperature #" + (i + 1), i));
               for (int i = 0; i < superIO.Fans.Length; i++)
                 f.Add(new Fan("Fan #" + (i + 1), i));
+              for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Ctrl("Fan Control #" + (i + 1), i));
               break;
           }
           break;
@@ -996,6 +1012,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   t.Add(new Temperature("Motherboard", 3));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
                 default:
                   v.Add(new Voltage("CPU VCore", 0));
@@ -1013,6 +1031,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   t.Add(new Temperature("Temperature #3", 3));
                   for (int i = 0; i < superIO.Fans.Length; i++)
                     f.Add(new Fan("Fan #" + (i + 1), i));
+                  for (int i = 0; i < superIO.Controls.Length; i++)
+                    c.Add(new Ctrl("Fan Control #" + (i + 1), i));
                   break;
               }
               break;
@@ -1032,6 +1052,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               t.Add(new Temperature("Temperature #3", 3));
               for (int i = 0; i < superIO.Fans.Length; i++)
                 f.Add(new Fan("Fan #" + (i + 1), i));
+              for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Ctrl("Fan Control #" + (i + 1), i));
               break;
           }
           break;
