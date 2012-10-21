@@ -352,6 +352,23 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
                   f.Add(new Fan("CPU Fan", 0));
                   f.Add(new Fan("System Fan", 1));
                   break;
+                case Model.GA_970A_UD3: // IT8720F
+                  v.Add(new Voltage("CPU VCore", 0));
+                  v.Add(new Voltage("DRAM", 1));
+                  v.Add(new Voltage("+3.3V", 2));
+                  v.Add(new Voltage("+5V", 3, 6.8f, 10));
+                  v.Add(new Voltage("+12V", 4, 24.3f, 8.2f));
+                  v.Add(new Voltage("VBat", 8));
+                  t.Add(new Temperature("System", 0));
+                  t.Add(new Temperature("CPU", 1));
+                  f.Add(new Fan("CPU Fan", 0));
+                  f.Add(new Fan("System Fan #1", 1));
+                  f.Add(new Fan("System Fan #2", 2));
+                  f.Add(new Fan("Power Fan", 4));
+                  c.Add(new Ctrl("PWM 1", 0));
+                  c.Add(new Ctrl("PWM 2", 1));
+                  c.Add(new Ctrl("PWM 3", 2));
+                  break;
                 case Model.GA_MA770T_UD3: // IT8720F
                 case Model.GA_MA770T_UD3P: // IT8720F                
                 case Model.GA_MA790X_UD3P: // IT8720F
