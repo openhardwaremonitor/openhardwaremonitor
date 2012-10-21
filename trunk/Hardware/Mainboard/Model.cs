@@ -51,6 +51,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     G41M_Combo,
     G41MT_S2,
     G41MT_S2P,
+    GA_970A_UD3,
     GA_MA770T_UD3,
     GA_MA770T_UD3P,
     GA_MA785GM_US2H,

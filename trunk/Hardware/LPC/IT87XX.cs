@@ -10,6 +10,7 @@
 
 using System.Globalization;
 using System.Text;
+using System;
 
 namespace OpenHardwareMonitor.Hardware.LPC {
   internal class IT87XX : ISuperIO {
@@ -45,10 +46,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte VENDOR_ID_REGISTER = 0x58;
     private const byte FAN_TACHOMETER_DIVISOR_REGISTER = 0x0B;
     private readonly byte[] FAN_TACHOMETER_REG = 
-      new byte[] { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
+      { 0x0d, 0x0e, 0x0f, 0x80, 0x82 };
     private readonly byte[] FAN_TACHOMETER_EXT_REG =
-      new byte[] { 0x18, 0x19, 0x1a, 0x81, 0x83 };
+      { 0x18, 0x19, 0x1a, 0x81, 0x83 };
     private const byte VOLTAGE_BASE_REG = 0x20;
+    private readonly byte[] FAN_PWM_CTRL_REG = { 0x15, 0x16, 0x17 };
+
+    private bool[] restoreDefaultFanPwmControlRequired = new bool[3];       
+    private byte[] initialFanPwmControl = new byte[3];
 
     private byte ReadByte(byte register, out bool valid) {
       Ring0.WriteIoPort(addressReg, register);
@@ -77,7 +82,40 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort((ushort)(gpioAddress + index), value);
     } 
 
-    public void SetControl(int index, byte? value) { }   
+    private void SaveDefaultFanPwmControl(int index) {
+      bool valid;
+      if (!restoreDefaultFanPwmControlRequired[index]) {
+        initialFanPwmControl[index] = 
+          ReadByte(FAN_PWM_CTRL_REG[index], out valid);
+        restoreDefaultFanPwmControlRequired[index] = true;
+      }
+    }
+
+    private void RestoreDefaultFanPwmControl(int index) {
+      if (restoreDefaultFanPwmControlRequired[index]) {
+        WriteByte(FAN_PWM_CTRL_REG[index], initialFanPwmControl[index]);
+        restoreDefaultFanPwmControlRequired[index] = false;
+      }
+    }
+
+    public void SetControl(int index, byte? value) {
+      if (index < 0 || index >= controls.Length)
+        throw new ArgumentOutOfRangeException("index");
+
+      if (!Ring0.WaitIsaBusMutex(10))
+        return;
+
+      if (value.HasValue) {
+        SaveDefaultFanPwmControl(index);
+
+        // set output value
+        WriteByte(FAN_PWM_CTRL_REG[index], (byte)(value.Value >> 1));  
+      } else {
+        RestoreDefaultFanPwmControl(index);
+      }
+
+      Ring0.ReleaseIsaBusMutex();
+    } 
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
 
@@ -103,6 +141,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       voltages = new float?[9];
       temperatures = new float?[3];
       fans = new float?[chip == Chip.IT8705F ? 3 : 5];
+      controls = new float?[3];
 
       // IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, all others 16mV
       if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8771E 
@@ -267,6 +306,21 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           } else {
             fans[i] = null;
           }
+        }
+      }
+
+      for (int i = 0; i < controls.Length; i++) {
+        bool valid;
+        byte value = ReadByte(FAN_PWM_CTRL_REG[i], out valid);
+        if (!valid)
+          continue;
+
+        if ((value & 0x80) > 0) {
+          // automatic operation (value can't be read)
+          controls[i] = null;  
+        } else {
+          // software operation
+          controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
         }
       }
 

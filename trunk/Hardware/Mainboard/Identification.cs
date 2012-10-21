@@ -132,6 +132,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.G41MT_S2;
         case "G41MT-S2P":
           return Model.G41MT_S2P;
+        case "GA-970A-UD3":
+          return Model.GA_970A_UD3;
         case "GA-MA770T-UD3":
           return Model.GA_MA770T_UD3;
         case "GA-MA770T-UD3P":
