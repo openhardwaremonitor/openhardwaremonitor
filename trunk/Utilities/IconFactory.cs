@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -63,16 +63,13 @@ namespace OpenHardwareMonitor.Utilities {
     private struct ICONIMAGE {
       public BITMAPINFOHEADER Header;
       public byte[] Colors;
-      public byte[] XOR;
-      public byte[] AND;
+      public int MaskSize;
 
       public ICONIMAGE(int width, int height, byte[] colors) {
         this.Header = new BITMAPINFOHEADER(width, height << 1, 
           (8 * colors.Length) / (width * height));
         this.Colors = colors;
-        int maskSize = (width * height) >> 3;
-        this.XOR = new byte[maskSize];
-        this.AND = new byte[maskSize];
+        MaskSize = (width * height) >> 3;
       }
 
       public void Write(BinaryWriter bw) {
@@ -80,8 +77,8 @@ namespace OpenHardwareMonitor.Utilities {
         int stride = Header.Width << 2;
         for (int i = (Header.Height >> 1) - 1; i >= 0; i--)
           bw.Write(Colors, i * stride, stride);
-        bw.Write(XOR);        
-        bw.Write(AND);
+        for (int i = 0; i < 2 * MaskSize; i++)
+          bw.Write((byte)0);        
       }
     }
 
@@ -103,7 +100,7 @@ namespace OpenHardwareMonitor.Utilities {
         this.Planes = image.Header.Planes;
         this.BitCount = image.Header.BitCount;
         this.BytesInRes = (uint)(image.Header.Size +
-          image.Colors.Length + image.XOR.Length + image.AND.Length);
+          image.Colors.Length + image.MaskSize + image.MaskSize);
         this.ImageOffset = (uint)imageOffset;
       }
 
@@ -149,6 +146,9 @@ namespace OpenHardwareMonitor.Utilities {
           (Entries.Length > 0 ? Entries[0].Size : 0)); } 
       }
     }
+
+    private static BinaryWriter binaryWriter = 
+      new BinaryWriter(new MemoryStream());
 	
     public static Icon Create(byte[] colors, int width, int height, 
       PixelFormat format) {
@@ -161,13 +161,12 @@ namespace OpenHardwareMonitor.Utilities {
       dir.Entries[0].ImageOffset = dir.Size;
 
       Icon icon;
-      using (BinaryWriter bw = new BinaryWriter(new MemoryStream())) {
-				dir.Write(bw);
-        image.Write(bw);
+      binaryWriter.BaseStream.Position = 0;
+			dir.Write(binaryWriter);
+      image.Write(binaryWriter);
 
-				bw.BaseStream.Position = 0;
-        icon = new Icon(bw.BaseStream);
-			}
+			binaryWriter.BaseStream.Position = 0;
+      icon = new Icon(binaryWriter.BaseStream);
 
       return icon;
     }

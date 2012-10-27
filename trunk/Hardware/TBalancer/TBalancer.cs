@@ -30,8 +30,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     private readonly List<ISensor> deactivating = new List<ISensor>();
 
     private FT_HANDLE handle;
-    private int[] primaryData = new int[0];
-    private int[] alternativeData = new int[0];
+    private byte[] data = new byte[285];
+    private byte[] primaryData = new byte[0];
+    private byte[] alternativeData = new byte[0];
 
     public const byte STARTFLAG = 100;
     public const byte ENDFLAG = 254;
@@ -110,7 +111,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       }     
     }
 
-    private void ReadminiNG(int[] data, int number) {
+    private void ReadminiNG(int number) {
       int offset = 1 + number * 65;
 
       if (data[offset + 61] != ENDFLAG)
@@ -147,9 +148,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     private void ReadData() {
-      int[] data = new int[285];
-      for (int i = 0; i < data.Length; i++)
-        data[i] = FTD2XX.ReadByte(handle);
+      FTD2XX.Read(handle, data);
       
       if (data[0] != STARTFLAG) {
         FTD2XX.FT_Purge(handle, FT_PURGE.FT_PURGE_RX);   
@@ -161,7 +160,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         if (data[274] != protocolVersion) 
           return;
 
-        this.primaryData = data;
+        if (primaryData.Length == 0)
+          primaryData = new byte[data.Length];
+        data.CopyTo(primaryData, 0);
 
         for (int i = 0; i < digitalTemperatures.Length; i++)
           if (data[238 + i] > 0) {
@@ -223,12 +224,14 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
         }
 
       } else if (data[1] == 253) { // miniNG #1
-        this.alternativeData = data;
+        if (alternativeData.Length == 0)
+          alternativeData = new byte[data.Length];
+        data.CopyTo(alternativeData, 0);
 
-        ReadminiNG(data, 0);        
+        ReadminiNG(0);        
               
         if (data[66] == 253)  // miniNG #2
-          ReadminiNG(data, 1);
+          ReadminiNG(1);
       } 
     }
 
