@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -24,18 +25,20 @@ namespace OpenHardwareMonitor.Hardware {
         AssemblyBuilderAccess.Run).DefineDynamicModule(
         "PInvokeDelegateFactoryInternalModule");
 
-    private static readonly IDictionary<DllImportAttribute, Type> wrapperTypes =
-      new Dictionary<DllImportAttribute, Type>();
+    private static readonly IDictionary<Pair<DllImportAttribute, Type>, Type> wrapperTypes =
+      new Dictionary<Pair<DllImportAttribute, Type>, Type>();
 
     public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
       out T newDelegate) where T : class 
     {
       Type wrapperType;
-      wrapperTypes.TryGetValue(dllImportAttribute, out wrapperType);
+      Pair<DllImportAttribute, Type> key =
+        new Pair<DllImportAttribute, Type>(dllImportAttribute, typeof(T));
+      wrapperTypes.TryGetValue(key, out wrapperType);
 
       if (wrapperType == null) {
         wrapperType = CreateWrapperType(typeof(T), dllImportAttribute);
-        wrapperTypes.Add(dllImportAttribute, wrapperType);
+        wrapperTypes.Add(key, wrapperType);
       }
 
       newDelegate = Delegate.CreateDelegate(typeof(T), wrapperType,

@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -99,6 +99,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       out uint amountInRxQueue, out uint amountInTxQueue, out uint eventStatus);
     public delegate FT_STATUS FT_ReadDelegate(FT_HANDLE handle, 
       [Out] byte[] buffer, uint bytesToRead, out uint bytesReturned);
+    public delegate FT_STATUS FT_ReadByteDelegate(FT_HANDLE handle,
+      out byte buffer, uint bytesToRead, out uint bytesReturned);
 
     public static readonly FT_CreateDeviceInfoListDelegate 
       FT_CreateDeviceInfoList = CreateDelegate<
@@ -136,6 +138,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     public static readonly FT_ReadDelegate 
       FT_Read = CreateDelegate<
       FT_ReadDelegate>("FT_Read");
+    public static readonly FT_ReadByteDelegate
+      FT_ReadByte = CreateDelegate<
+      FT_ReadByteDelegate>("FT_Read");
 
     private FTD2XX() { }
 
@@ -162,12 +167,20 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     public static byte ReadByte(FT_HANDLE handle) {
-      byte[] buffer = new byte[1];
+      byte buffer;
       uint bytesReturned;
-      FT_STATUS status = FT_Read(handle, buffer, 1, out bytesReturned);
+      FT_STATUS status = FT_ReadByte(handle, out buffer, 1, out bytesReturned);
       if (status != FT_STATUS.FT_OK || bytesReturned != 1)
         throw new InvalidOperationException();
-      return buffer[0];
+      return buffer;
+    }
+
+    public static void Read(FT_HANDLE handle, byte[] buffer) {
+      uint bytesReturned;
+      FT_STATUS status = 
+        FT_Read(handle, buffer, (uint)buffer.Length, out bytesReturned);
+      if (status != FT_STATUS.FT_OK || bytesReturned != buffer.Length)
+        throw new InvalidOperationException();
     }
 
     private static string GetDllName() {
