@@ -267,9 +267,9 @@ namespace OpenHardwareMonitor.GUI {
         runWebServerMenuItem, settings);
       runWebServer.Changed += delegate(object sender, EventArgs e) {
         if (runWebServer.Value)
-          runWebServer.Value = server.startHTTPListener();
+          runWebServer.Value = server.StartHTTPListener();
         else
-          server.stopHTTPListener();
+          server.StopHTTPListener();
       };
 
       InitializePlotForm();
