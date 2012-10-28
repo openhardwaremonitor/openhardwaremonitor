@@ -196,7 +196,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         DriveAttributeValue[] values = smart.ReadSmartData(handle, index);
 
         foreach (KeyValuePair<SmartAttribute, Sensor> keyValuePair in sensors) {
-          SmartAttribute attribute = keyValuePair.Key;          
+          SmartAttribute attribute = keyValuePair.Key;
           foreach (DriveAttributeValue value in values) {
             if (value.Identifier == attribute.Identifier) {
               Sensor sensor = keyValuePair.Value;
@@ -210,11 +210,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if (usageSensor != null) {
           long totalSize = 0;
           long totalFreeSpace = 0;
+
           for (int i = 0; i < driveInfos.Length; i++) {
-            totalSize += driveInfos[i].TotalSize;
-            totalFreeSpace += driveInfos[i].TotalFreeSpace;
+            if (!driveInfos[i].IsReady)
+              continue;
+            try {
+              totalSize += driveInfos[i].TotalSize;
+              totalFreeSpace += driveInfos[i].TotalFreeSpace;
+            } catch (IOException) { } catch (UnauthorizedAccessException) { }
           }
-          usageSensor.Value = 100.0f - (100.0f * totalFreeSpace) / totalSize;
+          if (totalSize > 0) {
+            usageSensor.Value = 100.0f - (100.0f * totalFreeSpace) / totalSize;
+          } else {
+            usageSensor.Value = null;
+          }
         }
       }
 
