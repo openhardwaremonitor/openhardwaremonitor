@@ -263,11 +263,16 @@ namespace OpenHardwareMonitor.GUI {
       fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
       server = new HttpServer(root, this.settings.GetValue("listenerPort", 8085));
+      if (server.PlatformNotSupported) {
+        webMenuItemSeparator.Visible = false;
+        webMenuItem.Visible = false;
+      }
+
       runWebServer = new UserOption("runWebServerMenuItem", false,
         runWebServerMenuItem, settings);
       runWebServer.Changed += delegate(object sender, EventArgs e) {
         if (runWebServer.Value)
-          runWebServer.Value = server.StartHTTPListener();
+          server.StartHTTPListener();
         else
           server.StopHTTPListener();
       };
@@ -293,8 +298,7 @@ namespace OpenHardwareMonitor.GUI {
         computer.Close();
         SaveConfiguration();
         if (runWebServer.Value) 
-            server.Quit();
-
+          server.Quit();
       };
     }
 
