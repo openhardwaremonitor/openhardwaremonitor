@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.GUI {
       this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
       this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
       this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
-      this.MenuItem4 = new System.Windows.Forms.MenuItem();
+      this.webMenuItemSeparator = new System.Windows.Forms.MenuItem();
       this.webMenuItem = new System.Windows.Forms.MenuItem();
       this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
       this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
@@ -354,7 +354,7 @@ namespace OpenHardwareMonitor.GUI {
             this.separatorMenuItem,
             this.temperatureUnitsMenuItem,
             this.plotLocationMenuItem,
-            this.MenuItem4,
+            this.webMenuItemSeparator,
             this.webMenuItem});
       this.optionsMenuItem.Text = "Options";
       // 
@@ -434,8 +434,8 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // MenuItem4
       // 
-      this.MenuItem4.Index = 7;
-      this.MenuItem4.Text = "-";
+      this.webMenuItemSeparator.Index = 7;
+      this.webMenuItemSeparator.Text = "-";
       // 
       // webMenuItem
       // 
@@ -596,7 +596,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem minMenuItem;
     private System.Windows.Forms.MenuItem maxMenuItem;
     private System.Windows.Forms.MenuItem temperatureUnitsMenuItem;
-    private System.Windows.Forms.MenuItem MenuItem4;
+    private System.Windows.Forms.MenuItem webMenuItemSeparator;
     private System.Windows.Forms.MenuItem celsiusMenuItem;
     private System.Windows.Forms.MenuItem fahrenheitMenuItem;
     private System.Windows.Forms.MenuItem sumbitReportMenuItem;

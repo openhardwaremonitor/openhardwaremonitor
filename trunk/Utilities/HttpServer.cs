@@ -28,16 +28,30 @@ namespace OpenHardwareMonitor.Utilities {
     private Thread listenerThread;
     private Node root;
 
-    public HttpServer(Node r, int p) {
-      root = r;
-      listenerPort = p;
+    public HttpServer(Node node, int port) {
+      root = node;
+      listenerPort = port;
 
       //JSON node count. 
       nodeCount = 0;
-      listener = new HttpListener();
+
+      try {
+        listener = new HttpListener();
+      } catch (PlatformNotSupportedException) {
+        listener = null;
+      }
+    }
+
+    public bool PlatformNotSupported {
+      get {
+        return listener == null;
+      }
     }
 
     public Boolean StartHTTPListener() {
+      if (PlatformNotSupported)
+        return false;
+
       try {
         if (listener.IsListening)
           return true;
@@ -59,6 +73,9 @@ namespace OpenHardwareMonitor.Utilities {
     }
 
     public Boolean StopHTTPListener() {
+      if (PlatformNotSupported)
+        return false;
+
       try {
         listenerThread.Abort();
         listener.Stop();
@@ -71,7 +88,7 @@ namespace OpenHardwareMonitor.Utilities {
       return true;
     }
 
-    public void HandleRequests() {
+    private void HandleRequests() {
 
       while (listener.IsListening) {
         var context = listener.BeginGetContext(
@@ -80,22 +97,30 @@ namespace OpenHardwareMonitor.Utilities {
       }
     }
 
-    public void ListenerCallback(IAsyncResult result) {
+    private void ListenerCallback(IAsyncResult result) {
       HttpListener listener = (HttpListener)result.AsyncState;
       if (listener == null || !listener.IsListening)
         return;
+
       // Call EndGetContext to complete the asynchronous operation.
-      HttpListenerContext context = listener.EndGetContext(result);
+      HttpListenerContext context;
+      try {
+        context = listener.EndGetContext(result);     
+      } catch (Exception) {
+        return;
+      }
+
       HttpListenerRequest request = context.Request;
 
       var requestedFile = request.RawUrl.Substring(1);
       if (requestedFile == "data.json") {
-        SendJSON(context);
+        SendJSON(context.Response);
         return;
       }
 
       if (requestedFile.Contains("images_icon")) {
-        ServeResourceImage(context, requestedFile.Replace("images_icon/", ""));
+        ServeResourceImage(context.Response, 
+          requestedFile.Replace("images_icon/", ""));
         return;
       }
 
@@ -105,13 +130,13 @@ namespace OpenHardwareMonitor.Utilities {
 
       string[] splits = requestedFile.Split('.');
       string ext = splits[splits.Length - 1];
-      ServeResourceFile(context, "Web." + requestedFile.Replace('/', '.'), ext);
+      ServeResourceFile(context.Response, 
+        "Web." + requestedFile.Replace('/', '.'), ext);
     }
 
-    private void ServeResourceFile(HttpListenerContext context, string name, 
+    private void ServeResourceFile(HttpListenerResponse response, string name, 
       string ext) 
     {
-
       // resource names do not support the hyphen
       name = "OpenHardwareMonitor.Resources." + 
         name.Replace("custom-theme", "custom_theme");
@@ -122,24 +147,29 @@ namespace OpenHardwareMonitor.Utilities {
         if (names[i].Replace('\\', '.') == name) {
           using (Stream stream = Assembly.GetExecutingAssembly().
             GetManifestResourceStream(names[i])) {
-            context.Response.ContentType = GetcontentType("." + ext);
-            context.Response.ContentLength64 = stream.Length;
+            response.ContentType = GetcontentType("." + ext);
+            response.ContentLength64 = stream.Length;
             byte[] buffer = new byte[512 * 1024];
             int len;
-            while ((len = stream.Read(buffer, 0, buffer.Length)) > 0) {
-              context.Response.OutputStream.Write(buffer, 0, len);
+            try {
+              Stream output = response.OutputStream;
+              while ((len = stream.Read(buffer, 0, buffer.Length)) > 0) {
+                output.Write(buffer, 0, len);
+              }
+              output.Close();
+            } catch (HttpListenerException) {
             }
-            context.Response.OutputStream.Close();
-          }
-          return;
+            response.Close();
+            return;
+          }          
         }
       }
-      context.Response.OutputStream.Close();
-      context.Response.StatusCode = 404;
-      context.Response.Close();
+
+      response.StatusCode = 404;
+      response.Close();
     }
 
-    private void ServeResourceImage(HttpListenerContext context, string name) {
+    private void ServeResourceImage(HttpListenerResponse response, string name) {
       name = "OpenHardwareMonitor.Resources." + name;
 
       string[] names =
@@ -150,23 +180,28 @@ namespace OpenHardwareMonitor.Utilities {
             GetManifestResourceStream(names[i])) {
 
             Image image = Image.FromStream(stream);
-            context.Response.ContentType = "image/png";
-            using (MemoryStream ms = new MemoryStream()) {
-              image.Save(ms, ImageFormat.Png);
-              ms.WriteTo(context.Response.OutputStream);
+            response.ContentType = "image/png";
+            try {
+              Stream output = response.OutputStream;
+              using (MemoryStream ms = new MemoryStream()) {
+                image.Save(ms, ImageFormat.Png);
+                ms.WriteTo(output);
+              }
+              output.Close();
+            } catch (HttpListenerException) {              
             }
-            context.Response.OutputStream.Close();
             image.Dispose();
+            response.Close();
             return;
           }
         }
       }
-      context.Response.OutputStream.Close();
-      context.Response.StatusCode = 404;
-      context.Response.Close();
+
+      response.StatusCode = 404;
+      response.Close();
     }
 
-    private void SendJSON(HttpListenerContext context) {
+    private void SendJSON(HttpListenerResponse response) {
 
       string JSON = "{\"id\": 0, \"Text\": \"Sensor\", \"Children\": [";
       nodeCount = 1;
@@ -181,13 +216,19 @@ namespace OpenHardwareMonitor.Utilities {
       var responseContent = JSON;
       byte[] buffer = Encoding.UTF8.GetBytes(responseContent);
 
-      context.Response.ContentLength64 = buffer.Length;
-      context.Response.ContentType = "application/json";
+      response.AddHeader("Cache-Control", "no-cache");
 
-      Stream outputStream = context.Response.OutputStream;
-      outputStream.Write(buffer, 0, buffer.Length);
-      outputStream.Close();
+      response.ContentLength64 = buffer.Length;
+      response.ContentType = "application/json";
 
+      try {
+        Stream output = response.OutputStream;
+        output.Write(buffer, 0, buffer.Length);
+        output.Close();
+      } catch (HttpListenerException) {
+      }
+
+      response.Close();
     }
 
     private string GenerateJSON(Node n) {
@@ -327,11 +368,17 @@ namespace OpenHardwareMonitor.Utilities {
     }
 
     ~HttpServer() {
+      if (PlatformNotSupported)
+        return;
+
       StopHTTPListener();
       listener.Abort();
     }
 
     public void Quit() {
+      if (PlatformNotSupported)
+        return;
+
       StopHTTPListener();
       listener.Abort();
     }
