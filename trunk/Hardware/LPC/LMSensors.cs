@@ -39,10 +39,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               lmChips.Add(new LMChip(Chip.F71858, path)); break;
             case "f71862fg":
               lmChips.Add(new LMChip(Chip.F71862, path)); break;
+            case "f71869":
+              lmChips.Add(new LMChip(Chip.F71869, path)); break;
             case "f71882fg":
-              lmChips.Add(new LMChip(Chip.F71882, path)); break;
+              lmChips.Add(new LMChip(Chip.F71882, path)); break;            
+            case "f71889a":
+              lmChips.Add(new LMChip(Chip.F71889AD, path)); break;
+            case "f71889ed":
+              lmChips.Add(new LMChip(Chip.F71889ED, path)); break;
             case "f71889fg":
               lmChips.Add(new LMChip(Chip.F71889F, path)); break;
+            case "f71808e":
+              lmChips.Add(new LMChip(Chip.F71808E, path)); break;
 
             case "it8705":
               lmChips.Add(new LMChip(Chip.IT8705F, path)); break;
