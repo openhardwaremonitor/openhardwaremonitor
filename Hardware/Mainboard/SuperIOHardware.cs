@@ -1213,6 +1213,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             superIO.SetControl(index, (byte)(control.SoftwareValue * 2.55));
           sensor.Control = control;
           controls.Add(sensor);
+          ActivateSensor(sensor);
         }
       }
     }
@@ -1261,10 +1262,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
       foreach (Sensor sensor in controls) {
         float? value = readControl(sensor.Index);
-        if (value.HasValue) {
-          sensor.Value = value;
-          ActivateSensor(sensor);
-        }
+        sensor.Value = value;                
       }
 
       postUpdate();
