@@ -5,7 +5,8 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
   Copyright (C) 2009-2010 Paul Werelds <paul@werelds.net>
-	
+	Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+
 */
 
 using System;
@@ -101,6 +102,9 @@ namespace OpenHardwareMonitor.WMI {
       int instanceIndex = activeInstances.FindIndex(
         item => item.Identifier == identifier.ToString()
       );
+
+      if (instanceIndex == -1)
+        return;
 
       try {
         Instrumentation.Revoke(activeInstances[instanceIndex]);
