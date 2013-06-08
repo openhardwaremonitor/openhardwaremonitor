@@ -841,24 +841,23 @@ namespace OxyPlot.WindowsForms
             bool xb2 = e.Button == MouseButtons.XButton2;
 
             // MMB / control RMB / control+alt LMB
-            if (mmb || (control && rmb) || (control && alt && lmb))
+            if (mmb || (control && lmb) || (control && alt && rmb))
+            {
+                return new ZoomRectangleManipulator(this);
+            }
+
+            // Right mouse button / alt+left mouse button
+            if (lmb || (rmb && alt))
             {
                 if (e.Clicks == 2)
                 {
                     return new ResetManipulator(this);
                 }
-
-                return new ZoomRectangleManipulator(this);
-            }
-
-            // Right mouse button / alt+left mouse button
-            if (rmb || (lmb && alt))
-            {
                 return new PanManipulator(this);
             }
 
             // Left mouse button
-            if (lmb)
+            if (rmb)
             {
                 return new TrackerManipulator(this) { Snap = !control, PointsOnly = shift };
             }
