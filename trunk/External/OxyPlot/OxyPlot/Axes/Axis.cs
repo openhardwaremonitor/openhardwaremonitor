@@ -703,13 +703,13 @@ namespace OxyPlot.Axes
         /// Gets or sets the current view's maximum. This value is used when the user zooms or pans.
         /// </summary>
         /// <value> The view maximum. </value>
-        protected double ViewMaximum { get; set; }
+        public double ViewMaximum { get; protected set; }
 
         /// <summary>
         /// Gets or sets the current view's minimum. This value is used when the user zooms or pans.
         /// </summary>
         /// <value> The view minimum. </value>
-        protected double ViewMinimum { get; set; }
+        public double ViewMinimum { get; protected set; }
 
         /// <summary>
         /// Transforms the specified point to screen coordinates.
