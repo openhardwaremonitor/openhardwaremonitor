@@ -185,17 +185,6 @@ namespace OxyPlot.Axes
         public DateTimeIntervalType MinorIntervalType { get; set; }
 
         /// <summary>
-        /// Gets or sets the time zone (used when formatting date/time values).
-        /// </summary>
-        /// <remarks>
-        /// No date/time conversion will be performed if this property is null.
-        /// </remarks>
-        /// <value>
-        /// The time zone info.
-        /// </value>
-        public TimeZoneInfo TimeZone { get; set; }
-
-        /// <summary>
         /// Creates a data point.
         /// </summary>
         /// <param name="x">
@@ -294,12 +283,6 @@ namespace OxyPlot.Axes
             // convert the double value to a DateTime
             var time = ToDateTime(x);
 
-            // If a time zone is specified, convert the time
-            if (this.TimeZone != null)
-            {
-                time = TimeZoneInfo.ConvertTime(time, this.TimeZone);
-            }
-
             string fmt = this.ActualStringFormat;
             if (fmt == null)
             {
@@ -347,11 +330,6 @@ namespace OxyPlot.Axes
         public override object GetValue(double x)
         {
             var time = ToDateTime(x);
-
-            if (this.TimeZone != null)
-            {
-                time = TimeZoneInfo.ConvertTime(time, this.TimeZone);
-            }
 
             return time;
         }
