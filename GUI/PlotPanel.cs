@@ -31,6 +31,8 @@ namespace OpenHardwareMonitor.GUI {
     private readonly SortedDictionary<SensorType, LinearAxis> axes =
       new SortedDictionary<SensorType, LinearAxis>();
 
+    private UserOption stackedAxes;
+
     private DateTime now;
 
     public PlotPanel(PersistentSettings settings) {
@@ -41,8 +43,9 @@ namespace OpenHardwareMonitor.GUI {
       this.plot.Dock = DockStyle.Fill;
       this.plot.Model = model;
       this.plot.BackColor = Color.White;
-      this.plot.ContextMenu = new ContextMenu();
-      this.plot.ContextMenu.MenuItems.Add(CreateMenu());
+      this.plot.ContextMenu = CreateMenu();
+
+      UpdateAxesPosition();
 
       this.SuspendLayout();
       this.Controls.Add(plot);
@@ -59,9 +62,19 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private MenuItem CreateMenu() {
-      MenuItem timeWindow = new MenuItem("Time Window");
+    private ContextMenu CreateMenu() {
+      ContextMenu menu = new ContextMenu();
 
+      MenuItem stackedAxesMenuItem = new MenuItem("Stacked Axes");
+      stackedAxes = new UserOption("stackedAxes", true,
+        stackedAxesMenuItem, settings);
+      stackedAxes.Changed += (sender, e) => {
+        UpdateAxesPosition();
+        InvalidatePlot();
+      };
+      menu.MenuItems.Add(stackedAxesMenuItem);
+
+      MenuItem timeWindow = new MenuItem("Time Window");
       MenuItem[] timeWindowMenuItems =
         { new MenuItem("Auto", 
             (s, e) => { timeAxis.Zoom(0, double.NaN); InvalidatePlot(); }),
@@ -89,11 +102,11 @@ namespace OpenHardwareMonitor.GUI {
             (s, e) => { timeAxis.Zoom(0, 12 * 60 * 60); InvalidatePlot(); }),
           new MenuItem("24 h", 
             (s, e) => { timeAxis.Zoom(0, 24 * 60 * 60); InvalidatePlot(); }) };
-
       foreach (MenuItem mi in timeWindowMenuItems)
         timeWindow.MenuItems.Add(mi);
+      menu.MenuItems.Add(timeWindow);
 
-      return timeWindow;
+      return menu;
     }
 
     private PlotModel CreatePlotModel() {
@@ -139,6 +152,7 @@ namespace OpenHardwareMonitor.GUI {
         axis.MinorGridlineStyle = LineStyle.Solid;
         axis.MinorGridlineThickness = 1;
         axis.MinorGridlineColor = timeAxis.MinorGridlineColor;
+        axis.AxislineStyle = LineStyle.Solid;
         axis.Title = type.ToString();
         axis.Key = type.ToString();
 
@@ -181,18 +195,45 @@ namespace OpenHardwareMonitor.GUI {
         types.Add(sensor.SensorType);
       }
 
-      var start = 0.0;
       foreach (var pair in axes.Reverse()) {
         var axis = pair.Value;
         var type = pair.Key;
-        axis.StartPosition = start;
-        axis.IsAxisVisible = types.Contains(type);
-        var delta = axis.IsAxisVisible ? 1.0 / types.Count : 0;
-        start += delta;
-        axis.EndPosition = start;
-      }
+        axis.IsAxisVisible = types.Contains(type);     
+      } 
 
+      UpdateAxesPosition();
       InvalidatePlot();
+    }
+
+    private void UpdateAxesPosition() {
+      if (stackedAxes.Value) {
+        var count = axes.Values.Count(axis => axis.IsAxisVisible);
+        var start = 0.0;
+        foreach (var pair in axes.Reverse()) {
+          var axis = pair.Value;
+          var type = pair.Key;
+          axis.StartPosition = start;
+          var delta = axis.IsAxisVisible ? 1.0 / count : 0;
+          start += delta;
+          axis.EndPosition = start;
+          axis.PositionTier = 0;
+          axis.MajorGridlineStyle = LineStyle.Solid;
+          axis.MinorGridlineStyle = LineStyle.Solid;   
+        }
+      } else {
+        var tier = 0;
+        foreach (var pair in axes.Reverse()) {
+          var axis = pair.Value;
+          var type = pair.Key;
+          axis.StartPosition = 0;
+          axis.EndPosition = 1;
+          axis.PositionTier = tier;
+          if (axis.IsAxisVisible)
+            tier++;
+          axis.MajorGridlineStyle = LineStyle.None;
+          axis.MinorGridlineStyle = LineStyle.None;          
+        }
+      }
     }
 
     public void InvalidatePlot() {
