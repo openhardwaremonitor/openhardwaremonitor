@@ -23,7 +23,8 @@ using OpenHardwareMonitor.Collections;
 namespace OpenHardwareMonitor.GUI {
   public class PlotPanel : UserControl {
 
-    private PersistentSettings settings;
+    private readonly PersistentSettings settings;
+    private readonly UnitManager unitManager;
 
     private readonly Plot plot;
     private readonly PlotModel model;
@@ -35,8 +36,10 @@ namespace OpenHardwareMonitor.GUI {
 
     private DateTime now;
 
-    public PlotPanel(PersistentSettings settings) {
+    public PlotPanel(PersistentSettings settings, UnitManager unitManager) {
       this.settings = settings;
+      this.unitManager = unitManager;
+
       this.model = CreatePlotModel();
 
       this.plot = new Plot();
@@ -183,9 +186,17 @@ namespace OpenHardwareMonitor.GUI {
 
       foreach (ISensor sensor in sensors) {
         var series = new LineSeries();
-        series.ItemsSource = sensor.Values.Select(value => new DataPoint {
-          X = (now - value.Time).TotalSeconds, Y = value.Value
-        });
+        if (sensor.SensorType == SensorType.Temperature) {
+          series.ItemsSource = sensor.Values.Select(value => new DataPoint {
+            X = (now - value.Time).TotalSeconds,
+            Y = unitManager.TemperatureUnit == TemperatureUnit.Celsius ? 
+              value.Value : UnitManager.CelsiusToFahrenheit(value.Value).Value
+          });
+        } else {
+          series.ItemsSource = sensor.Values.Select(value => new DataPoint {
+            X = (now - value.Time).TotalSeconds, Y = value.Value
+          });
+        }
         series.Color = colors[sensor].ToOxyColor();
         series.StrokeThickness = 1;
         series.YAxisKey = axes[sensor.SensorType].Key;
@@ -198,7 +209,7 @@ namespace OpenHardwareMonitor.GUI {
       foreach (var pair in axes.Reverse()) {
         var axis = pair.Value;
         var type = pair.Key;
-        axis.IsAxisVisible = types.Contains(type);     
+        axis.IsAxisVisible = types.Contains(type);
       } 
 
       UpdateAxesPosition();
@@ -225,11 +236,16 @@ namespace OpenHardwareMonitor.GUI {
         foreach (var pair in axes.Reverse()) {
           var axis = pair.Value;
           var type = pair.Key;
-          axis.StartPosition = 0;
-          axis.EndPosition = 1;
-          axis.PositionTier = axis.IsAxisVisible ? tier : 0;
-          if (axis.IsAxisVisible)
+          if (axis.IsAxisVisible) {
+            axis.StartPosition = 0;
+            axis.EndPosition = 1;
+            axis.PositionTier = tier;
             tier++;
+          } else {
+            axis.StartPosition = 0;
+            axis.EndPosition = 0;
+            axis.PositionTier = 0;
+          }
           axis.MajorGridlineStyle = LineStyle.None;
           axis.MinorGridlineStyle = LineStyle.None;          
         }
@@ -239,6 +255,15 @@ namespace OpenHardwareMonitor.GUI {
 
     public void InvalidatePlot() {
       this.now = DateTime.UtcNow;
+
+      foreach (var pair in axes) {
+        var axis = pair.Value;
+        var type = pair.Key;
+        if (type == SensorType.Temperature)
+          axis.Unit = unitManager.TemperatureUnit == TemperatureUnit.Celsius ?
+          "°C" : "°F";
+      }
+
       this.plot.InvalidatePlot(true);
     }
 

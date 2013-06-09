@@ -97,7 +97,7 @@ namespace OpenHardwareMonitor.GUI {
       this.Font = SystemFonts.MessageBoxFont;
       treeView.Font = SystemFonts.MessageBoxFont;
 
-      plotPanel = new PlotPanel(settings);
+      plotPanel = new PlotPanel(settings, unitManager);
       plotPanel.Font = SystemFonts.MessageBoxFont;
       plotPanel.Dock = DockStyle.Fill;
       
