@@ -317,11 +317,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
 
       foreach (DriveInfo di in driveInfos) {
-        r.AppendLine("Logical drive name: " + di.Name);
-        r.AppendLine("Format: " + di.DriveFormat);
-        r.AppendLine("Total size: " + di.TotalSize);
-        r.AppendLine("Total free space: " + di.TotalFreeSpace);
-        r.AppendLine();
+        if (!di.IsReady)
+          continue;
+        try {
+          r.AppendLine("Logical drive name: " + di.Name);
+          r.AppendLine("Format: " + di.DriveFormat);
+          r.AppendLine("Total size: " + di.TotalSize);
+          r.AppendLine("Total free space: " + di.TotalFreeSpace);
+          r.AppendLine();
+        } catch (IOException) { } catch (UnauthorizedAccessException) { }
       }
 
       return r.ToString();
