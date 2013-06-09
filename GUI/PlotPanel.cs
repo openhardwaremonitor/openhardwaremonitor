@@ -4,277 +4,200 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
+using System.Linq;
 using System.Windows.Forms;
 using OpenHardwareMonitor.Hardware;
+using OxyPlot;
+using OxyPlot.Axes;
+using OxyPlot.WindowsForms;
+using OxyPlot.Series;
+using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.GUI {
   public class PlotPanel : UserControl {
 
     private PersistentSettings settings;
 
+    private readonly Plot plot;
+    private readonly PlotModel model;
+    private readonly TimeSpanAxis timeAxis = new TimeSpanAxis();
+    private readonly SortedDictionary<SensorType, LinearAxis> axes =
+      new SortedDictionary<SensorType, LinearAxis>();
+
     private DateTime now;
-    private List<ISensor> clocks = new List<ISensor>();
-    private List<ISensor> temperatures = new List<ISensor>();
-    private List<ISensor> fans = new List<ISensor>();
-    private IDictionary<ISensor, Color> colors;
-
-    private StringFormat centerlower;
-    private StringFormat centerleft;
-    private StringFormat lowerleft;
-    private Brush lightBrush;
-    private Pen lightPen;
-
-    private UserRadioGroup timeWindowRadioGroup;
 
     public PlotPanel(PersistentSettings settings) {
       this.settings = settings;
+      this.model = CreatePlotModel();
 
-      this.SetStyle(ControlStyles.DoubleBuffer |
-        ControlStyles.UserPaint |
-        ControlStyles.AllPaintingInWmPaint |
-        ControlStyles.ResizeRedraw, true);
-      this.UpdateStyles();
+      this.plot = new Plot();
+      this.plot.Dock = DockStyle.Fill;
+      this.plot.Model = model;
+      this.plot.BackColor = Color.White;
+      this.plot.ContextMenu = new ContextMenu();
+      this.plot.ContextMenu.MenuItems.Add(CreateMenu());
 
-      CreateContextMenu();
-
-      centerlower = new StringFormat();
-      centerlower.Alignment = StringAlignment.Center;
-      centerlower.LineAlignment = StringAlignment.Near;
-
-      centerleft = new StringFormat();
-      centerleft.Alignment = StringAlignment.Far;
-      centerleft.LineAlignment = StringAlignment.Center;
-
-      lowerleft = new StringFormat();
-      lowerleft.Alignment = StringAlignment.Far;
-      lowerleft.LineAlignment = StringAlignment.Near;
-
-      lightBrush = new SolidBrush(Color.FromArgb(245, 245, 245));
-      lightPen = new Pen(Color.FromArgb(200, 200, 200));
+      this.SuspendLayout();
+      this.Controls.Add(plot);
+      this.ResumeLayout(true);
     }
 
-    private void CreateContextMenu() {
-      MenuItem timeWindow = new MenuItem("Time Scale");
-      
-      MenuItem[] timeWindowMenuItems = 
-        { new MenuItem("Auto"), 
-          new MenuItem("5 min"),
-          new MenuItem("10 min"),
-          new MenuItem("20 min"),
-          new MenuItem("30 min"),
-          new MenuItem("45 min"),
-          new MenuItem("1 h"),
-          new MenuItem("1.5 h"),
-          new MenuItem("2 h"),
-          new MenuItem("3 h"),
-          new MenuItem("6 h"),
-          new MenuItem("12 h"),
-          new MenuItem("24 h") };
+    public void SetCurrentSettings() {
+      settings.SetValue("plotPanel.MinTimeSpan", (float)timeAxis.ViewMinimum);
+      settings.SetValue("plotPanel.MaxTimeSpan", (float)timeAxis.ViewMaximum);
+
+      foreach (var axis in axes.Values) {
+        settings.SetValue("plotPanel.Min" + axis.Key, (float)axis.ViewMinimum);
+        settings.SetValue("plotPanel.Max" + axis.Key, (float)axis.ViewMaximum);
+      }
+    }
+
+    private MenuItem CreateMenu() {
+      MenuItem timeWindow = new MenuItem("Time Window");
+
+      MenuItem[] timeWindowMenuItems =
+        { new MenuItem("Auto", 
+            (s, e) => { timeAxis.Zoom(0, double.NaN); InvalidatePlot(); }),
+          new MenuItem("5 min", 
+            (s, e) => { timeAxis.Zoom(0, 5 * 60); InvalidatePlot(); }),
+          new MenuItem("10 min", 
+            (s, e) => { timeAxis.Zoom(0, 10 * 60); InvalidatePlot(); }),
+          new MenuItem("20 min", 
+            (s, e) => { timeAxis.Zoom(0, 20 * 60); InvalidatePlot(); }),
+          new MenuItem("30 min", 
+            (s, e) => { timeAxis.Zoom(0, 30 * 60); InvalidatePlot(); }),
+          new MenuItem("45 min", 
+            (s, e) => { timeAxis.Zoom(0, 45 * 60); InvalidatePlot(); }),
+          new MenuItem("1 h", 
+            (s, e) => { timeAxis.Zoom(0, 60 * 60); InvalidatePlot(); }),
+          new MenuItem("1.5 h", 
+            (s, e) => { timeAxis.Zoom(0, 1.5 * 60 * 60); InvalidatePlot(); }),
+          new MenuItem("2 h", 
+            (s, e) => { timeAxis.Zoom(0, 2 * 60 * 60); InvalidatePlot(); }),
+          new MenuItem("3 h", 
+            (s, e) => { timeAxis.Zoom(0, 3 * 60 * 60); InvalidatePlot(); }),
+          new MenuItem("6 h", 
+            (s, e) => { timeAxis.Zoom(0, 6 * 60 * 60); InvalidatePlot(); }),
+          new MenuItem("12 h", 
+            (s, e) => { timeAxis.Zoom(0, 12 * 60 * 60); InvalidatePlot(); }),
+          new MenuItem("24 h", 
+            (s, e) => { timeAxis.Zoom(0, 24 * 60 * 60); InvalidatePlot(); }) };
 
       foreach (MenuItem mi in timeWindowMenuItems)
         timeWindow.MenuItems.Add(mi);
 
-      timeWindowRadioGroup = new UserRadioGroup("timeWindow", 0, 
-        timeWindowMenuItems, settings);
-
-      this.ContextMenu = new ContextMenu();
-      this.ContextMenu.MenuItems.Add(timeWindow);
+      return timeWindow;
     }
 
-    private List<float> GetTemperatureGrid() {
+    private PlotModel CreatePlotModel() {
 
-      float? minTempNullable = null;
-      float? maxTempNullable = null;
-      foreach (ISensor sensor in temperatures) {
-        IEnumerable<SensorValue> values = sensor.Values;
-        foreach (SensorValue value in values) {
-          if (!float.IsNaN(value.Value)) {
-            if (!minTempNullable.HasValue || minTempNullable > value.Value)
-              minTempNullable = value.Value;
-            if (!maxTempNullable.HasValue || maxTempNullable < value.Value)
-              maxTempNullable = value.Value;
-          }
-        }
-      }
-      if (!minTempNullable.HasValue) {
-        minTempNullable = 20;
-        maxTempNullable = 30;
-      }
+      timeAxis.Position = AxisPosition.Bottom;
+      timeAxis.MajorGridlineStyle = LineStyle.Solid;
+      timeAxis.MajorGridlineThickness = 1;
+      timeAxis.MajorGridlineColor = OxyColor.FromRgb(192, 192, 192);
+      timeAxis.MinorGridlineStyle = LineStyle.Solid;
+      timeAxis.MinorGridlineThickness = 1;
+      timeAxis.MinorGridlineColor = OxyColor.FromRgb(232, 232, 232);
+      timeAxis.StartPosition = 1;
+      timeAxis.EndPosition = 0;
+      timeAxis.MinimumPadding = 0;
+      timeAxis.MaximumPadding = 0;
+      timeAxis.AbsoluteMinimum = 0;
+      timeAxis.Minimum = 0;
+      timeAxis.AbsoluteMaximum = 24 * 60 * 60;
+      timeAxis.Zoom(
+        settings.GetValue("plotPanel.MinTimeSpan", 0.0f),
+        settings.GetValue("plotPanel.MaxTimeSpan", 10.0f * 60));
+      timeAxis.StringFormat = "h:mm";
 
-      float maxTemp = (float)Math.Ceiling(maxTempNullable.Value / 10) * 10;
-      float minTemp = (float)Math.Floor(minTempNullable.Value / 10) * 10;
-      if (maxTemp == minTemp)
-        maxTemp += 10;
+      var units = new Dictionary<SensorType, string>();
+      units.Add(SensorType.Voltage, "V");
+      units.Add(SensorType.Clock, "MHz");
+      units.Add(SensorType.Temperature, "°C");
+      units.Add(SensorType.Load, "%");
+      units.Add(SensorType.Fan, "RPM");
+      units.Add(SensorType.Flow, "L/h");
+      units.Add(SensorType.Control, "%");
+      units.Add(SensorType.Level, "%");
+      units.Add(SensorType.Factor, "1");
+      units.Add(SensorType.Power, "W");
+      units.Add(SensorType.Data, "GB");
 
-      int countTempMax = 4;
-      float deltaTemp = maxTemp - minTemp;
-      int countTemp = (int)Math.Round(deltaTemp / 2);
-      if (countTemp > countTempMax)
-        countTemp = (int)Math.Round(deltaTemp / 5);
-      if (countTemp > countTempMax)
-        countTemp = (int)Math.Round(deltaTemp / 10);
-      if (countTemp > countTempMax)
-        countTemp = (int)Math.Round(deltaTemp / 20);
+      foreach (SensorType type in Enum.GetValues(typeof(SensorType))) {
+        var axis = new LinearAxis();
+        axis.Position = AxisPosition.Left;
+        axis.MajorGridlineStyle = LineStyle.Solid;
+        axis.MajorGridlineThickness = 1;
+        axis.MajorGridlineColor = timeAxis.MajorGridlineColor;
+        axis.MinorGridlineStyle = LineStyle.Solid;
+        axis.MinorGridlineThickness = 1;
+        axis.MinorGridlineColor = timeAxis.MinorGridlineColor;
+        axis.Title = type.ToString();
+        axis.Key = type.ToString();
 
-      List<float> grid = new List<float>(countTemp + 1);
-      for (int i = 0; i <= countTemp; i++) {
-        grid.Add(minTemp + i * deltaTemp / countTemp);
-      }
-      return grid;
-    }
+        axis.Zoom(
+          settings.GetValue("plotPanel.Min" + axis.Key, float.NaN),
+          settings.GetValue("plotPanel.Max" + axis.Key, float.NaN));
 
-    private List<float> GetTimeGrid() {
-
-      float maxTime;
-      if (timeWindowRadioGroup.Value == 0) { // Auto
-        maxTime = 5;
-        if (temperatures.Count > 0) {
-          IEnumerator<SensorValue> enumerator =
-            temperatures[0].Values.GetEnumerator();
-          if (enumerator.MoveNext()) {
-            maxTime = (float)(now - enumerator.Current.Time).TotalMinutes;
-          }
-        }
-      } else {
-        float[] maxTimes = 
-          { 5, 10, 20, 30, 45, 60, 90, 120, 180, 360, 720, 1440 };
-
-        maxTime = maxTimes[timeWindowRadioGroup.Value - 1];
+        if (units.ContainsKey(type))
+          axis.Unit = units[type];
+        axes.Add(type, axis);
       }
 
-      int countTime = 10;
-      float deltaTime = 5;
-      while (deltaTime + 1 <= maxTime && deltaTime < 10)
-        deltaTime += 1;
-      while (deltaTime + 2 <= maxTime && deltaTime < 30)
-        deltaTime += 2;
-      while (deltaTime + 5 <= maxTime && deltaTime < 100)
-        deltaTime += 5;
-      while (deltaTime + 50 <= maxTime && deltaTime < 1000)
-        deltaTime += 50;
-      while (deltaTime + 100 <= maxTime && deltaTime < 10000)
-        deltaTime += 100;
+      var model = new PlotModel();
+      model.Axes.Add(timeAxis);
+      foreach (var axis in axes.Values)
+        model.Axes.Add(axis);
+      model.PlotMargins = new OxyThickness(0);
+      model.IsLegendVisible = false;
 
-      List<float> grid = new List<float>(countTime + 1);
-      for (int i = 0; i <= countTime; i++) {
-        grid.Add(i * deltaTime / countTime);
-      }
-      return grid;
-    }
-
-    protected override void OnPaint(PaintEventArgs e) {
-      now = DateTime.UtcNow - new TimeSpan(0, 0, 4);
-
-      List<float> timeGrid = GetTimeGrid();
-      List<float> tempGrid = GetTemperatureGrid();
-
-      Graphics g = e.Graphics;
-
-      RectangleF r =
-        new RectangleF(0, 0, Bounds.Width, Bounds.Height);
-
-      float ml = 40;
-      float mr = 15;
-      float x0 = r.X + ml;
-      float w = r.Width - ml - mr;
-
-      float mt = 15;
-      float mb = 28;
-      float y0 = r.Y + mt;
-      float h = r.Height - mt - mb;
-
-      float leftScaleSpace = 5;
-      float bottomScaleSpace = 5;
-
-      g.Clear(Color.White);
-
-      if (w > 0 && h > 0) {
-        g.FillRectangle(lightBrush, x0, y0, w, h);
-
-        g.SmoothingMode = SmoothingMode.HighQuality;
-        for (int i = 0; i < timeGrid.Count; i++) {
-          float x = x0 + i * w / (timeGrid.Count - 1);
-          g.DrawLine(lightPen, x, y0, x, y0 + h);
-        }
-
-        for (int i = 0; i < tempGrid.Count; i++) {
-          float y = y0 + i * h / (tempGrid.Count - 1);
-          g.DrawLine(lightPen, x0, y, x0 + w, y);
-        }
-
-        float deltaTemp = tempGrid[tempGrid.Count - 1] - tempGrid[0];
-        float deltaTime = timeGrid[timeGrid.Count - 1];
-        foreach (ISensor sensor in temperatures) {
-          using (Pen pen = new Pen(colors[sensor])) {
-            IEnumerable<SensorValue> values = sensor.Values;
-            PointF last = new PointF();
-            bool first = true;
-            foreach (SensorValue v in values) {
-              if (!float.IsNaN(v.Value)) {
-                PointF point = new PointF(
-                    x0 + w - w * (float)(now - v.Time).TotalMinutes / deltaTime,
-                    y0 + h - h * (v.Value - tempGrid[0]) / deltaTemp);
-                if (!first) 
-                  g.DrawLine(pen, last, point);                
-                last = point;
-                first = false;
-              } else {
-                first = true;
-              }
-            }
-          }
-        }
-
-        g.SmoothingMode = SmoothingMode.None;
-        g.FillRectangle(Brushes.White, 0, 0, x0, r.Height);
-        g.FillRectangle(Brushes.White, x0 + w + 1, 0, r.Width - x0 - w,
-          r.Height);
-
-        for (int i = 1; i < timeGrid.Count; i++) {
-          float x = x0 + (timeGrid.Count - 1 - i) * w / (timeGrid.Count - 1);
-          g.DrawString(timeGrid[i].ToString(), Font, Brushes.Black, x,
-            y0 + h + bottomScaleSpace, centerlower);
-        }
-
-        for (int i = 0; i < tempGrid.Count - 1; i++) {
-          float y = y0 + (tempGrid.Count - 1 - i) * h / (tempGrid.Count - 1);
-          g.DrawString(tempGrid[i].ToString(), Font, Brushes.Black,
-            x0 - leftScaleSpace, y, centerleft);
-        }
-
-        g.SmoothingMode = SmoothingMode.HighQuality;
-        g.DrawString("[°C]", Font, Brushes.Black, x0 - leftScaleSpace, y0,
-          lowerleft);
-        g.DrawString("[min]", Font, Brushes.Black, x0 + w,
-          y0 + h + bottomScaleSpace, lowerleft);
-      }
+      return model;
     }
 
     public void SetSensors(List<ISensor> sensors,
       IDictionary<ISensor, Color> colors) {
-      this.colors = colors;
-      List<ISensor> clocks = new List<ISensor>();
-      List<ISensor> temperatures = new List<ISensor>();
-      List<ISensor> fans = new List<ISensor>();
-      foreach (ISensor sensor in sensors)
-        switch (sensor.SensorType) {
-          case SensorType.Clock: clocks.Add(sensor); break;
-          case SensorType.Temperature: temperatures.Add(sensor); break;
-          case SensorType.Fan: fans.Add(sensor); break;
-        }
-      this.clocks = clocks;
-      this.temperatures = temperatures;
-      this.fans = fans;
-      Invalidate();
+      this.model.Series.Clear();
+
+      ListSet<SensorType> types = new ListSet<SensorType>();
+
+      foreach (ISensor sensor in sensors) {
+        var series = new LineSeries();
+        series.ItemsSource = sensor.Values.Select(value => new DataPoint {
+          X = (now - value.Time).TotalSeconds, Y = value.Value
+        });
+        series.Color = colors[sensor].ToOxyColor();
+        series.StrokeThickness = 1;
+        series.YAxisKey = axes[sensor.SensorType].Key;
+        series.Title = sensor.Hardware.Name + " " + sensor.Name;
+        this.model.Series.Add(series);
+
+        types.Add(sensor.SensorType);
+      }
+
+      var start = 0.0;
+      foreach (var pair in axes.Reverse()) {
+        var axis = pair.Value;
+        var type = pair.Key;
+        axis.StartPosition = start;
+        axis.IsAxisVisible = types.Contains(type);
+        var delta = axis.IsAxisVisible ? 1.0 / types.Count : 0;
+        start += delta;
+        axis.EndPosition = start;
+      }
+
+      InvalidatePlot();
+    }
+
+    public void InvalidatePlot() {
+      this.now = DateTime.UtcNow;
+      this.plot.InvalidatePlot(true);
     }
 
   }
