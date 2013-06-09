@@ -301,6 +301,38 @@ namespace OxyPlot
             if (this.Axes.Count > 0)
             {
                 rc.DrawRectangleAsPolygon(this.PlotArea, null, this.PlotAreaBorderColor, this.PlotAreaBorderThickness);
+
+                foreach (var axis in this.Axes) {
+                  var actualMinimum = axis.Transform(axis.ActualMinimum);
+                  var actualMaximum = axis.Transform(axis.ActualMaximum);
+
+                  if (!axis.IsAxisVisible)
+                    continue;
+
+                  if (axis.IsHorizontal()) {
+                    rc.DrawLine(new[] {
+                      new ScreenPoint(actualMinimum, this.PlotArea.Top),
+                      new ScreenPoint(actualMinimum, this.PlotArea.Bottom) },
+                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness, 
+                      null, OxyPenLineJoin.Miter, true);
+                    rc.DrawLine(new[] { 
+                      new ScreenPoint(actualMaximum, this.PlotArea.Top),
+                      new ScreenPoint(actualMaximum, this.PlotArea.Bottom) },
+                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                      null, OxyPenLineJoin.Miter, true);
+                  } else {
+                    rc.DrawLine(new[] { 
+                      new ScreenPoint(this.PlotArea.Left, actualMinimum),
+                      new ScreenPoint(this.PlotArea.Right, actualMinimum) },
+                        this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                      null, OxyPenLineJoin.Miter, true);
+                    rc.DrawLine(new[] { 
+                      new ScreenPoint(this.PlotArea.Left, actualMinimum),
+                      new ScreenPoint(this.PlotArea.Right, actualMinimum) },
+                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                      null, OxyPenLineJoin.Miter, true);
+                  }
+                }
             }
         }
 
