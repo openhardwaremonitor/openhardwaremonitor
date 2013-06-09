@@ -5,7 +5,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
 	Copyright (C) 2012 Prince Samuel <prince.samuel@gmail.com>
-  Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 
 */
 
@@ -37,6 +37,7 @@ namespace OpenHardwareMonitor.Utilities {
 
       try {
         listener = new HttpListener();
+        listener.IgnoreWriteExceptions = true;
       } catch (PlatformNotSupportedException) {
         listener = null;
       }
@@ -156,10 +157,12 @@ namespace OpenHardwareMonitor.Utilities {
               while ((len = stream.Read(buffer, 0, buffer.Length)) > 0) {
                 output.Write(buffer, 0, len);
               }
-              output.Close();
-            } catch (HttpListenerException) {
+              output.Flush();
+              output.Close();              
+              response.Close();
+            } catch (HttpListenerException) { 
+            } catch (InvalidOperationException) { 
             }
-            response.Close();
             return;
           }          
         }
