@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds <paul@werelds.net>
 	Copyright (C) 2012 Prince Samuel <prince.samuel@gmail.com>
 
@@ -459,8 +459,7 @@ namespace OpenHardwareMonitor.GUI {
       int colorIndex = 0;
       foreach (TreeNodeAdv node in treeView.AllNodes) {
         SensorNode sensorNode = node.Tag as SensorNode;
-        if (sensorNode != null &&
-          sensorNode.Sensor.SensorType == SensorType.Temperature) {
+        if (sensorNode != null) {
           if (sensorNode.Plot) {
             colors.Add(sensorNode.Sensor,
               plotColorPalette[colorIndex % plotColorPalette.Length]);
@@ -484,9 +483,7 @@ namespace OpenHardwareMonitor.GUI {
     private void nodeCheckBox_IsVisibleValueNeeded(object sender, 
       NodeControlValueEventArgs e) {
       SensorNode node = e.Node.Tag as SensorNode;
-      e.Value = (node != null) && 
-        (node.Sensor.SensorType == SensorType.Temperature) && 
-        plotMenuItem.Checked;
+      e.Value = (node != null) && plotMenuItem.Checked;
     }
 
     private void exitClick(object sender, EventArgs e) {
@@ -496,7 +493,7 @@ namespace OpenHardwareMonitor.GUI {
     private void timer_Tick(object sender, EventArgs e) {
       computer.Accept(updateVisitor);
       treeView.Invalidate();
-      plotPanel.Invalidate();
+      plotPanel.InvalidatePlot();
       systemTray.Redraw();
       if (gadget != null)
         gadget.Redraw();
@@ -506,6 +503,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SaveConfiguration() {
+      plotPanel.SetCurrentSettings();
       foreach (TreeColumn column in treeView.Columns)
         settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
