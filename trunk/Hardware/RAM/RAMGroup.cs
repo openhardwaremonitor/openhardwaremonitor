@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -13,14 +13,14 @@ using System;
 namespace OpenHardwareMonitor.Hardware.RAM {
   internal class RAMGroup : IGroup {
 
-    private IHardware[] hardware;
+    private Hardware[] hardware;
 
     public RAMGroup(SMBIOS smbios, ISettings settings) {
 
       // No implementation for RAM on Unix systems
       int p = (int)Environment.OSVersion.Platform;
       if ((p == 4) || (p == 128)) {
-        hardware = new IHardware[0];
+        hardware = new Hardware[0];
         return;
       }
 
@@ -32,7 +32,7 @@ namespace OpenHardwareMonitor.Hardware.RAM {
         name = "Generic Memory";
       }
 
-      hardware = new IHardware[] { new GenericRAM(name, settings) };
+      hardware = new Hardware[] { new GenericRAM(name, settings) };
     }
 
     public string GetReport() {
@@ -46,7 +46,8 @@ namespace OpenHardwareMonitor.Hardware.RAM {
     }
 
     public void Close() {
-
+      foreach (Hardware ram in hardware)
+        ram.Close();
     }
   }
 }
