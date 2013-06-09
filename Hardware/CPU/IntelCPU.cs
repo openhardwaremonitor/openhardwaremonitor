@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -22,7 +22,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Atom,
       Nehalem,
       SandyBridge,
-      IvyBridge
+      IvyBridge,
+      Haswell
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -134,6 +135,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.IvyBridge;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0x3C: // Intel Core i5, i7 4xxx LGA1150 (22nm)
+              case 0x45:
+              case 0x46:
+                microarchitecture = Microarchitecture.Haswell;
+                tjMax = GetTjMaxFromMSR();
+                break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
                 tjMax = Floats(100);
@@ -176,7 +183,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           } break;
         case Microarchitecture.Nehalem:
         case Microarchitecture.SandyBridge:
-        case Microarchitecture.IvyBridge: {
+        case Microarchitecture.IvyBridge:
+        case Microarchitecture.Haswell: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -234,7 +242,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       if (microarchitecture == Microarchitecture.SandyBridge ||
-          microarchitecture == Microarchitecture.IvyBridge) 
+          microarchitecture == Microarchitecture.IvyBridge ||
+          microarchitecture == Microarchitecture.Haswell) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
@@ -341,7 +350,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
               case Microarchitecture.SandyBridge:
-              case Microarchitecture.IvyBridge: {
+              case Microarchitecture.IvyBridge:
+              case Microarchitecture.Haswell: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
