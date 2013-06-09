@@ -227,13 +227,14 @@ namespace OpenHardwareMonitor.GUI {
           var type = pair.Key;
           axis.StartPosition = 0;
           axis.EndPosition = 1;
-          axis.PositionTier = tier;
+          axis.PositionTier = axis.IsAxisVisible ? tier : 0;
           if (axis.IsAxisVisible)
             tier++;
           axis.MajorGridlineStyle = LineStyle.None;
           axis.MinorGridlineStyle = LineStyle.None;          
         }
       }
+
     }
 
     public void InvalidatePlot() {
