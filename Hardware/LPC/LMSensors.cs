@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -62,6 +62,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               lmChips.Add(new LMChip(Chip.IT8718F, path)); break;
             case "it8720":
               lmChips.Add(new LMChip(Chip.IT8720F, path)); break;
+            
+            case "nct6775":
+              lmChips.Add(new LMChip(Chip.NCT6771F, path)); break;
+            case "nct6776":
+              lmChips.Add(new LMChip(Chip.NCT6776F, path)); break;
 
             case "w83627ehf":
               lmChips.Add(new LMChip(Chip.W83627EHF, path)); break;
