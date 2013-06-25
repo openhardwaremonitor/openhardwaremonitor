@@ -4,20 +4,22 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   using System.Collections.Generic;
+  using OpenHardwareMonitor.Collections;
 
-  [NamePrefix(""), RequireSmart(0xB0), RequireSmart(0xB1), RequireSmart(0xB2), 
-    RequireSmart(0xB3), RequireSmart(0xB4), RequireSmart(0xB5), 
-    RequireSmart(0xB6), RequireSmart(0xB7)]
+  [NamePrefix(""), RequireSmart(0xB1), RequireSmart(0xB3), RequireSmart(0xB5),
+    RequireSmart(0xB6), RequireSmart(0xB7), RequireSmart(0xBB), 
+    RequireSmart(0xC3), RequireSmart(0xC7)]
   internal class SSDSamsung : AbstractHarddrive {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
+      new SmartAttribute(0x05, SmartNames.ReallocatedSectorsCount),
       new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
       new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
       new SmartAttribute(0xAF, SmartNames.ProgramFailCountChip, RawToInt),
@@ -34,13 +36,21 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xB6, SmartNames.EraseFailCountTotal, RawToInt),
       new SmartAttribute(0xB7, SmartNames.RuntimeBadBlockTotal, RawToInt),
       new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xBE, SmartNames.TemperatureExceedCount, RawToInt),
+      new SmartAttribute(0xBE, SmartNames.Temperature, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return r[0] + (p == null ? 0 : p[0].Value); }, 
+          SensorType.Temperature, 0, false, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xC2, SmartNames.AirflowTemperature),
       new SmartAttribute(0xC3, SmartNames.ECCRate),
       new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
       new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt),
       new SmartAttribute(0xC9, SmartNames.SupercapStatus),
-      new SmartAttribute(0xCA, SmartNames.ExceptionModeStatus)
+      new SmartAttribute(0xCA, SmartNames.ExceptionModeStatus),
+      new SmartAttribute(0xEB, SmartNames.PowerRecoveryCount),
+      new SmartAttribute(0xF1, SmartNames.TotalLBAWritten)
     };
 
     public SSDSamsung(ISmart smart, string name, string firmwareRevision,

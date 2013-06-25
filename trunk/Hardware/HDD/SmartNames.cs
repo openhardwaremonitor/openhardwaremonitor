@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2011-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2011-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
   Copyright (C) 2011 Roland Reinl <roland-reinl@gmx.de>
 	
 */
@@ -489,6 +489,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public static string FactoryBadBlockCount {
       get { return "Factory Bad Block Count"; }
+    }
+
+    public static string PowerRecoveryCount {
+      get { return "Power Recovery Count"; }
+    }
+
+    public static string TotalLBAWritten {
+      get { return "Total LBA Written"; }
     }
   }
 }

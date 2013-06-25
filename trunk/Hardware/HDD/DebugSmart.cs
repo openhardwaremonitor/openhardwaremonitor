@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2011-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2011-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -313,7 +313,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             C6 000000000000 100 100 1  
             C7 000000000000 100 100 1  
             CA 010000000000 99  99  1  
-            CE 000000000000 100 100 1 ")};
+            CE 000000000000 100 100 1 "),
+
+        new Drive("Samsung SSD 840 PRO Series", "DXM05B0Q", 16,
+          @"05 000000000000 100 100 10 
+            09 260000000000 99  99  0  
+            0C 170000000000 99  99  0  
+            B1 010000000000 99  99  0  
+            B3 000000000000 100 100 10 
+            B5 000000000000 100 100 10 
+            B6 000000000000 100 100 10 
+            B7 000000000000 100 100 10 
+            BB 000000000000 100 100 0  
+            BE 190000000000 60  75  0  
+            C3 000000000000 200 200 0  
+            C7 000000000000 100 100 0  
+            EB 030000000000 99  99  0  
+            F1 8FF425100000 99  99  0")};
 
     public IntPtr OpenDrive(int driveNumber) {
       if (driveNumber < drives.Length)
