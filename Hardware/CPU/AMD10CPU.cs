@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
@@ -36,7 +35,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort FAMILY_11H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1303;
     private const ushort FAMILY_12H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703;
     private const ushort FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703;
-    private const ushort FAMILY_15H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1603; 
+    private const ushort FAMILY_15H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1603;
+    private const ushort FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID = 0x1403;
+    private const ushort FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1533;
+
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     private const uint CLOCK_POWER_TIMING_CONTROL_0_REGISTER = 0xD4;
 
@@ -67,8 +69,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           FAMILY_12H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
         case 0x14: miscellaneousControlDeviceId = 
           FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
-        case 0x15: miscellaneousControlDeviceId =
-          FAMILY_15H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        case 0x15:
+          switch (model & 0xF0) {
+            case 0x00: miscellaneousControlDeviceId =
+              FAMILY_15H_MODEL_00_MISC_CONTROL_DEVICE_ID; break;
+            case 0x10: miscellaneousControlDeviceId =
+              FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID; break;
+            default: miscellaneousControlDeviceId = 0; break;
+          } break;
+        case 0x16:
+          switch (model & 0xF0) {
+            case 0x00: miscellaneousControlDeviceId =
+              FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID; break;            
+            default: miscellaneousControlDeviceId = 0; break;
+          } break;
         default: miscellaneousControlDeviceId = 0; break;
       }
 
@@ -220,7 +234,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       switch (family) {
         case 0x10:
         case 0x11: 
-        case 0x15: {
+        case 0x15: 
+        case 0x16: {
             // 8:6 CpuDid: current core divisor ID
             // 5:0 CpuFid: current core frequency ID
             uint cpuDid = (cofvidEax >> 6) & 7;
@@ -286,8 +301,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           if (Ring0.ReadPciConfig(miscellaneousControlAddress,
             REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
             if (family == 0x15 && (value & 0x30000) == 0x30000) {
-              coreTemperature.Value = ((value >> 21) & 0x7FC) / 8.0f +
-                coreTemperature.Parameters[0].Value - 49;
+              if ((model & 0xF0) == 0x00) {
+                coreTemperature.Value = ((value >> 21) & 0x7FC) / 8.0f +
+                  coreTemperature.Parameters[0].Value - 49;
+              } else {
+                coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
+                  coreTemperature.Parameters[0].Value - 49;
+              }
+            } else if (family == 0x16 && 
+              ((value & 0x30000) == 0x30000 || (value & 0x80000) == 0x80000)) {
+                coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
+                  coreTemperature.Parameters[0].Value - 49;
             } else {
               coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
                 coreTemperature.Parameters[0].Value;

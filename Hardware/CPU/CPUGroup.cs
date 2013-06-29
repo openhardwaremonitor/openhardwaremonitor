@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -101,6 +101,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x12:
               case 0x14:
               case 0x15:
+              case 0x16:
                 hardware.Add(new AMD10CPU(index, coreThreads, settings));
                 break;
               default:
