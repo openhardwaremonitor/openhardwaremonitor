@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -135,6 +135,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           switch (revision) {
             case 0x05:
               chip = Chip.F71889AD;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x07:
+              chip = Chip.F71869A;
               logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
               break;
           } break;
@@ -284,6 +288,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.F71858:
           case Chip.F71862:
           case Chip.F71869:
+          case Chip.F71869A:
           case Chip.F71882:
           case Chip.F71889AD:
           case Chip.F71889ED:
