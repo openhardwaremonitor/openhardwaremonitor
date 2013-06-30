@@ -69,9 +69,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       foreach (string logicalDrive in logicalDrives) {
         try {
           DriveInfo di = new DriveInfo(logicalDrive);
-          if (di.TotalSize > 0) 
+          if (di.TotalSize > 0)
             driveInfoList.Add(new DriveInfo(logicalDrive));
-        } catch (ArgumentException) { } catch (IOException) { }
+        } catch (ArgumentException) {
+        } catch (IOException) {
+        } catch (UnauthorizedAccessException) {
+        }
       }
       driveInfos = driveInfoList.ToArray();
 
@@ -104,6 +107,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       } else {
         string[] logicalDrives = smart.GetLogicalDrives(driveIndex);
         if (logicalDrives == null || logicalDrives.Length == 0)
+          return null;
+
+        bool hasNonZeroSizeDrive = false;
+        foreach (string logicalDrive in logicalDrives) {
+          try {
+            DriveInfo di = new DriveInfo(logicalDrive);
+            if (di.TotalSize > 0) {
+              hasNonZeroSizeDrive = true;
+              break;
+            }
+          } catch (ArgumentException) { 
+          } catch (IOException) { 
+          } catch (UnauthorizedAccessException) {
+          }
+        }
+
+        if (!hasNonZeroSizeDrive)
           return null;
       }
 
