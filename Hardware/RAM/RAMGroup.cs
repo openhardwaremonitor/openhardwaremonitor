@@ -24,15 +24,7 @@ namespace OpenHardwareMonitor.Hardware.RAM {
         return;
       }
 
-      string name;
-      if (smbios.MemoryDevices.Length > 0) {
-        name = smbios.MemoryDevices[0].ManufacturerName + " " + 
-          smbios.MemoryDevices[0].PartNumber;
-      } else {
-        name = "Generic Memory";
-      }
-
-      hardware = new Hardware[] { new GenericRAM(name, settings) };
+      hardware = new Hardware[] { new GenericRAM("Generic Memory", settings) };
     }
 
     public string GetReport() {
