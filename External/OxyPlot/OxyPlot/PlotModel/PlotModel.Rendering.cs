@@ -302,37 +302,53 @@ namespace OxyPlot
             {
                 rc.DrawRectangleAsPolygon(this.PlotArea, null, this.PlotAreaBorderColor, this.PlotAreaBorderThickness);
 
-                foreach (var axis in this.Axes) {
-                  var actualMinimum = axis.Transform(axis.ActualMinimum);
-                  var actualMaximum = axis.Transform(axis.ActualMaximum);
+                foreach (var axis in this.Axes) 
+                {
+                    if (!axis.IsAxisVisible)
+                        continue;
 
-                  if (!axis.IsAxisVisible)
-                    continue;
+                    if (axis.IsHorizontal()) 
+                    {
+                        var start = this.PlotArea.Left + 
+                            this.PlotArea.Width * axis.StartPosition;
+                        if (axis.StartPosition < 1 && axis.StartPosition > 0)
+                            rc.DrawLine(new[] {
+                                new ScreenPoint(start, this.PlotArea.Top),
+                                new ScreenPoint(start, this.PlotArea.Bottom) },
+                                    this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                                null, OxyPenLineJoin.Miter, true);
 
-                  if (axis.IsHorizontal()) {
-                    rc.DrawLine(new[] {
-                      new ScreenPoint(actualMinimum, this.PlotArea.Top),
-                      new ScreenPoint(actualMinimum, this.PlotArea.Bottom) },
-                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness, 
-                      null, OxyPenLineJoin.Miter, true);
-                    rc.DrawLine(new[] { 
-                      new ScreenPoint(actualMaximum, this.PlotArea.Top),
-                      new ScreenPoint(actualMaximum, this.PlotArea.Bottom) },
-                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
-                      null, OxyPenLineJoin.Miter, true);
-                  } else {
-                    rc.DrawLine(new[] { 
-                      new ScreenPoint(this.PlotArea.Left, actualMinimum),
-                      new ScreenPoint(this.PlotArea.Right, actualMinimum) },
-                        this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
-                      null, OxyPenLineJoin.Miter, true);
-                    rc.DrawLine(new[] { 
-                      new ScreenPoint(this.PlotArea.Left, actualMinimum),
-                      new ScreenPoint(this.PlotArea.Right, actualMinimum) },
-                      this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
-                      null, OxyPenLineJoin.Miter, true);
-                  }
+                        var end = this.PlotArea.Left +
+                            this.PlotArea.Width * axis.EndPosition;
+                        if (axis.EndPosition < 1 && axis.EndPosition > 0)
+                            rc.DrawLine(new[] {
+                                new ScreenPoint(end, this.PlotArea.Top),
+                                new ScreenPoint(end, this.PlotArea.Bottom) },
+                                    this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                                null, OxyPenLineJoin.Miter, true);
+                    } 
+                    else 
+                    {
+                        var start = this.PlotArea.Bottom - 
+                            this.PlotArea.Height * axis.StartPosition;
+                        if (axis.StartPosition < 1 && axis.StartPosition > 0)
+                            rc.DrawLine(new[] { 
+                                new ScreenPoint(this.PlotArea.Left, start),
+                                new ScreenPoint(this.PlotArea.Right, start) },
+                                    this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                                null, OxyPenLineJoin.Miter, true);
+
+                        var end = this.PlotArea.Bottom -
+                            this.PlotArea.Height * axis.EndPosition;
+                        if (axis.EndPosition < 1 && axis.EndPosition > 0)
+                            rc.DrawLine(new[] { 
+                                new ScreenPoint(this.PlotArea.Left, end),
+                                new ScreenPoint(this.PlotArea.Right, end) },
+                                    this.PlotAreaBorderColor, this.PlotAreaBorderThickness,
+                                null, OxyPenLineJoin.Miter, true);
+                    }
                 }
+
             }
         }
 
