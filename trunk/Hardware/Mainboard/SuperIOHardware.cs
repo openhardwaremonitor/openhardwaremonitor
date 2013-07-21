@@ -1059,6 +1059,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           }
           break;
         case Chip.NCT6779D:
+        case Chip.NCT6791D:
           switch (manufacturer) {
             case Manufacturer.ASUS:
               switch (model) {
