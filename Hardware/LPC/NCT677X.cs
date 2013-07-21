@@ -20,10 +20,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly Chip chip;
 
-    private readonly float?[] voltages;
-    private readonly float?[] temperatures;
-    private readonly float?[] fans ;
-    private readonly float?[] controls;
+    private readonly float?[] voltages = new float?[0];
+    private readonly float?[] temperatures = new float?[0];
+    private readonly float?[] fans = new float?[0];
+    private readonly float?[] controls = new float?[0];
 
     // Hardware Monitor
     private const uint ADDRESS_REGISTER_OFFSET = 0x05;
