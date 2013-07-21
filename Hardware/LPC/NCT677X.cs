@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -56,11 +56,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort VENDOR_ID_LOW_REGISTER = 0x004F;  
     
     private readonly ushort[] FAN_PWM_OUT_REG = 
-      { 0x001, 0x003, 0x011, 0x013, 0x015 };
+      { 0x001, 0x003, 0x011, 0x013, 0x015, 0x017 };
     private readonly ushort[] FAN_PWM_COMMAND_REG = 
-      { 0x109, 0x209, 0x309, 0x809, 0x909 };
+      { 0x109, 0x209, 0x309, 0x809, 0x909, 0xA09 };
     private readonly ushort[] FAN_CONTROL_MODE_REG = 
-      { 0x102, 0x202, 0x302, 0x802, 0x902 };
+      { 0x102, 0x202, 0x302, 0x802, 0x902, 0xA02 };
 
     private readonly ushort fanRpmBaseRegister;
     private readonly int minFanRPM;
@@ -129,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       BYTE_TEMP = 22
     }
 
-    private enum SourceNCT6779D : byte {
+    private enum SourceNCT67XXD : byte {
       SYSTIN = 1,
       CPUTIN = 2,
       AUXTIN0 = 3,
@@ -217,13 +217,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           break;
 
         case Chip.NCT6779D:
-          fans = new float?[5];
+        case Chip.NCT6791D:
+          if (chip == Chip.NCT6779D) {
+            fans = new float?[5];
+            controls = new float?[5];
+          } else {
+            fans = new float?[6];
+            controls = new float?[6];
+          }
+
           fanRpmBaseRegister = 0x4C0;
 
           // min value RPM value with 13-bit fan counter
           minFanRPM = (int)(1.35e6 / 0x1FFF);
-
-          controls = new float?[5];
 
           voltages = new float?[15];
           voltageRegisters = new ushort[] 
@@ -233,13 +239,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
           temperatures = new float?[7];
           temperaturesSource = new byte[] {
-            (byte)SourceNCT6779D.PECI_0,
-            (byte)SourceNCT6779D.CPUTIN,
-            (byte)SourceNCT6779D.SYSTIN,
-            (byte)SourceNCT6779D.AUXTIN0,
-            (byte)SourceNCT6779D.AUXTIN1,
-            (byte)SourceNCT6779D.AUXTIN2,
-            (byte)SourceNCT6779D.AUXTIN3
+            (byte)SourceNCT67XXD.PECI_0,
+            (byte)SourceNCT67XXD.CPUTIN,
+            (byte)SourceNCT67XXD.SYSTIN,
+            (byte)SourceNCT67XXD.AUXTIN0,
+            (byte)SourceNCT67XXD.AUXTIN1,
+            (byte)SourceNCT67XXD.AUXTIN2,
+            (byte)SourceNCT67XXD.AUXTIN3
           };
 
           temperatureRegister = new ushort[]
@@ -254,7 +260,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           alternateTemperatureRegister = new ushort?[] 
             {null, 0x491, 0x490, 0x492, 0x493, 0x494, 0x495 };
 
-          break;        
+          break;
       }
     }
 
@@ -398,14 +404,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       ushort[] addresses = new ushort[] { 
         0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070,
         0x100, 0x110, 0x120, 0x130, 0x140, 0x150, 
-        0x200,        0x220, 0x230, 0x240, 0x250,
-        0x300,        0x320, 0x330, 0x340, 
-        0x400, 0x410, 0x420,        0x440, 0x450, 0x460, 0x480, 0x490, 0x4C0,
-        0x500,                             0x550, 
+        0x200,        0x220, 0x230, 0x240, 0x250, 0x260,
+        0x300,        0x320, 0x330, 0x340,        0x360,
+        0x400, 0x410, 0x420,        0x440, 0x450, 0x460, 0x480, 0x490, 0x4B0, 
+                                                                0x4C0, 0x4F0,
+        0x500,                             0x550, 0x560,
         0x600, 0x610 ,0x620, 0x630, 0x640, 0x650, 0x660, 0x670, 
-        0x800,
-        0x900,
-        0xA00, 0xA10, 0xA20, 0xA30,        0xA50, 0xA60, 0xA70, 
+        0x700, 0x710, 0x720, 0x730,
+        0x800,        0x820, 0x830, 0x840,
+        0x900,        0x920, 0x930, 0x940,        0x960,
+        0xA00, 0xA10, 0xA20, 0xA30, 0xA40, 0xA50, 0xA60, 0xA70, 
         0xB00, 0xB10, 0xB20, 0xB30,        0xB50, 0xB60, 0xB70, 
         0xC00, 0xC10, 0xC20, 0xC30,        0xC50, 0xC60, 0xC70,
         0xD00, 0xD10, 0xD20, 0xD30,        0xD50, 0xD60, 
