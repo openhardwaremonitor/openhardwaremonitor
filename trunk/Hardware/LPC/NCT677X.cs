@@ -418,15 +418,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         0xC00, 0xC10, 0xC20, 0xC30,        0xC50, 0xC60, 0xC70,
         0xD00, 0xD10, 0xD20, 0xD30,        0xD50, 0xD60, 
         0xE00, 0xE10, 0xE20, 0xE30, 
-        0xF00, 0xF10, 0xF20, 0xF30};
+        0xF00, 0xF10, 0xF20, 0xF30,
+        0x8040};
 
       r.AppendLine("Hardware Monitor Registers");
       r.AppendLine();
-      r.AppendLine("       00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
+      r.AppendLine("        00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F");
       r.AppendLine();
       foreach (ushort address in addresses) {
           r.Append(" ");
-          r.Append(address.ToString("X3", CultureInfo.InvariantCulture));
+          r.Append(address.ToString("X4", CultureInfo.InvariantCulture));
           r.Append("  ");
           for (ushort j = 0; j <= 0xF; j++) {
             r.Append(" ");
