@@ -132,6 +132,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = GetTjMaxFromMSR();
                 break;
               case 0x3A: // Intel Core i5, i7 3xxx LGA1155 (22nm)
+              case 0x3E: // Intel Core i7 4xxx LGA2011 (22nm)
                 microarchitecture = Microarchitecture.IvyBridge;
                 tjMax = GetTjMaxFromMSR();
                 break;
