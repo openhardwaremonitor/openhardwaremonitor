@@ -305,27 +305,26 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       for (int i = 0; i < coreTemperatures.Length; i++) {
         uint eax, edx;
-        if (Ring0.RdmsrTx(
-          IA32_THERM_STATUS_MSR, out eax, out edx,
-            1UL << cpuid[i][0].Thread)) {
-          // if reading is valid
-          if ((eax & 0x80000000) != 0) {
-            // get the dist from tjMax from bits 22:16
-            float deltaT = ((eax & 0x007F0000) >> 16);
-            float tjMax = coreTemperatures[i].Parameters[0].Value;
-            float tSlope = coreTemperatures[i].Parameters[1].Value;
-            coreTemperatures[i].Value = tjMax - tSlope * deltaT;
-          } else {
-            coreTemperatures[i].Value = null;
-          }
+        // if reading is valid
+        if (Ring0.RdmsrTx(IA32_THERM_STATUS_MSR, out eax, out edx,
+            1UL << cpuid[i][0].Thread) && (eax & 0x80000000) != 0) 
+        {
+          // get the dist from tjMax from bits 22:16
+          float deltaT = ((eax & 0x007F0000) >> 16);
+          float tjMax = coreTemperatures[i].Parameters[0].Value;
+          float tSlope = coreTemperatures[i].Parameters[1].Value;
+          coreTemperatures[i].Value = tjMax - tSlope * deltaT;
+        } else {
+          coreTemperatures[i].Value = null;
         }
       }
 
       if (packageTemperature != null) {
         uint eax, edx;
-        if (Ring0.RdmsrTx(
-          IA32_PACKAGE_THERM_STATUS, out eax, out edx,
-            1UL << cpuid[0][0].Thread)) {
+        // if reading is valid
+        if (Ring0.RdmsrTx(IA32_PACKAGE_THERM_STATUS, out eax, out edx,
+            1UL << cpuid[0][0].Thread) && (eax & 0x80000000) != 0) 
+        {
           // get the dist from tjMax from bits 22:16
           float deltaT = ((eax & 0x007F0000) >> 16);
           float tjMax = packageTemperature.Parameters[0].Value;
