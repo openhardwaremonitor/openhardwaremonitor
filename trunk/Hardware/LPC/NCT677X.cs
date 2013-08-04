@@ -20,6 +20,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly Chip chip;
 
+    private readonly bool isNuvotonVendor;
+
     private readonly float?[] voltages = new float?[0];
     private readonly float?[] temperatures = new float?[0];
     private readonly float?[] fans = new float?[0];
@@ -162,7 +164,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.revision = revision;
       this.port = port;
 
-      if (!IsNuvotonVendor())
+
+      this.isNuvotonVendor = IsNuvotonVendor();
+
+      if (!isNuvotonVendor)
         return;
 
       switch (chip) {
@@ -293,6 +298,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public void SetControl(int index, byte? value) {
+      if (!isNuvotonVendor)
+        return;
+
       if (index < 0 || index >= controls.Length)
         throw new ArgumentOutOfRangeException("index");
 
@@ -321,6 +329,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Controls { get { return controls; } }
 
     public void Update() {
+      if (!isNuvotonVendor)
+        return;
+
       if (!Ring0.WaitIsaBusMutex(10))
         return;
 
