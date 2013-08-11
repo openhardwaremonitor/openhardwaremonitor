@@ -66,6 +66,9 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption runWebServer;
     private HttpServer server;
 
+    private UserOption logSensors;
+    private Logger logger;
+
     private bool selectionDragging = false;
 
     public MainForm() {      
@@ -276,6 +279,10 @@ namespace OpenHardwareMonitor.GUI {
         else
           server.StopHTTPListener();
       };
+
+      logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
+        settings);
+      logger = new Logger(computer);
 
       InitializePlotForm();
 
@@ -500,6 +507,9 @@ namespace OpenHardwareMonitor.GUI {
 
       if (wmiProvider != null)
         wmiProvider.Update();
+
+      if (logSensors.Value)
+        logger.Log();
     }
 
     private void SaveConfiguration() {

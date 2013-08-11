@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -95,6 +95,7 @@ namespace OpenHardwareMonitor.GUI {
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+      this.logSensorsMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -355,7 +356,8 @@ namespace OpenHardwareMonitor.GUI {
             this.temperatureUnitsMenuItem,
             this.plotLocationMenuItem,
             this.webMenuItemSeparator,
-            this.webMenuItem});
+            this.webMenuItem,
+            this.logSensorsMenuItem});
       this.optionsMenuItem.Text = "Options";
       // 
       // startMinMenuItem
@@ -432,7 +434,7 @@ namespace OpenHardwareMonitor.GUI {
       this.plotRightMenuItem.RadioCheck = true;
       this.plotRightMenuItem.Text = "Right";
       // 
-      // MenuItem4
+      // webMenuItemSeparator
       // 
       this.webMenuItemSeparator.Index = 7;
       this.webMenuItemSeparator.Text = "-";
@@ -537,6 +539,11 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
       // 
+      // logSensorsMenuItem
+      // 
+      this.logSensorsMenuItem.Index = 9;
+      this.logSensorsMenuItem.Text = "Log Sensors";
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -620,6 +627,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem gpuMenuItem;
     private System.Windows.Forms.MenuItem fanControllerMenuItem;
     private System.Windows.Forms.MenuItem ramMenuItem;
+    private System.Windows.Forms.MenuItem logSensorsMenuItem;
   }
 }
 
