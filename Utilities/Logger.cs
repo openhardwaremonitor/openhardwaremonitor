@@ -25,6 +25,7 @@ namespace OpenHardwareMonitor.Utilities {
 
     private DateTime day = DateTime.MinValue;
     private string fileName;
+    private string[] identifiers;
     private ISensor[] sensors;
 
     public Logger(IComputer computer) {
@@ -34,6 +35,7 @@ namespace OpenHardwareMonitor.Utilities {
     }
 
     private void HardwareRemoved(IHardware hardware) {
+      hardware.SensorAdded -= SensorAdded;
       hardware.SensorRemoved -= SensorRemoved;
       foreach (ISensor sensor in hardware.Sensors)
         SensorRemoved(sensor);
@@ -42,12 +44,28 @@ namespace OpenHardwareMonitor.Utilities {
     }
 
     private void HardwareAdded(IHardware hardware) {
+      foreach (ISensor sensor in hardware.Sensors)
+        SensorAdded(sensor);
+      hardware.SensorAdded += SensorAdded;
       hardware.SensorRemoved += SensorRemoved;
       foreach (IHardware subHardware in hardware.SubHardware)
         HardwareAdded(subHardware);
     }
 
+    private void SensorAdded(ISensor sensor) {
+      if (sensors == null)
+        return;
+
+      for (int i = 0; i < sensors.Length; i++) {
+        if (sensor.Identifier.ToString() == identifiers[i])
+          sensors[i] = sensor;
+      }
+    }
+
     private void SensorRemoved(ISensor sensor) {
+      if (sensors == null)
+        return;
+
       for (int i = 0; i < sensors.Length; i++) {
         if (sensor == sensors[i])
           sensors[i] = null;
@@ -59,27 +77,10 @@ namespace OpenHardwareMonitor.Utilities {
         Path.DirectorySeparatorChar + string.Format(fileNameFormat, date);
     }
 
-    private void AddSensorRemovedHandler() {
-      for (int i = 0; i < sensors.Length; i++) {
-        ISensor sensor = sensors[i];
-        int index = i;
-        SensorEventHandler handler = null;        
-        handler = s => {
-          if (s != sensor) 
-            return;
-
-          sensors[index] = null;
-          sensor.Hardware.SensorRemoved -= handler;          
-        };
-        sensor.Hardware.SensorRemoved += handler;
-      }
-    }
-
     private bool OpenExistingLogFile() {
       if (!File.Exists(fileName))
         return false;
 
-      string[] identifiers;
       try {
         String line;
         using (StreamReader reader = new StreamReader(fileName)) 
@@ -90,11 +91,14 @@ namespace OpenHardwareMonitor.Utilities {
         
         identifiers = line.Split(',').Skip(1).ToArray();
       } catch {
+        identifiers = null;
         return false;
       }
 
-      if (identifiers.Length == 0)
+      if (identifiers.Length == 0) {
+        identifiers = null;
         return false;
+      }
 
       sensors = new ISensor[identifiers.Length];
       SensorVisitor visitor = new SensorVisitor(sensor => {
@@ -112,7 +116,8 @@ namespace OpenHardwareMonitor.Utilities {
         list.Add(sensor);
       });
       visitor.VisitComputer(computer);
-      sensors = list.ToArray();      
+      sensors = list.ToArray();
+      identifiers = sensors.Select(s => s.Identifier.ToString()).ToArray();
 
       using (StreamWriter writer = new StreamWriter(fileName, false)) {
         writer.Write(",");
@@ -139,7 +144,7 @@ namespace OpenHardwareMonitor.Utilities {
 
     public void Log() {
       var now = DateTime.Now;
-      if (day != now.Date) {
+      if (day != now.Date || !File.Exists(fileName)) {
         day = now.Date;
         fileName = GetFileName(day);
 
@@ -147,23 +152,25 @@ namespace OpenHardwareMonitor.Utilities {
           CreateNewLogFile();
       }
 
-      using (StreamWriter writer = new StreamWriter(fileName, true)) {
-        writer.Write(now.ToString("G", CultureInfo.InvariantCulture));
-        writer.Write(",");
-        for (int i = 0; i < sensors.Length; i++) {
-          if (sensors[i] != null) {
-            float? value = sensors[i].Value;
-            if (value.HasValue)
-              writer.Write(
-                value.Value.ToString("R", CultureInfo.InvariantCulture));
+      try {
+        using (StreamWriter writer = new StreamWriter(new FileStream(fileName,
+          FileMode.Append, FileAccess.Write, FileShare.ReadWrite))) {
+          writer.Write(now.ToString("G", CultureInfo.InvariantCulture));
+          writer.Write(",");
+          for (int i = 0; i < sensors.Length; i++) {
+            if (sensors[i] != null) {
+              float? value = sensors[i].Value;
+              if (value.HasValue)
+                writer.Write(
+                  value.Value.ToString("R", CultureInfo.InvariantCulture));
+            }
+            if (i < sensors.Length - 1)
+              writer.Write(",");
+            else
+              writer.WriteLine();
           }
-          if (i < sensors.Length - 1)
-            writer.Write(",");
-          else
-            writer.WriteLine();
         }
-      }
-
+      } catch (IOException) { }
     }
   }
 }
