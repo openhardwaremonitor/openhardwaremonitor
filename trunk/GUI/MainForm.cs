@@ -150,6 +150,8 @@ namespace OpenHardwareMonitor.GUI {
         wmiProvider = new WmiProvider(computer);
       }
 
+      logger = new Logger(computer);
+
       plotColorPalette = new Color[13];
       plotColorPalette[0] = Color.Blue;
       plotColorPalette[1] = Color.OrangeRed;
@@ -281,8 +283,7 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
-        settings);
-      logger = new Logger(computer);
+        settings);      
 
       InitializePlotForm();
 
@@ -497,6 +498,7 @@ namespace OpenHardwareMonitor.GUI {
       Close();
     }
 
+    private int delayCount = 0;
     private void timer_Tick(object sender, EventArgs e) {
       computer.Accept(updateVisitor);
       treeView.Invalidate();
@@ -508,8 +510,12 @@ namespace OpenHardwareMonitor.GUI {
       if (wmiProvider != null)
         wmiProvider.Update();
 
-      if (logSensors.Value)
+
+      if (logSensors.Value && delayCount >= 4)
         logger.Log();
+
+      if (delayCount < 4)
+        delayCount++;
     }
 
     private void SaveConfiguration() {
