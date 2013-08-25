@@ -67,6 +67,7 @@ namespace OpenHardwareMonitor.GUI {
     private HttpServer server;
 
     private UserOption logSensors;
+    private UserRadioGroup loggingInterval;
     private Logger logger;
 
     private bool selectionDragging = false;
@@ -283,7 +284,31 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
-        settings);      
+        settings);
+
+      loggingInterval = new UserRadioGroup("loggingInterval", 0,
+        new[] { log1sMenuItem, log2sMenuItem, log5sMenuItem, log10sMenuItem,
+        log30sMenuItem, log1minMenuItem, log2minMenuItem, log5minMenuItem, 
+        log10minMenuItem, log30minMenuItem, log1hMenuItem, log2hMenuItem, 
+        log6hMenuItem},
+        settings);
+      loggingInterval.Changed += (sender, e) => {
+        switch (loggingInterval.Value) {
+          case 0: logger.LoggingInterval = new TimeSpan(0, 0, 1); break;
+          case 1: logger.LoggingInterval = new TimeSpan(0, 0, 2); break;
+          case 2: logger.LoggingInterval = new TimeSpan(0, 0, 5); break;
+          case 3: logger.LoggingInterval = new TimeSpan(0, 0, 10); break;
+          case 4: logger.LoggingInterval = new TimeSpan(0, 0, 30); break;
+          case 5: logger.LoggingInterval = new TimeSpan(0, 1, 0); break;
+          case 6: logger.LoggingInterval = new TimeSpan(0, 2, 0); break;
+          case 7: logger.LoggingInterval = new TimeSpan(0, 5, 0); break;
+          case 8: logger.LoggingInterval = new TimeSpan(0, 10, 0); break;
+          case 9: logger.LoggingInterval = new TimeSpan(0, 30, 0); break;
+          case 10: logger.LoggingInterval = new TimeSpan(1, 0, 0); break;
+          case 11: logger.LoggingInterval = new TimeSpan(2, 0, 0); break;
+          case 12: logger.LoggingInterval = new TimeSpan(6, 0, 0); break;
+        }
+      };
 
       InitializePlotForm();
 

@@ -28,10 +28,12 @@ namespace OpenHardwareMonitor.Utilities {
     private string[] identifiers;
     private ISensor[] sensors;
 
+    private DateTime lastLoggedTime = DateTime.MinValue;
+
     public Logger(IComputer computer) {
       this.computer = computer;
       this.computer.HardwareAdded += HardwareAdded;
-      this.computer.HardwareRemoved += HardwareRemoved;    
+      this.computer.HardwareRemoved += HardwareRemoved;      
     }
 
     private void HardwareRemoved(IHardware hardware) {
@@ -142,8 +144,14 @@ namespace OpenHardwareMonitor.Utilities {
       }
     }
 
-    public void Log() {
+    public TimeSpan LoggingInterval { get; set; }
+
+    public void Log() {      
       var now = DateTime.Now;
+
+      if (lastLoggedTime + LoggingInterval - new TimeSpan(5000000) > now)
+        return;      
+
       if (day != now.Date || !File.Exists(fileName)) {
         day = now.Date;
         fileName = GetFileName(day);
@@ -171,6 +179,8 @@ namespace OpenHardwareMonitor.Utilities {
           }
         }
       } catch (IOException) { }
+
+      lastLoggedTime = now;
     }
   }
 }
