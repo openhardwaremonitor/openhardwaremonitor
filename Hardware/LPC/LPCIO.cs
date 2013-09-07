@@ -39,6 +39,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       return Ring0.ReadIoPort(valuePort);
     }
 
+    private void WriteByte(byte register, byte value) {
+      Ring0.WriteIoPort(registerPort, register);
+      Ring0.WriteIoPort(valuePort, value);
+    }
+
     private ushort ReadWord(byte register) {
       return (ushort)((ReadByte(register) << 8) |
         ReadByte((byte)(register + 1)));
@@ -70,6 +75,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private const byte F71858_HARDWARE_MONITOR_LDN = 0x02;
     private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
+
+    private const byte NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK = 0x28;
 
     private void WinbondNuvotonFintekEnter() {
       Ring0.WriteIoPort(registerPort, 0x87);
@@ -245,6 +252,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
 
         ushort vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
+
+        // disable the hardware monitor i/o space lock on NCT6791D chips
+        if (address == verify && chip == Chip.NCT6791D) {
+          byte options = ReadByte(NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK);
+
+          // if the i/o space lock is enabled
+          if ((options & 0x10) > 0) {
+
+            // disable the i/o space lock
+            WriteByte(NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK,
+              (byte)(options & ~0x10));
+          }
+        }
 
         WinbondNuvotonFintekExit();
 
