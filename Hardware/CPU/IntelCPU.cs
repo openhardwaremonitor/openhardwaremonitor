@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -137,8 +137,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = GetTjMaxFromMSR();
                 break;
               case 0x3C: // Intel Core i5, i7 4xxx LGA1150 (22nm)
+              case 0x3F: // Intel Xeon E5-2600/1600 v3, Core i7-59xx
+                         // LGA2011-v3, Haswell-E (22nm)
               case 0x45:
-              case 0x46:
+              case 0x46: 
                 microarchitecture = Microarchitecture.Haswell;
                 tjMax = GetTjMaxFromMSR();
                 break;
@@ -252,7 +254,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         uint eax, edx;
         if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out eax, out edx))
-          energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1FF));
+          energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1F));
 
         if (energyUnitMultiplier != 0) {
           for (int i = 0; i < energyStatusMSRs.Length; i++) {
