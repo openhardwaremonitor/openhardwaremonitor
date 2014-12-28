@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -23,7 +23,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private static CPUID[][] GetProcessorThreads() {
 
       List<CPUID> threads = new List<CPUID>();
-      for (int i = 0; i < 32; i++) {
+      for (int i = 0; i < 64; i++) {
         try {
           threads.Add(new CPUID(i));
         } catch (ArgumentOutOfRangeException) { }
