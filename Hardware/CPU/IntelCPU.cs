@@ -24,7 +24,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       SandyBridge,
       IvyBridge,
       Haswell,
-      Broadwell
+      Broadwell,
+      Silvermont
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -149,6 +150,18 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.Broadwell;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0x36: // Intel Atom S1xxx, D2xxx, N2xxx (32nm)
+                microarchitecture = Microarchitecture.Atom;
+                tjMax = GetTjMaxFromMSR();
+                break;
+              case 0x37: // Intel Atom E3xxx, Z3xxx (22nm)
+              case 0x4A:
+              case 0x4D: // Intel Atom C2xxx (22nm)
+              case 0x5A:
+              case 0x5D:
+                microarchitecture = Microarchitecture.Silvermont;
+                tjMax = GetTjMaxFromMSR();
+                break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
                 tjMax = Floats(100);
@@ -193,7 +206,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.SandyBridge:
         case Microarchitecture.IvyBridge:
         case Microarchitecture.Haswell: 
-        case Microarchitecture.Broadwell: {
+        case Microarchitecture.Broadwell:
+        case Microarchitecture.Silvermont: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -253,7 +267,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (microarchitecture == Microarchitecture.SandyBridge ||
           microarchitecture == Microarchitecture.IvyBridge ||
           microarchitecture == Microarchitecture.Haswell ||
-          microarchitecture == Microarchitecture.Broadwell) 
+          microarchitecture == Microarchitecture.Broadwell || 
+          microarchitecture == Microarchitecture.Silvermont) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
@@ -261,8 +276,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         uint eax, edx;
         if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out eax, out edx))
-          energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1F));
-
+          switch (microarchitecture) {
+            case Microarchitecture.Silvermont:
+              energyUnitMultiplier = 1.0e-6f * (1 << (int)((eax >> 8) & 0x1F));
+              break;
+            default:
+              energyUnitMultiplier = 1.0f / (1 << (int)((eax >> 8) & 0x1F));
+              break;
+          }
         if (energyUnitMultiplier != 0) {
           for (int i = 0; i < energyStatusMSRs.Length; i++) {
             if (!Ring0.Rdmsr(energyStatusMSRs[i], out eax, out edx))
@@ -361,7 +382,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.SandyBridge:
               case Microarchitecture.IvyBridge:
               case Microarchitecture.Haswell: 
-              case Microarchitecture.Broadwell: {
+              case Microarchitecture.Broadwell:
+              case Microarchitecture.Silvermont: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
