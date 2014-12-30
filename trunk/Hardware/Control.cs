@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -42,11 +42,11 @@ namespace OpenHardwareMonitor.Hardware {
       int mode;
       if (!int.TryParse(settings.GetValue(
           new Identifier(identifier, "mode").ToString(),
-          ((int)ControlMode.Default).ToString(CultureInfo.InvariantCulture)),
+          ((int)ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
         NumberStyles.Integer, CultureInfo.InvariantCulture,
         out mode)) 
       {
-        this.mode = ControlMode.Default;
+        this.mode = ControlMode.Undefined;
       } else {
         this.mode = (ControlMode)mode;
       }

@@ -4,11 +4,11 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
  
 */
 
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.6.0.15")]
-[assembly: AssemblyInformationalVersion("0.6.0.15 Alpha")]
+[assembly: AssemblyVersion("0.6.0.16")]
+[assembly: AssemblyInformationalVersion("0.6.0.16 Alpha")]

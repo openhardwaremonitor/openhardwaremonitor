@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -24,10 +24,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly Sensor coreVoltage;
     private readonly Sensor coreLoad;
     private readonly Sensor controlSensor;
-    private readonly Control fanControl;
-
-    private bool restoreDefaultFanSpeedRequired = false;
-    private ADLFanSpeedValue initialFanSpeedValue;    
+    private readonly Control fanControl;  
 
     public ATIGPU(string name, int adapterIndex, int busNumber, 
       int deviceNumber, ISettings settings) 
@@ -64,31 +61,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       Update();                   
     }
 
-    private void SaveDefaultFanSpeed() {
-      if (!restoreDefaultFanSpeedRequired) {        
-        initialFanSpeedValue = new ADLFanSpeedValue();
-        initialFanSpeedValue.SpeedType =
-          ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
-        restoreDefaultFanSpeedRequired = 
-          ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0,
-          ref initialFanSpeedValue) == ADL.ADL_OK;
-      }
-    }
-
-    private void RestoreDefaultFanSpeed() {
-      if (restoreDefaultFanSpeedRequired) {        
-        ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0,
-          ref this.initialFanSpeedValue);
-        if ((initialFanSpeedValue.Flags &
-          ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED) == 0)
-          ADL.ADL_Overdrive5_FanSpeedToDefault_Set(adapterIndex, 0);
-        restoreDefaultFanSpeedRequired = false;
-      }
-    }
-
     private void SoftwareControlValueChanged(IControl control) {
-      if (control.ControlMode == ControlMode.Software) {
-        SaveDefaultFanSpeed();
+      if (control.ControlMode == ControlMode.Software) {        
         ADLFanSpeedValue adlf = new ADLFanSpeedValue();
         adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
         adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
@@ -98,11 +72,22 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     private void ControlModeChanged(IControl control) {
-      if (control.ControlMode == ControlMode.Default) {
-        RestoreDefaultFanSpeed();     
-      } else {
-        SoftwareControlValueChanged(control);
+      switch (control.ControlMode) {
+        case ControlMode.Undefined:
+          return;
+        case ControlMode.Default:
+          SetDefaultFanSpeed();
+          break;
+        case ControlMode.Software:
+          SoftwareControlValueChanged(control);
+          break;
+        default:
+          return;
       }
+    }
+
+    private void SetDefaultFanSpeed() {
+      ADL.ADL_Overdrive5_FanSpeedToDefault_Set(adapterIndex, 0);
     }
 
     public int BusNumber { get { return busNumber; } }
@@ -186,7 +171,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.fanControl.SoftwareControlValueChanged -=
         SoftwareControlValueChanged;
 
-      RestoreDefaultFanSpeed();
+      if (this.fanControl.ControlMode != ControlMode.Undefined)
+        SetDefaultFanSpeed();
       base.Close();
     }
   }
