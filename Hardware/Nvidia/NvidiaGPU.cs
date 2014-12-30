@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2011 Christian Vallières
  
 */
@@ -27,9 +27,6 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private readonly Sensor control;
     private readonly Sensor memoryLoad;
     private readonly Control fanControl;
-
-    private bool restoreDefaultFanSpeedRequired;
-    private NvLevel initialFanSpeedValue;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle,
       NvDisplayHandle? displayHandle, ISettings settings)
@@ -431,7 +428,6 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     private void SoftwareControlValueChanged(IControl control) {
-      SaveDefaultFanSpeed();
       NvGPUCoolerLevels coolerLevels = new NvGPUCoolerLevels();
       coolerLevels.Version = NVAPI.GPU_COOLER_LEVELS_VER;
       coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
@@ -440,34 +436,39 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
     }
 
-    private void SaveDefaultFanSpeed() {
-      if (!restoreDefaultFanSpeedRequired) {
-        NvGPUCoolerSettings coolerSettings = GetCoolerSettings();
-        if (coolerSettings.Count > 0) {
-          restoreDefaultFanSpeedRequired = true;
-          initialFanSpeedValue.Level = coolerSettings.Cooler[0].CurrentLevel;
-          initialFanSpeedValue.Policy = coolerSettings.Cooler[0].CurrentPolicy;
-        }
-      }
-    }
-
     private void ControlModeChanged(IControl control) {
-      if (control.ControlMode == ControlMode.Default) {
-        RestoreDefaultFanSpeed();
-      } else {
-        SoftwareControlValueChanged(control);
+      switch (control.ControlMode) {
+        case ControlMode.Undefined:
+          return;
+        case ControlMode.Default:
+          SetDefaultFanSpeed();
+          break;
+        case ControlMode.Software:
+          SoftwareControlValueChanged(control);
+          break;
+        default:
+          return;
       }
     }
 
-    private void RestoreDefaultFanSpeed() {
-      if (restoreDefaultFanSpeedRequired) {
-        NvGPUCoolerLevels coolerLevels = new NvGPUCoolerLevels();
-        coolerLevels.Version = NVAPI.GPU_COOLER_LEVELS_VER;
-        coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
-        coolerLevels.Levels[0] = initialFanSpeedValue;
-        NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
-        restoreDefaultFanSpeedRequired = false;
+    private void SetDefaultFanSpeed() {
+      NvGPUCoolerLevels coolerLevels = new NvGPUCoolerLevels();
+      coolerLevels.Version = NVAPI.GPU_COOLER_LEVELS_VER;
+      coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
+      coolerLevels.Levels[0].Policy = 0x20;
+      NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
+    }
+
+    public override void Close() {
+      if (this.fanControl != null) {
+        this.fanControl.ControlModeChanged -= ControlModeChanged;
+        this.fanControl.SoftwareControlValueChanged -=
+          SoftwareControlValueChanged;
+
+        if (this.fanControl.ControlMode != ControlMode.Undefined)
+          SetDefaultFanSpeed();
       }
+      base.Close();
     }
   }
 }

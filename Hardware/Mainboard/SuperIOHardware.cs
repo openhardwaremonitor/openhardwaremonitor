@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -72,18 +72,37 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             this, settings);
           Control control = new Control(sensor, settings, 0, 100);
           control.ControlModeChanged += (cc) => {
-            if (cc.ControlMode == ControlMode.Default) {
-              superIO.SetControl(index, null);
-            } else {
-              superIO.SetControl(index, (byte)(cc.SoftwareValue * 2.55));
+            switch (cc.ControlMode) {
+              case ControlMode.Undefined:
+                return;
+              case ControlMode.Default:
+                superIO.SetControl(index, null);
+                break;
+              case ControlMode.Software:
+                superIO.SetControl(index, (byte)(cc.SoftwareValue * 2.55));
+                break;
+              default:
+                return;
             }
           };
           control.SoftwareControlValueChanged += (cc) => {
             if (cc.ControlMode == ControlMode.Software)
               superIO.SetControl(index, (byte)(cc.SoftwareValue * 2.55));
           };
-          if (control.ControlMode == ControlMode.Software)
-            superIO.SetControl(index, (byte)(control.SoftwareValue * 2.55));
+
+          switch (control.ControlMode) {
+            case ControlMode.Undefined:
+              break;
+            case ControlMode.Default:
+              superIO.SetControl(index, null);
+              break;
+            case ControlMode.Software:
+              superIO.SetControl(index, (byte)(control.SoftwareValue * 2.55));
+              break;
+            default:
+              break;
+          }            
+
           sensor.Control = control;
           controls.Add(sensor);
           ActivateSensor(sensor);
