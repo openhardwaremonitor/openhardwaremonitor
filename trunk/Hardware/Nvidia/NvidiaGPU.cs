@@ -57,7 +57,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       int value;
       if (NVAPI.NvAPI_GPU_GetTachReading != null &&
         NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
-        if (value > 0) {
+        if (value >= 0) {
           fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
           ActivateSensor(fan);
         }
