@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -29,9 +29,15 @@ namespace OpenHardwareMonitor.Hardware {
           ref mask) != 0)
           return 0;
         return result;
-      } else { // Windows      
+      } else { // Windows
+        UIntPtr uIntPtrMask;
+        try {
+          uIntPtrMask = (UIntPtr)mask;
+        } catch (OverflowException) {
+          throw new ArgumentOutOfRangeException("mask");
+        }
         return (ulong)NativeMethods.SetThreadAffinityMask(
-          NativeMethods.GetCurrentThread(), (UIntPtr)mask);
+          NativeMethods.GetCurrentThread(), uIntPtrMask);
       }
     }
   
