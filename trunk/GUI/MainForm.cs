@@ -536,7 +536,7 @@ namespace OpenHardwareMonitor.GUI {
         wmiProvider.Update();
 
 
-      if (logSensors.Value && delayCount >= 4)
+      if (logSensors != null && logSensors.Value && delayCount >= 4)
         logger.Log();
 
       if (delayCount < 4)
