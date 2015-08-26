@@ -243,6 +243,25 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.NCT6776F:
           GetNuvotonConfigurationF(superIO, manufacturer, model, v, t, f, c);
           break;
+        case Chip.NCT610X:
+          v.Add(new Voltage("CPU VCore", 0));
+          v.Add(new Voltage("Voltage #0", 1, true));
+          v.Add(new Voltage("AVCC", 2, 34, 34));
+          v.Add(new Voltage("3VCC", 3, 34, 34));
+          v.Add(new Voltage("Voltage #1", 4, true));
+          v.Add(new Voltage("Voltage #2", 5, true));
+          v.Add(new Voltage("Reserved", 6, true));
+          v.Add(new Voltage("3VSB", 7, 34, 34));
+          v.Add(new Voltage("VBAT", 8, 34, 34));
+          v.Add(new Voltage("Voltage #10", 9, true));
+          t.Add(new Temperature("SYS", 1));
+          t.Add(new Temperature("CPU Core", 2));
+          t.Add(new Temperature("AUX", 3));
+          for (int i = 0; i < superIO.Fans.Length; i++)
+            f.Add(new Fan("Fan #" + (i + 1), i));
+          for (int i = 0; i < superIO.Controls.Length; i++)
+            c.Add(new Ctrl("Fan Control #" + (i + 1), i));
+          break;
         case Chip.NCT6779D:
         case Chip.NCT6791D:
           GetNuvotonConfigurationD(superIO, manufacturer, model, v, t, f, c);
