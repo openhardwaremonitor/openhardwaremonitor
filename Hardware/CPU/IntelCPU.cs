@@ -1,4 +1,4 @@
-﻿/*
+/*
  
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -25,7 +25,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       IvyBridge,
       Haswell,
       Broadwell,
-      Silvermont
+      Silvermont,
+      Skylake
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -162,6 +163,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.Silvermont;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0x5E:
+                microarchitecture = Microarchitecture.Skylake;
+                tjMax = GetTjMaxFromMSR();
+                break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
                 tjMax = Floats(100);
@@ -207,7 +212,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.IvyBridge:
         case Microarchitecture.Haswell: 
         case Microarchitecture.Broadwell:
-        case Microarchitecture.Silvermont: {
+        case Microarchitecture.Silvermont:
+        case Microarchitecture.Skylake: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -268,6 +274,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           microarchitecture == Microarchitecture.IvyBridge ||
           microarchitecture == Microarchitecture.Haswell ||
           microarchitecture == Microarchitecture.Broadwell || 
+          microarchitecture == Microarchitecture.Skylake ||
           microarchitecture == Microarchitecture.Silvermont) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
@@ -383,7 +390,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.IvyBridge:
               case Microarchitecture.Haswell: 
               case Microarchitecture.Broadwell:
-              case Microarchitecture.Silvermont: {
+              case Microarchitecture.Silvermont:
+              case Microarchitecture.Skylake: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
