@@ -6,7 +6,7 @@
  
   Copyright (C) 2010-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2015 Dawid Gan <deveee@gmail.com>
- * 
+
 */
 
 using System;
@@ -55,8 +55,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort NUVOTON_VENDOR_ID = 0x5CA3;
 
     // Hardware Monitor Registers    
-    private readonly ushort VENDOR_ID_HIGH_REGISTER = 0x804F;
-    private readonly ushort VENDOR_ID_LOW_REGISTER = 0x004F;  
+    private readonly ushort VENDOR_ID_HIGH_REGISTER;
+    private readonly ushort VENDOR_ID_LOW_REGISTER;  
     
     private readonly ushort[] FAN_PWM_OUT_REG;
     private readonly ushort[] FAN_PWM_COMMAND_REG;
