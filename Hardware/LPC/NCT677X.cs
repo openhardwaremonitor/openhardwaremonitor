@@ -4,8 +4,9 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
-	
+  Copyright (C) 2010-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+	Copyright (C) 2015 Dawid Gan <deveee@gmail.com>
+ * 
 */
 
 using System;
@@ -54,15 +55,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const ushort NUVOTON_VENDOR_ID = 0x5CA3;
 
     // Hardware Monitor Registers    
-    private const ushort VENDOR_ID_HIGH_REGISTER = 0x804F;
-    private const ushort VENDOR_ID_LOW_REGISTER = 0x004F;  
+    private readonly ushort VENDOR_ID_HIGH_REGISTER = 0x804F;
+    private readonly ushort VENDOR_ID_LOW_REGISTER = 0x004F;  
     
-    private readonly ushort[] FAN_PWM_OUT_REG = 
-      { 0x001, 0x003, 0x011, 0x013, 0x015, 0x017 };
-    private readonly ushort[] FAN_PWM_COMMAND_REG = 
-      { 0x109, 0x209, 0x309, 0x809, 0x909, 0xA09 };
-    private readonly ushort[] FAN_CONTROL_MODE_REG = 
-      { 0x102, 0x202, 0x302, 0x802, 0x902, 0xA02 };
+    private readonly ushort[] FAN_PWM_OUT_REG;
+    private readonly ushort[] FAN_PWM_COMMAND_REG;
+    private readonly ushort[] FAN_CONTROL_MODE_REG;
 
     private readonly ushort fanRpmBaseRegister;
     private readonly int minFanRPM;
@@ -73,6 +71,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly ushort[] voltageRegisters;
     private readonly ushort voltageVBatRegister;
+    private readonly ushort vBatMonitorControlRegister;
 
     private readonly byte[] temperaturesSource;
 
@@ -159,6 +158,31 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       BYTE_TEMP = 26
     }
 
+    private enum SourceNCT610X : byte {
+      SYSTIN = 1,
+      CPUTIN = 2,
+      AUXTIN = 3,
+      SMBUSMASTER_0 = 4,
+      SMBUSMASTER_1 = 5,
+      SMBUSMASTER_2 = 6,
+      SMBUSMASTER_3 = 7,
+      SMBUSMASTER_4 = 8,
+      SMBUSMASTER_5 = 9,
+      SMBUSMASTER_6 = 10,
+      SMBUSMASTER_7 = 11,
+      PECI_0 = 12,
+      PECI_1 = 13,
+      PCH_CHIP_CPU_MAX_TEMP = 14,
+      PCH_CHIP_TEMP = 15,
+      PCH_CPU_TEMP = 16,
+      PCH_MCH_TEMP = 17,
+      PCH_DIM0_TEMP = 18,
+      PCH_DIM1_TEMP = 19,
+      PCH_DIM2_TEMP = 20,
+      PCH_DIM3_TEMP = 21,
+      BYTE_TEMP = 22
+    }
+
     public NCT677X(Chip chip, byte revision, ushort port) {
       this.chip = chip;
       this.revision = revision;
@@ -169,6 +193,29 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       if (!isNuvotonVendor)
         return;
+
+      if (chip == LPC.Chip.NCT610X) {
+        VENDOR_ID_HIGH_REGISTER = 0x80FE;
+        VENDOR_ID_LOW_REGISTER = 0x00FE;  
+
+        FAN_PWM_OUT_REG = new ushort[] { 0x04A, 0x04B, 0x04C };
+        FAN_PWM_COMMAND_REG = new ushort[] { 0x119, 0x129, 0x139 };
+        FAN_CONTROL_MODE_REG = new ushort[] { 0x113, 0x123, 0x133 };
+
+        vBatMonitorControlRegister = 0x0318;
+      } else {
+        VENDOR_ID_HIGH_REGISTER = 0x804F;
+        VENDOR_ID_LOW_REGISTER = 0x004F;  
+
+        FAN_PWM_OUT_REG = new ushort[] { 
+          0x001, 0x003, 0x011, 0x013, 0x015, 0x017 };
+        FAN_PWM_COMMAND_REG = new ushort[] { 
+          0x109, 0x209, 0x309, 0x809, 0x909, 0xA09 };
+        FAN_CONTROL_MODE_REG = new ushort[] { 
+          0x102, 0x202, 0x302, 0x802, 0x902, 0xA02 };
+
+        vBatMonitorControlRegister = 0x005D;
+      }
 
       switch (chip) {
         case Chip.NCT6771F:
@@ -266,6 +313,42 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             {null, 0x491, 0x490, 0x492, 0x493, 0x494, 0x495 };
 
           break;
+        case Chip.NCT610X:
+
+          fans = new float?[3];
+          controls = new float?[3];
+
+          fanRpmBaseRegister = 0x030;
+
+          // min value RPM value with 13-bit fan counter
+          minFanRPM = (int)(1.35e6 / 0x1FFF);
+
+          voltages = new float?[9];
+          voltageRegisters = new ushort[] 
+            { 0x300, 0x301, 0x302, 0x303, 0x304, 0x305, 0x307, 0x308, 0x309 };
+          voltageVBatRegister = 0x308;
+
+          temperatures = new float?[4];
+          temperaturesSource = new byte[] {
+            (byte)SourceNCT610X.PECI_0,
+            (byte)SourceNCT610X.SYSTIN,
+            (byte)SourceNCT610X.CPUTIN,
+            (byte)SourceNCT610X.AUXTIN
+        };
+
+        temperatureRegister = new ushort[]
+        { 0x027, 0x018, 0x019, 0x01A };
+        temperatureHalfRegister = new ushort[]
+        { 0, 0x01B, 0x11B, 0x21B };              
+        temperatureHalfBit = new int[]
+        { -1, 7, 7, 7 };
+        temperatureSourceRegister = new ushort[] 
+        { 0x621, 0x100, 0x200, 0x300 };
+
+        alternateTemperatureRegister = new ushort?[] 
+        {null, 0x018, 0x019, 0x01A };
+
+        break;
       }
     }
 
@@ -341,7 +424,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         // check if battery voltage monitor is enabled
         if (valid && voltageRegisters[i] == voltageVBatRegister) 
-          valid = (ReadByte(0x005D) & 0x01) > 0;
+          valid = (ReadByte(vBatMonitorControlRegister) & 0x01) > 0;
 
         voltages[i] = valid ? value : (float?)null;
       }
@@ -413,9 +496,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return r.ToString();
 
       ushort[] addresses = new ushort[] { 
-        0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070,
+        0x000, 0x010, 0x020, 0x030, 0x040, 0x050, 0x060, 0x070, 0x0F0,
         0x100, 0x110, 0x120, 0x130, 0x140, 0x150, 
-        0x200,        0x220, 0x230, 0x240, 0x250, 0x260,
+        0x200, 0x210, 0x220, 0x230, 0x240, 0x250, 0x260,
         0x300,        0x320, 0x330, 0x340,        0x360,
         0x400, 0x410, 0x420,        0x440, 0x450, 0x460, 0x480, 0x490, 0x4B0, 
                                                                 0x4C0, 0x4F0,
@@ -430,7 +513,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         0xD00, 0xD10, 0xD20, 0xD30,        0xD50, 0xD60, 
         0xE00, 0xE10, 0xE20, 0xE30, 
         0xF00, 0xF10, 0xF20, 0xF30,
-        0x8040};
+        0x8040, 0x80F0};
 
       r.AppendLine("Hardware Monitor Registers");
       r.AppendLine();

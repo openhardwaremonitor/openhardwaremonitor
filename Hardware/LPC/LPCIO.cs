@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -316,8 +316,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             superIOs.Add(new W836XX(chip, revision, address));
             break;
           case Chip.NCT610X:
-            superIOs.Add(new NCT610X(chip, revision, address));
-            break;
           case Chip.NCT6771F:
           case Chip.NCT6776F:
           case Chip.NCT6779D:
