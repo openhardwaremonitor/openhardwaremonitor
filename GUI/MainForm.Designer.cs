@@ -82,6 +82,7 @@ namespace OpenHardwareMonitor.GUI {
       this.fahrenheitMenuItem = new System.Windows.Forms.MenuItem();
       this.plotLocationMenuItem = new System.Windows.Forms.MenuItem();
       this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
+      this.plotWindowIndepMenuItem = new System.Windows.Forms.MenuItem();
       this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
       this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
       this.webMenuItemSeparator = new System.Windows.Forms.MenuItem();
@@ -429,6 +430,7 @@ namespace OpenHardwareMonitor.GUI {
       this.plotLocationMenuItem.Index = 6;
       this.plotLocationMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.plotWindowMenuItem,
+            this.plotWindowIndepMenuItem,
             this.plotBottomMenuItem,
             this.plotRightMenuItem});
       this.plotLocationMenuItem.Text = "Plot Location";
@@ -438,16 +440,21 @@ namespace OpenHardwareMonitor.GUI {
       this.plotWindowMenuItem.Index = 0;
       this.plotWindowMenuItem.RadioCheck = true;
       this.plotWindowMenuItem.Text = "Window";
+      // plotWindowIndepMenuItem
+      // 
+      this.plotWindowIndepMenuItem.Index = 1;
+      this.plotWindowIndepMenuItem.RadioCheck = true;
+      this.plotWindowIndepMenuItem.Text = "Window indep.";
       // 
       // plotBottomMenuItem
       // 
-      this.plotBottomMenuItem.Index = 1;
+      this.plotBottomMenuItem.Index = 2;
       this.plotBottomMenuItem.RadioCheck = true;
       this.plotBottomMenuItem.Text = "Bottom";
       // 
       // plotRightMenuItem
       // 
-      this.plotRightMenuItem.Index = 2;
+      this.plotRightMenuItem.Index = 3;
       this.plotRightMenuItem.RadioCheck = true;
       this.plotRightMenuItem.Text = "Right";
       // 
@@ -735,6 +742,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem menuItem6;
     private System.Windows.Forms.MenuItem plotLocationMenuItem;
     private System.Windows.Forms.MenuItem plotWindowMenuItem;
+    private System.Windows.Forms.MenuItem plotWindowIndepMenuItem;
     private System.Windows.Forms.MenuItem plotBottomMenuItem;
     private System.Windows.Forms.MenuItem plotRightMenuItem;
 		private System.Windows.Forms.MenuItem webMenuItem;
