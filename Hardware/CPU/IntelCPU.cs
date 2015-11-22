@@ -163,7 +163,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.Silvermont;
                 tjMax = GetTjMaxFromMSR();
                 break;
-              case 0x5E:
+              case 0x4E:
+              case 0x5E: // Intel Core i5, i7 6xxxx LGA1151 (14nm)
                 microarchitecture = Microarchitecture.Skylake;
                 tjMax = GetTjMaxFromMSR();
                 break;
