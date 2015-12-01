@@ -188,12 +188,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       this.revision = revision;
       this.port = port;
 
-
-      this.isNuvotonVendor = IsNuvotonVendor();
-
-      if (!isNuvotonVendor)
-        return;
-
       if (chip == LPC.Chip.NCT610X) {
         VENDOR_ID_HIGH_REGISTER = 0x80FE;
         VENDOR_ID_LOW_REGISTER = 0x00FE;  
@@ -216,6 +210,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         vBatMonitorControlRegister = 0x005D;
       }
+
+      this.isNuvotonVendor = IsNuvotonVendor();
+
+      if (!isNuvotonVendor)
+        return;
 
       switch (chip) {
         case Chip.NCT6771F:
