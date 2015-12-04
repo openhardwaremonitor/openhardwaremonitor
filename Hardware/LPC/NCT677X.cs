@@ -20,6 +20,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly byte revision;
 
     private readonly Chip chip;
+    private readonly LPCPort lpcPort;
 
     private readonly bool isNuvotonVendor;
 
@@ -183,10 +184,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       BYTE_TEMP = 22
     }
 
-    public NCT677X(Chip chip, byte revision, ushort port) {
+    public NCT677X(Chip chip, byte revision, ushort port, LPCPort lpcPort) 
+  {
       this.chip = chip;
       this.revision = revision;
       this.port = port;
+      this.lpcPort = lpcPort;
 
       if (chip == LPC.Chip.NCT610X) {
         VENDOR_ID_HIGH_REGISTER = 0x80FE;
@@ -410,12 +413,27 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Fans { get { return fans; } }
     public float?[] Controls { get { return controls; } }
 
+    private void DisableIOSpaceLock() {
+      if (chip != Chip.NCT6791D)
+        return;
+
+      // the lock is disabled already if the vendor ID can be read
+      if (IsNuvotonVendor())
+        return;
+
+      lpcPort.WinbondNuvotonFintekEnter();
+      lpcPort.NuvotonDisableIOSpaceLock();
+      lpcPort.WinbondNuvotonFintekExit();
+    }
+
     public void Update() {
       if (!isNuvotonVendor)
         return;
 
       if (!Ring0.WaitIsaBusMutex(10))
         return;
+
+      DisableIOSpaceLock();
 
       for (int i = 0; i < voltages.Length; i++) {
         float value = 0.008f * ReadByte(voltageRegisters[i]);

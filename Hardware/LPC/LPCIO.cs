@@ -24,45 +24,22 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly ushort[] REGISTER_PORTS = new ushort[] { 0x2E, 0x4E };
     private readonly ushort[] VALUE_PORTS = new ushort[] { 0x2F, 0x4F };
 
-    private ushort registerPort;
-    private ushort valuePort;
-
     // Registers
-    private const byte CONFIGURATION_CONTROL_REGISTER = 0x02;
-    private const byte DEVCIE_SELECT_REGISTER = 0x07;
     private const byte CHIP_ID_REGISTER = 0x20;
     private const byte CHIP_REVISION_REGISTER = 0x21;
     private const byte BASE_ADDRESS_REGISTER = 0x60;
 
-    private byte ReadByte(byte register) {
-      Ring0.WriteIoPort(registerPort, register);
-      return Ring0.ReadIoPort(valuePort);
-    }
-
-    private void WriteByte(byte register, byte value) {
-      Ring0.WriteIoPort(registerPort, register);
-      Ring0.WriteIoPort(valuePort, value);
-    }
-
-    private ushort ReadWord(byte register) {
-      return (ushort)((ReadByte(register) << 8) |
-        ReadByte((byte)(register + 1)));
-    }
-
-    private void Select(byte logicalDeviceNumber) {
-      Ring0.WriteIoPort(registerPort, DEVCIE_SELECT_REGISTER);
-      Ring0.WriteIoPort(valuePort, logicalDeviceNumber);
-    }
-
-    private void ReportUnknownChip(string type, int chip) {
+    private void ReportUnknownChip(LPCPort port, string type, int chip) {
       report.Append("Chip ID: Unknown ");
       report.Append(type);
       report.Append(" with ID 0x");
       report.Append(chip.ToString("X", CultureInfo.InvariantCulture));
       report.Append(" at 0x");
-      report.Append(registerPort.ToString("X", CultureInfo.InvariantCulture));
+      report.Append(port.RegisterPort.ToString("X", 
+        CultureInfo.InvariantCulture));
       report.Append("/0x");
-      report.AppendLine(valuePort.ToString("X", CultureInfo.InvariantCulture));
+      report.AppendLine(port.ValuePort.ToString("X", 
+        CultureInfo.InvariantCulture));
       report.AppendLine();
     }
 
@@ -76,23 +53,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte F71858_HARDWARE_MONITOR_LDN = 0x02;
     private const byte FINTEK_HARDWARE_MONITOR_LDN = 0x04;
 
-    private const byte NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK = 0x28;
-
-    private void WinbondNuvotonFintekEnter() {
-      Ring0.WriteIoPort(registerPort, 0x87);
-      Ring0.WriteIoPort(registerPort, 0x87);
-    }
-
-    private void WinbondNuvotonFintekExit() {
-      Ring0.WriteIoPort(registerPort, 0xAA);
-    }
-
-    private bool DetectWinbondFintek() {
-      WinbondNuvotonFintekEnter();
+    private bool DetectWinbondFintek(LPCPort port) {
+      port.WinbondNuvotonFintekEnter();
 
       byte logicalDeviceNumber = 0;
-      byte id = ReadByte(CHIP_ID_REGISTER);
-      byte revision = ReadByte(CHIP_REVISION_REGISTER);
+      byte id = port.ReadByte(CHIP_ID_REGISTER);
+      byte revision = port.ReadByte(CHIP_REVISION_REGISTER);
       Chip chip = Chip.Unknown;
       switch (id) {
         case 0x05:
@@ -223,13 +189,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               break;
           } break;
         case 0xC4:
-            switch (revision & 0xF0)
-            {
-                case 0x50:
-                    chip = Chip.NCT610X;
-                    logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
-                    break;
-            } break;
+            switch (revision & 0xF0) {
+              case 0x50:
+               chip = Chip.NCT610X;
+               logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+               break;
+          } break;
         case 0xC5:
           switch (revision & 0xF0) {
             case 0x60:
@@ -247,34 +212,26 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
       if (chip == Chip.Unknown) {
         if (id != 0 && id != 0xff) {
-          WinbondNuvotonFintekExit();
+          port.WinbondNuvotonFintekExit();
 
-          ReportUnknownChip("Winbond / Nuvoton / Fintek", 
+          ReportUnknownChip(port, "Winbond / Nuvoton / Fintek", 
             ((id << 8) | revision));
         }
       } else {
 
-        Select(logicalDeviceNumber);
-        ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+        port.Select(logicalDeviceNumber);
+        ushort address = port.ReadWord(BASE_ADDRESS_REGISTER);
         Thread.Sleep(1);
-        ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+        ushort verify = port.ReadWord(BASE_ADDRESS_REGISTER);
 
-        ushort vendorID = ReadWord(FINTEK_VENDOR_ID_REGISTER);
+        ushort vendorID = port.ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
         // disable the hardware monitor i/o space lock on NCT6791D chips
         if (address == verify && chip == Chip.NCT6791D) {
-          byte options = ReadByte(NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK);
-
-          // if the i/o space lock is enabled
-          if ((options & 0x10) > 0) {
-
-            // disable the i/o space lock
-            WriteByte(NUVOTON_HARDWARE_MONITOR_IO_SPACE_LOCK,
-              (byte)(options & ~0x10));
-          }
+          port.NuvotonDisableIOSpaceLock();
         }
 
-        WinbondNuvotonFintekExit();
+        port.WinbondNuvotonFintekExit();
 
         if (address != verify) {
           report.Append("Chip ID: 0x");
@@ -320,7 +277,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.NCT6776F:
           case Chip.NCT6779D:
           case Chip.NCT6791D:
-            superIOs.Add(new NCT677X(chip, revision, address));
+            superIOs.Add(new NCT677X(chip, revision, address, port));
             break;
           case Chip.F71858:
           case Chip.F71862:
@@ -363,27 +320,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte IT87XX_GPIO_LDN = 0x07;
     private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
-    private void IT87Enter() {
-      Ring0.WriteIoPort(registerPort, 0x87);
-      Ring0.WriteIoPort(registerPort, 0x01);
-      Ring0.WriteIoPort(registerPort, 0x55);
-      Ring0.WriteIoPort(registerPort, 0x55);
-    }
-
-    private void IT87Exit() {
-      Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
-      Ring0.WriteIoPort(valuePort, 0x02);
-    }
-
-    private bool DetectIT87() {
+    private bool DetectIT87(LPCPort port) {
 
       // IT87XX can enter only on port 0x2E
-      if (registerPort != 0x2E)
+      if (port.RegisterPort != 0x2E)
         return false;
 
-      IT87Enter();
+      port.IT87Enter();
 
-      ushort chipID = ReadWord(CHIP_ID_REGISTER);
+      ushort chipID = port.ReadWord(CHIP_ID_REGISTER);
       Chip chip;
       switch (chipID) {
         case 0x8705: chip = Chip.IT8705F; break;
@@ -400,33 +345,33 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
       if (chip == Chip.Unknown) {
         if (chipID != 0 && chipID != 0xffff) {
-          IT87Exit();
+          port.IT87Exit();
 
-          ReportUnknownChip("ITE", chipID);
+          ReportUnknownChip(port, "ITE", chipID);
         }
       } else {
-        Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
-        ushort address = ReadWord(BASE_ADDRESS_REGISTER);
+        port.Select(IT87_ENVIRONMENT_CONTROLLER_LDN);
+        ushort address = port.ReadWord(BASE_ADDRESS_REGISTER);
         Thread.Sleep(1);
-        ushort verify = ReadWord(BASE_ADDRESS_REGISTER);
+        ushort verify = port.ReadWord(BASE_ADDRESS_REGISTER);
 
-        byte version = (byte)(ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
+        byte version = (byte)(port.ReadByte(IT87_CHIP_VERSION_REGISTER) & 0x0F);
 
         ushort gpioAddress;
         ushort gpioVerify;
         if (chip == Chip.IT8705F) {
-          Select(IT8705_GPIO_LDN);
-          gpioAddress = ReadWord(BASE_ADDRESS_REGISTER);
+          port.Select(IT8705_GPIO_LDN);
+          gpioAddress = port.ReadWord(BASE_ADDRESS_REGISTER);
           Thread.Sleep(1);
-          gpioVerify = ReadWord(BASE_ADDRESS_REGISTER);
+          gpioVerify = port.ReadWord(BASE_ADDRESS_REGISTER);
         } else {
-          Select(IT87XX_GPIO_LDN);
-          gpioAddress = ReadWord(BASE_ADDRESS_REGISTER + 2);
+          port.Select(IT87XX_GPIO_LDN);
+          gpioAddress = port.ReadWord(BASE_ADDRESS_REGISTER + 2);
           Thread.Sleep(1);
-          gpioVerify = ReadWord(BASE_ADDRESS_REGISTER + 2);
+          gpioVerify = port.ReadWord(BASE_ADDRESS_REGISTER + 2);
         }
-        
-        IT87Exit();
+
+        port.IT87Exit();
 
         if (address != verify || address < 0x100 || (address & 0xF007) != 0) {
           report.Append("Chip ID: 0x");
@@ -460,30 +405,22 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     #region SMSC
 
-    private void SMSCEnter() {
-      Ring0.WriteIoPort(registerPort, 0x55);
-    }
+    private bool DetectSMSC(LPCPort port) {
+      port.SMSCEnter();
 
-    private void SMSCExit() {
-      Ring0.WriteIoPort(registerPort, 0xAA);
-    }
-
-    private bool DetectSMSC() {
-      SMSCEnter();
-
-      ushort chipID = ReadWord(CHIP_ID_REGISTER);
+      ushort chipID = port.ReadWord(CHIP_ID_REGISTER);
       Chip chip;
       switch (chipID) {
         default: chip = Chip.Unknown; break;
       }
       if (chip == Chip.Unknown) {
         if (chipID != 0 && chipID != 0xffff) {
-          SMSCExit();
+          port.SMSCExit();
 
-          ReportUnknownChip("SMSC", chipID);
+          ReportUnknownChip(port, "SMSC", chipID);
         }
       } else {
-        SMSCExit();
+        port.SMSCExit();
         return true;
       }
 
@@ -495,14 +432,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private void Detect() {
 
       for (int i = 0; i < REGISTER_PORTS.Length; i++) {
-        registerPort = REGISTER_PORTS[i];
-        valuePort = VALUE_PORTS[i];
+        var port = new LPCPort(REGISTER_PORTS[i], VALUE_PORTS[i]);
 
-        if (DetectWinbondFintek()) continue;
+        if (DetectWinbondFintek(port)) continue;
 
-        if (DetectIT87()) continue;
+        if (DetectIT87(port)) continue;
 
-        if (DetectSMSC()) continue;
+        if (DetectSMSC(port)) continue;
       }
     }
 

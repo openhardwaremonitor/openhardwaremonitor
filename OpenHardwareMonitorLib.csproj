@@ -89,6 +89,7 @@
     <Compile Include="Hardware\CPU\CPUID.cs" />
     <Compile Include="Hardware\CPU\CPULoad.cs" />
     <Compile Include="Hardware\CPU\IntelCPU.cs" />
+    <Compile Include="Hardware\LPC\LPCPort.cs" />
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Mainboard\Identification.cs" />
