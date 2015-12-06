@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2011 Christian Vallières
  
 */
@@ -154,13 +154,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       }
 
       uint[] values = GetClocks();
-      if (values != null) {
-        clocks[0].Value = 0.001f * values[0];
+      if (values != null) {        
         clocks[1].Value = 0.001f * values[8];
-        clocks[2].Value = 0.001f * values[14];
         if (values[30] != 0) {
           clocks[0].Value = 0.0005f * values[30];
           clocks[2].Value = 0.001f * values[30];
+        } else {
+          clocks[0].Value = 0.001f * values[0];
+          clocks[2].Value = 0.001f * values[14];
         }
       }
 
