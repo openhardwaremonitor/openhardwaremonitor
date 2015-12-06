@@ -26,6 +26,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private readonly Sensor[] loads;
     private readonly Sensor control;
     private readonly Sensor memoryLoad;
+    private readonly Sensor memoryUsed;
+    private readonly Sensor memoryFree;
+    private readonly Sensor memoryAvail;
     private readonly Control fanControl;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle,
@@ -75,7 +78,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       loads[1] = new Sensor("GPU Memory Controller", 1, SensorType.Load, this, settings);
       loads[2] = new Sensor("GPU Video Engine", 2, SensorType.Load, this, settings);
       memoryLoad = new Sensor("GPU Memory", 3, SensorType.Load, this, settings);
-
+      memoryFree = new Sensor("GPU Memory Free", 1, SensorType.Data, this, settings);
+      memoryUsed = new Sensor("GPU Memory Used", 2, SensorType.Data, this, settings);
+      memoryAvail = new Sensor("GPU Memory Total", 3, SensorType.Data, this, settings);
       control = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
 
       NvGPUCoolerSettings coolerSettings = GetCoolerSettings();
@@ -204,8 +209,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         uint totalMemory = memoryInfo.Values[0];
         uint freeMemory = memoryInfo.Values[4];
         float usedMemory = Math.Max(totalMemory - freeMemory, 0);
+        memoryFree.Value = (float)freeMemory/ 1048576;
+        memoryAvail.Value = (float)totalMemory/ 1048576;
+        memoryUsed.Value = usedMemory/ 1048576;
         memoryLoad.Value = 100f * usedMemory / totalMemory;
         ActivateSensor(memoryLoad);
+        ActivateSensor(memoryAvail);
+        ActivateSensor(memoryUsed);
+        ActivateSensor(memoryFree);
       }
     }
 
