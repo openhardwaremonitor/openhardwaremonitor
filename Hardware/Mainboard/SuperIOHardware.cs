@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -186,6 +186,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             ref readFan, ref postUpdate, ref mutex);
           break;
 
+        case Chip.IT8620E:
         case Chip.IT8721F:
         case Chip.IT8728F:
         case Chip.IT8771E:

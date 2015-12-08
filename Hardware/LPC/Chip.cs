@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -25,6 +25,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     F71889F = 0x0723,
     F71808E = 0x0901,
 
+    IT8620E = 0x8620,
     IT8705F = 0x8705,
     IT8712F = 0x8712,
     IT8716F = 0x8716,
@@ -70,6 +71,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.F71889F: return "Fintek F71889F";
         case Chip.F71808E: return "Fintek F71808E";
 
+        case Chip.IT8620E: return "ITE IT8620E";
         case Chip.IT8705F: return "ITE IT8705F";
         case Chip.IT8712F: return "ITE IT8712F";
         case Chip.IT8716F: return "ITE IT8716F";

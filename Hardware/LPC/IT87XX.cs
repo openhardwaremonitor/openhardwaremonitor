@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -143,9 +143,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       fans = new float?[chip == Chip.IT8705F ? 3 : 5];
       controls = new float?[3];
 
-      // IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, all others 16mV
-      if (chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8771E 
-        || chip == Chip.IT8772E) 
+      // IT8620E, IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, 
+      // all others 16mV
+      if (chip == Chip.IT8620E || chip == Chip.IT8721F || chip == Chip.IT8728F 
+        || chip == Chip.IT8771E || chip == Chip.IT8772E) 
       {
         voltageGain = 0.012f;
       } else {
@@ -173,6 +174,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F:
           gpioCount = 8;
           break;
+        case Chip.IT8620E:
         case Chip.IT8705F: 
         case Chip.IT8728F:
         case Chip.IT8771E:
