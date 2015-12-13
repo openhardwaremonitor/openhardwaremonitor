@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2011-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2011-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds
   Copyright (C) 2011 Roland Reinl <roland-reinl@gmx.de>
 	
@@ -85,19 +85,24 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xC2, SmartNames.Temperature, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return r[0] + (p == null ? 0 : p[0].Value); }, 
-          SensorType.Temperature, 0, false, 
+          SensorType.Temperature, 0, SmartNames.Temperature, false, 
         new[] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xE7, SmartNames.Temperature, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return r[0] + (p == null ? 0 : p[0].Value); }, 
-          SensorType.Temperature, 0, false, 
+          SensorType.Temperature, 0, SmartNames.Temperature, false, 
         new[] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xBE, SmartNames.TemperatureDifferenceFrom100, 
-        null, SensorType.Temperature, 0)
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return r[0] + (p == null ? 0 : p[0].Value); }, 
+          SensorType.Temperature, 0, "Temperature", false, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
+                  "Temperature = Value + Offset.", 0) })
     };
 
     public GenericHarddisk(ISmart smart, string name, string firmwareRevision, 

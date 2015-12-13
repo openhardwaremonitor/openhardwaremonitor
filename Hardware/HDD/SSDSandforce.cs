@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds
 	
 */
@@ -33,22 +33,22 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xC2, SmartNames.Temperature, 
         (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
           => { return value + (p == null ? 0 : p[0].Value); }, 
-        SensorType.Temperature, 0, true, 
+        SensorType.Temperature, 0, SmartNames.Temperature, true, 
         new[] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }), 
       new SmartAttribute(0xC3, SmartNames.UnrecoverableEcc), 
       new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
       new SmartAttribute(0xE7, SmartNames.RemainingLife, null, 
-        SensorType.Level, 0),
+        SensorType.Level, 0, SmartNames.RemainingLife),
       new SmartAttribute(0xE9, SmartNames.ControllerWritesToNAND, RawToInt,
-        SensorType.Data, 0),
+        SensorType.Data, 0, SmartNames.ControllerWritesToNAND),
       new SmartAttribute(0xEA, SmartNames.HostWritesToController, RawToInt, 
-        SensorType.Data, 1),
+        SensorType.Data, 1, SmartNames.HostWritesToController),
       new SmartAttribute(0xF1, SmartNames.HostWrites, RawToInt, 
-        SensorType.Data, 1),
+        SensorType.Data, 1, SmartNames.HostWrites),
       new SmartAttribute(0xF2, SmartNames.HostReads, RawToInt, 
-        SensorType.Data, 2)
+        SensorType.Data, 2, SmartNames.HostReads)
     };
 
     private Sensor writeAmplification;

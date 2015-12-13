@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2012-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -30,7 +30,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       // Unused Reserved Block Count (Total)
       new SmartAttribute(0xB4, SmartNames.RemainingLife,
-        null, SensorType.Level, 0),
+        null, SensorType.Level, 0, SmartNames.RemainingLife),
       
       new SmartAttribute(0xB5, SmartNames.ProgramFailCountTotal, RawToInt),
       new SmartAttribute(0xB6, SmartNames.EraseFailCountTotal, RawToInt),
@@ -39,7 +39,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xBE, SmartNames.Temperature, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return r[0] + (p == null ? 0 : p[0].Value); }, 
-          SensorType.Temperature, 0, false, 
+          SensorType.Temperature, 0, SmartNames.Temperature, false, 
         new[] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }),

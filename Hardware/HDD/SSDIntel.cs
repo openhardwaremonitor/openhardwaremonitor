@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds
   Copyright (C) 2011 Roland Reinl <roland-reinl@gmx.de>
 	
@@ -36,18 +36,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xE1, SmartNames.HostWrites, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return RawToInt(r, v, p) / 0x20; }, 
-        SensorType.Data, 0),
+        SensorType.Data, 0, SmartNames.HostWrites),
       new SmartAttribute(0xE8, SmartNames.RemainingLife, 
-        null, SensorType.Level, 0),
+        null, SensorType.Level, 0, SmartNames.RemainingLife),
       new SmartAttribute(0xE9, SmartNames.MediaWearOutIndicator),
       new SmartAttribute(0xF1, SmartNames.HostWrites,
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return RawToInt(r, v, p) / 0x20; }, 
-        SensorType.Data, 0),
+        SensorType.Data, 0, SmartNames.HostWrites),
       new SmartAttribute(0xF2, SmartNames.HostReads, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return RawToInt(r, v, p) / 0x20; }, 
-        SensorType.Data, 1),      
+        SensorType.Data, 1, SmartNames.HostReads),      
     };
 
     public SSDIntel(ISmart smart, string name, string firmwareRevision, 

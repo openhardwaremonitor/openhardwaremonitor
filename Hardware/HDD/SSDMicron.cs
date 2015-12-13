@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -43,8 +43,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xCA, SmartNames.RemainingLife, 
         (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
           => { return 100 - RawToInt(raw, value, p); }, 
-        SensorType.Level, 0),
-      new SmartAttribute(0xCE, SmartNames.WriteErrorRate, 
+        SensorType.Level, 0, SmartNames.RemainingLife),
+      new SmartAttribute(0xCE, SmartNames.WriteErrorRate,
          (byte[] raw, byte value, IReadOnlyArray<IParameter> p)
            => { return 6e4f * ((raw[1] << 8) | raw[0]); }),
     };
