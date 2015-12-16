@@ -501,6 +501,27 @@ namespace OpenHardwareMonitor.GUI {
           colorIndex++;
         }
       }
+
+      //if a sensor is assigned a color that's already being used by another sensor,
+      //try to assign it a new color. This is done only after the previous loop
+      //sets an unchanging default color for all sensors, so that colors jump  
+      //around as little as possible as sensors get added/removed from the plot
+      List<Color> usedColors = new List<Color>();
+      foreach (var curSelectedSensor in selected) {
+          var curColor = colors[curSelectedSensor];
+          if (usedColors.Contains(curColor)) {
+              foreach (Color potentialNewColor in plotColorPalette) {
+                  if (!colors.Values.Contains(potentialNewColor)) {
+                      colors[curSelectedSensor] = potentialNewColor;
+                      usedColors.Add(potentialNewColor);
+                      break;
+                  }
+              }
+          } else {
+              usedColors.Add(curColor);
+          }
+      }  
+
       sensorPlotColors = colors;
       plotPanel.SetSensors(selected, colors);
     }
