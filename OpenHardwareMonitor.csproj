@@ -114,6 +114,12 @@
     <Compile Include="GUI\SplitContainerAdv.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="GUI\StringInputBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\StringInputBox.Designer.cs">
+      <DependentUpon>StringInputBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\SystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
     <Compile Include="GUI\TaskScheduler.cs" />
@@ -159,6 +165,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\PortForm.resx">
       <DependentUpon>PortForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\StringInputBox.resx">
+      <DependentUpon>StringInputBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">
     </EmbeddedResource>
