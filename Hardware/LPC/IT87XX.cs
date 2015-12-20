@@ -143,10 +143,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       fans = new float?[chip == Chip.IT8705F ? 3 : 5];
       controls = new float?[3];
 
-      // IT8620E, IT8721F, IT8728F and IT8772E use a 12mV resultion ADC, 
-      // all others 16mV
-      if (chip == Chip.IT8620E || chip == Chip.IT8721F || chip == Chip.IT8728F 
-        || chip == Chip.IT8771E || chip == Chip.IT8772E) 
+      // IT8620E, IT8628E, IT8721F, IT8728F and IT8772E use a 12mV resultion 
+      // ADC, all others 16mV
+      if (chip == Chip.IT8620E || chip == Chip.IT8628E || chip == Chip.IT8721F 
+        || chip == Chip.IT8728F || chip == Chip.IT8771E || chip == Chip.IT8772E) 
       {
         voltageGain = 0.012f;
       } else {
@@ -175,6 +175,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           gpioCount = 8;
           break;
         case Chip.IT8620E:
+        case Chip.IT8628E:
         case Chip.IT8705F: 
         case Chip.IT8728F:
         case Chip.IT8771E:
