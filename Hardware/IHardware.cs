@@ -8,40 +8,41 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Hardware
+{
+    public delegate void SensorEventHandler(ISensor sensor);
 
-  public delegate void SensorEventHandler(ISensor sensor);
-  
-  public enum HardwareType {
-    Mainboard,
-    SuperIO,
-    CPU,
-    RAM,
-    GpuNvidia,
-    GpuAti,    
-    TBalancer,
-    Heatmaster,
-    HDD
-  }
+    public enum HardwareType
+    {
+        Mainboard,
+        SuperIO,
+        CPU,
+        RAM,
+        GpuNvidia,
+        GpuAti,
+        TBalancer,
+        Heatmaster,
+        HDD
+    }
 
-  public interface IHardware : IElement {
+    public interface IHardware : IElement
+    {
+        string Name { get; set; }
+        Identifier Identifier { get; }
 
-    string Name { get; set; }
-    Identifier Identifier { get; }
+        HardwareType HardwareType { get; }
 
-    HardwareType HardwareType { get; }
+        IHardware[] SubHardware { get; }
 
-    string GetReport();
+        IHardware Parent { get; }
 
-    void Update();
+        ISensor[] Sensors { get; }
 
-    IHardware[] SubHardware { get; }
+        string GetReport();
 
-    IHardware Parent { get; }
+        void Update();
 
-    ISensor[] Sensors { get; }
-
-    event SensorEventHandler SensorAdded;
-    event SensorEventHandler SensorRemoved;
-  }
+        event SensorEventHandler SensorAdded;
+        event SensorEventHandler SensorRemoved;
+    }
 }

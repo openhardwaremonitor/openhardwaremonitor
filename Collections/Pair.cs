@@ -8,33 +8,24 @@
 	
 */
 
-using System;
-using System.Collections.Generic;
+namespace OpenHardwareMonitor.Collections
+{
+    public struct Pair<F, S>
+    {
+        public Pair(F first, S second)
+        {
+            First = first;
+            Second = second;
+        }
 
-namespace OpenHardwareMonitor.Collections {
+        public F First { get; set; }
 
-  public struct Pair<F, S> {
-    private F first;
-    private S second;
+        public S Second { get; set; }
 
-    public Pair(F first, S second) {
-      this.first = first;
-      this.second = second;
+        public override int GetHashCode()
+        {
+            return (First != null ? First.GetHashCode() : 0) ^
+                   (Second != null ? Second.GetHashCode() : 0);
+        }
     }
-
-    public F First {
-      get { return first; }
-      set { first = value; }
-    }
-
-    public S Second {
-      get { return second; }
-      set { second = value; }
-    }
-
-    public override int GetHashCode() {
-      return (first != null ? first.GetHashCode() : 0) ^
-        (second != null ? second.GetHashCode() : 0);
-    }
-  }
 }

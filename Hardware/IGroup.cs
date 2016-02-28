@@ -8,15 +8,14 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Hardware
+{
+    internal interface IGroup
+    {
+        IHardware[] Hardware { get; }
 
-  internal interface IGroup {
+        string GetReport();
 
-    IHardware[] Hardware { get; }
-
-    string GetReport();
-
-    void Close();
-  }
-
+        void Close();
+    }
 }

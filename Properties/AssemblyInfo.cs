@@ -8,9 +8,7 @@
 	
 */
 
-using System;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Open Hardware Monitor")]
@@ -21,5 +19,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2009-2014 Michael Möller")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
 [assembly: ComVisible(false)]
