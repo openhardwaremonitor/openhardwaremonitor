@@ -12,92 +12,101 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OpenHardwareMonitor.Hardware {
-  public class Identifier : IComparable<Identifier> {
-    private readonly string identifier;
+namespace OpenHardwareMonitor.Hardware
+{
+    public class Identifier : IComparable<Identifier>
+    {
+        private const char Separator = '/';
+        private readonly string identifier;
 
-    private const char Separator = '/';
+        public Identifier(params string[] identifiers)
+        {
+            CheckIdentifiers(identifiers);
 
-    private static void CheckIdentifiers(IEnumerable<string> identifiers) {      
-      foreach (string s in identifiers)
-        if (s.Contains(" ") || s.Contains(Separator.ToString()))
-          throw new ArgumentException("Invalid identifier");
+            var s = new StringBuilder();
+            for (var i = 0; i < identifiers.Length; i++)
+            {
+                s.Append(Separator);
+                s.Append(identifiers[i]);
+            }
+            identifier = s.ToString();
+        }
+
+        public Identifier(Identifier identifier, params string[] extensions)
+        {
+            CheckIdentifiers(extensions);
+
+            var s = new StringBuilder();
+            s.Append(identifier);
+            for (var i = 0; i < extensions.Length; i++)
+            {
+                s.Append(Separator);
+                s.Append(extensions[i]);
+            }
+            this.identifier = s.ToString();
+        }
+
+        public int CompareTo(Identifier other)
+        {
+            if (other == null)
+                return 1;
+            return string.Compare(identifier, other.identifier,
+                StringComparison.Ordinal);
+        }
+
+        private static void CheckIdentifiers(IEnumerable<string> identifiers)
+        {
+            foreach (var s in identifiers)
+                if (s.Contains(" ") || s.Contains(Separator.ToString()))
+                    throw new ArgumentException("Invalid identifier");
+        }
+
+        public override string ToString()
+        {
+            return identifier;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            var id = obj as Identifier;
+            if (id == null)
+                return false;
+
+            return (identifier == id.identifier);
+        }
+
+        public override int GetHashCode()
+        {
+            return identifier.GetHashCode();
+        }
+
+        public static bool operator ==(Identifier id1, Identifier id2)
+        {
+            if (id1.Equals(null))
+                return id2.Equals(null);
+            return id1.Equals(id2);
+        }
+
+        public static bool operator !=(Identifier id1, Identifier id2)
+        {
+            return !(id1 == id2);
+        }
+
+        public static bool operator <(Identifier id1, Identifier id2)
+        {
+            if (id1 == null)
+                return id2 != null;
+            return (id1.CompareTo(id2) < 0);
+        }
+
+        public static bool operator >(Identifier id1, Identifier id2)
+        {
+            if (id1 == null)
+                return false;
+            return (id1.CompareTo(id2) > 0);
+        }
     }
-
-    public Identifier(params string[] identifiers) {
-      CheckIdentifiers(identifiers);
-
-      StringBuilder s = new StringBuilder();
-      for (int i = 0; i < identifiers.Length; i++) {
-        s.Append(Separator);
-        s.Append(identifiers[i]);
-      }
-      this.identifier = s.ToString();
-    }
-
-    public Identifier(Identifier identifier, params string[] extensions) {
-      CheckIdentifiers(extensions);
-
-      StringBuilder s = new StringBuilder();
-      s.Append(identifier.ToString());
-      for (int i = 0; i < extensions.Length; i++) {
-        s.Append(Separator);
-        s.Append(extensions[i]);
-      }
-      this.identifier = s.ToString();
-    }
-
-    public override string ToString() {
-      return identifier;
-    }
-
-    public override bool Equals(Object obj) {
-      if (obj == null)
-        return false;
-
-      Identifier id = obj as Identifier;
-      if (id == null)
-        return false;
-
-      return (identifier == id.identifier);
-    }
-
-    public override int GetHashCode() {
-      return identifier.GetHashCode();
-    }
-
-    public int CompareTo(Identifier other) {
-      if (other == null)
-        return 1;
-      else 
-        return string.Compare(this.identifier, other.identifier, 
-          StringComparison.Ordinal);
-    }
-
-    public static bool operator ==(Identifier id1, Identifier id2) {
-      if (id1.Equals(null))
-        return id2.Equals(null);
-      else
-        return id1.Equals(id2);
-    }
-
-    public static bool operator !=(Identifier id1, Identifier id2) {
-      return !(id1 == id2);
-    }
-
-    public static bool operator <(Identifier id1, Identifier id2) {
-      if (id1 == null)
-        return id2 != null;
-      else 
-        return (id1.CompareTo(id2) < 0);
-    }
-
-    public static bool operator >(Identifier id1, Identifier id2) {
-      if (id1 == null)
-        return false;
-      else 
-        return (id1.CompareTo(id2) > 0);
-    }  
-
-  }
 }

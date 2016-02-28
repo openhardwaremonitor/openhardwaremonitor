@@ -12,59 +12,58 @@ using System;
 using System.Collections.Generic;
 using OpenHardwareMonitor.Collections;
 
-namespace OpenHardwareMonitor.Hardware {
-
-  public enum SensorType {
-    Voltage, // V
-    Clock, // MHz
-    Temperature, // °C
-    Load, // %
-    Fan, // RPM
-    Flow, // L/h
-    Control, // %
-    Level, // %
-    Factor, // 1
-    Power, // W
-    Data, // GB = 2^30 Bytes    
-  }
-
-  public struct SensorValue {
-    private readonly float value;
-    private readonly DateTime time;
-
-    public SensorValue(float value, DateTime time) {
-      this.value = value;
-      this.time = time;
+namespace OpenHardwareMonitor.Hardware
+{
+    public enum SensorType
+    {
+        Voltage, // V
+        Clock, // MHz
+        Temperature, // °C
+        Load, // %
+        Fan, // RPM
+        Flow, // L/h
+        Control, // %
+        Level, // %
+        Factor, // 1
+        Power, // W
+        Data // GB = 2^30 Bytes    
     }
 
-    public float Value { get { return value; } }
-    public DateTime Time { get { return time; } }
-  }
+    public struct SensorValue
+    {
+        public SensorValue(float value, DateTime time)
+        {
+            Value = value;
+            Time = time;
+        }
 
-  public interface ISensor : IElement {
+        public float Value { get; }
+        public DateTime Time { get; }
+    }
 
-    IHardware Hardware { get; }
+    public interface ISensor : IElement
+    {
+        IHardware Hardware { get; }
 
-    SensorType SensorType { get; }
-    Identifier Identifier { get; }
+        SensorType SensorType { get; }
+        Identifier Identifier { get; }
 
-    string Name { get; set; }
-    int Index { get; }
+        string Name { get; set; }
+        int Index { get; }
 
-    bool IsDefaultHidden { get; }
+        bool IsDefaultHidden { get; }
 
-    IReadOnlyArray<IParameter> Parameters { get; }
+        IReadOnlyArray<IParameter> Parameters { get; }
 
-    float? Value { get; }
-    float? Min { get; }
-    float? Max { get; }
+        float? Value { get; }
+        float? Min { get; }
+        float? Max { get; }
 
-    void ResetMin();
-    void ResetMax();
+        IEnumerable<SensorValue> Values { get; }
 
-    IEnumerable<SensorValue> Values { get; }
+        IControl Control { get; }
 
-    IControl Control { get; }
-  }
-
+        void ResetMin();
+        void ResetMax();
+    }
 }

@@ -9,25 +9,27 @@
 */
 
 using System;
-using System.Collections.Generic;
 
-namespace OpenHardwareMonitor.Hardware {
-  internal static class HexStringArray {
+namespace OpenHardwareMonitor.Hardware
+{
+    internal static class HexStringArray
+    {
+        public static byte Read(string s, ushort address)
+        {
+            var lines = s.Split(new[] {'\r', '\n'},
+                StringSplitOptions.RemoveEmptyEntries);
 
-    public static byte Read(string s, ushort address) {
-      string[] lines = s.Split(new[] { '\r', '\n' }, 
-        StringSplitOptions.RemoveEmptyEntries);
+            foreach (var line in lines)
+            {
+                var array = line.Split(new[] {' ', '\t'},
+                    StringSplitOptions.RemoveEmptyEntries);
+                if (array.Length == 0)
+                    continue;
+                if (Convert.ToInt32(array[0], 16) == (address & 0xFFF0))
+                    return Convert.ToByte(array[(address & 0x0F) + 1], 16);
+            }
 
-      foreach (string line in lines) {
-        string[] array = line.Split(new[] { ' ', '\t' }, 
-          StringSplitOptions.RemoveEmptyEntries);
-        if (array.Length == 0)
-          continue; 
-        if (Convert.ToInt32(array[0], 16) == (address & 0xFFF0)) 
-          return Convert.ToByte(array[(address & 0x0F) + 1], 16);
-      }
-
-      throw new ArgumentException();
+            throw new ArgumentException();
+        }
     }
-  }
 }

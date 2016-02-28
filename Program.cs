@@ -76,7 +76,7 @@ namespace OpenHardwareMonitor
             {
                 ReportException(e.Exception);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
@@ -95,7 +95,7 @@ namespace OpenHardwareMonitor
                 if (e != null)
                     ReportException(e);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
