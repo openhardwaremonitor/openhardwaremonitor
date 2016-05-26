@@ -50,7 +50,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xC9, SmartNames.SupercapStatus),
       new SmartAttribute(0xCA, SmartNames.ExceptionModeStatus),
       new SmartAttribute(0xEB, SmartNames.PowerRecoveryCount),
-      new SmartAttribute(0xF1, SmartNames.TotalLBAWritten)
+      new SmartAttribute(0xF1, SmartNames.TotalLBAWritten, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p)
+          => { return RawToInt(r, v, p) * 512 / 1024 / 1024 / 1024; },
+        SensorType.Data, 0, SmartNames.TotalLBAWritten)
     };
 
     public SSDSamsung(ISmart smart, string name, string firmwareRevision,
