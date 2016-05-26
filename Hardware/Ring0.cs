@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -45,17 +45,22 @@ namespace OpenHardwareMonitor.Hardware {
       IOCTL_OLS_READ_MEMORY = new IOControlCode(OLS_TYPE, 0x841,
         IOControlCode.Access.Read);
 
+    private static Assembly GetAssembly() {
+      return typeof(Ring0).Assembly;
+    }
+
     private static string GetTempFileName() {
       
       // try to create one in the application folder
-      string fileName = Path.ChangeExtension(
-        Assembly.GetEntryAssembly().Location, ".sys");
-      try {
-        using (FileStream stream = File.Create(fileName)) {
-          return fileName;
-        }        
-      } catch (IOException) { } 
-        catch (UnauthorizedAccessException) { }
+      string location = GetAssembly().Location;
+      if (!string.IsNullOrEmpty(location)) {        
+        try {
+          string fileName = Path.ChangeExtension(location, ".sys");
+          using (FileStream stream = File.Create(fileName)) {
+            return fileName;
+          }
+        } catch (Exception) { }
+      }
 
       // if this failed, try to get a file in the temporary folder
       try {
@@ -78,12 +83,11 @@ namespace OpenHardwareMonitor.Hardware {
         (OperatingSystem.Is64BitOperatingSystem() ? "WinRing0x64.sys" : 
         "WinRing0.sys");
 
-      string[] names =
-        Assembly.GetExecutingAssembly().GetManifestResourceNames();
+      string[] names = GetAssembly().GetManifestResourceNames();
       byte[] buffer = null;
       for (int i = 0; i < names.Length; i++) {
         if (names[i].Replace('\\', '.') == resourceName) {
-          using (Stream stream = Assembly.GetExecutingAssembly().
+          using (Stream stream = GetAssembly().
             GetManifestResourceStream(names[i])) 
           {
               buffer = new byte[stream.Length];
