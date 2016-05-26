@@ -37,6 +37,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort FAMILY_14H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1703;
     private const ushort FAMILY_15H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1603;
     private const ushort FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID = 0x1403;
+    private const ushort FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x141D;
     private const ushort FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1533;
 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
@@ -75,6 +76,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               FAMILY_15H_MODEL_00_MISC_CONTROL_DEVICE_ID; break;
             case 0x10: miscellaneousControlDeviceId =
               FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID; break;
+            case 0x30: miscellaneousControlDeviceId =
+              FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID; break;
             default: miscellaneousControlDeviceId = 0; break;
           } break;
         case 0x16:
