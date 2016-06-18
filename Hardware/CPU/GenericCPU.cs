@@ -202,7 +202,24 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return null;
     }
 
+    protected void TraceCpuIds()
+    {
+      int count = cpuid[0].Length * cpuid.Length;
+      Trace.WriteLine("Found " + count + " CPU IDs:");
+      Trace.Indent();
+      foreach (CPUID[] cpuidLine in cpuid)
+      {
+        foreach (CPUID id in cpuidLine)
+        {
+          Trace.WriteLine(id.ToString());
+        }
+      }
+      Trace.Unindent();
+    }
+
     public override string GetReport() {
+      TraceCpuIds();
+
       StringBuilder r = new StringBuilder();
 
       switch (vendor) {

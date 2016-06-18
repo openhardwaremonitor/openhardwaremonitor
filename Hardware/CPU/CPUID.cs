@@ -252,5 +252,28 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public uint[,] ExtData {
       get { return cpuidExtData; }
     }
+
+    
+    public override string ToString()
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+    
+      stringBuilder.Append("CPUID[");
+      stringBuilder.Append("Vendor: " + vendor);
+      stringBuilder.Append(", Brand: " + cpuBrandString);
+      stringBuilder.Append(", Name: " + name);
+      stringBuilder.Append(", Family: " + family);
+      stringBuilder.Append(", Model: " + model);
+      stringBuilder.Append(", Stepping: " + stepping);
+      stringBuilder.Append(", ApicId: " + apicId);
+      stringBuilder.Append(", ProcessorId: " + processorId);
+      stringBuilder.Append(", CoreId: " + coreId);
+      stringBuilder.Append(", ThreadId: " + threadId);
+      stringBuilder.Append(", ThreadMask: " + threadMaskWith);
+      stringBuilder.Append(", CoreMask: " + coreMaskWith);
+      stringBuilder.Append("]");
+
+      return stringBuilder.ToString();
+    }
   }
 }
