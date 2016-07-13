@@ -9,6 +9,7 @@
 */
 
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.Utilities;
@@ -20,7 +21,8 @@ namespace OpenHardwareMonitor.GUI {
     private PersistentSettings settings;
     private UnitManager unitManager;
     private string format;
-    private bool plot = false;       
+    private bool plot = false;
+    public Color? penColor = null;
 
     public string ValueToString(float? value) {
       if (value.HasValue) {
