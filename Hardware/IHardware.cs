@@ -29,7 +29,8 @@ namespace OpenHardwareMonitor.Hardware
   public enum AdditionalDataType
   {
     Driveinfos,
-    SMART
+    SmartAttributes,
+    Firmware
   }
 
   public interface IHardware : IElement
