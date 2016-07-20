@@ -84,6 +84,10 @@ namespace OpenHardwareMonitor.Hardware {
       return null;
     }
 
+    public virtual object GetOther(AdditionalDataType type){
+      return null;
+    }
+
     public abstract void Update();
 
     public event HardwareEventHandler Closing;
