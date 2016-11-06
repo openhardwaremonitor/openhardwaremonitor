@@ -111,7 +111,6 @@ namespace OpenHardwareMonitor.GUI {
       this.log1hMenuItem = new System.Windows.Forms.MenuItem();
       this.log2hMenuItem = new System.Windows.Forms.MenuItem();
       this.log6hMenuItem = new System.Windows.Forms.MenuItem();
-      this.colorDialog = new System.Windows.Forms.ColorDialog();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -763,7 +762,6 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem log1hMenuItem;
     private System.Windows.Forms.MenuItem log2hMenuItem;
     private System.Windows.Forms.MenuItem log6hMenuItem;
-    private System.Windows.Forms.ColorDialog colorDialog;
   }
 }
 

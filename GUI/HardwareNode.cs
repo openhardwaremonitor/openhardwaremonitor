@@ -89,8 +89,6 @@ namespace OpenHardwareMonitor.GUI {
         ((SensorNode)node.Nodes[i]).Sensor.Index < sensor.Index)
         i++;
       SensorNode sensorNode = new SensorNode(sensor, settings, unitManager);
-      if (settings.Contains(sensor.Identifier + "/PenColor"))
-        sensorNode.penColor = settings.GetValue(sensor.Identifier + "/PenColor", Color.Black);
       sensorNode.PlotSelectionChanged += SensorPlotSelectionChanged;
       node.Nodes.Insert(i, sensorNode);
     }

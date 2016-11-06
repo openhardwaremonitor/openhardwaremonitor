@@ -494,7 +494,7 @@ namespace OpenHardwareMonitor.GUI {
         SensorNode sensorNode = node.Tag as SensorNode;
         if (sensorNode != null) {
           if (sensorNode.Plot) {
-            if (sensorNode.penColor == null) {
+            if (!sensorNode.PenColor.HasValue) {
               colors.Add(sensorNode.Sensor,
                 plotColorPalette[colorIndex % plotColorPalette.Length]);
             }
@@ -528,8 +528,8 @@ namespace OpenHardwareMonitor.GUI {
 
       foreach (TreeNodeAdv node in treeView.AllNodes) {
         SensorNode sensorNode = node.Tag as SensorNode;
-        if (sensorNode != null && sensorNode.Plot && sensorNode.penColor != null)
-          colors.Add(sensorNode.Sensor, sensorNode.penColor.Value);
+        if (sensorNode != null && sensorNode.Plot && sensorNode.PenColor.HasValue)
+          colors.Add(sensorNode.Sensor, sensorNode.PenColor.Value);
       }
 
       sensorPlotColors = colors;
@@ -683,17 +683,23 @@ namespace OpenHardwareMonitor.GUI {
           }
           treeContextMenu.MenuItems.Add(new MenuItem("-"));
           {
-            MenuItem item = new MenuItem("Pen color");
+            MenuItem item = new MenuItem("Pen Color...");
             item.Click += delegate(object obj, EventArgs args) {
-              colorDialog.Color = node.penColor.GetValueOrDefault();
-              if (colorDialog.ShowDialog() == DialogResult.OK) {
-                node.penColor = colorDialog.Color;
-                settings.SetValue(node.Sensor.Identifier + "/PenColor", colorDialog.Color);
-                PlotSelectionChanged(this, null);
-              }
+              ColorDialog dialog = new ColorDialog();
+              dialog.Color = node.PenColor.GetValueOrDefault();
+              if (dialog.ShowDialog() == DialogResult.OK)
+                node.PenColor = dialog.Color;
             };
             treeContextMenu.MenuItems.Add(item);
           }
+          {
+            MenuItem item = new MenuItem("Reset Pen Color");
+            item.Click += delegate(object obj, EventArgs args) {
+              node.PenColor = null;
+            };
+            treeContextMenu.MenuItems.Add(item);
+          }
+          treeContextMenu.MenuItems.Add(new MenuItem("-"));
           {
             MenuItem item = new MenuItem("Show in Tray");
             item.Checked = systemTray.Contains(node.Sensor);
