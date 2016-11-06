@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Level: format = "{0:F1} %"; break;
         case SensorType.Power: format = "{0:F1} W"; break;
         case SensorType.Data: format = "{0:F1} GB"; break;
+        case SensorType.SmallData: format = "{0:F1} MB"; break;
         case SensorType.Factor: format = "{0:F3}"; break;
       }
 
