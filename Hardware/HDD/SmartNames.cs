@@ -494,9 +494,5 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public static string PowerRecoveryCount {
       get { return "Power Recovery Count"; }
     }
-
-    public static string TotalLBAWritten {
-      get { return "Total LBA Written"; }
-    }
   }
 }
