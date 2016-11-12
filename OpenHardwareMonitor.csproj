@@ -58,22 +58,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OxyPlot">
-      <HintPath>External\OxyPlot.dll</HintPath>
-    </Reference>
-    <Reference Include="OxyPlot.WindowsForms">
-      <HintPath>External\OxyPlot.WindowsForms.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Aga.Controls, Version=1.7.0.0, Culture=neutral, PublicKeyToken=fcc90fbf924463a3">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>External\Aga.Controls.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GUI\GadgetWindow.cs" />
@@ -209,6 +199,18 @@
     <EmbeddedResource Include="Resources\control.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="External\Aga.Controls\Aga.Controls.csproj">
+      <Project>{E73BB233-D88B-44A7-A98F-D71EE158381D}</Project>
+      <Name>Aga.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="External\OxyPlot\OxyPlot.WindowsForms\OxyPlot.WindowsForms.csproj">
+      <Project>{D4554296-094E-4CAC-8EAE-44EB250666C6}</Project>
+      <Name>OxyPlot.WindowsForms</Name>
+    </ProjectReference>
+    <ProjectReference Include="External\OxyPlot\OxyPlot\OxyPlot.csproj">
+      <Project>{BCC43E58-E473-403E-A84D-63FEDC723040}</Project>
+      <Name>OxyPlot</Name>
+    </ProjectReference>
     <ProjectReference Include="OpenHardwareMonitorLib.csproj">
       <Project>{B0397530-545A-471D-BB74-027AE456DF1A}</Project>
       <Name>OpenHardwareMonitorLib</Name>
