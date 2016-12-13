@@ -213,9 +213,9 @@ namespace Aga.Controls.Tree
 
 
 			if (Application.RenderWithVisualStyles)
-				_columnHeaderHeight = 20;
+				_columnHeaderHeight = 40;
 			else
-				_columnHeaderHeight = 17;
+				_columnHeaderHeight = 35;
 
 			//BorderStyle = BorderStyle.Fixed3D;
 			_hScrollBar.Height = SystemInformation.HorizontalScrollBarHeight;
