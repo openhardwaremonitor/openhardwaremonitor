@@ -39,6 +39,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID = 0x1403;
     private const ushort FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x141D;
     private const ushort FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1533;
+    private const ushort FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x1583;
 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     private const uint CLOCK_POWER_TIMING_CONTROL_0_REGISTER = 0xD4;
@@ -83,7 +84,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case 0x16:
           switch (model & 0xF0) {
             case 0x00: miscellaneousControlDeviceId =
-              FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID; break;            
+              FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID; break;
+            case 0x30: miscellaneousControlDeviceId =
+              FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID; break;
             default: miscellaneousControlDeviceId = 0; break;
           } break;
         default: miscellaneousControlDeviceId = 0; break;
