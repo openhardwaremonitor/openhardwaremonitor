@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2017 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -177,7 +177,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.Airmont;
                 tjMax = GetTjMaxFromMSR();
                 break;
-              case 0x8E: // Intel Core i5, i7 7xxxx (14nm)
+              case 0x8E: 
+              case 0x9E: // Intel Core i5, i7 7xxxx (14nm)
                 microarchitecture = Microarchitecture.KabyLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
