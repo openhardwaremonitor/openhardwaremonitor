@@ -570,6 +570,9 @@ namespace OpenHardwareMonitor.GUI {
                 case SensorType.Power:
                   format = "{0:F1} W";
                   break;
+		case SensorType.SmallData:
+                  format = "{0:F1} MB";
+                  break;
                 case SensorType.Data:
                   format = "{0:F1} GB";
                   break;
