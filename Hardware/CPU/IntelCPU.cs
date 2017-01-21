@@ -411,7 +411,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.Haswell: 
               case Microarchitecture.Broadwell:
               case Microarchitecture.Silvermont:
-              case Microarchitecture.Skylake: {
+              case Microarchitecture.Skylake:
+              case Microarchitecture.KabyLake: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
