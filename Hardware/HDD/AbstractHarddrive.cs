@@ -351,6 +351,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return r.ToString();
     }
 
+    public override object GetOther(AdditionalDataType type){
+      switch (type)
+      {
+        case AdditionalDataType.Driveinfos:
+          return driveInfos;
+        case AdditionalDataType.SmartAttributes:
+          return smartAttributes;
+        case AdditionalDataType.Firmware:
+          return firmwareRevision;
+        default:
+          return null;
+      }
+    }
+
     protected static float RawToInt(byte[] raw, byte value,
       IReadOnlyArray<IParameter> parameters) 
     {

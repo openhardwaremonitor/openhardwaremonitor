@@ -8,23 +8,33 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Hardware
+{
 
   public delegate void SensorEventHandler(ISensor sensor);
-  
-  public enum HardwareType {
+
+  public enum HardwareType
+  {
     Mainboard,
     SuperIO,
     CPU,
     RAM,
     GpuNvidia,
-    GpuAti,    
+    GpuAti,
     TBalancer,
     Heatmaster,
     HDD
   }
 
-  public interface IHardware : IElement {
+  public enum AdditionalDataType
+  {
+    Driveinfos,
+    SmartAttributes,
+    Firmware
+  }
+
+  public interface IHardware : IElement
+  {
 
     string Name { get; set; }
     Identifier Identifier { get; }
@@ -32,6 +42,8 @@ namespace OpenHardwareMonitor.Hardware {
     HardwareType HardwareType { get; }
 
     string GetReport();
+
+    object GetOther(AdditionalDataType type);
 
     void Update();
 

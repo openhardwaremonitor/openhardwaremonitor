@@ -111,6 +111,12 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       return r.ToString();
     }
 
+    public object GetOther(AdditionalDataType type)
+    {
+      //Could be used here, too?
+      return null;
+    }
+
     public void Update() { }
 
     public void Close() {
