@@ -1,0 +1,16 @@
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OpenHardwareMonitor.exe.config
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OpenHardwareMonitor.exe
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OpenHardwareMonitor.pdb
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\Aga.Controls.dll
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OxyPlot.dll
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OxyPlot.WindowsForms.dll
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.csprojResolveAssemblyReference.cache
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.AboutBox.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.PortForm.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.ParameterForm.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.CrashForm.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.MainForm.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.GUI.ReportForm.resources
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.csproj.GenerateResource.Cache
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.exe
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitor.pdb

@@ -66,10 +66,10 @@ $(function(){
         });
       }
 
-      viewModel.rate = 3000; //milliseconds
+      viewModel.rate = 1000; //milliseconds
       viewModel.timer = {};
 
-      viewModel.startAuto = function (){
+      viewModel.startAuto = function () {
         viewModel.timer = setInterval(viewModel.update, viewModel.rate);
       }
 
@@ -96,7 +96,7 @@ $(function(){
   $( "#refresh" ).button();
   $( "#auto_refresh" ).button();
   $( "#slider" ).slider({
-    value:3,
+    value:1,
     min: 1,
     max: 10,
     slide: function( event, ui ) {
@@ -109,7 +109,12 @@ $(function(){
       $( "#lbl" ).text( ui.value + "s");
     }
   });
-  $( "#lbl" ).text( $( "#slider" ).slider( "value" ) + "s");
+  $("#lbl").text($("#slider").slider("value") + "s");
+
+	// Load auto-refresh by default
+	//reset the timer
+  viewModel.stopAuto();
+  viewModel.startAuto();
 
 });
 

@@ -1,0 +1,4 @@
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OpenHardwareMonitorLib.dll
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\Bin\Debug\OpenHardwareMonitorLib.pdb
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitorLib.dll
+C:\Users\StreamTrouff\Documents\GitHub\openhardwaremonitor\obj\Debug\OpenHardwareMonitorLib.pdb
