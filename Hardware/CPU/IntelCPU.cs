@@ -28,7 +28,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Silvermont,
       Skylake,
       Airmont,
-      KabyLake
+      KabyLake,
+      ApolloLake      
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -182,6 +183,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.KabyLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0x5C: // Intel ApolloLake
+                microarchitecture = Microarchitecture.ApolloLake;
+                tjMax = GetTjMaxFromMSR();
+                break;
               default:
                 microarchitecture = Microarchitecture.Unknown;
                 tjMax = Floats(100);
@@ -230,6 +235,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Silvermont:
         case Microarchitecture.Skylake:
         case Microarchitecture.Airmont:
+        case Microarchitecture.ApolloLake:
         case Microarchitecture.KabyLake: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
@@ -294,7 +300,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           microarchitecture == Microarchitecture.Skylake ||
           microarchitecture == Microarchitecture.Silvermont ||
           microarchitecture == Microarchitecture.Airmont ||
-          microarchitecture == Microarchitecture.KabyLake) 
+          microarchitecture == Microarchitecture.KabyLake ||
+          microarchitecture == Microarchitecture.ApolloLake) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
@@ -412,6 +419,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.Broadwell:
               case Microarchitecture.Silvermont:
               case Microarchitecture.Skylake:
+              case Microarchitecture.ApolloLake:
               case Microarchitecture.KabyLake: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
