@@ -42,6 +42,11 @@ namespace Aga.Controls.Tree
 		private List<TreeNodeAdv> _expandingNodes = new List<TreeNodeAdv>();
 		private AbortableThreadPool _threadPool = new AbortableThreadPool();
 
+		private float dpiX;
+		private float dpiY;
+		private float dpiXscale = 1;
+		private float dpiYscale = 1;
+
 		#region Public Events
 
 		[Category("Action")]
@@ -204,6 +209,7 @@ namespace Aga.Controls.Tree
 		public TreeViewAdv()
 		{
 			InitializeComponent();
+			SetDPI();
 			SetStyle(ControlStyles.AllPaintingInWmPaint
 				| ControlStyles.UserPaint
 				| ControlStyles.OptimizedDoubleBuffer
@@ -246,33 +252,42 @@ namespace Aga.Controls.Tree
 			ExpandingIcon.IconChanged += ExpandingIconChanged;
 		}
 
-		public int GetScaledSize(int size, bool useY = true)
+		public void SetDPI()
 		{
 			// https://msdn.microsoft.com/en-us/library/windows/desktop/dn469266(v=vs.85).aspx
 			const int _default_dpi = 96;
-			float dpi = 0;
-			int scaledsize = size;
 			Graphics g = this.CreateGraphics();
 
 			try
 			{
-				if (useY)
-				{
-					dpi = g.DpiY;
-				}
-				else
-				{
-					dpi = g.DpiX;
-				}
+				this.dpiX = g.DpiX;
+				this.dpiY = g.DpiY;
 			}
 			finally
 			{
 				g.Dispose();
 			}
-			if (dpi > 0)
+			if (dpiX > 0)
 			{
-				float dpiscale = dpi / _default_dpi;
-				scaledsize = (int)(dpiscale * size);
+				this.dpiXscale = dpiX / _default_dpi;
+			}
+			if (dpiY > 0)
+			{
+				this.dpiYscale = dpiY / _default_dpi;
+			}
+		}
+
+		public int GetScaledSize(int size, bool useY = true)
+		{
+			int scaledsize = size;
+
+			if (useY && this.dpiYscale > 1)
+			{
+				scaledsize = (int)(this.dpiYscale * size);
+			}
+			else if (this.dpiXscale > 1)
+			{
+				scaledsize = (int)(this.dpiXscale * size);
 			}
 			return scaledsize;
 		}
