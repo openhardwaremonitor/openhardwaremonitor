@@ -84,11 +84,26 @@ namespace OpenHardwareMonitor.GUI {
       this.plotWindowMenuItem = new System.Windows.Forms.MenuItem();
       this.plotBottomMenuItem = new System.Windows.Forms.MenuItem();
       this.plotRightMenuItem = new System.Windows.Forms.MenuItem();
+      this.logSeparatorMenuItem = new System.Windows.Forms.MenuItem();
+      this.logSensorsMenuItem = new System.Windows.Forms.MenuItem();
+      this.loggingIntervalMenuItem = new System.Windows.Forms.MenuItem();
+      this.log1sMenuItem = new System.Windows.Forms.MenuItem();
+      this.log2sMenuItem = new System.Windows.Forms.MenuItem();
+      this.log5sMenuItem = new System.Windows.Forms.MenuItem();
+      this.log10sMenuItem = new System.Windows.Forms.MenuItem();
+      this.log30sMenuItem = new System.Windows.Forms.MenuItem();
+      this.log1minMenuItem = new System.Windows.Forms.MenuItem();
+      this.log2minMenuItem = new System.Windows.Forms.MenuItem();
+      this.log5minMenuItem = new System.Windows.Forms.MenuItem();
+      this.log10minMenuItem = new System.Windows.Forms.MenuItem();
+      this.log30minMenuItem = new System.Windows.Forms.MenuItem();
+      this.log1hMenuItem = new System.Windows.Forms.MenuItem();
+      this.log2hMenuItem = new System.Windows.Forms.MenuItem();
+      this.log6hMenuItem = new System.Windows.Forms.MenuItem();
       this.webMenuItemSeparator = new System.Windows.Forms.MenuItem();
       this.webMenuItem = new System.Windows.Forms.MenuItem();
       this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
       this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
-      this.logSensorsMenuItem = new System.Windows.Forms.MenuItem();
       this.helpMenuItem = new System.Windows.Forms.MenuItem();
       this.aboutMenuItem = new System.Windows.Forms.MenuItem();
       this.treeContextMenu = new System.Windows.Forms.ContextMenu();
@@ -96,21 +111,6 @@ namespace OpenHardwareMonitor.GUI {
       this.timer = new System.Windows.Forms.Timer(this.components);
       this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
       this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-      this.logSeparatorMenuItem = new System.Windows.Forms.MenuItem();
-      this.loggingIntervalMenuItem = new System.Windows.Forms.MenuItem();
-      this.log1sMenuItem = new System.Windows.Forms.MenuItem();
-      this.log5sMenuItem = new System.Windows.Forms.MenuItem();
-      this.log10sMenuItem = new System.Windows.Forms.MenuItem();
-      this.log30sMenuItem = new System.Windows.Forms.MenuItem();
-      this.log1minMenuItem = new System.Windows.Forms.MenuItem();
-      this.log5minMenuItem = new System.Windows.Forms.MenuItem();
-      this.log10minMenuItem = new System.Windows.Forms.MenuItem();
-      this.log30minMenuItem = new System.Windows.Forms.MenuItem();
-      this.log2sMenuItem = new System.Windows.Forms.MenuItem();
-      this.log2minMenuItem = new System.Windows.Forms.MenuItem();
-      this.log1hMenuItem = new System.Windows.Forms.MenuItem();
-      this.log2hMenuItem = new System.Windows.Forms.MenuItem();
-      this.log6hMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -213,18 +213,19 @@ namespace OpenHardwareMonitor.GUI {
             this.menuItem5,
             this.menuItem6,
             this.exitMenuItem});
-      this.fileMenuItem.Text = "File";
+      this.fileMenuItem.Text = "&File";
       // 
       // saveReportMenuItem
       // 
       this.saveReportMenuItem.Index = 0;
-      this.saveReportMenuItem.Text = "Save Report...";
+      this.saveReportMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlS;
+      this.saveReportMenuItem.Text = "&Save Report...";
       this.saveReportMenuItem.Click += new System.EventHandler(this.saveReportMenuItem_Click);
       // 
       // sumbitReportMenuItem
       // 
       this.sumbitReportMenuItem.Index = 1;
-      this.sumbitReportMenuItem.Text = "Submit Report...";
+      this.sumbitReportMenuItem.Text = "S&ubmit Report...";
       this.sumbitReportMenuItem.Click += new System.EventHandler(this.sumbitReportMenuItem_Click);
       // 
       // MenuItem2
@@ -235,7 +236,7 @@ namespace OpenHardwareMonitor.GUI {
       // resetMenuItem
       // 
       this.resetMenuItem.Index = 3;
-      this.resetMenuItem.Text = "Reset";
+      this.resetMenuItem.Text = "&Reset";
       this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
       // 
       // menuItem5
@@ -248,7 +249,7 @@ namespace OpenHardwareMonitor.GUI {
             this.gpuMenuItem,
             this.fanControllerMenuItem,
             this.hddMenuItem});
-      this.menuItem5.Text = "Hardware";
+      this.menuItem5.Text = "&Hardware";
       // 
       // mainboardMenuItem
       // 
@@ -288,7 +289,7 @@ namespace OpenHardwareMonitor.GUI {
       // exitMenuItem
       // 
       this.exitMenuItem.Index = 6;
-      this.exitMenuItem.Text = "Exit";
+      this.exitMenuItem.Text = "E&xit";
       this.exitMenuItem.Click += new System.EventHandler(this.exitClick);
       // 
       // viewMenuItem
@@ -302,12 +303,13 @@ namespace OpenHardwareMonitor.GUI {
             this.gadgetMenuItem,
             this.MenuItem1,
             this.columnsMenuItem});
-      this.viewMenuItem.Text = "View";
+      this.viewMenuItem.Text = "&View";
       // 
       // resetMinMaxMenuItem
       // 
       this.resetMinMaxMenuItem.Index = 0;
-      this.resetMinMaxMenuItem.Text = "Reset Min/Max";
+      this.resetMinMaxMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftR;
+      this.resetMinMaxMenuItem.Text = "&Reset Min/Max";
       this.resetMinMaxMenuItem.Click += new System.EventHandler(this.resetMinMaxMenuItem_Click);
       // 
       // MenuItem3
@@ -318,17 +320,20 @@ namespace OpenHardwareMonitor.GUI {
       // hiddenMenuItem
       // 
       this.hiddenMenuItem.Index = 2;
-      this.hiddenMenuItem.Text = "Show Hidden Sensors";
+      this.hiddenMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftH;
+      this.hiddenMenuItem.Text = "Show &Hidden Sensors";
       // 
       // plotMenuItem
       // 
       this.plotMenuItem.Index = 3;
-      this.plotMenuItem.Text = "Show Plot";
+      this.plotMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftP;
+      this.plotMenuItem.Text = "Show &Plot";
       // 
       // gadgetMenuItem
       // 
       this.gadgetMenuItem.Index = 4;
-      this.gadgetMenuItem.Text = "Show Gadget";
+      this.gadgetMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftG;
+      this.gadgetMenuItem.Text = "Show &Gadget";
       // 
       // MenuItem1
       // 
@@ -375,7 +380,7 @@ namespace OpenHardwareMonitor.GUI {
             this.loggingIntervalMenuItem,
             this.webMenuItemSeparator,
             this.webMenuItem});
-      this.optionsMenuItem.Text = "Options";
+      this.optionsMenuItem.Text = "&Options";
       // 
       // startMinMenuItem
       // 
@@ -451,6 +456,114 @@ namespace OpenHardwareMonitor.GUI {
       this.plotRightMenuItem.RadioCheck = true;
       this.plotRightMenuItem.Text = "Right";
       // 
+      // logSeparatorMenuItem
+      // 
+      this.logSeparatorMenuItem.Index = 7;
+      this.logSeparatorMenuItem.Text = "-";
+      // 
+      // logSensorsMenuItem
+      // 
+      this.logSensorsMenuItem.Index = 8;
+      this.logSensorsMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlL;
+      this.logSensorsMenuItem.Text = "Log Sensors";
+      // 
+      // loggingIntervalMenuItem
+      // 
+      this.loggingIntervalMenuItem.Index = 9;
+      this.loggingIntervalMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+            this.log1sMenuItem,
+            this.log2sMenuItem,
+            this.log5sMenuItem,
+            this.log10sMenuItem,
+            this.log30sMenuItem,
+            this.log1minMenuItem,
+            this.log2minMenuItem,
+            this.log5minMenuItem,
+            this.log10minMenuItem,
+            this.log30minMenuItem,
+            this.log1hMenuItem,
+            this.log2hMenuItem,
+            this.log6hMenuItem});
+      this.loggingIntervalMenuItem.Text = "Logging Interval";
+      // 
+      // log1sMenuItem
+      // 
+      this.log1sMenuItem.Index = 0;
+      this.log1sMenuItem.RadioCheck = true;
+      this.log1sMenuItem.Text = "1s";
+      // 
+      // log2sMenuItem
+      // 
+      this.log2sMenuItem.Index = 1;
+      this.log2sMenuItem.RadioCheck = true;
+      this.log2sMenuItem.Text = "2s";
+      // 
+      // log5sMenuItem
+      // 
+      this.log5sMenuItem.Index = 2;
+      this.log5sMenuItem.RadioCheck = true;
+      this.log5sMenuItem.Text = "5s";
+      // 
+      // log10sMenuItem
+      // 
+      this.log10sMenuItem.Index = 3;
+      this.log10sMenuItem.RadioCheck = true;
+      this.log10sMenuItem.Text = "10s";
+      // 
+      // log30sMenuItem
+      // 
+      this.log30sMenuItem.Index = 4;
+      this.log30sMenuItem.RadioCheck = true;
+      this.log30sMenuItem.Text = "30s";
+      // 
+      // log1minMenuItem
+      // 
+      this.log1minMenuItem.Index = 5;
+      this.log1minMenuItem.RadioCheck = true;
+      this.log1minMenuItem.Text = "1min";
+      // 
+      // log2minMenuItem
+      // 
+      this.log2minMenuItem.Index = 6;
+      this.log2minMenuItem.RadioCheck = true;
+      this.log2minMenuItem.Text = "2min";
+      // 
+      // log5minMenuItem
+      // 
+      this.log5minMenuItem.Index = 7;
+      this.log5minMenuItem.RadioCheck = true;
+      this.log5minMenuItem.Text = "5min";
+      // 
+      // log10minMenuItem
+      // 
+      this.log10minMenuItem.Index = 8;
+      this.log10minMenuItem.RadioCheck = true;
+      this.log10minMenuItem.Text = "10min";
+      // 
+      // log30minMenuItem
+      // 
+      this.log30minMenuItem.Index = 9;
+      this.log30minMenuItem.RadioCheck = true;
+      this.log30minMenuItem.Text = "30min";
+      // 
+      // log1hMenuItem
+      // 
+      this.log1hMenuItem.Index = 10;
+      this.log1hMenuItem.RadioCheck = true;
+      this.log1hMenuItem.Text = "1h";
+      // 
+      // log2hMenuItem
+      // 
+      this.log2hMenuItem.Index = 11;
+      this.log2hMenuItem.RadioCheck = true;
+      this.log2hMenuItem.Text = "2h";
+      // 
+      // log6hMenuItem
+      // 
+      this.log6hMenuItem.Index = 12;
+      this.log6hMenuItem.RadioCheck = true;
+      this.log6hMenuItem.Text = "6h";
+      // 
       // webMenuItemSeparator
       // 
       this.webMenuItemSeparator.Index = 10;
@@ -467,6 +580,7 @@ namespace OpenHardwareMonitor.GUI {
       // runWebServerMenuItem
       // 
       this.runWebServerMenuItem.Index = 0;
+      this.runWebServerMenuItem.Shortcut = System.Windows.Forms.Shortcut.CtrlShiftW;
       this.runWebServerMenuItem.Text = "Run";
       // 
       // serverPortMenuItem
@@ -475,17 +589,12 @@ namespace OpenHardwareMonitor.GUI {
       this.serverPortMenuItem.Text = "Port";
       this.serverPortMenuItem.Click += new System.EventHandler(this.serverPortMenuItem_Click);
       // 
-      // logSensorsMenuItem
-      // 
-      this.logSensorsMenuItem.Index = 8;
-      this.logSensorsMenuItem.Text = "Log Sensors";
-      // 
       // helpMenuItem
       // 
       this.helpMenuItem.Index = 3;
       this.helpMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.aboutMenuItem});
-      this.helpMenuItem.Text = "Help";
+      this.helpMenuItem.Text = "&Help";
       // 
       // aboutMenuItem
       // 
@@ -561,113 +670,11 @@ namespace OpenHardwareMonitor.GUI {
       this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
       this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
       // 
-      // logSeparatorMenuItem
-      // 
-      this.logSeparatorMenuItem.Index = 7;
-      this.logSeparatorMenuItem.Text = "-";
-      // 
-      // loggingIntervalMenuItem
-      // 
-      this.loggingIntervalMenuItem.Index = 9;
-      this.loggingIntervalMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-            this.log1sMenuItem,
-            this.log2sMenuItem,
-            this.log5sMenuItem,
-            this.log10sMenuItem,
-            this.log30sMenuItem,
-            this.log1minMenuItem,
-            this.log2minMenuItem,
-            this.log5minMenuItem,
-            this.log10minMenuItem,
-            this.log30minMenuItem,
-            this.log1hMenuItem,
-            this.log2hMenuItem,
-            this.log6hMenuItem});
-      this.loggingIntervalMenuItem.Text = "Logging Interval";
-      // 
-      // log1sMenuItem
-      // 
-      this.log1sMenuItem.Index = 0;
-      this.log1sMenuItem.RadioCheck = true;
-      this.log1sMenuItem.Text = "1s";
-      // 
-      // log5sMenuItem
-      // 
-      this.log5sMenuItem.Index = 2;
-      this.log5sMenuItem.RadioCheck = true;
-      this.log5sMenuItem.Text = "5s";
-      // 
-      // log10sMenuItem
-      // 
-      this.log10sMenuItem.Index = 3;
-      this.log10sMenuItem.RadioCheck = true;
-      this.log10sMenuItem.Text = "10s";
-      // 
-      // log30sMenuItem
-      // 
-      this.log30sMenuItem.Index = 4;
-      this.log30sMenuItem.RadioCheck = true;
-      this.log30sMenuItem.Text = "30s";
-      // 
-      // log1minMenuItem
-      // 
-      this.log1minMenuItem.Index = 5;
-      this.log1minMenuItem.RadioCheck = true;
-      this.log1minMenuItem.Text = "1min";
-      // 
-      // log5minMenuItem
-      // 
-      this.log5minMenuItem.Index = 7;
-      this.log5minMenuItem.RadioCheck = true;
-      this.log5minMenuItem.Text = "5min";
-      // 
-      // log10minMenuItem
-      // 
-      this.log10minMenuItem.Index = 8;
-      this.log10minMenuItem.RadioCheck = true;
-      this.log10minMenuItem.Text = "10min";
-      // 
-      // log30minMenuItem
-      // 
-      this.log30minMenuItem.Index = 9;
-      this.log30minMenuItem.RadioCheck = true;
-      this.log30minMenuItem.Text = "30min";
-      // 
-      // log2sMenuItem
-      // 
-      this.log2sMenuItem.Index = 1;
-      this.log2sMenuItem.RadioCheck = true;
-      this.log2sMenuItem.Text = "2s";
-      // 
-      // log2minMenuItem
-      // 
-      this.log2minMenuItem.Index = 6;
-      this.log2minMenuItem.RadioCheck = true;
-      this.log2minMenuItem.Text = "2min";
-      // 
-      // log1hMenuItem
-      // 
-      this.log1hMenuItem.Index = 10;
-      this.log1hMenuItem.RadioCheck = true;
-      this.log1hMenuItem.Text = "1h";
-      // 
-      // log2hMenuItem
-      // 
-      this.log2hMenuItem.Index = 11;
-      this.log2hMenuItem.RadioCheck = true;
-      this.log2hMenuItem.Text = "2h";
-      // 
-      // log6hMenuItem
-      // 
-      this.log6hMenuItem.Index = 12;
-      this.log6hMenuItem.RadioCheck = true;
-      this.log6hMenuItem.Text = "6h";
-      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(418, 554);
+      this.ClientSize = new System.Drawing.Size(418, 533);
       this.Controls.Add(this.splitContainer);
       this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
       this.Menu = this.mainMenu;

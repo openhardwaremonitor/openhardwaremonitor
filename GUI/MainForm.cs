@@ -653,7 +653,7 @@ namespace OpenHardwareMonitor.GUI {
             treeContextMenu.MenuItems.Add(item);
           }
           if (nodeTextBoxText.EditEnabled) {
-            MenuItem item = new MenuItem("Rename");
+            MenuItem item = new MenuItem("Rename") {Shortcut = Shortcut.F2};
             item.Click += delegate(object obj, EventArgs args) {
               nodeTextBoxText.BeginEdit();
             };
@@ -734,7 +734,7 @@ namespace OpenHardwareMonitor.GUI {
           treeContextMenu.MenuItems.Clear();
 
           if (nodeTextBoxText.EditEnabled) {
-            MenuItem item = new MenuItem("Rename");
+            MenuItem item = new MenuItem("Rename") { Shortcut = Shortcut.F2 };
             item.Click += delegate(object obj, EventArgs args) {
               nodeTextBoxText.BeginEdit();
             };
