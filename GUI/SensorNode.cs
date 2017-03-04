@@ -4,11 +4,12 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
 using System;
+using System.Drawing;
 using System.Collections.Generic;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.Utilities;
@@ -20,7 +21,8 @@ namespace OpenHardwareMonitor.GUI {
     private PersistentSettings settings;
     private UnitManager unitManager;
     private string format;
-    private bool plot = false;       
+    private bool plot = false;
+    private Color? penColor = null;
 
     public string ValueToString(float? value) {
       if (value.HasValue) {
@@ -50,6 +52,7 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Level: format = "{0:F1} %"; break;
         case SensorType.Power: format = "{0:F1} W"; break;
         case SensorType.Data: format = "{0:F1} GB"; break;
+        case SensorType.SmallData: format = "{0:F1} MB"; break;
         case SensorType.Factor: format = "{0:F3}"; break;
       }
 
@@ -59,6 +62,10 @@ namespace OpenHardwareMonitor.GUI {
 
       this.Plot = settings.GetValue(new Identifier(sensor.Identifier, 
         "plot").ToString(), false);
+
+      string id = new Identifier(sensor.Identifier, "penColor").ToString();
+      if (settings.Contains(id))
+        this.PenColor = settings.GetValue(id, Color.Black);
     }
 
     public override string Text {
@@ -72,6 +79,22 @@ namespace OpenHardwareMonitor.GUI {
         base.IsVisible = value;
         settings.SetValue(new Identifier(sensor.Identifier,
           "hidden").ToString(), !value);
+      }
+    }
+
+    public Color? PenColor {
+      get { return penColor; }
+      set {
+        penColor = value;
+
+        string id = new Identifier(sensor.Identifier, "penColor").ToString();
+        if (value.HasValue)
+          settings.SetValue(id, value.Value);
+        else
+          settings.Remove(id);
+
+        if (PlotSelectionChanged != null)
+          PlotSelectionChanged(this, null);
       }
     }
 

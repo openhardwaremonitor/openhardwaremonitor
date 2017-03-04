@@ -494,8 +494,10 @@ namespace OpenHardwareMonitor.GUI {
         SensorNode sensorNode = node.Tag as SensorNode;
         if (sensorNode != null) {
           if (sensorNode.Plot) {
-            colors.Add(sensorNode.Sensor,
-              plotColorPalette[colorIndex % plotColorPalette.Length]);
+            if (!sensorNode.PenColor.HasValue) {
+              colors.Add(sensorNode.Sensor,
+                plotColorPalette[colorIndex % plotColorPalette.Length]);
+            }
             selected.Add(sensorNode.Sensor);
           }
           colorIndex++;
@@ -509,6 +511,7 @@ namespace OpenHardwareMonitor.GUI {
       // from the plot
       var usedColors = new List<Color>();
       foreach (var curSelectedSensor in selected) {
+        if (!colors.ContainsKey(curSelectedSensor)) continue;
         var curColor = colors[curSelectedSensor];
         if (usedColors.Contains(curColor)) {
           foreach (var potentialNewColor in plotColorPalette) {
@@ -521,7 +524,13 @@ namespace OpenHardwareMonitor.GUI {
         } else {
           usedColors.Add(curColor);
         }
-      }  
+      }
+
+      foreach (TreeNodeAdv node in treeView.AllNodes) {
+        SensorNode sensorNode = node.Tag as SensorNode;
+        if (sensorNode != null && sensorNode.Plot && sensorNode.PenColor.HasValue)
+          colors.Add(sensorNode.Sensor, sensorNode.PenColor.Value);
+      }
 
       sensorPlotColors = colors;
       plotPanel.SetSensors(selected, colors);
@@ -669,6 +678,24 @@ namespace OpenHardwareMonitor.GUI {
             MenuItem item = new MenuItem("Unhide");
             item.Click += delegate(object obj, EventArgs args) {
               node.IsVisible = true;
+            };
+            treeContextMenu.MenuItems.Add(item);
+          }
+          treeContextMenu.MenuItems.Add(new MenuItem("-"));
+          {
+            MenuItem item = new MenuItem("Pen Color...");
+            item.Click += delegate(object obj, EventArgs args) {
+              ColorDialog dialog = new ColorDialog();
+              dialog.Color = node.PenColor.GetValueOrDefault();
+              if (dialog.ShowDialog() == DialogResult.OK)
+                node.PenColor = dialog.Color;
+            };
+            treeContextMenu.MenuItems.Add(item);
+          }
+          {
+            MenuItem item = new MenuItem("Reset Pen Color");
+            item.Click += delegate(object obj, EventArgs args) {
+              node.PenColor = null;
             };
             treeContextMenu.MenuItems.Add(item);
           }
