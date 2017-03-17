@@ -33,7 +33,7 @@ int main()
 
 	// Ideally our parent process will shut us down before the 10 seconds is up,
 	// but just to be sure, we'll shut ourselves down after 10 seconds.
-	while (time(nullptr) + 10 > timeStart)
+	while (time(nullptr) < timeStart + 10)
 	{
 		IDirect3D9* d3dobject = Direct3DCreate9(D3D_SDK_VERSION);
 
