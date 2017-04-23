@@ -149,7 +149,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       else
       {
         voltages = new float?[9];
-        temperatures = new float?[5];
+        temperatures = new float?[3];
         fans = new float?[chip == Chip.IT8705F ? 3 : 5];
         controls = new float?[3];
       }
