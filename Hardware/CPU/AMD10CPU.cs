@@ -40,10 +40,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x141D;
     private const ushort FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1533;
     private const ushort FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x1583;
+    private const ushort FAMILY_17H_MISCELLANEOUS_CONTROL_DEVICE_ID = 0x1577; // TODO: This most likely isn't right.
 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     private const uint CLOCK_POWER_TIMING_CONTROL_0_REGISTER = 0xD4;
-
+        
     private readonly uint miscellaneousControlAddress;
     private readonly ushort miscellaneousControlDeviceId;
 
@@ -89,7 +90,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID; break;
             default: miscellaneousControlDeviceId = 0; break;
           } break;
-        default: miscellaneousControlDeviceId = 0; break;
+        case 0x17:
+        {
+            miscellaneousControlDeviceId = FAMILY_17H_MISCELLANEOUS_CONTROL_DEVICE_ID;
+            break;
+        }
+                default: miscellaneousControlDeviceId = 0; break;
       }
 
       // get the pci address for the Miscellaneous Control registers 
@@ -327,6 +333,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             DeactivateSensor(coreTemperature);
           }
         }
+        else
+                {
+                    Console.WriteLine("????");
+                }
       } else {
         string s = ReadFirstLine(temperatureStream);
         try {
