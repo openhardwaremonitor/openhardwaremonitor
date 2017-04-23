@@ -90,12 +90,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID; break;
             default: miscellaneousControlDeviceId = 0; break;
           } break;
-        case 0x17:
-        {
-            miscellaneousControlDeviceId = FAMILY_17H_MISCELLANEOUS_CONTROL_DEVICE_ID;
-            break;
-        }
-                default: miscellaneousControlDeviceId = 0; break;
+        case 0x17: miscellaneousControlDeviceId = 
+            FAMILY_17H_MISCELLANEOUS_CONTROL_DEVICE_ID; break;
+        default: miscellaneousControlDeviceId = 0; break;
       }
 
       // get the pci address for the Miscellaneous Control registers 
@@ -333,10 +330,6 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             DeactivateSensor(coreTemperature);
           }
         }
-        else
-                {
-                    Console.WriteLine("????");
-                }
       } else {
         string s = ReadFirstLine(temperatureStream);
         try {
