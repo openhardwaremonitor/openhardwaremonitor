@@ -19,11 +19,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private class NVMeSensor : Sensor {
       private readonly GetSensorValue getValue;
       
-      public NVMeSensor(string name, int index, bool defaultHidden, 
+      public NVMeSensor(string name, int index, bool defaultHidden,
         SensorType sensorType, Hardware hardware, ISettings settings,
         GetSensorValue getValue)
         : base(name, index, defaultHidden, sensorType, hardware, null, settings)
-      {        
+      {
         this.getValue = getValue;
       }
 
@@ -47,7 +47,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       CreateSensors();
     }
      
-    // \\.\ScsiY: is different from \\.\PhysicalDriveX, user serial number for mapping     
+    // \\.\ScsiY: is different from \\.\PhysicalDriveX, user serial number for mapping
     private static NVMeInfo GetDeviceInfo(string serial) {
       if (serialToInfo == null) {
         serialToInfo = new Dictionary<string, NVMeInfo>();
@@ -71,7 +71,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         return null;
       return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);
     }
-            
+    
     protected override void CreateSensors() {
       AddSensor("Temperature", 0, false, SensorType.Temperature, (health) => health.Temperature);
       AddSensor("Available Spare", 0, false, SensorType.Level, (health) => health.AvailableSpare);
@@ -88,7 +88,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       base.CreateSensors();
     }
     
-    private void AddSensor(string name, int index, bool defaultHidden, 
+    private void AddSensor(string name, int index, bool defaultHidden,
       SensorType sensorType, GetSensorValue getValue)
     {
       NVMeSensor sensor = new NVMeSensor(name, index, defaultHidden, sensorType, this, settings, getValue);
@@ -141,13 +141,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if ((health.CriticalWarning & NVMeCriticalWarning.VolatileMemoryBackupDeviceFailed) != 0)
           r.AppendLine("Critical Warning: the volatile memory backup device has failed.");
       }
-      r.AppendLine("Temperature: " + health.Temperature +" Celsius");
-      r.AppendLine("Available Spare: " + health.AvailableSpare +"%");
-      r.AppendLine("Available Spare Threshold: " + health.AvailableSpareThreshold +"%");
+      r.AppendLine("Temperature: " + health.Temperature + " Celsius");
+      r.AppendLine("Available Spare: " + health.AvailableSpare + "%");
+      r.AppendLine("Available Spare Threshold: " + health.AvailableSpareThreshold + "%");
+      r.AppendLine("Percentage Used: " + health.PercentageUsed + "%");
       r.AppendLine("Data Units Read: " + health.DataUnitRead);
       r.AppendLine("Data Units Written: " + health.DataUnitWritten);
       r.AppendLine("Host Read Commands: " + health.HostReadCommands);
-      r.AppendLine("Data Write Commands: " + health.HostWrittenCommands);
+      r.AppendLine("Host Write Commands: " + health.HostWriteCommands);
       r.AppendLine("Controller Busy Time: " + health.ControllerBusyTime);
       r.AppendLine("Power Cycles: " + health.PowerCycle);
       r.AppendLine("Power On Hours: " + health.PowerOnHours);
@@ -159,13 +160,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       for (int i=0; i<health.TemperatureSensors.Length; i++) {
         if (health.TemperatureSensors[i] > short.MinValue)
           r.AppendLine("Temperature Sensor " + (i + 1) + ": " + health.TemperatureSensors[i] + " Celsius");
-      }                                               
+      }
     }
 
     public override void Close() {
       smart.Close();
       
       base.Close();
-    }    
+    }
   }
 }
