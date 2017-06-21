@@ -108,6 +108,12 @@
     <Compile Include="GUI\ParameterForm.Designer.cs">
       <DependentUpon>ParameterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GUI\SensorControlForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\SensorControlForm.Designer.cs">
+      <DependentUpon>SensorControlForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\SensorGadget.cs" />
     <Compile Include="GUI\SensorNotifyIcon.cs" />
     <Compile Include="GUI\ShowDesktop.cs" />
@@ -159,6 +165,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\PortForm.resx">
       <DependentUpon>PortForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\SensorControlForm.resx">
+      <DependentUpon>SensorControlForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">
     </EmbeddedResource>
