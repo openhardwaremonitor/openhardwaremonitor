@@ -28,7 +28,7 @@ namespace OpenHardwareMonitor.GUI {
       if (value.HasValue) {
         if (sensor.SensorType == SensorType.Temperature && 
           unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
-          return string.Format("{0:F1} °F", value * 1.8 + 32);
+          return string.Format("{0:F1} °C ({1:F1} °F)", value, value * 1.8 + 32);
         } else {
           return string.Format(format, value);
         }                
