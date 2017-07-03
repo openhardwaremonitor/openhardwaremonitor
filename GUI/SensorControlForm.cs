@@ -148,20 +148,20 @@ namespace OpenHardwareMonitor.GUI
             mModel.Axes.Add(sensorAxis);
 
             // update first and last points
-            lineSerie.Points.Insert(lineSerie.Points.Count - 1, new DataPoint(MaximumSensor, control.Control.MaxSoftwareValue));
-            lineSerie.Points.RemoveAt(lineSerie.Points.Count - 1);
+            var firstpoint = lineSerie.Points.ElementAt(0);
+            firstpoint.X = MinimumSensor;
 
-            lineSerie.Points.Insert(0, new DataPoint(MinimumSensor, control.Control.MinSoftwareValue));
-            lineSerie.Points.RemoveAt(1);
+            var lastpoint = lineSerie.Points.ElementAt(lineSerie.Points.Count - 1);
+            lastpoint.X = MaximumSensor;
 
             // remove too small or large points
             for (int i = lineSerie.Points.Count - 2; i > 0; i--)
             {
                 var el = lineSerie.Points.ElementAt(i);
-                if (el.X >= sensorAxis.Maximum ||
-                    el.X <= sensorAxis.Minimum ||
-                    el.Y >= controlAxis.Maximum ||
-                    el.Y <= controlAxis.Minimum)
+                if (el.X > sensorAxis.Maximum ||
+                    el.X < sensorAxis.Minimum ||
+                    el.Y > controlAxis.Maximum ||
+                    el.Y < controlAxis.Minimum)
                 {
                     lineSerie.Points.RemoveAt(i);
                 }
@@ -304,7 +304,11 @@ namespace OpenHardwareMonitor.GUI
             var mousepos = lineSerie.InverseTransform(point);
             var deletepoint = lineSerie.Points.FirstOrDefault(p => Math.Abs(p.X - mousepos.X) < 2 && Math.Abs(p.Y - mousepos.Y) < 2);
             if (deletepoint != null)
-                lineSerie.Points.Remove(deletepoint);
+            {
+                var idx = lineSerie.Points.IndexOf(deletepoint);
+                if (idx != 0 && idx != lineSerie.Points.Count - 1)
+                    lineSerie.Points.Remove(deletepoint);
+            }
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
