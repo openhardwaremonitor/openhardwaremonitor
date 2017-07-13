@@ -831,11 +831,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("System Fan #2", 3));
               f.Add(new Fan("System Fan #3", 4));
               break;
-<<<<<<< HEAD
             case Model.X79_UD3: // IT8728F
-=======
-            case Model.X79_UD3: // IT8720F
->>>>>>> 27d85a7f5781ffa68253858f0a3df0f5f8857432
               v.Add(new Voltage("VTT", 0));
               v.Add(new Voltage("DIMM CH A/B", 1));
               v.Add(new Voltage("+12V", 2, 10, 2));
