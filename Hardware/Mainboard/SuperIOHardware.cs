@@ -839,7 +839,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               v.Add(new Voltage("VIN4", 4));
               v.Add(new Voltage("VCore", 5));
               v.Add(new Voltage("DIMM CH C/D", 6));
-              v.Add(new Voltage("+3V Standby", 1, 1, 7));
+              v.Add(new Voltage("+3V Standby", 7, 1, 1));
               v.Add(new Voltage("VBat", 8, 1, 1));
               t.Add(new Temperature("System", 0));
               t.Add(new Temperature("CPU", 1));
