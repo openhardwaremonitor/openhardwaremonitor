@@ -93,6 +93,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case "P6X58D-E":
           return Model.P6X58D_E;
         case "P8P67":
+        case "P8P67 REV 3.1":
           return Model.P8P67;
         case "P8P67 EVO":
           return Model.P8P67_EVO;
