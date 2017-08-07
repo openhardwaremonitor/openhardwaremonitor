@@ -832,6 +832,24 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("System Fan #2", 3));
               f.Add(new Fan("System Fan #3", 4));
               break;
+            case Model.X79_UD3: // IT8728F
+              v.Add(new Voltage("VTT", 0));
+              v.Add(new Voltage("DIMM CH A/B", 1));
+              v.Add(new Voltage("+12V", 2, 10, 2));
+              v.Add(new Voltage("+5V", 3, 15, 10));
+              v.Add(new Voltage("VIN4", 4));
+              v.Add(new Voltage("VCore", 5));
+              v.Add(new Voltage("DIMM CH C/D", 6));
+              v.Add(new Voltage("+3V Standby", 7, 1, 1));
+              v.Add(new Voltage("VBat", 8, 1, 1));
+              t.Add(new Temperature("System", 0));
+              t.Add(new Temperature("CPU", 1));
+              t.Add(new Temperature("Northbridge", 2));
+              f.Add(new Fan("CPU Fan", 0));
+              f.Add(new Fan("System Fan #1", 1));
+              f.Add(new Fan("System Fan #2", 2));
+              f.Add(new Fan("System Fan #3", 3));
+              break;
             default:
               v.Add(new Voltage("Voltage #1", 0, true));
               v.Add(new Voltage("Voltage #2", 1, true));
