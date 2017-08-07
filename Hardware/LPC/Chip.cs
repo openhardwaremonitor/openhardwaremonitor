@@ -43,6 +43,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     NCT610X = 0xC452,
     NCT6779D = 0xC560,
     NCT6791D = 0xC803,
+    NCT6796D = 0xD423,
 
     W83627DHG = 0xA020,
     W83627DHGP = 0xB070,
@@ -91,6 +92,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.NCT6776F: return "Nuvoton NCT6776F";
         case Chip.NCT6779D: return "Nuvoton NCT6779D";
         case Chip.NCT6791D: return "Nuvoton NCT6791D";
+        case Chip.NCT6796D: return "Nuvoton NCT6796D";
 
         case Chip.W83627DHG: return "Winbond W83627DHG";
         case Chip.W83627DHGP: return "Winbond W83627DHG-P";
