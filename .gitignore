@@ -2,3 +2,4 @@
 *.suo
 /Bin
 /Obj
+.vs/
