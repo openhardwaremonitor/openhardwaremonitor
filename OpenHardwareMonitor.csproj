@@ -301,7 +301,6 @@
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
-    <PostBuildEvent>copy "$(ProjectDir)External\*.*" "$(TargetDir)"
-copy "$(ProjectDir)Licenses\*.*" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent></PostBuildEvent>
   </PropertyGroup>
 </Project>
