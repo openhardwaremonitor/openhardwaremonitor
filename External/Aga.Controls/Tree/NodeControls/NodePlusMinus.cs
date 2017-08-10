@@ -46,7 +46,9 @@ namespace Aga.Controls.Tree.NodeControls
 
 		public override Size MeasureSize(TreeNodeAdv node, DrawContext context)
 		{
-			return new Size(Width, Width);
+			int scaledX = node.Tree.GetScaledSize(Width, false);
+			int scaledY = node.Tree.GetScaledSize(Width);
+			return new Size(scaledX, scaledY);
 		}
 
 		public override void Draw(TreeNodeAdv node, DrawContext context)
@@ -54,7 +56,9 @@ namespace Aga.Controls.Tree.NodeControls
 			if (node.CanExpand)
 			{
 				Rectangle r = context.Bounds;
-				int dy = (int)Math.Round((float)(r.Height - ImageSize) / 2);
+				int scaledX = node.Tree.GetScaledSize(ImageSize, false);
+				int scaledY = node.Tree.GetScaledSize(ImageSize);
+				int dy = (int)Math.Round((float)(r.Height - scaledY) / 2);
 				if (Application.RenderWithVisualStyles)
 				{
 					VisualStyleRenderer renderer;
@@ -62,7 +66,7 @@ namespace Aga.Controls.Tree.NodeControls
 						renderer = OpenedRenderer;
 					else
 						renderer = ClosedRenderer;
-					renderer.DrawBackground(context.Graphics, new Rectangle(r.X, r.Y + dy, ImageSize, ImageSize));
+					renderer.DrawBackground(context.Graphics, new Rectangle(r.X, r.Y + dy, scaledX, scaledY));
 				}
 				else
 				{
