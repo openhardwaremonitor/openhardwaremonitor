@@ -1,5 +1,5 @@
 *.user
 *.suo
-/Bin
-/Obj
+Bin/
+Obj/
 .vs/
