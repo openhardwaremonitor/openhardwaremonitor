@@ -34,7 +34,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private const int MAX_DRIVES = 32;
     
-    private static Dictionary<string, NVMeInfo> serialToInfo;
+    private static int nextDrive = 0;
     private readonly WindowsNVMeSmart smart;
     private readonly NVMeInfo info;
     private List<NVMeSensor> sensors = new List<NVMeSensor>();
@@ -47,26 +47,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       CreateSensors();
     }
      
-    // \\.\ScsiY: is different from \\.\PhysicalDriveX, user serial number for mapping
-    private static NVMeInfo GetDeviceInfo(string serial) {
-      if (serialToInfo == null) {
-        serialToInfo = new Dictionary<string, NVMeInfo>();
-        for (int drive = 0; drive < MAX_DRIVES; drive++) {
-          using(WindowsNVMeSmart smart = new WindowsNVMeSmart(drive)) {
-            if (!smart.IsValid)
-              continue;
-            NVMeInfo info = smart.GetInfo();
-            if (info != null)
-              serialToInfo.Add(info.Serial, info);
-          }
+    // \\.\ScsiY: is different from \\.\PhysicalDriveX
+    private static NVMeInfo GetDeviceInfo() {
+      while (nextDrive < MAX_DRIVES) {
+        using(WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
+          nextDrive++;
+          if (!smart.IsValid)
+            continue;
+          NVMeInfo info = smart.GetInfo();
+          if (info != null)
+            return info;
         }
       }
-      NVMeInfo result;
-      return serialToInfo.TryGetValue(serial, out result) ? result : null;
+      return null;
     }
     
     public static AbstractStorage CreateInstance(StorageInfo storageInfo, ISettings settings) {
-      NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo.Serial);
+      NVMeInfo nvmeInfo = GetDeviceInfo();
       if (nvmeInfo == null)
         return null;
       return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);

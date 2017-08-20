@@ -376,7 +376,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return Encoding.ASCII.GetString(s).Trim('\t', '\n', '\r', ' ', '\0');
     }
     
-    // should use BitInteger from .NET 4.0, 128-bit integers
+    // should use BigInteger from .NET 4.0, 128-bit integers
     private static ulong ShiftValue(ulong v, byte s) {
       ulong low = v << s;
       //ulong high = v >> (64 - s);
@@ -430,8 +430,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           return new NVMeInfoImpl(driveNumber, data, rawData, nspace, rawDataNamespace);
         }
         return new NVMeInfoImpl(driveNumber, data, rawData);
-      } catch(Win32Exception e) {
-        Console.WriteLine(e);
+      } catch(Win32Exception) {
       }
       return null;
     }
