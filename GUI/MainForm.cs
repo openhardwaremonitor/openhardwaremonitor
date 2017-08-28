@@ -567,8 +567,16 @@ namespace OpenHardwareMonitor.GUI {
         wmiProvider.Update();
 
 
-      if (logSensors != null && logSensors.Value && delayCount >= 4)
-        logger.Log();
+      if (logSensors != null && logSensors.Value && delayCount >= 4) {
+        var result = logger.Log();
+        
+        if (result == Logger.Status.FileLocked) {
+          logSensors.Value = false;
+          MessageBox.Show("The log file is not writeable. " +
+              "Logging has been disabled.",
+              "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+      }
 
       if (delayCount < 4)
         delayCount++;
