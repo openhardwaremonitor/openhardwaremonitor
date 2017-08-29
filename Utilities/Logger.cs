@@ -188,7 +188,7 @@ namespace OpenHardwareMonitor.Utilities {
         }
       } catch (IOException) {
         return Status.FileLocked;
-      } catch { }
+      }
 
       lastLoggedTime = now;
       return Status.Success;
