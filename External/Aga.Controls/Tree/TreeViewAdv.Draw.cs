@@ -259,8 +259,9 @@ namespace Aga.Controls.Tree
 			while (curNode != _root && curNode != null)
 			{
 				int level = curNode.Level;
-				int x = (level - 1) * _indent + NodePlusMinus.ImageSize / 2 + LeftMargin;
-				int width = NodePlusMinus.Width - NodePlusMinus.ImageSize / 2;
+				int scaledIndent = node.Tree.GetScaledSize(_indent, false);
+				int x = (level - 1) * scaledIndent + NodePlusMinus.ImageSize / 2 + LeftMargin;
+				int width = node.Tree.GetScaledSize(NodePlusMinus.Width - NodePlusMinus.ImageSize / 2, false);
 				int y = rowRect.Y;
 				int y2 = y + rowRect.Height;
 

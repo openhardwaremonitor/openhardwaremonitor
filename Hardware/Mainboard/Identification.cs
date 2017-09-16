@@ -93,6 +93,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case "P6X58D-E":
           return Model.P6X58D_E;
         case "P8P67":
+        case "P8P67 REV 3.1":
           return Model.P8P67;
         case "P8P67 EVO":
           return Model.P8P67_EVO;
@@ -180,6 +181,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.X38_DS5;
         case "X58A-UD3R":
           return Model.X58A_UD3R;
+        case "X79-UD3":
+          return Model.X79_UD3;
         case "Z68A-D3H-B3":
           return Model.Z68A_D3H_B3;
         case "Z68AP-D3":
@@ -190,6 +193,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.Z68X_UD7_B3;
         case "FH67":
           return Model.FH67;
+        case "AX370-Gaming K7":
+          return Model.AX370_K7;
         case "Base Board Product Name":
         case "To be filled by O.E.M.":
           return Model.Unknown;

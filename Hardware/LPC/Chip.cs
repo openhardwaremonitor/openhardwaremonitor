@@ -27,6 +27,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     IT8620E = 0x8620,
     IT8628E = 0x8628,
+    IT8686E = 0x8686,
     IT8705F = 0x8705,
     IT8712F = 0x8712,
     IT8716F = 0x8716,
@@ -43,6 +44,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     NCT610X = 0xC452,
     NCT6779D = 0xC560,
     NCT6791D = 0xC803,
+    NCT6793D = 0xD121,
+    NCT6795D = 0xD352,
+    NCT6796D = 0xD423,
 
     W83627DHG = 0xA020,
     W83627DHGP = 0xB070,
@@ -74,6 +78,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         case Chip.IT8620E: return "ITE IT8620E";
         case Chip.IT8628E: return "ITE IT8628E";
+        case Chip.IT8686E: return "ITE IT8686E";
         case Chip.IT8705F: return "ITE IT8705F";
         case Chip.IT8712F: return "ITE IT8712F";
         case Chip.IT8716F: return "ITE IT8716F";
@@ -91,6 +96,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.NCT6776F: return "Nuvoton NCT6776F";
         case Chip.NCT6779D: return "Nuvoton NCT6779D";
         case Chip.NCT6791D: return "Nuvoton NCT6791D";
+        case Chip.NCT6793D: return "Nuvoton NCT6793D";
+        case Chip.NCT6795D: return "Nuvoton NCT6795D";
+        case Chip.NCT6796D: return "Nuvoton NCT6796D";
 
         case Chip.W83627DHG: return "Winbond W83627DHG";
         case Chip.W83627DHGP: return "Winbond W83627DHG-P";
