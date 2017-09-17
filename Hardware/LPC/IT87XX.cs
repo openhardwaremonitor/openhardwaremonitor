@@ -32,7 +32,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly float voltageGain;
     private readonly bool has16bitFanCounter;
-   
+    private readonly bool hasNewerAutopwm;
+
     // Consts
     private const byte ITE_VENDOR_ID = 0x90;
        
@@ -51,9 +52,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       { 0x18, 0x19, 0x1a, 0x81, 0x83 };
     private const byte VOLTAGE_BASE_REG = 0x20;
     private readonly byte[] FAN_PWM_CTRL_REG = { 0x15, 0x16, 0x17 };
+    private readonly byte[] FAN_PWM_DUTY_REG = { 0x63, 0x6b, 0x73 };
 
     private bool[] restoreDefaultFanPwmControlRequired = new bool[3];       
     private byte[] initialFanPwmControl = new byte[3];
+    private byte[] initialFanPwmControlMode = new byte[3];
 
     private byte ReadByte(byte register, out bool valid) {
       Ring0.WriteIoPort(addressReg, register);
@@ -84,17 +87,38 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private void SaveDefaultFanPwmControl(int index) {
       bool valid;
-      if (!restoreDefaultFanPwmControlRequired[index]) {
-        initialFanPwmControl[index] = 
-          ReadByte(FAN_PWM_CTRL_REG[index], out valid);
-        restoreDefaultFanPwmControlRequired[index] = true;
+      if (hasNewerAutopwm) {
+        if (!restoreDefaultFanPwmControlRequired[index]) {
+          initialFanPwmControlMode[index] =
+           ReadByte(FAN_PWM_CTRL_REG[index], out valid);
+
+          initialFanPwmControl[index] =
+            ReadByte(FAN_PWM_DUTY_REG[index], out valid);
+        }
       }
+      else {
+        if (!restoreDefaultFanPwmControlRequired[index]) {
+          initialFanPwmControl[index] =
+            ReadByte(FAN_PWM_CTRL_REG[index], out valid);
+        }
+      }
+
+      restoreDefaultFanPwmControlRequired[index] = true;
     }
 
     private void RestoreDefaultFanPwmControl(int index) {
-      if (restoreDefaultFanPwmControlRequired[index]) {
-        WriteByte(FAN_PWM_CTRL_REG[index], initialFanPwmControl[index]);
-        restoreDefaultFanPwmControlRequired[index] = false;
+      if (hasNewerAutopwm) {
+        if (restoreDefaultFanPwmControlRequired[index]) {
+          WriteByte(FAN_PWM_CTRL_REG[index], initialFanPwmControlMode[index]);
+          WriteByte(FAN_PWM_DUTY_REG[index], initialFanPwmControl[index]);
+          restoreDefaultFanPwmControlRequired[index] = false;
+        }
+      }
+      else {
+        if (restoreDefaultFanPwmControlRequired[index]) {
+          WriteByte(FAN_PWM_CTRL_REG[index], initialFanPwmControl[index]);
+          restoreDefaultFanPwmControlRequired[index] = false;
+        }
       }
     }
 
@@ -108,14 +132,33 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (value.HasValue) {
         SaveDefaultFanPwmControl(index);
 
-        // set output value
-        WriteByte(FAN_PWM_CTRL_REG[index], (byte)(value.Value >> 1));  
-      } else {
+        if (hasNewerAutopwm) {
+          bool valid = false;
+          byte ctrlValue = ReadByte(FAN_PWM_CTRL_REG[index], out valid);
+
+          if (valid) {
+            bool isOnAutoControl = (ctrlValue & (1 << 7)) > 0;
+            if (isOnAutoControl) {
+              // Set to manual speed control
+              ctrlValue &= byte.MaxValue ^ (1 << 7);
+              WriteByte(FAN_PWM_CTRL_REG[index], ctrlValue);
+            }
+          }
+
+          // set speed
+          WriteByte(FAN_PWM_DUTY_REG[index], value.Value);
+        }
+        else {
+          // set output value
+          WriteByte(FAN_PWM_CTRL_REG[index], (byte)((value.Value >> 1)));
+        }
+      }
+      else {
         RestoreDefaultFanPwmControl(index);
       }
 
       Ring0.ReleaseIsaBusMutex();
-    } 
+    }
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
 
@@ -171,6 +214,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         has16bitFanCounter = false;
       } else {
         has16bitFanCounter = true;
+      }
+
+      if(chip == Chip.IT8620E) {
+        hasNewerAutopwm = true;
       }
 
       // Set the number of GPIO sets
@@ -324,17 +371,38 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       for (int i = 0; i < controls.Length; i++) {
-        bool valid;
-        byte value = ReadByte(FAN_PWM_CTRL_REG[i], out valid);
-        if (!valid)
-          continue;
+        if (hasNewerAutopwm) {
+          bool valid;
+          byte value = ReadByte(FAN_PWM_DUTY_REG[i], out valid);
+          if (!valid)
+            continue;
 
-        if ((value & 0x80) > 0) {
-          // automatic operation (value can't be read)
-          controls[i] = null;  
-        } else {
-          // software operation
-          controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
+          byte ctrlValue = ReadByte(FAN_PWM_CTRL_REG[i], out valid);
+          if (!valid)
+            continue;
+
+          if ((ctrlValue & 0x80) > 0) {
+            // automatic operation (value can't be read)
+            controls[i] = null;
+          }
+          else {
+            controls[i] = (float)Math.Round((value) * 100.0f / 0xFF);
+          }
+        }
+        else {
+          bool valid;
+          byte value = ReadByte(FAN_PWM_CTRL_REG[i], out valid);
+          if (!valid)
+            continue;
+
+          if ((value & 0x80) > 0) {
+            // automatic operation (value can't be read)
+            controls[i] = null;
+          }
+          else {
+            // software operation
+            controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
+          }
         }
       }
 
