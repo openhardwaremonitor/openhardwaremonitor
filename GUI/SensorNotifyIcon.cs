@@ -42,7 +42,7 @@ namespace OpenHardwareMonitor.GUI {
       this.sensor = sensor;
       this.notifyIcon = new NotifyIconAdv();
 
-      Color defaultColor = Color.Black;
+      Color defaultColor = Color.White;
       if (sensor.SensorType == SensorType.Load ||
           sensor.SensorType == SensorType.Control ||
           sensor.SensorType == SensorType.Level) 
