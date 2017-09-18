@@ -209,6 +209,27 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0xD4:
+          switch (revision) {
+            case 0x23:
+              chip = Chip.NCT6796D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+            } break;
+          case 0xD1:
+          switch (revision) {
+            case 0x21:
+              chip = Chip.NCT6793D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xD3:
+          switch (revision) {
+            case 0x52:
+              chip = Chip.NCT6795D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
       }
       if (chip == Chip.Unknown) {
         if (id != 0 && id != 0xff) {
@@ -225,9 +246,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         ushort verify = port.ReadWord(BASE_ADDRESS_REGISTER);
 
         ushort vendorID = port.ReadWord(FINTEK_VENDOR_ID_REGISTER);
-
-        // disable the hardware monitor i/o space lock on NCT6791D chips
-        if (address == verify && chip == Chip.NCT6791D) {
+                
+        // disable the hardware monitor i/o space lock on NCT679*D chips
+        if (address == verify && (chip == Chip.NCT6791D || chip == Chip.NCT6796D || chip == Chip.NCT6793D || chip == Chip.NCT6795D)) {
           port.NuvotonDisableIOSpaceLock();
         }
 
@@ -277,6 +298,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.NCT6776F:
           case Chip.NCT6779D:
           case Chip.NCT6791D:
+          case Chip.NCT6796D:
+          case Chip.NCT6793D:
+          case Chip.NCT6795D:
             superIOs.Add(new NCT677X(chip, revision, address, port));
             break;
           case Chip.F71858:
@@ -333,6 +357,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       switch (chipID) {
         case 0x8620: chip = Chip.IT8620E; break;
         case 0x8628: chip = Chip.IT8628E; break;
+        case 0x8686: chip = Chip.IT8686E; break; 
         case 0x8705: chip = Chip.IT8705F; break;
         case 0x8712: chip = Chip.IT8712F; break;
         case 0x8716: chip = Chip.IT8716F; break;

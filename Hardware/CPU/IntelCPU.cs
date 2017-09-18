@@ -28,7 +28,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Silvermont,
       Skylake,
       Airmont,
-      KabyLake
+      KabyLake,
+      ApolloLake      
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -170,6 +171,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 break;
               case 0x4E:
               case 0x5E: // Intel Core i5, i7 6xxxx LGA1151 (14nm)
+              case 0x55: // Intel Core X i7, i9 7xxx LGA2066 (14nm)
                 microarchitecture = Microarchitecture.Skylake;
                 tjMax = GetTjMaxFromMSR();
                 break;
@@ -180,6 +182,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x8E: 
               case 0x9E: // Intel Core i5, i7 7xxxx (14nm)
                 microarchitecture = Microarchitecture.KabyLake;
+                tjMax = GetTjMaxFromMSR();
+                break;
+              case 0x5C: // Intel ApolloLake
+                microarchitecture = Microarchitecture.ApolloLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
               default:
@@ -230,6 +236,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Silvermont:
         case Microarchitecture.Skylake:
         case Microarchitecture.Airmont:
+        case Microarchitecture.ApolloLake:
         case Microarchitecture.KabyLake: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
@@ -294,7 +301,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           microarchitecture == Microarchitecture.Skylake ||
           microarchitecture == Microarchitecture.Silvermont ||
           microarchitecture == Microarchitecture.Airmont ||
-          microarchitecture == Microarchitecture.KabyLake) 
+          microarchitecture == Microarchitecture.KabyLake ||
+          microarchitecture == Microarchitecture.ApolloLake) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
@@ -412,6 +420,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.Broadwell:
               case Microarchitecture.Silvermont:
               case Microarchitecture.Skylake:
+              case Microarchitecture.ApolloLake:
               case Microarchitecture.KabyLake: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);

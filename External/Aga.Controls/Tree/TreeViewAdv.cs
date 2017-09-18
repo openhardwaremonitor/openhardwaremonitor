@@ -42,6 +42,11 @@ namespace Aga.Controls.Tree
 		private List<TreeNodeAdv> _expandingNodes = new List<TreeNodeAdv>();
 		private AbortableThreadPool _threadPool = new AbortableThreadPool();
 
+		private float dpiX;
+		private float dpiY;
+		private float dpiXscale = 1;
+		private float dpiYscale = 1;
+
 		#region Public Events
 
 		[Category("Action")]
@@ -204,6 +209,7 @@ namespace Aga.Controls.Tree
 		public TreeViewAdv()
 		{
 			InitializeComponent();
+			SetDPI();
 			SetStyle(ControlStyles.AllPaintingInWmPaint
 				| ControlStyles.UserPaint
 				| ControlStyles.OptimizedDoubleBuffer
@@ -216,6 +222,7 @@ namespace Aga.Controls.Tree
 				_columnHeaderHeight = 20;
 			else
 				_columnHeaderHeight = 17;
+			_columnHeaderHeight = GetScaledSize(_columnHeaderHeight);
 
 			//BorderStyle = BorderStyle.Fixed3D;
 			_hScrollBar.Height = SystemInformation.HorizontalScrollBarHeight;
@@ -243,6 +250,46 @@ namespace Aga.Controls.Tree
 
 			Font = _font;
 			ExpandingIcon.IconChanged += ExpandingIconChanged;
+		}
+
+		public void SetDPI()
+		{
+			// https://msdn.microsoft.com/en-us/library/windows/desktop/dn469266(v=vs.85).aspx
+			const int _default_dpi = 96;
+			Graphics g = this.CreateGraphics();
+
+			try
+			{
+				this.dpiX = g.DpiX;
+				this.dpiY = g.DpiY;
+			}
+			finally
+			{
+				g.Dispose();
+			}
+			if (dpiX > 0)
+			{
+				this.dpiXscale = dpiX / _default_dpi;
+			}
+			if (dpiY > 0)
+			{
+				this.dpiYscale = dpiY / _default_dpi;
+			}
+		}
+
+		public int GetScaledSize(int size, bool useY = true)
+		{
+			int scaledsize = size;
+
+			if (useY && this.dpiYscale > 1)
+			{
+				scaledsize = (int)(this.dpiYscale * size);
+			}
+			else if (this.dpiXscale > 1)
+			{
+				scaledsize = (int)(this.dpiXscale * size);
+			}
+			return scaledsize;
 		}
 
 		void ExpandingIconChanged(object sender, EventArgs e)
@@ -543,11 +590,12 @@ namespace Aga.Controls.Tree
 			if (node == null)
 				yield break;
 
+			int scaledIndent = node.Tree.GetScaledSize(_indent, false);
 			int y = rowRect.Y;
-			int x = (node.Level - 1) * _indent + LeftMargin;
+			int x = (node.Level - 1) * scaledIndent + LeftMargin;
 			int width = 0;
 			if (node.Row == 0 && ShiftFirstNode)
-				x -= _indent;
+				x -= scaledIndent;
 			Rectangle rect = Rectangle.Empty;
 
 			if (ShowPlusMinus)

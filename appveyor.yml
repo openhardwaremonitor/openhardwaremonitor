@@ -1,0 +1,7 @@
+image: Visual Studio 2015
+
+build:
+  project: OpenHardwareMonitor.sln
+
+artifacts:
+  - path: 'Bin\Debug\'
