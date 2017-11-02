@@ -102,8 +102,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x14:
               case 0x15:
               case 0x16:
-              case 0x17:
                 hardware.Add(new AMD10CPU(index, coreThreads, settings));
+                break;
+              case 0x17:
+                hardware.Add(new AMD17CPU(index, coreThreads, settings));
                 break;
               default:
                 hardware.Add(new GenericCPU(index, coreThreads, settings));
