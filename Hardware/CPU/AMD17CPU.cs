@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-//using System.Linq;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -18,12 +17,11 @@ namespace OpenHardwareMonitor.Hardware.CPU
   internal sealed class AMD17CPU : AMDCPU
   {
     // counter, to create sensor index values 
-    public int _sensorTemperatures = 0;
-    public int _sensorPower = 0;
-    public int _sensorCurrent = 0;
-    public int _sensorVoltage = 0;
-    public int _sensorClock = 0;
-    public int _sensorMulti = 0;
+    private int _sensorTemperatures = 0;
+    private int _sensorPower = 0;
+    private int _sensorVoltage = 0;
+    private int _sensorClock = 0;
+    private int _sensorMulti = 0;
 
     // register index names for CPUID[] 
     private const int EAX = 0;
@@ -31,7 +29,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
     private const int ECX = 2;
     private const int EDX = 3;
 
-    // zen register defninitions 
+    #region amd zen registers 
     public const uint PERF_CTL_0 = 0xC0010000;
     public const uint PERF_CTR_0 = 0xC0010004;
     public const uint HWCR = 0xC0010015;
@@ -50,6 +48,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
     public const uint FAMILY_17H_MODEL_01_MISC_CONTROL_DEVICE_ID = 0x1463;
     public const uint F17H_M01H_THM_TCON_CUR_TMP = 0x00059800;
     public const uint F17H_M01H_SVI = 0x0005A000;
+    #endregion
 
     #region Processor
     private class Processor
@@ -57,35 +56,34 @@ namespace OpenHardwareMonitor.Hardware.CPU
       private AMD17CPU _hw = null;
       private DateTime _lastPwrTime = new DateTime(0);
       private uint _lastPwrValue = 0;
-
-      public Sensor PackagePower { get; set; }
+      private Sensor _packagePower = null;
+      private Sensor _coreTemperatureTctl = null;
+      private Sensor _coreTemperatureTdie = null;
+      private Sensor _coreVoltage = null;
+      private Sensor _socVoltage = null;
+      public List<NumaNode> Nodes { get; private set; }
 
       public Processor(Hardware hw)
       {
         this._hw = (AMD17CPU)hw;
         Nodes = new List<NumaNode>();
 
-        PackagePower = new Sensor("Package Power", this._hw._sensorPower++, SensorType.Power, this._hw, this._hw.settings);
-        CoreTemperatureTctl = new Sensor("Core (Tctl)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
-        CoreTemperatureTdie = new Sensor("Core (Tdie)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
-        CoreVoltage = new Sensor("Core (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);
-        SocVoltage = new Sensor("SoC (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);
-        // node.coreCurrent = new Sensor("Core Current", hw.sensor_current++, SensorType.Current, hw, hw.settings); 
-        // node.socCurrent = new Sensor("SoC Current", hw.sensor_current++, SensorType.Current, hw,hw.settings); 
+        _packagePower = new Sensor("Package Power", this._hw._sensorPower++, SensorType.Power, this._hw, this._hw.settings);
+        _coreTemperatureTctl = new Sensor("Core (Tctl)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
+        _coreTemperatureTdie = new Sensor("Core (Tdie)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
+        _coreVoltage = new Sensor("Core (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);
+        _socVoltage = new Sensor("SoC (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);        
       }
 
       #region UpdateSensors
       public void UpdateSensors()
-      {
-        // var node = nodes.FirstOrDefault(); 
+      {        
         var node = Nodes[0];
         if (node == null)
-          return;
-        // var core = node.cores.FirstOrDefault(); 
+          return;       
         Core core = node.Cores[0];
         if (core == null)
-          return;
-        // CPUID cpu = core.threads.FirstOrDefault(); 
+          return;        
         CPUID cpu = core.Threads[0];
         if (cpu == null)
           return;
@@ -157,8 +155,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
         double energy = 15.3e-6 * pwr;
         energy /= time.TotalSeconds;
 
-        PackagePower.Value = (float)energy;
-        _hw.ActivateSensor(PackagePower);
+        _packagePower.Value = (float)energy;
+        _hw.ActivateSensor(_packagePower);
 
         // current temp Bit [31:21] 
         temperature = (temperature >> 21) * 125;
@@ -170,10 +168,10 @@ namespace OpenHardwareMonitor.Hardware.CPU
         else if (cpu.Name != null && (cpu.Name.Contains("1910") || cpu.Name.Contains("1920")))
           offset = -10.0f;
 
-        CoreTemperatureTctl.Value = (temperature * 0.001f);
-        CoreTemperatureTdie.Value = (temperature * 0.001f) + offset;
-        _hw.ActivateSensor(CoreTemperatureTctl);
-        _hw.ActivateSensor(CoreTemperatureTdie);
+        _coreTemperatureTctl.Value = (temperature * 0.001f);
+        _coreTemperatureTdie.Value = (temperature * 0.001f) + offset;
+        _hw.ActivateSensor(_coreTemperatureTctl);
+        _hw.ActivateSensor(_coreTemperatureTdie);
 
         // voltage 
         double VIDStep = 0.00625;
@@ -187,10 +185,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
           svi0_plane_x_vddcor = (smusvi0_tel_plane0 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane0 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          CoreVoltage.Value = (float)vcc;
-          _hw.ActivateSensor(CoreVoltage);
-          // coreCurrent.Value = (float)(svi0_plane_x_iddcor * 1); 
-          // hw.ActivateSensor(coreCurrent); 
+          _coreVoltage.Value = (float)vcc;
+          _hw.ActivateSensor(_coreVoltage);          
         }
 
         // SoC 
@@ -199,10 +195,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
           svi0_plane_x_vddcor = (smusvi0_tel_plane1 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane1 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          SocVoltage.Value = (float)vcc;
-          _hw.ActivateSensor(SocVoltage);
-          //socCurrent.Value = (float)(svi0_plane_x_iddcor * 1);
-          //hw.ActivateSensor(socCurrent);
+          _socVoltage.Value = (float)vcc;
+          _hw.ActivateSensor(_socVoltage);          
         }
 
       }
@@ -211,9 +205,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
       public void AppendThread(CPUID thread, int numa_id, int core_id)
       {
         NumaNode node = null;
-        // node = (from x in nodes 
-        //        where x.nodeId == numa_id 
-        //        select x).FirstOrDefault(); 
         foreach (var n in Nodes)
         {
           if (n.NodeId == numa_id)
@@ -221,25 +212,12 @@ namespace OpenHardwareMonitor.Hardware.CPU
         }
         if (node == null)
         {
-          node = new NumaNode(_hw);
-          node.NodeId = numa_id;
-          node.Parent = this;
+          node = new NumaNode(_hw, numa_id);                    
           Nodes.Add(node);
         }
-
         if (thread != null)
           node.AppendThread(thread, core_id);
-      }
-
-      public Sensor CoreTemperatureTctl { get; set; }
-      public Sensor CoreTemperatureTdie { get; set; }
-
-      public Sensor CoreVoltage { get; set; }
-      // public Sensor coreCurrent { get; set; } 
-      public Sensor SocVoltage { get; set; }
-      // public Sensor socCurrent { get; set; } 
-
-      public List<NumaNode> Nodes { get; set; }
+      }      
     }
     #endregion
 
@@ -247,20 +225,19 @@ namespace OpenHardwareMonitor.Hardware.CPU
     private class NumaNode
     {
       private AMD17CPU _hw = null;
+      public int NodeId { get; private set; }
+      public List<Core> Cores { get; private set; }      
 
-      public NumaNode(Hardware hw)
+      public NumaNode(Hardware hw, int id)
       {
         Cores = new List<Core>();
-        NodeId = -1;
-        this._hw = (AMD17CPU)hw;
+        NodeId = id;
+        _hw = (AMD17CPU)hw;        
       }
 
       public void AppendThread(CPUID thread, int core_id)
       {
-        Core core = null;
-        // Core core = (from x in cores 
-        //             where x.coreId == core_id 
-        //             select x).FirstOrDefault(); 
+        Core core = null;        
         foreach (var c in Cores)
         {
           if (c.CoreId == core_id)
@@ -268,17 +245,9 @@ namespace OpenHardwareMonitor.Hardware.CPU
         }
         if (core == null)
         {
-          core = new Core(_hw);
-          core.CoreId = core_id;
-          core.Parent = this;
-
-          core.Clock = new Sensor("Core #" + core.CoreId.ToString(), _hw._sensorClock++, SensorType.Clock, _hw, _hw.settings);
-          core.Multiplier = new Sensor("Core #" + core.CoreId.ToString(), _hw._sensorMulti++, SensorType.Factor, _hw, _hw.settings);
-          core.Power = new Sensor("Core #" + core.CoreId.ToString() + " (SMU)", _hw._sensorPower++, SensorType.Power, _hw, _hw.settings);
-          core.Vcore = new Sensor("Core #" + core.CoreId.ToString() + " VID", _hw._sensorVoltage++, SensorType.Voltage, _hw, _hw.settings);
+          core = new Core(_hw, core_id);
           Cores.Add(core);
         }
-
         if (thread != null)
           core.Threads.Add(thread);
       }
@@ -286,33 +255,35 @@ namespace OpenHardwareMonitor.Hardware.CPU
       #region UpdateSensors
       public void UpdateSensors()
       {
-
-
       }
-      #endregion
-
-      public int NodeId { get; set; }
-      public List<Core> Cores { get; set; }
-
-      public Processor Parent { get; set; }
+      #endregion      
     }
     #endregion
 
     #region Core
     private class Core
     {
+      private DateTime _lastPwrTime = new DateTime(0);
+      private uint _lastPwrValue = 0;
       private AMD17CPU _hw = null;
+      private Sensor _clock = null;
+      private Sensor _vcore = null;
+      private Sensor _power = null;
+      private Sensor _multiplier = null;
+      public int CoreId { get; private set; }
+      public List<CPUID> Threads { get; private set; }      
 
-      public Core(Hardware hw)
+      public Core(Hardware hw, int id)
       {
         Threads = new List<CPUID>();
-        CoreId = -1;
-        this._hw = (AMD17CPU)hw;
+        CoreId = id;
+        _hw = (AMD17CPU)hw;
+        _clock = new Sensor("Core #" + CoreId.ToString(), _hw._sensorClock++, SensorType.Clock, _hw, _hw.settings);
+        _multiplier = new Sensor("Core #" + CoreId.ToString(), _hw._sensorMulti++, SensorType.Factor, _hw, _hw.settings);
+        _power = new Sensor("Core #" + CoreId.ToString() + " (SMU)", _hw._sensorPower++, SensorType.Power, _hw, _hw.settings);
+        _vcore = new Sensor("Core #" + CoreId.ToString() + " VID", _hw._sensorVoltage++, SensorType.Voltage, _hw, _hw.settings);
       }
-
-      DateTime _lastPwrTime = new DateTime(0);
-      uint _lastPwrValue = 0;
-
+      
       #region UpdateSensors
       public void UpdateSensors()
       {
@@ -364,18 +335,18 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         // clock 
         // CoreCOF is (Core::X86::Msr::PStateDef[CpuFid[7:0]] / Core::X86::Msr::PStateDef[CpuDfsId]) * 200 
-        Clock.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 200.0);
-        _hw.ActivateSensor(Clock);
+        _clock.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 200.0);
+        _hw.ActivateSensor(_clock);
 
         // multiplier 
-        Multiplier.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 2.0);
-        _hw.ActivateSensor(Multiplier);
+        _multiplier.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 2.0);
+        _hw.ActivateSensor(_multiplier);
 
         // Voltage 
         double VIDStep = 0.00625;
         double vcc = 1.550 - (double)VIDStep * CurCpuVid;
-        Vcore.Value = (float)vcc;
-        _hw.ActivateSensor(Vcore);
+        _vcore.Value = (float)vcc;
+        _hw.ActivateSensor(_vcore);
 
         // power consumption 
         // power.Value = (float) ((double)pu * 0.125); 
@@ -400,20 +371,10 @@ namespace OpenHardwareMonitor.Hardware.CPU
         double energy = 15.3e-6 * pwr;
         energy /= time.TotalSeconds;
 
-        Power.Value = (float)energy;
-        _hw.ActivateSensor(Power);
-
+        _power.Value = (float)energy;
+        _hw.ActivateSensor(_power);
       }
-      #endregion
-
-      public Sensor Clock { get; set; }
-      public Sensor Vcore { get; set; }
-      public Sensor Power { get; set; }
-      public Sensor Multiplier { get; set; }
-
-      public int CoreId { get; set; }
-      public List<CPUID> Threads { get; set; }
-      public NumaNode Parent { get; set; }
+      #endregion      
     }
     #endregion
 
@@ -432,11 +393,11 @@ namespace OpenHardwareMonitor.Hardware.CPU
       {
         CPUID thread = cpu[0];
 
-        // coreID
+        // coreID 
         // Register ..1E_EBX, [7:0] 
         int core_id = (int)(thread.ExtData[0x1e, EBX] & 0xff);
 
-        // nodeID
+        // nodeID 
         // Register ..1E_ECX, [7:0] 
         int node_id = (int)(thread.ExtData[0x1e, ECX] & 0xff);
 
