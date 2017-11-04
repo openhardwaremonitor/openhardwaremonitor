@@ -239,6 +239,10 @@ namespace OpenHardwareMonitor.Hardware {
           catch (UnauthorizedAccessException) { }
       }
     }
+    public static ulong ThreadAffinitySet(ulong mask)
+    {
+      return ThreadAffinity.Set(mask);
+    }
 
     public static string GetReport() {
       if (report.Length > 0) {
