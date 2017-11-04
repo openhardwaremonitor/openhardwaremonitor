@@ -78,7 +78,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
         _hw.ActivateSensor(_coreTemperatureTctl);
         _hw.ActivateSensor(_coreTemperatureTdie);
         _hw.ActivateSensor(_coreVoltage);
-        _hw.ActivateSensor(_socVoltage);
       }
 
       #region UpdateSensors
@@ -176,7 +175,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
         _coreTemperatureTctl.Value = (temperature * 0.001f);
         _coreTemperatureTdie.Value = (temperature * 0.001f) + offset;
         
-
         // voltage 
         double VIDStep = 0.00625;
         double vcc;
@@ -189,16 +187,18 @@ namespace OpenHardwareMonitor.Hardware.CPU
           svi0_plane_x_vddcor = (smusvi0_tel_plane0 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane0 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          _coreVoltage.Value = (float)vcc;                  
+          _coreVoltage.Value = (float)vcc;              
         }
 
         // SoC 
+        // not every zen cpu has this voltage 
         if ((smusvi0_tfn & 0x02) == 0)
         {
           svi0_plane_x_vddcor = (smusvi0_tel_plane1 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane1 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          _socVoltage.Value = (float)vcc;          
+          _socVoltage.Value = (float)vcc;
+          _hw.ActivateSensor(_socVoltage);
         }
 
       }
