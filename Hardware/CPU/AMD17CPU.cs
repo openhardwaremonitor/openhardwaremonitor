@@ -30,24 +30,24 @@ namespace OpenHardwareMonitor.Hardware.CPU
     private const int EDX = 3;
 
     #region amd zen registers 
-    public const uint PERF_CTL_0 = 0xC0010000;
-    public const uint PERF_CTR_0 = 0xC0010004;
-    public const uint HWCR = 0xC0010015;
+    private const uint PERF_CTL_0 = 0xC0010000;
+    private const uint PERF_CTR_0 = 0xC0010004;
+    private const uint HWCR = 0xC0010015;
 
-    public const uint MSR_PSTATE_L = 0xC0010061;
-    public const uint MSR_PSTATE_C = 0xC0010062;
-    public const uint MSR_PSTATE_S = 0xC0010063;
-    public const uint MSR_PSTATE_0 = 0xC0010064;
+    private const uint MSR_PSTATE_L = 0xC0010061;
+    private const uint MSR_PSTATE_C = 0xC0010062;
+    private const uint MSR_PSTATE_S = 0xC0010063;
+    private const uint MSR_PSTATE_0 = 0xC0010064;
 
-    public const uint MSR_PWR_UNIT = 0xC0010299;
-    public const uint MSR_CORE_ENERGY_STAT = 0xC001029A;
-    public const uint MSR_PKG_ENERGY_STAT = 0xC001029B;
-    public const uint MSR_HARDWARE_PSTATE_STATUS = 0xC0010293;
-    public const uint COFVID_STATUS = 0xC0010071;
-    public const uint FAMILY_17H_PCI_CONTROL_REGISTER = 0x60;
-    public const uint FAMILY_17H_MODEL_01_MISC_CONTROL_DEVICE_ID = 0x1463;
-    public const uint F17H_M01H_THM_TCON_CUR_TMP = 0x00059800;
-    public const uint F17H_M01H_SVI = 0x0005A000;
+    private const uint MSR_PWR_UNIT = 0xC0010299;
+    private const uint MSR_CORE_ENERGY_STAT = 0xC001029A;
+    private const uint MSR_PKG_ENERGY_STAT = 0xC001029B;
+    private const uint MSR_HARDWARE_PSTATE_STATUS = 0xC0010293;
+    private const uint COFVID_STATUS = 0xC0010071;
+    private const uint FAMILY_17H_PCI_CONTROL_REGISTER = 0x60;
+    private const uint FAMILY_17H_MODEL_01_MISC_CONTROL_DEVICE_ID = 0x1463;
+    private const uint F17H_M01H_THM_TCON_CUR_TMP = 0x00059800;
+    private const uint F17H_M01H_SVI = 0x0005A000;
     #endregion
 
     #region Processor
@@ -72,7 +72,13 @@ namespace OpenHardwareMonitor.Hardware.CPU
         _coreTemperatureTctl = new Sensor("Core (Tctl)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
         _coreTemperatureTdie = new Sensor("Core (Tdie)", this._hw._sensorTemperatures++, SensorType.Temperature, this._hw, this._hw.settings);
         _coreVoltage = new Sensor("Core (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);
-        _socVoltage = new Sensor("SoC (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);        
+        _socVoltage = new Sensor("SoC (SVI2)", this._hw._sensorVoltage++, SensorType.Voltage, this._hw, this._hw.settings);
+
+        _hw.ActivateSensor(_packagePower);
+        _hw.ActivateSensor(_coreTemperatureTctl);
+        _hw.ActivateSensor(_coreTemperatureTdie);
+        _hw.ActivateSensor(_coreVoltage);
+        _hw.ActivateSensor(_socVoltage);
       }
 
       #region UpdateSensors
@@ -155,8 +161,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
         double energy = 15.3e-6 * pwr;
         energy /= time.TotalSeconds;
 
-        _packagePower.Value = (float)energy;
-        _hw.ActivateSensor(_packagePower);
+        _packagePower.Value = (float)energy;        
 
         // current temp Bit [31:21] 
         temperature = (temperature >> 21) * 125;
@@ -170,8 +175,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         _coreTemperatureTctl.Value = (temperature * 0.001f);
         _coreTemperatureTdie.Value = (temperature * 0.001f) + offset;
-        _hw.ActivateSensor(_coreTemperatureTctl);
-        _hw.ActivateSensor(_coreTemperatureTdie);
+        
 
         // voltage 
         double VIDStep = 0.00625;
@@ -185,8 +189,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
           svi0_plane_x_vddcor = (smusvi0_tel_plane0 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane0 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          _coreVoltage.Value = (float)vcc;
-          _hw.ActivateSensor(_coreVoltage);          
+          _coreVoltage.Value = (float)vcc;                  
         }
 
         // SoC 
@@ -195,8 +198,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
           svi0_plane_x_vddcor = (smusvi0_tel_plane1 >> 16) & 0xff;
           svi0_plane_x_iddcor = smusvi0_tel_plane1 & 0xff;
           vcc = 1.550 - (double)VIDStep * svi0_plane_x_vddcor;
-          _socVoltage.Value = (float)vcc;
-          _hw.ActivateSensor(_socVoltage);          
+          _socVoltage.Value = (float)vcc;          
         }
 
       }
@@ -282,6 +284,11 @@ namespace OpenHardwareMonitor.Hardware.CPU
         _multiplier = new Sensor("Core #" + CoreId.ToString(), _hw._sensorMulti++, SensorType.Factor, _hw, _hw.settings);
         _power = new Sensor("Core #" + CoreId.ToString() + " (SMU)", _hw._sensorPower++, SensorType.Power, _hw, _hw.settings);
         _vcore = new Sensor("Core #" + CoreId.ToString() + " VID", _hw._sensorVoltage++, SensorType.Voltage, _hw, _hw.settings);
+
+        _hw.ActivateSensor(_clock);
+        _hw.ActivateSensor(_multiplier);
+        _hw.ActivateSensor(_power);
+        _hw.ActivateSensor(_vcore);
       }
       
       #region UpdateSensors
@@ -293,8 +300,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
           return;
         uint eax, edx;
         ulong mask = Ring0.ThreadAffinitySet(1UL << cpu.Thread);
-
-
+        
         // MSRC001_0299 
         // TU [19:16] 
         // ESU [12:8] -> Unit 15.3 micro Joule per increment 
@@ -336,18 +342,15 @@ namespace OpenHardwareMonitor.Hardware.CPU
         // clock 
         // CoreCOF is (Core::X86::Msr::PStateDef[CpuFid[7:0]] / Core::X86::Msr::PStateDef[CpuDfsId]) * 200 
         _clock.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 200.0);
-        _hw.ActivateSensor(_clock);
-
+        
         // multiplier 
         _multiplier.Value = (float)((double)CurCpuFid / (double)CurCpuDfsId * 2.0);
-        _hw.ActivateSensor(_multiplier);
-
+        
         // Voltage 
         double VIDStep = 0.00625;
         double vcc = 1.550 - (double)VIDStep * CurCpuVid;
         _vcore.Value = (float)vcc;
-        _hw.ActivateSensor(_vcore);
-
+        
         // power consumption 
         // power.Value = (float) ((double)pu * 0.125); 
         // esu = 15.3 micro Joule per increment 
@@ -371,8 +374,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
         double energy = 15.3e-6 * pwr;
         energy /= time.TotalSeconds;
 
-        _power.Value = (float)energy;
-        _hw.ActivateSensor(_power);
+        _power.Value = (float)energy;        
       }
       #endregion      
     }
