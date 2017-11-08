@@ -4,8 +4,9 @@ before_build:
   - nuget restore
 
 configuration:
-  - Debug
   - Release
+
+platform: Any CPU
 
 build:
   project: OpenHardwareMonitor.sln
