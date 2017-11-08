@@ -8,8 +8,5 @@ configuration:
 
 platform: Any CPU
 
-build:
-  project: OpenHardwareMonitor.sln
-
 artifacts:
   - path: 'Bin\Release\'
