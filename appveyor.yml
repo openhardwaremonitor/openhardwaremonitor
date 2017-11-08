@@ -8,12 +8,9 @@ configuration:
 
 platform: Any CPU
 
-#build:
-#  project: OpenHardwareMonitor.sln
-#  verbosity: minimal
-
-build_script:
-- cmd: msbuild c:\projects\librehardwaremonitor\build\OpenHardwareMonitor.sln /p:Configuration=%configuration% /p:Platform=%platform%
+build:
+  project: OpenHardwareMonitor.sln
+  verbosity: minimal
 
 artifacts:
   - path: 'Bin\Release\'
