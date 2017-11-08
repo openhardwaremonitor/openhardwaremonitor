@@ -12,5 +12,4 @@ build:
   project: OpenHardwareMonitor.sln
 
 artifacts:
-  - path: 'Bin\Debug\'
   - path: 'Bin\Release\'
