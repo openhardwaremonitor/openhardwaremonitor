@@ -6,8 +6,6 @@ before_build:
 configuration:
   - Release
 
-platform: Any CPU
-
 environment:
   matrix:
   - solution_name: OpenHardwareMonitor.sln
