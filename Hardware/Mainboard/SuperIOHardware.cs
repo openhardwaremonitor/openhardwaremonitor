@@ -603,7 +603,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("Power Fan", 2));
               f.Add(new Fan("System Fan #1", 3));
               break;
-            case Model.AX370_K7: // IT8686E
+            case Model.AX370_Gaming_K7: // IT8686E
+            case Model.AX370_Gaming_5:
+            case Model.AB350_Gaming_3:
               // Note: v3.3, v12, v5, and AVCC3 might be slightly off.
               v.Add(new Voltage("CPU VCore", 0));
               v.Add(new Voltage("+3.3V", 1, 0.65f, 1));
