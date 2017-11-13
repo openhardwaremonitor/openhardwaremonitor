@@ -182,6 +182,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.IT8718F:
         case Chip.IT8720F:
         case Chip.IT8726F:
+        case Chip.IT8665E:
         case Chip.IT8686E:
           GetITEConfigurationsA(superIO, manufacturer, model, v, t, f, c,
             ref readFan, ref postUpdate, ref mutex);
@@ -327,6 +328,26 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("CPU Fan", 0));
               f.Add(new Fan("Chassis Fan #1", 1));
               f.Add(new Fan("Chassis Fan #2", 2));
+              break;
+            case Model.PRIME_X370_PRO: // IT8665E
+              v.Add(new Voltage("CPU VCore", 0));
+              v.Add(new Voltage("SB 2.5V", 1));
+              v.Add(new Voltage("+12V", 2, 5, 1));
+              v.Add(new Voltage("+5V", 3, 1.5f, 1));
+              v.Add(new Voltage("Voltage #4", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("+3.3V", 7, 10, 10));
+              v.Add(new Voltage("VBAT", 8, 10, 10));
+              v.Add(new Voltage("Voltage #10", 9, true));
+              t.Add(new Temperature("CPU", 0));
+              t.Add(new Temperature("Motherboard", 1));
+              t.Add(new Temperature("PCH", 2));
+              for (int i = 3; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature("Temperature #" + (i + 1), i));
+              f.Add(new Fan("CPU Fan", 0));
+              for (int i = 1; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
               break;
             default:
               v.Add(new Voltage("CPU VCore", 0));
