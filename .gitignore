@@ -2,3 +2,9 @@
 *.suo
 /Bin
 /Obj
+/.vs/openhardwaremonitor/v15/Browse.VC.db
+/.vs/ProjectSettings.json
+/.vs/slnx.sqlite
+/.vs/VSWorkspaceState.json
+/.vs
+/External
