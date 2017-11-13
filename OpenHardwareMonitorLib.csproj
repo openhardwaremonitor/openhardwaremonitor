@@ -140,7 +140,6 @@
     <Compile Include="Hardware\HexStringArray.cs" />
     <Compile Include="Collections\IReadOnlyArray.cs" />
     <Compile Include="Collections\ListSet.cs" />
-    <Compile Include="Hardware\PInvokeDelegateFactory.cs" />
     <Compile Include="Collections\ReadOnlyArray.cs" />
     <Compile Include="Properties\AssemblyLibInfo.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
