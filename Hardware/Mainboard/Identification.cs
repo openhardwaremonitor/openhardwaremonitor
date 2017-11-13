@@ -194,7 +194,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.AX370_Gaming_K7;
         case "AX370-Gaming 5":
           return Model.AX370_Gaming_5;
-        case "AB350-Gaming 3":
+        case "AB350-Gaming 3-CF":
           return Model.AB350_Gaming_3;
         case "Base Board Product Name":
         case "To be filled by O.E.M.":
