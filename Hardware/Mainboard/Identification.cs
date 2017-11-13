@@ -195,6 +195,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.FH67;
         case "AX370-Gaming K7":
           return Model.AX370_K7;
+        case "PRIME X370-PRO":
+          return Model.PRIME_X370_PRO;
         case "Base Board Product Name":
         case "To be filled by O.E.M.":
           return Model.Unknown;
