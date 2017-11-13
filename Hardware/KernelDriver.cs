@@ -74,11 +74,11 @@ namespace OpenHardwareMonitor.Hardware {
           "O:BAG:SYD:(A;;FA;;;SY)(A;;FA;;;BA)");
         File.SetAccessControl(@"\\.\" + id, fileSecurity);
       } catch { }
-
+#endif
       errorMessage = null;
       return true;
     }
-#endif
+
 
     public bool Open() {
       device = new SafeFileHandle(NativeMethods.CreateFile(@"\\.\" + id,
