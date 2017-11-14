@@ -6,10 +6,11 @@ before_build:
 configuration:
   - Release
 
-platform: Any CPU
-
+environment:
+  matrix:
+  - solution_name: OpenHardwareMonitor.sln
 build:
-  project: OpenHardwareMonitor.sln
+  project: '%solution_name%'
   verbosity: minimal
 
 artifacts:
