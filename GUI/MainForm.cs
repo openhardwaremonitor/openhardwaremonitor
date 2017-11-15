@@ -358,9 +358,6 @@ namespace OpenHardwareMonitor.GUI
                 Show();
             }
 
-            // Create a handle, otherwise calling Close() does not fire FormClosed     
-            var handle = Handle;
-
             // Make sure the settings are saved when the user logs off
             SystemEvents.SessionEnded += delegate
             {

@@ -10,8 +10,7 @@
 
 ko.bindingHandlers.treeTable = {
     update: function(element, valueAccessor, allBindingsAccessor) {
-        var dependency = ko.utils.unwrapObservable(valueAccessor()),
-            options = ko.toJS(allBindingsAccessor().treeOptions || {});
+        var options = ko.toJS(allBindingsAccessor().treeOptions || {});
 
         setTimeout(function() { $(element).treeTable(options); }, 0);
     }

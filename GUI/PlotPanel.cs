@@ -294,7 +294,6 @@ namespace OpenHardwareMonitor.GUI
                 foreach (var pair in axes.Reverse())
                 {
                     var axis = pair.Value;
-                    var type = pair.Key;
                     axis.StartPosition = start;
                     var delta = axis.IsAxisVisible ? 1.0 / count : 0;
                     start += delta;
@@ -310,7 +309,6 @@ namespace OpenHardwareMonitor.GUI
                 foreach (var pair in axes.Reverse())
                 {
                     var axis = pair.Value;
-                    var type = pair.Key;
                     if (axis.IsAxisVisible)
                     {
                         axis.StartPosition = 0;
