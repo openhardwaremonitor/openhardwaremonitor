@@ -211,8 +211,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 case Microarchitecture.Atom:
                 case Microarchitecture.Core:
                 {
-                    uint eax, edx;
-                    if (Ring0.Rdmsr(IA32_PERF_STATUS, out eax, out edx))
+                        if (Ring0.Rdmsr(IA32_PERF_STATUS, out uint eax, out uint edx))
                         timeStampCounterMultiplier =
                             ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
                 }
@@ -227,8 +226,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 case Microarchitecture.Airmont:
                 case Microarchitecture.KabyLake:
                 {
-                    uint eax, edx;
-                    if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx))
+                        if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out uint eax, out uint edx))
                         timeStampCounterMultiplier = (eax >> 8) & 0xff;
                 }
                     break;
@@ -303,9 +301,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 powerSensors = new Sensor[energyStatusMSRs.Length];
                 lastEnergyTime = new DateTime[energyStatusMSRs.Length];
                 lastEnergyConsumed = new uint[energyStatusMSRs.Length];
-
-                uint eax, edx;
-                if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out eax, out edx))
+                if (Ring0.Rdmsr(MSR_RAPL_POWER_UNIT, out uint eax, out uint edx))
                     switch (microarchitecture)
                     {
                         case Microarchitecture.Silvermont:
@@ -344,11 +340,10 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         private float[] GetTjMaxFromMSR()
         {
-            uint eax, edx;
             var result = new float[coreCount];
             for (var i = 0; i < coreCount; i++)
-                if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
-                    out edx, 1UL << cpuid[i][0].Thread)) result[i] = (eax >> 16) & 0xFF;
+                if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out uint eax,
+                    out uint edx, 1UL << cpuid[i][0].Thread)) result[i] = (eax >> 16) & 0xFF;
                 else result[i] = 100;
             return result;
         }
@@ -391,9 +386,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
             for (var i = 0; i < coreTemperatures.Length; i++)
             {
-                uint eax, edx;
                 // if reading is valid
-                if (Ring0.RdmsrTx(IA32_THERM_STATUS_MSR, out eax, out edx,
+                if (Ring0.RdmsrTx(IA32_THERM_STATUS_MSR, out uint eax, out uint edx,
                         1UL << cpuid[i][0].Thread) && (eax & 0x80000000) != 0)
                 {
                     // get the dist from tjMax from bits 22:16
@@ -410,9 +404,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
             if (packageTemperature != null)
             {
-                uint eax, edx;
                 // if reading is valid
-                if (Ring0.RdmsrTx(IA32_PACKAGE_THERM_STATUS, out eax, out edx,
+                if (Ring0.RdmsrTx(IA32_PACKAGE_THERM_STATUS, out uint eax, out uint edx,
                         1UL << cpuid[0][0].Thread) && (eax & 0x80000000) != 0)
                 {
                     // get the dist from tjMax from bits 22:16
@@ -430,11 +423,10 @@ namespace OpenHardwareMonitor.Hardware.CPU
             if (HasTimeStampCounter && timeStampCounterMultiplier > 0)
             {
                 double newBusClock = 0;
-                uint eax, edx;
                 for (var i = 0; i < coreClocks.Length; i++)
                 {
                     Thread.Sleep(1);
-                    if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
+                    if (Ring0.RdmsrTx(IA32_PERF_STATUS, out uint eax, out uint edx,
                         1UL << cpuid[i][0].Thread))
                     {
                         newBusClock =
@@ -486,9 +478,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 {
                     if (sensor == null)
                         continue;
-
-                    uint eax, edx;
-                    if (!Ring0.Rdmsr(energyStatusMSRs[sensor.Index], out eax, out edx))
+                    if (!Ring0.Rdmsr(energyStatusMSRs[sensor.Index], out uint eax, out uint edx))
                         continue;
 
                     var time = DateTime.UtcNow;

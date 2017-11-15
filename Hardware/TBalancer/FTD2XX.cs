@@ -176,9 +176,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
 
         public static FT_STATUS Write(FT_HANDLE handle, byte[] buffer)
         {
-            uint bytesWritten;
-            var status = FT_Write(handle, buffer, (uint) buffer.Length,
-                out bytesWritten);
+            var status = FT_Write(handle, buffer, (uint)buffer.Length,
+                out uint bytesWritten);
             if (bytesWritten != buffer.Length)
                 return FT_STATUS.FT_FAILED_TO_WRITE_DEVICE;
             return status;
@@ -186,19 +185,14 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
 
         public static int BytesToRead(FT_HANDLE handle)
         {
-            uint amountInRxQueue;
-            uint amountInTxQueue;
-            uint eventStatus;
-            if (FT_GetStatus(handle, out amountInRxQueue, out amountInTxQueue,
-                    out eventStatus) == FT_STATUS.FT_OK) return (int) amountInRxQueue;
+            if (FT_GetStatus(handle, out uint amountInRxQueue, out uint amountInTxQueue,
+                    out uint eventStatus) == FT_STATUS.FT_OK) return (int)amountInRxQueue;
             return 0;
         }
 
         public static byte ReadByte(FT_HANDLE handle)
         {
-            byte buffer;
-            uint bytesReturned;
-            var status = FT_ReadByte(handle, out buffer, 1, out bytesReturned);
+            var status = FT_ReadByte(handle, out byte buffer, 1, out uint bytesReturned);
             if (status != FT_STATUS.FT_OK || bytesReturned != 1)
                 throw new InvalidOperationException();
             return buffer;
@@ -206,9 +200,8 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
 
         public static void Read(FT_HANDLE handle, byte[] buffer)
         {
-            uint bytesReturned;
             var status =
-                FT_Read(handle, buffer, (uint) buffer.Length, out bytesReturned);
+                FT_Read(handle, buffer, (uint)buffer.Length, out uint bytesReturned);
             if (status != FT_STATUS.FT_OK || bytesReturned != buffer.Length)
                 throw new InvalidOperationException();
         }
@@ -228,8 +221,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
             attribute.CallingConvention = CallingConvention.StdCall;
             attribute.PreserveSig = true;
             attribute.EntryPoint = entryPoint;
-            T newDelegate;
-            PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
+            PInvokeDelegateFactory.CreateDelegate(attribute, out T newDelegate);
             return newDelegate;
         }
     }

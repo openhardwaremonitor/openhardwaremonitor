@@ -69,15 +69,13 @@ namespace OpenHardwareMonitor.GUI
             if (shellWindow == IntPtr.Zero)
                 return IntPtr.Zero;
 
-            int shellId;
-            NativeMethods.GetWindowThreadProcessId(shellWindow, out shellId);
+            NativeMethods.GetWindowThreadProcessId(shellWindow, out int shellId);
 
             var workerWindow = IntPtr.Zero;
             while ((workerWindow = NativeMethods.FindWindowEx(
                        IntPtr.Zero, workerWindow, "WorkerW", null)) != IntPtr.Zero)
             {
-                int workerId;
-                NativeMethods.GetWindowThreadProcessId(workerWindow, out workerId);
+                NativeMethods.GetWindowThreadProcessId(workerWindow, out int workerId);
                 if (workerId == shellId)
                 {
                     var window = NativeMethods.FindWindowEx(

@@ -28,8 +28,7 @@ namespace OpenHardwareMonitor.GUI
 
         public Image GetImage(HardwareType hardwareType)
         {
-            Image image;
-            if (images.TryGetValue(hardwareType, out image)) return image;
+            if (images.TryGetValue(hardwareType, out Image image)) return image;
             switch (hardwareType)
             {
                 case HardwareType.CPU:

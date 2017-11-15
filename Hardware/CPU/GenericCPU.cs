@@ -147,10 +147,9 @@ namespace OpenHardwareMonitor.Hardware.CPU
         private void EstimateTimeStampCounterFrequency(out double frequency,
             out double error)
         {
-            double f, e;
 
             // preload the function
-            EstimateTimeStampCounterFrequency(0, out f, out e);
+            EstimateTimeStampCounterFrequency(0, out double f, out double e);
             EstimateTimeStampCounterFrequency(0, out f, out e);
 
             // estimate the frequency
@@ -204,8 +203,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         private static void AppendMSRData(StringBuilder r, uint msr, int thread)
         {
-            uint eax, edx;
-            if (Ring0.RdmsrTx(msr, out eax, out edx, 1UL << thread))
+            if (Ring0.RdmsrTx(msr, out uint eax, out uint edx, 1UL << thread))
             {
                 r.Append(" ");
                 r.Append(msr.ToString("X8", CultureInfo.InvariantCulture));

@@ -29,9 +29,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 (byte) (PCI_BASE_DEVICE + processorIndex), function);
 
             // verify that we have the correct bus, device and function
-            uint deviceVendor;
             if (!Ring0.ReadPciConfig(
-                address, DEVICE_VENDOR_ID_REGISTER, out deviceVendor))
+                address, DEVICE_VENDOR_ID_REGISTER, out uint deviceVendor))
                 return Ring0.InvalidPciAddress;
 
             if (deviceVendor != ((deviceId << 16) | AMD_VENDOR_ID))

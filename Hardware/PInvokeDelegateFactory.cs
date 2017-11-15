@@ -31,10 +31,9 @@ namespace OpenHardwareMonitor.Hardware
         public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
             out T newDelegate) where T : class
         {
-            Type wrapperType;
             var key =
                 new Pair<DllImportAttribute, Type>(dllImportAttribute, typeof(T));
-            wrapperTypes.TryGetValue(key, out wrapperType);
+            wrapperTypes.TryGetValue(key, out Type wrapperType);
 
             if (wrapperType == null)
             {

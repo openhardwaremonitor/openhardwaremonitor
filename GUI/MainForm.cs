@@ -523,12 +523,11 @@ namespace OpenHardwareMonitor.GUI
             var node = e.Node.Tag as Node;
             if (node != null)
             {
-                Color color;
                 if (node.IsVisible)
                 {
                     var sensorNode = node as SensorNode;
                     if (plotMenuItem.Checked && sensorNode != null &&
-                        sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
+                        sensorPlotColors.TryGetValue(sensorNode.Sensor, out Color color))
                         e.TextColor = color;
                 }
                 else

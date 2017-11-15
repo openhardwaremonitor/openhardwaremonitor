@@ -141,8 +141,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 new SortedDictionary<uint, List<CPUID>>();
             foreach (var thread in threads)
             {
-                List<CPUID> list;
-                processors.TryGetValue(thread.ProcessorId, out list);
+                processors.TryGetValue(thread.ProcessorId, out List<CPUID> list);
                 if (list == null)
                 {
                     list = new List<CPUID>();
@@ -167,8 +166,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 new SortedDictionary<uint, List<CPUID>>();
             foreach (var thread in threads)
             {
-                List<CPUID> coreList;
-                cores.TryGetValue(thread.CoreId, out coreList);
+                cores.TryGetValue(thread.CoreId, out List<CPUID> coreList);
                 if (coreList == null)
                 {
                     coreList = new List<CPUID>();

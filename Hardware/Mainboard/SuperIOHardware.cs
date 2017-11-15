@@ -47,13 +47,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard
         {
             this.mainboard = mainboard;
             this.superIO = superIO;
-
-            IList<Voltage> v;
-            IList<Temperature> t;
-            IList<Fan> f;
-            IList<Ctrl> c;
             GetBoardSpecificConfiguration(superIO, manufacturer, model,
-                out v, out t, out f, out c,
+                out IList<Voltage> v, out IList<Temperature> t, out IList<Fan> f, out IList<Ctrl> c,
                 out readVoltage, out readTemperature, out readFan, out readControl,
                 out postUpdate, out mutex);
 

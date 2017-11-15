@@ -73,9 +73,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
                 ActivateSensor(temperatures[i]);
             }
 
-            int value;
             if (NVAPI.NvAPI_GPU_GetTachReading != null &&
-                NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK)
+                NVAPI.NvAPI_GPU_GetTachReading(handle, out int value) == NvStatus.OK)
                 if (value >= 0)
                 {
                     fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
@@ -117,8 +116,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private static string GetName(NvPhysicalGpuHandle handle)
         {
-            string gpuName;
-            if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) return "NVIDIA " + gpuName.Trim();
+            if (NVAPI.NvAPI_GPU_GetFullName(handle, out string gpuName) == NvStatus.OK) return "NVIDIA " + gpuName.Trim();
             return "NVIDIA";
         }
 
@@ -165,8 +163,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (fan != null)
             {
-                var value = 0;
-                NVAPI.NvAPI_GPU_GetTachReading(handle, out value);
+                NVAPI.NvAPI_GPU_GetTachReading(handle, out int value);
                 fan.Value = value;
             }
 
@@ -275,10 +272,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetPCIIdentifiers != null)
             {
-                uint deviceId, subSystemId, revisionId, extDeviceId;
-
                 var status = NVAPI.NvAPI_GPU_GetPCIIdentifiers(handle,
-                    out deviceId, out subSystemId, out revisionId, out extDeviceId);
+                    out uint deviceId, out uint subSystemId, out uint revisionId, out uint extDeviceId);
 
                 if (status == NvStatus.OK)
                 {
@@ -356,8 +351,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetTachReading != null)
             {
-                int tachValue;
-                var status = NVAPI.NvAPI_GPU_GetTachReading(handle, out tachValue);
+                var status = NVAPI.NvAPI_GPU_GetTachReading(handle, out int tachValue);
 
                 r.AppendLine("Tachometer");
                 r.AppendLine();

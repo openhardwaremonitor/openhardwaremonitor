@@ -183,8 +183,7 @@ namespace OpenHardwareMonitor.Hardware
                 fileName = GetTempFileName();
                 if (fileName != null && ExtractDriver(fileName))
                 {
-                    string installError;
-                    if (driver.Install(fileName, out installError))
+                    if (driver.Install(fileName, out string installError))
                     {
                         driver.Open();
 
@@ -204,8 +203,7 @@ namespace OpenHardwareMonitor.Hardware
                         // wait a short moment to give the OS a chance to remove the driver
                         Thread.Sleep(2000);
 
-                        string errorSecondInstall;
-                        if (driver.Install(fileName, out errorSecondInstall))
+                        if (driver.Install(fileName, out string errorSecondInstall))
                         {
                             driver.Open();
 

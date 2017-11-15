@@ -35,8 +35,7 @@ namespace OpenHardwareMonitor
 
         public string GetValue(string name, string value)
         {
-            string result;
-            if (settings.TryGetValue(name, out result))
+            if (settings.TryGetValue(name, out string result))
                 return result;
             return value;
         }
@@ -167,11 +166,9 @@ namespace OpenHardwareMonitor
 
         public int GetValue(string name, int value)
         {
-            string str;
-            if (settings.TryGetValue(name, out str))
+            if (settings.TryGetValue(name, out string str))
             {
-                int parsedValue;
-                if (int.TryParse(str, out parsedValue))
+                if (int.TryParse(str, out int parsedValue))
                     return parsedValue;
                 return value;
             }
@@ -185,12 +182,10 @@ namespace OpenHardwareMonitor
 
         public float GetValue(string name, float value)
         {
-            string str;
-            if (settings.TryGetValue(name, out str))
+            if (settings.TryGetValue(name, out string str))
             {
-                float parsedValue;
                 if (float.TryParse(str, NumberStyles.Float,
-                    CultureInfo.InvariantCulture, out parsedValue))
+                    CultureInfo.InvariantCulture, out float parsedValue))
                     return parsedValue;
                 return value;
             }
@@ -204,8 +199,7 @@ namespace OpenHardwareMonitor
 
         public bool GetValue(string name, bool value)
         {
-            string str;
-            if (settings.TryGetValue(name, out str)) return str == "true";
+            if (settings.TryGetValue(name, out string str)) return str == "true";
             return value;
         }
 
@@ -216,12 +210,10 @@ namespace OpenHardwareMonitor
 
         public Color GetValue(string name, Color value)
         {
-            string str;
-            if (settings.TryGetValue(name, out str))
+            if (settings.TryGetValue(name, out string str))
             {
-                int parsedValue;
                 if (int.TryParse(str, NumberStyles.HexNumber,
-                    CultureInfo.InvariantCulture, out parsedValue))
+                    CultureInfo.InvariantCulture, out int parsedValue))
                     return Color.FromArgb(parsedValue);
                 return value;
             }

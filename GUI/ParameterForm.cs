@@ -53,9 +53,8 @@ namespace OpenHardwareMonitor.GUI
         private void dataGridView_CellValidating(object sender,
             DataGridViewCellValidatingEventArgs e)
         {
-            float value;
             if (e.ColumnIndex == 2 &&
-                !float.TryParse(e.FormattedValue.ToString(), out value))
+                !float.TryParse(e.FormattedValue.ToString(), out float value))
             {
                 dataGridView.Rows[e.RowIndex].Cells[0].ErrorText =
                     "Invalid value";

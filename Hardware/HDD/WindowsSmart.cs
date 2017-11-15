@@ -37,28 +37,24 @@ namespace OpenHardwareMonitor.Hardware.HDD
         public bool EnableSmart(IntPtr handle, int driveNumber)
         {
             var parameter = new DriveCommandParameter();
-            DriveCommandResult result;
-            uint bytesReturned;
 
-            parameter.DriveNumber = (byte) driveNumber;
+            parameter.DriveNumber = (byte)driveNumber;
             parameter.Registers.Features = RegisterFeature.SmartEnableOperations;
             parameter.Registers.LBAMid = SMART_LBA_MID;
             parameter.Registers.LBAHigh = SMART_LBA_HI;
             parameter.Registers.Command = RegisterCommand.SmartCmd;
 
             return NativeMethods.DeviceIoControl(handle, DriveCommand.SendDriveCommand,
-                ref parameter, Marshal.SizeOf(typeof(DriveCommandParameter)), out result,
-                Marshal.SizeOf(typeof(DriveCommandResult)), out bytesReturned,
+                ref parameter, Marshal.SizeOf(typeof(DriveCommandParameter)), out DriveCommandResult result,
+                Marshal.SizeOf(typeof(DriveCommandResult)), out uint bytesReturned,
                 IntPtr.Zero);
         }
 
         public DriveAttributeValue[] ReadSmartData(IntPtr handle, int driveNumber)
         {
             var parameter = new DriveCommandParameter();
-            DriveSmartReadDataResult result;
-            uint bytesReturned;
 
-            parameter.DriveNumber = (byte) driveNumber;
+            parameter.DriveNumber = (byte)driveNumber;
             parameter.Registers.Features = RegisterFeature.SmartReadData;
             parameter.Registers.LBAMid = SMART_LBA_MID;
             parameter.Registers.LBAHigh = SMART_LBA_HI;
@@ -66,8 +62,8 @@ namespace OpenHardwareMonitor.Hardware.HDD
 
             var isValid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),
-                out result, Marshal.SizeOf(typeof(DriveSmartReadDataResult)),
-                out bytesReturned, IntPtr.Zero);
+                out DriveSmartReadDataResult result, Marshal.SizeOf(typeof(DriveSmartReadDataResult)),
+                out uint bytesReturned, IntPtr.Zero);
 
             return isValid ? result.Attributes : new DriveAttributeValue[0];
         }
@@ -76,10 +72,8 @@ namespace OpenHardwareMonitor.Hardware.HDD
             int driveNumber)
         {
             var parameter = new DriveCommandParameter();
-            DriveSmartReadThresholdsResult result;
-            uint bytesReturned = 0;
 
-            parameter.DriveNumber = (byte) driveNumber;
+            parameter.DriveNumber = (byte)driveNumber;
             parameter.Registers.Features = RegisterFeature.SmartReadThresholds;
             parameter.Registers.LBAMid = SMART_LBA_MID;
             parameter.Registers.LBAHigh = SMART_LBA_HI;
@@ -87,8 +81,8 @@ namespace OpenHardwareMonitor.Hardware.HDD
 
             var isValid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),
-                out result, Marshal.SizeOf(typeof(DriveSmartReadThresholdsResult)),
-                out bytesReturned, IntPtr.Zero);
+                out DriveSmartReadThresholdsResult result, Marshal.SizeOf(typeof(DriveSmartReadThresholdsResult)),
+                out uint bytesReturned, IntPtr.Zero);
 
             return isValid ? result.Thresholds : new DriveThresholdValue[0];
         }
@@ -97,16 +91,14 @@ namespace OpenHardwareMonitor.Hardware.HDD
             out string name, out string firmwareRevision)
         {
             var parameter = new DriveCommandParameter();
-            DriveIdentifyResult result;
-            uint bytesReturned;
 
-            parameter.DriveNumber = (byte) driveNumber;
+            parameter.DriveNumber = (byte)driveNumber;
             parameter.Registers.Command = RegisterCommand.IdCmd;
 
             var valid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),
-                out result, Marshal.SizeOf(typeof(DriveIdentifyResult)),
-                out bytesReturned, IntPtr.Zero);
+                out DriveIdentifyResult result, Marshal.SizeOf(typeof(DriveIdentifyResult)),
+                out uint bytesReturned, IntPtr.Zero);
 
             if (!valid)
             {

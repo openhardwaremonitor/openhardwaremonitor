@@ -23,9 +23,8 @@ namespace OpenHardwareMonitor.Hardware
 
             try
             {
-                bool wow64Process;
                 var result = IsWow64Process(
-                    Process.GetCurrentProcess().Handle, out wow64Process);
+                    Process.GetCurrentProcess().Handle, out bool wow64Process);
 
                 return result && wow64Process;
             }

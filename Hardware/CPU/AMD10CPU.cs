@@ -140,17 +140,11 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
             // set affinity to the first thread for all frequency estimations     
             var mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
-
-            // disable core performance boost  
-            uint hwcrEax, hwcrEdx;
-            Ring0.Rdmsr(HWCR, out hwcrEax, out hwcrEdx);
+            Ring0.Rdmsr(HWCR, out uint hwcrEax, out uint hwcrEdx);
             if (corePerformanceBoostSupport)
                 Ring0.Wrmsr(HWCR, hwcrEax | (1 << 25), hwcrEdx);
-
-            uint ctlEax, ctlEdx;
-            Ring0.Rdmsr(PERF_CTL_0, out ctlEax, out ctlEdx);
-            uint ctrEax, ctrEdx;
-            Ring0.Rdmsr(PERF_CTR_0, out ctrEax, out ctrEdx);
+            Ring0.Rdmsr(PERF_CTL_0, out uint ctlEax, out uint ctlEdx);
+            Ring0.Rdmsr(PERF_CTR_0, out uint ctrEax, out uint ctrEdx);
 
             timeStampCounterMultiplier = estimateTimeStampCounterMultiplier();
 
@@ -213,7 +207,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         private double estimateTimeStampCounterMultiplier(double timeWindow)
         {
-            uint eax, edx;
 
             // select event "076h CPU Clocks not Halted" and enable the counter
             Ring0.Wrmsr(PERF_CTL_0,
@@ -226,21 +219,19 @@ namespace OpenHardwareMonitor.Hardware.CPU
             Ring0.Wrmsr(PERF_CTR_0, 0, 0);
 
             var ticks = (long) (timeWindow * Stopwatch.Frequency);
-            uint lsbBegin, msbBegin, lsbEnd, msbEnd;
-
             var timeBegin = Stopwatch.GetTimestamp() +
                             (long) Math.Ceiling(0.001 * ticks);
             var timeEnd = timeBegin + ticks;
             while (Stopwatch.GetTimestamp() < timeBegin)
             {
             }
-            Ring0.Rdmsr(PERF_CTR_0, out lsbBegin, out msbBegin);
+            Ring0.Rdmsr(PERF_CTR_0, out uint lsbBegin, out uint msbBegin);
 
             while (Stopwatch.GetTimestamp() < timeEnd)
             {
             }
-            Ring0.Rdmsr(PERF_CTR_0, out lsbEnd, out msbEnd);
-            Ring0.Rdmsr(COFVID_STATUS, out eax, out edx);
+            Ring0.Rdmsr(PERF_CTR_0, out uint lsbEnd, out uint msbEnd);
+            Ring0.Rdmsr(COFVID_STATUS, out uint eax, out uint edx);
             var coreMultiplier = GetCoreMultiplier(eax);
 
             var countBegin = ((ulong) msbBegin << 32) | lsbBegin;
@@ -277,9 +268,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 CultureInfo.InvariantCulture));
             if (family == 0x14)
             {
-                uint value = 0;
                 Ring0.ReadPciConfig(miscellaneousControlAddress,
-                    CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
+                    CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out uint value);
                 r.Append("PCI Register D18F3xD4: ");
                 r.AppendLine(value.ToString("X8", CultureInfo.InvariantCulture));
             }
@@ -351,10 +341,9 @@ namespace OpenHardwareMonitor.Hardware.CPU
                     // 3:0: current CPU core divisor ID least significant digit
                     var divisorIdMSD = (cofvidEax >> 4) & 0x1F;
                     var divisorIdLSD = cofvidEax & 0xF;
-                    uint value = 0;
-                    Ring0.ReadPciConfig(miscellaneousControlAddress,
-                        CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out value);
-                    var frequencyId = value & 0x1F;
+                        Ring0.ReadPciConfig(miscellaneousControlAddress,
+                            CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out uint value);
+                        var frequencyId = value & 0x1F;
                     return (frequencyId + 0x10) /
                            (divisorIdMSD + divisorIdLSD * 0.25 + 1);
                 }
@@ -390,9 +379,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
             {
                 if (miscellaneousControlAddress != Ring0.InvalidPciAddress)
                 {
-                    uint value;
                     if (Ring0.ReadPciConfig(miscellaneousControlAddress,
-                        REPORTED_TEMPERATURE_CONTROL_REGISTER, out value))
+                        REPORTED_TEMPERATURE_CONTROL_REGISTER, out uint value))
                     {
                         if (family == 0x15 && (value & 0x30000) == 0x30000)
                             if ((model & 0xF0) == 0x00)
@@ -438,9 +426,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 for (var i = 0; i < coreClocks.Length; i++)
                 {
                     Thread.Sleep(1);
-
-                    uint curEax, curEdx;
-                    if (Ring0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
+                    if (Ring0.RdmsrTx(COFVID_STATUS, out uint curEax, out uint curEdx,
                         1UL << cpuid[i][0].Thread))
                     {
                         double multiplier;

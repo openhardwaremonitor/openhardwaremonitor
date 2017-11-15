@@ -39,18 +39,19 @@ namespace OpenHardwareMonitor.Hardware {
       {
         softwareValue = 0;
       }
-      int mode;
-      if (!int.TryParse(settings.GetValue(
-          new Identifier(identifier, "mode").ToString(),
-          ((int)ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
-        NumberStyles.Integer, CultureInfo.InvariantCulture,
-        out mode)) 
-      {
-        this.mode = ControlMode.Undefined;
-      } else {
-        this.mode = (ControlMode)mode;
-      }
-    }
+            if (!int.TryParse(settings.GetValue(
+                new Identifier(identifier, "mode").ToString(),
+                ((int)ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
+              NumberStyles.Integer, CultureInfo.InvariantCulture,
+              out int mode))
+            {
+                this.mode = ControlMode.Undefined;
+            }
+            else
+            {
+                this.mode = (ControlMode)mode;
+            }
+        }
 
     public Identifier Identifier {
       get {

@@ -363,8 +363,7 @@ namespace OpenHardwareMonitor.GUI
                     hardware = hardware.Parent;
 
                 // get the sensor list associated with the hardware
-                IList<ISensor> list;
-                if (!sensors.TryGetValue(hardware, out list))
+                if (!sensors.TryGetValue(hardware, out IList<ISensor> list))
                 {
                     list = new List<ISensor>();
                     sensors.Add(hardware, list);
