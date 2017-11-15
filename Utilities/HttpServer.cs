@@ -274,7 +274,7 @@ namespace OpenHardwareMonitor.Utilities
             foreach (var child in n.Nodes)
                 JSON += GenerateJSON(child) + ", ";
             if (JSON.EndsWith(", "))
-                JSON = JSON.Remove(JSON.LastIndexOf(","));
+                JSON = JSON.Remove(JSON.LastIndexOf(",", StringComparison.Ordinal));
             JSON += "]";
 
             if (n is SensorNode)
