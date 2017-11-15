@@ -177,31 +177,27 @@ namespace OpenHardwareMonitor.GUI
             switch (Sensor.SensorType)
             {
                 case SensorType.Voltage:
-                    return string.Format("{0:F1}", Sensor.Value);
+                    return $"{Sensor.Value:F1}";
                 case SensorType.Clock:
-                    return string.Format("{0:F1}", 1e-3f * Sensor.Value);
+                    return $"{1e-3f * Sensor.Value:F1}";
                 case SensorType.Load:
-                    return string.Format("{0:F0}", Sensor.Value);
+                    return $"{Sensor.Value:F0}";
                 case SensorType.Temperature:
-                    if (unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit)
-                        return string.Format("{0:F0}",
-                            UnitManager.CelsiusToFahrenheit(Sensor.Value));
-                    else
-                        return string.Format("{0:F0}", Sensor.Value);
+                    return unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit ? $"{UnitManager.CelsiusToFahrenheit(Sensor.Value):F0}" : $"{Sensor.Value:F0}";
                 case SensorType.Fan:
-                    return string.Format("{0:F1}", 1e-3f * Sensor.Value);
+                    return $"{1e-3f * Sensor.Value:F1}";
                 case SensorType.Flow:
-                    return string.Format("{0:F1}", 1e-3f * Sensor.Value);
+                    return $"{1e-3f * Sensor.Value:F1}";
                 case SensorType.Control:
-                    return string.Format("{0:F0}", Sensor.Value);
+                    return $"{Sensor.Value:F0}";
                 case SensorType.Level:
-                    return string.Format("{0:F0}", Sensor.Value);
+                    return $"{Sensor.Value:F0}";
                 case SensorType.Power:
-                    return string.Format("{0:F0}", Sensor.Value);
+                    return $"{Sensor.Value:F0}";
                 case SensorType.Data:
-                    return string.Format("{0:F0}", Sensor.Value);
+                    return $"{Sensor.Value:F0}";
                 case SensorType.Factor:
-                    return string.Format("{0:F1}", Sensor.Value);
+                    return $"{Sensor.Value:F1}";
             }
             return "-";
         }
