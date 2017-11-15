@@ -8,58 +8,52 @@
 	
 */
 
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Reflection;
 
-namespace OpenHardwareMonitor.Utilities {
-  public class EmbeddedResources {
+namespace OpenHardwareMonitor.Utilities
+{
+    public class EmbeddedResources
+    {
+        public static Image GetImage(string name)
+        {
+            name = "OpenHardwareMonitor.Resources." + name;
 
-    public static Image GetImage(string name) {
-      name = "OpenHardwareMonitor.Resources." + name;
+            var names =
+                Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            for (var i = 0; i < names.Length; i++)
+                if (names[i].Replace('\\', '.') == name)
+                    using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(names[i]))
+                    {
+                        // "You must keep the stream open for the lifetime of the Image."
+                        var image = Image.FromStream(stream);
 
-      string[] names = 
-        Assembly.GetExecutingAssembly().GetManifestResourceNames();
-      for (int i = 0; i < names.Length; i++) {
-        if (names[i].Replace('\\', '.') == name) {
-          using (Stream stream = Assembly.GetExecutingAssembly().
-            GetManifestResourceStream(names[i])) {
+                        // so we just create a copy of the image 
+                        var bitmap = new Bitmap(image);
 
-            // "You must keep the stream open for the lifetime of the Image."
-            Image image = Image.FromStream(stream);
+                        // and dispose it right here
+                        image.Dispose();
 
-            // so we just create a copy of the image 
-            Bitmap bitmap = new Bitmap(image);
+                        return bitmap;
+                    }
 
-            // and dispose it right here
-            image.Dispose();
-
-            return bitmap;
-          }
+            return new Bitmap(1, 1);
         }
-      } 
 
-      return new Bitmap(1, 1);    
+        public static Icon GetIcon(string name)
+        {
+            name = "OpenHardwareMonitor.Resources." + name;
+
+            var names =
+                Assembly.GetExecutingAssembly().GetManifestResourceNames();
+            for (var i = 0; i < names.Length; i++)
+                if (names[i].Replace('\\', '.') == name)
+                    using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(names[i]))
+                    {
+                        return new Icon(stream);
+                    }
+
+            return null;
+        }
     }
-
-    public static Icon GetIcon(string name) {
-      name = "OpenHardwareMonitor.Resources." + name;
-
-      string[] names =
-        Assembly.GetExecutingAssembly().GetManifestResourceNames();
-      for (int i = 0; i < names.Length; i++) {
-        if (names[i].Replace('\\', '.') == name) {
-          using (Stream stream = Assembly.GetExecutingAssembly().
-            GetManifestResourceStream(names[i])) {
-            return new Icon(stream);
-          }
-        }          
-      } 
-
-      return null;
-    }
-         
-  }
 }

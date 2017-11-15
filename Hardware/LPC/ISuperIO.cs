@@ -8,26 +8,29 @@
 	
 */
 
-namespace OpenHardwareMonitor.Hardware.LPC {
-  internal interface ISuperIO {
+namespace OpenHardwareMonitor.Hardware.LPC
+{
+    internal interface ISuperIO
+    {
+        Chip Chip { get; }
 
-    Chip Chip { get; }
+        // get voltage, temperature, fan and control channel values
+        float?[] Voltages { get; }
 
-    // get voltage, temperature, fan and control channel values
-    float?[] Voltages { get; }
-    float?[] Temperatures { get; }
-    float?[] Fans { get; }
-    float?[] Controls { get; }
+        float?[] Temperatures { get; }
+        float?[] Fans { get; }
+        float?[] Controls { get; }
 
-    // set control value, null = auto    
-    void SetControl(int index, byte? value);         
+        // set control value, null = auto    
+        void SetControl(int index, byte? value);
 
-    // read and write GPIO
-    byte? ReadGPIO(int index);
-    void WriteGPIO(int index, byte value);
+        // read and write GPIO
+        byte? ReadGPIO(int index);
 
-    string GetReport();
+        void WriteGPIO(int index, byte value);
 
-    void Update();
-  }
+        string GetReport();
+
+        void Update();
+    }
 }

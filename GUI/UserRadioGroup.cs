@@ -9,62 +9,61 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using OpenHardwareMonitor.Utilities;
 
-namespace OpenHardwareMonitor.GUI {
-  public class UserRadioGroup {
-    private string name;
-    private int value;
-    private MenuItem[] menuItems;
-    private event EventHandler changed;
-    private PersistentSettings settings;
+namespace OpenHardwareMonitor.GUI
+{
+    public class UserRadioGroup
+    {
+        private readonly MenuItem[] menuItems;
+        private readonly string name;
+        private readonly PersistentSettings settings;
+        private int value;
 
-    public UserRadioGroup(string name, int value,
-      MenuItem[] menuItems, PersistentSettings settings) {
-      this.settings = settings;
-      this.name = name;
-      if (name != null)
-        this.value = settings.GetValue(name, value);
-      else
-        this.value = value;
-      this.menuItems = menuItems;
-      this.value = Math.Max(Math.Min(this.value, menuItems.Length - 1), 0);
+        public UserRadioGroup(string name, int value,
+            MenuItem[] menuItems, PersistentSettings settings)
+        {
+            this.settings = settings;
+            this.name = name;
+            this.value = name != null ? settings.GetValue(name, value) : value;
+            this.menuItems = menuItems;
+            this.value = Math.Max(Math.Min(this.value, menuItems.Length - 1), 0);
 
-      for (int i = 0; i < this.menuItems.Length; i++) {
-        this.menuItems[i].Checked = i == this.value;
-        int index = i;
-        this.menuItems[i].Click += delegate(object sender, EventArgs e) {
-          this.Value = index;
-        };
-      }      
-    }
-
-    public int Value {
-      get { return value; }
-      set {
-        if (this.value != value) {
-          this.value = value;
-          if (this.name != null)
-            settings.SetValue(name, value);
-          for (int i = 0; i < this.menuItems.Length; i++) 
-            this.menuItems[i].Checked = i == value;
-          if (changed != null)
-            changed(this, null);
+            for (var i = 0; i < this.menuItems.Length; i++)
+            {
+                this.menuItems[i].Checked = i == this.value;
+                var index = i;
+                this.menuItems[i].Click += delegate { Value = index; };
+            }
         }
-      }
-    }
 
-    public event EventHandler Changed {
-      add {
-        changed += value;
-        if (changed != null)
-          changed(this, null);
-      }
-      remove {
-        changed -= value;
-      }
+        public int Value
+        {
+            get => value;
+            set
+            {
+                if (this.value != value)
+                {
+                    this.value = value;
+                    if (name != null)
+                        settings.SetValue(name, value);
+                    for (var i = 0; i < menuItems.Length; i++)
+                        menuItems[i].Checked = i == value;
+                    changed?.Invoke(this, null);
+                }
+            }
+        }
+
+        private event EventHandler changed;
+
+        public event EventHandler Changed
+        {
+            add
+            {
+                changed += value;
+                changed?.Invoke(this, null);
+            }
+            remove => changed -= value;
+        }
     }
-  }
 }

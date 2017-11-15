@@ -8,13 +8,16 @@
 	
 */
 
-namespace OpenHardwareMonitor.WMI {
-  interface IWmiObject {
-    // Both of these get exposed to WMI
-    string Name { get; }
-    string Identifier { get; }
+namespace OpenHardwareMonitor.WMI
+{
+    internal interface IWmiObject
+    {
+        // Both of these get exposed to WMI
+        string Name { get; }
 
-    // Not exposed.
-    void Update();
-  }
+        string Identifier { get; }
+
+        // Not exposed.
+        void Update();
+    }
 }

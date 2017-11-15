@@ -9,18 +9,17 @@
 */
 
 using System;
-using System.Collections.Generic;
 
-namespace OpenHardwareMonitor.Hardware.HDD {
+namespace OpenHardwareMonitor.Hardware.HDD
+{
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    internal class NamePrefixAttribute : Attribute
+    {
+        public NamePrefixAttribute(string namePrefix)
+        {
+            Prefix = namePrefix;
+        }
 
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-  internal class NamePrefixAttribute : Attribute {
-
-    public NamePrefixAttribute(string namePrefix) {
-      Prefix = namePrefix;
+        public string Prefix { get; }
     }
-
-    public string Prefix { get; private set; }
-
-  }
 }

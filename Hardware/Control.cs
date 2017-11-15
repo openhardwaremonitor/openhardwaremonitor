@@ -8,109 +8,90 @@
 	
 */
 
-using System;
 using System.Globalization;
 
-namespace OpenHardwareMonitor.Hardware {
+namespace OpenHardwareMonitor.Hardware
+{
+    internal delegate void ControlEventHandler(Control control);
 
-  internal delegate void ControlEventHandler(Control control);
-
-  internal class Control : IControl {
-
-    private readonly Identifier identifier;
-    private readonly ISettings settings;
-    private ControlMode mode;
-    private float softwareValue;
-    private float minSoftwareValue;
-    private float maxSoftwareValue;
-
-    public Control(ISensor sensor, ISettings settings, float minSoftwareValue,
-      float maxSoftwareValue) 
+    internal class Control : IControl
     {
-      this.identifier = new Identifier(sensor.Identifier, "control");
-      this.settings = settings;
-      this.minSoftwareValue = minSoftwareValue;
-      this.maxSoftwareValue = maxSoftwareValue;
+        private readonly ISettings settings;
+        private ControlMode mode;
+        private float softwareValue;
 
-      if (!float.TryParse(settings.GetValue(
-          new Identifier(identifier, "value").ToString(), "0"),
-        NumberStyles.Float, CultureInfo.InvariantCulture,
-        out this.softwareValue)) 
-      {
-        this.softwareValue = 0;
-      }
-      int mode;
-      if (!int.TryParse(settings.GetValue(
-          new Identifier(identifier, "mode").ToString(),
-          ((int)ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
-        NumberStyles.Integer, CultureInfo.InvariantCulture,
-        out mode)) 
-      {
-        this.mode = ControlMode.Undefined;
-      } else {
-        this.mode = (ControlMode)mode;
-      }
-    }
+        public Control(ISensor sensor, ISettings settings, float minSoftwareValue,
+            float maxSoftwareValue)
+        {
+            Identifier = new Identifier(sensor.Identifier, "control");
+            this.settings = settings;
+            MinSoftwareValue = minSoftwareValue;
+            MaxSoftwareValue = maxSoftwareValue;
 
-    public Identifier Identifier {
-      get {
-        return identifier;
-      }
-    }
-
-    public ControlMode ControlMode {
-      get {
-        return mode;
-      }
-      private set {
-        if (mode != value) {
-          mode = value;
-          if (ControlModeChanged != null)
-            ControlModeChanged(this);
-          this.settings.SetValue(new Identifier(identifier, "mode").ToString(),
-            ((int)mode).ToString(CultureInfo.InvariantCulture));
+            if (!float.TryParse(settings.GetValue(
+                    new Identifier(Identifier, "value").ToString(), "0"),
+                NumberStyles.Float, CultureInfo.InvariantCulture,
+                out softwareValue))
+                softwareValue = 0;
+            if (!int.TryParse(settings.GetValue(
+                    new Identifier(Identifier, "mode").ToString(),
+                    ((int) ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
+                NumberStyles.Integer, CultureInfo.InvariantCulture,
+                out int mode))
+                this.mode = ControlMode.Undefined;
+            else
+                this.mode = (ControlMode) mode;
         }
-      }
-    }
 
-    public float SoftwareValue {
-      get {
-        return softwareValue;
-      }
-      private set {
-        if (softwareValue != value) {
-          softwareValue = value;
-          if (SoftwareControlValueChanged != null)
-            SoftwareControlValueChanged(this);
-          this.settings.SetValue(new Identifier(identifier,
-            "value").ToString(),
-            value.ToString(CultureInfo.InvariantCulture));
+        public Identifier Identifier { get; }
+
+        public ControlMode ControlMode
+        {
+            get => mode;
+            private set
+            {
+                if (mode != value)
+                {
+                    mode = value;
+                    ControlModeChanged?.Invoke(this);
+                    settings.SetValue(new Identifier(Identifier, "mode").ToString(),
+                        ((int) mode).ToString(CultureInfo.InvariantCulture));
+                }
+            }
         }
-      }
-    }
 
-    public void SetDefault() {
-      ControlMode = ControlMode.Default;
-    }
+        public float SoftwareValue
+        {
+            get => softwareValue;
+            private set
+            {
+                if (softwareValue != value)
+                {
+                    softwareValue = value;
+                    SoftwareControlValueChanged?.Invoke(this);
+                    settings.SetValue(new Identifier(Identifier,
+                            "value").ToString(),
+                        value.ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
 
-    public float MinSoftwareValue {
-      get {
-        return minSoftwareValue;
-      }
-    }
+        public void SetDefault()
+        {
+            ControlMode = ControlMode.Default;
+        }
 
-    public float MaxSoftwareValue {
-      get {
-        return maxSoftwareValue;
-      }
-    }
+        public float MinSoftwareValue { get; }
 
-    public void SetSoftware(float value) {
-      ControlMode = ControlMode.Software;
-      SoftwareValue = value;
-    }
+        public float MaxSoftwareValue { get; }
 
-    internal event ControlEventHandler ControlModeChanged;
-    internal event ControlEventHandler SoftwareControlValueChanged;
-  }
+        public void SetSoftware(float value)
+        {
+            ControlMode = ControlMode.Software;
+            SoftwareValue = value;
+        }
+
+        internal event ControlEventHandler ControlModeChanged;
+        internal event ControlEventHandler SoftwareControlValueChanged;
+    }
 }
