@@ -147,7 +147,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
         private void EstimateTimeStampCounterFrequency(out double frequency,
             out double error)
         {
-
             // preload the function
             EstimateTimeStampCounterFrequency(0, out double f, out double e);
             EstimateTimeStampCounterFrequency(0, out f, out e);

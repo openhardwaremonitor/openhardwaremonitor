@@ -176,7 +176,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
 
         public static FT_STATUS Write(FT_HANDLE handle, byte[] buffer)
         {
-            var status = FT_Write(handle, buffer, (uint)buffer.Length,
+            var status = FT_Write(handle, buffer, (uint) buffer.Length,
                 out uint bytesWritten);
             if (bytesWritten != buffer.Length)
                 return FT_STATUS.FT_FAILED_TO_WRITE_DEVICE;
@@ -186,7 +186,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
         public static int BytesToRead(FT_HANDLE handle)
         {
             if (FT_GetStatus(handle, out uint amountInRxQueue, out uint amountInTxQueue,
-                    out uint eventStatus) == FT_STATUS.FT_OK) return (int)amountInRxQueue;
+                    out uint eventStatus) == FT_STATUS.FT_OK) return (int) amountInRxQueue;
             return 0;
         }
 
@@ -201,7 +201,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
         public static void Read(FT_HANDLE handle, byte[] buffer)
         {
             var status =
-                FT_Read(handle, buffer, (uint)buffer.Length, out uint bytesReturned);
+                FT_Read(handle, buffer, (uint) buffer.Length, out uint bytesReturned);
             if (status != FT_STATUS.FT_OK || bytesReturned != buffer.Length)
                 throw new InvalidOperationException();
         }

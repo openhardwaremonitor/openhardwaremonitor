@@ -47,13 +47,13 @@ namespace OpenHardwareMonitor.Hardware.LPC
         private readonly ushort gpioAddress;
         private readonly int gpioCount;
         private readonly bool has16bitFanCounter;
-        private readonly byte version;
-
-        private readonly float voltageGain;
 
         private readonly byte[] initialFanPwmControl = new byte[3];
 
         private readonly bool[] restoreDefaultFanPwmControlRequired = new bool[3];
+        private readonly byte version;
+
+        private readonly float voltageGain;
 
         public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version)
         {
@@ -200,7 +200,7 @@ namespace OpenHardwareMonitor.Hardware.LPC
                 for (var j = 0; j <= 0xF; j++)
                 {
                     r.Append(" ");
-                    var value = ReadByte((byte)((i << 4) | j), out bool valid);
+                    var value = ReadByte((byte) ((i << 4) | j), out bool valid);
                     r.Append(
                         valid ? value.ToString("X2", CultureInfo.InvariantCulture) : "??");
                 }
@@ -231,9 +231,8 @@ namespace OpenHardwareMonitor.Hardware.LPC
 
             for (var i = 0; i < Voltages.Length; i++)
             {
-
                 var value =
-                    voltageGain * ReadByte((byte)(VOLTAGE_BASE_REG + i), out bool valid);
+                    voltageGain * ReadByte((byte) (VOLTAGE_BASE_REG + i), out bool valid);
 
                 if (!valid)
                     continue;
@@ -245,8 +244,8 @@ namespace OpenHardwareMonitor.Hardware.LPC
 
             for (var i = 0; i < Temperatures.Length; i++)
             {
-                var value = (sbyte)ReadByte(
-                    (byte)(TEMPERATURE_BASE_REG + i), out bool valid);
+                var value = (sbyte) ReadByte(
+                    (byte) (TEMPERATURE_BASE_REG + i), out bool valid);
                 if (!valid)
                     continue;
 

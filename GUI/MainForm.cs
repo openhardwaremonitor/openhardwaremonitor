@@ -524,7 +524,6 @@ namespace OpenHardwareMonitor.GUI
         {
             var node = e.Node.Tag as Node;
             if (node != null)
-            {
                 if (node.IsVisible)
                 {
                     var sensorNode = node as SensorNode;
@@ -536,7 +535,6 @@ namespace OpenHardwareMonitor.GUI
                 {
                     e.TextColor = Color.DarkGray;
                 }
-            }
         }
 
         private void PlotSelectionChanged(object sender, EventArgs e)

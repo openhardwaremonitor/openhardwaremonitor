@@ -207,7 +207,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         private double estimateTimeStampCounterMultiplier(double timeWindow)
         {
-
             // select event "076h CPU Clocks not Halted" and enable the counter
             Ring0.Wrmsr(PERF_CTL_0,
                 (1 << 22) | // enable performance counter
@@ -341,9 +340,9 @@ namespace OpenHardwareMonitor.Hardware.CPU
                     // 3:0: current CPU core divisor ID least significant digit
                     var divisorIdMSD = (cofvidEax >> 4) & 0x1F;
                     var divisorIdLSD = cofvidEax & 0xF;
-                        Ring0.ReadPciConfig(miscellaneousControlAddress,
-                            CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out uint value);
-                        var frequencyId = value & 0x1F;
+                    Ring0.ReadPciConfig(miscellaneousControlAddress,
+                        CLOCK_POWER_TIMING_CONTROL_0_REGISTER, out uint value);
+                    var frequencyId = value & 0x1F;
                     return (frequencyId + 0x10) /
                            (divisorIdMSD + divisorIdLSD * 0.25 + 1);
                 }
@@ -378,7 +377,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
             if (temperatureStream == null)
             {
                 if (miscellaneousControlAddress != Ring0.InvalidPciAddress)
-                {
                     if (Ring0.ReadPciConfig(miscellaneousControlAddress,
                         REPORTED_TEMPERATURE_CONTROL_REGISTER, out uint value))
                     {
@@ -402,7 +400,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
                     {
                         DeactivateSensor(coreTemperature);
                     }
-                }
             }
             else
             {

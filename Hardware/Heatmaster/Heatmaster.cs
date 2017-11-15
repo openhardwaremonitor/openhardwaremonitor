@@ -225,7 +225,6 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster
         {
             var match = Regex.Match(line, @">\[0:(\d+)\]([0-9:\|-]+)");
             if (match.Success)
-            {
                 if (int.TryParse(match.Groups[1].Value, out int device))
                     foreach (var s in match.Groups[2].Value.Split('|'))
                     {
@@ -263,7 +262,6 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster
                                 break;
                         }
                     }
-            }
         }
 
         public override void Update()

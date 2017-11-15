@@ -400,12 +400,12 @@ namespace OpenHardwareMonitor.GUI
                 NativeMethods.RegisterWindowMessage("TaskbarCreated");
 
             private readonly MethodInfo commandDispatch;
-            private bool created;
-            private bool doubleClickDown;
-            private Icon icon;
             private readonly int id;
 
             private readonly object syncObj = new object();
+            private bool created;
+            private bool doubleClickDown;
+            private Icon icon;
             private string text = "";
             private bool visible;
             private NotifyIconNativeWindow window;
@@ -660,7 +660,7 @@ namespace OpenHardwareMonitor.GUI
                 }
             }
 
-            private void ProcessMouseDown(MouseButtons button,bool doubleClick)
+            private void ProcessMouseDown(MouseButtons button, bool doubleClick)
             {
                 if (doubleClick)
                 {
@@ -804,9 +804,7 @@ namespace OpenHardwareMonitor.GUI
                     if (locked)
                     {
                         if (!referenceHandle.IsAllocated)
-                        {
                             referenceHandle = GCHandle.Alloc(reference, GCHandleType.Normal);
-                        }
                     }
                     else
                     {

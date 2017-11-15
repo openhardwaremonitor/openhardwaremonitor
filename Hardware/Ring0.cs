@@ -182,7 +182,6 @@ namespace OpenHardwareMonitor.Hardware
 
                 fileName = GetTempFileName();
                 if (fileName != null && ExtractDriver(fileName))
-                {
                     if (driver.Install(fileName, out string installError))
                     {
                         driver.Open();
@@ -223,11 +222,8 @@ namespace OpenHardwareMonitor.Hardware
                             report.AppendLine("Second Exception: " + errorSecondInstall);
                         }
                     }
-                }
                 else
-                {
                     report.AppendLine("Status: Extracting driver failed");
-                }
 
                 try
                 {

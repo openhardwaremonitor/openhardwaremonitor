@@ -35,17 +35,17 @@ namespace OpenHardwareMonitor.Hardware.HDD
             typeof(GenericHarddisk)
         };
 
-        private readonly IntPtr handle;
-        private readonly int index;
-        private readonly ISmart smart;
-        private int count;
-
         private readonly DriveInfo[] driveInfos;
 
         private readonly string firmwareRevision;
-        private IDictionary<SmartAttribute, Sensor> sensors;
+
+        private readonly IntPtr handle;
+        private readonly int index;
+        private readonly ISmart smart;
 
         private readonly IList<SmartAttribute> smartAttributes;
+        private int count;
+        private IDictionary<SmartAttribute, Sensor> sensors;
         private Sensor usageSensor;
 
         protected AbstractHarddrive(ISmart smart, string name,

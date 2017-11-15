@@ -23,10 +23,6 @@ namespace OpenHardwareMonitor.GUI
     public class SensorNotifyIcon : IDisposable
     {
         private readonly Bitmap bitmap;
-        private Brush brush;
-        private Color color;
-        private Brush darkBrush;
-        private Color darkColor;
         private readonly Font font;
         private readonly Graphics graphics;
         private readonly NotifyIconAdv notifyIcon;
@@ -35,8 +31,13 @@ namespace OpenHardwareMonitor.GUI
         private readonly Font smallFont;
 
         private readonly UnitManager unitManager;
+        private Brush brush;
+        private Color color;
+        private Brush darkBrush;
+        private Color darkColor;
 
-        public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor, PersistentSettings settings, UnitManager unitManager)
+        public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor, PersistentSettings settings,
+            UnitManager unitManager)
         {
             this.unitManager = unitManager;
             Sensor = sensor;
@@ -182,7 +183,9 @@ namespace OpenHardwareMonitor.GUI
                 case SensorType.Load:
                     return $"{Sensor.Value:F0}";
                 case SensorType.Temperature:
-                    return unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit ? $"{UnitManager.CelsiusToFahrenheit(Sensor.Value):F0}" : $"{Sensor.Value:F0}";
+                    return unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit
+                        ? $"{UnitManager.CelsiusToFahrenheit(Sensor.Value):F0}"
+                        : $"{Sensor.Value:F0}";
                 case SensorType.Fan:
                     return $"{1e-3f * Sensor.Value:F1}";
                 case SensorType.Flow:

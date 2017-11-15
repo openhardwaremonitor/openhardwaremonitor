@@ -19,8 +19,9 @@ namespace OpenHardwareMonitor.GUI
     {
         public delegate void NodeEventHandler(Node node);
 
-        private Image image;
         private readonly NodeCollection nodes;
+
+        private Image image;
         private Node parent;
 
         private string text;

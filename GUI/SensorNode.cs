@@ -17,11 +17,11 @@ namespace OpenHardwareMonitor.GUI
     public class SensorNode : Node
     {
         private readonly string format;
-        private Color? penColor;
-        private bool plot;
 
         private readonly PersistentSettings settings;
         private readonly UnitManager unitManager;
+        private Color? penColor;
+        private bool plot;
 
         public SensorNode(ISensor sensor, PersistentSettings settings,
             UnitManager unitManager)

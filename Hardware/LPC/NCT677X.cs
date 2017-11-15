@@ -34,12 +34,16 @@ namespace OpenHardwareMonitor.Hardware.LPC
         private readonly ushort[] FAN_PWM_OUT_REG;
 
         private readonly ushort fanRpmBaseRegister;
+        private readonly byte[] initialFanControlMode = new byte[6];
+        private readonly byte[] initialFanPwmCommand = new byte[6];
 
         private readonly bool isNuvotonVendor;
         private readonly LPCPort lpcPort;
         private readonly int minFanRPM;
 
         private readonly ushort port;
+
+        private readonly bool[] restoreDefaultFanControlRequired = new bool[6];
         private readonly byte revision;
         private readonly int[] temperatureHalfBit;
         private readonly ushort[] temperatureHalfRegister;
@@ -58,10 +62,6 @@ namespace OpenHardwareMonitor.Hardware.LPC
         private readonly ushort[] voltageRegisters;
 
         private readonly ushort voltageVBatRegister;
-        private readonly byte[] initialFanControlMode = new byte[6];
-        private readonly byte[] initialFanPwmCommand = new byte[6];
-
-        private readonly bool[] restoreDefaultFanControlRequired = new bool[6];
 
         public NCT677X(Chip chip, byte revision, ushort port, LPCPort lpcPort)
         {

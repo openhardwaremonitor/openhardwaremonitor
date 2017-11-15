@@ -85,8 +85,8 @@ namespace OpenHardwareMonitor.GUI
 
         private class ParameterRow : INotifyPropertyChanged
         {
-            public bool isDefault;
             public readonly IParameter parameter;
+            public bool isDefault;
             private float value;
 
             public ParameterRow(IParameter parameter)

@@ -20,9 +20,9 @@ namespace OpenHardwareMonitor.GUI
     {
         private readonly List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
         private readonly NotifyIconAdv mainIcon;
-        private bool mainIconEnabled;
         private readonly PersistentSettings settings;
         private readonly UnitManager unitManager;
+        private bool mainIconEnabled;
 
         public SystemTray(IComputer computer, PersistentSettings settings,
             UnitManager unitManager)

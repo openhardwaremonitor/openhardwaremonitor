@@ -18,9 +18,8 @@ namespace OpenHardwareMonitor.GUI
 {
     public class TreeModel : ITreeModel
     {
-        private bool forceVisible;
-
         private readonly Node root;
+        private bool forceVisible;
 
         public TreeModel()
         {
@@ -57,9 +56,7 @@ namespace OpenHardwareMonitor.GUI
         public TreePath GetPath(Node node)
         {
             if (node == root)
-            {
                 return TreePath.Empty;
-            }
             var stack = new Stack<object>();
             while (node != root)
             {

@@ -38,6 +38,10 @@ namespace OpenHardwareMonitor.Hardware.CPU
             MSR_PP0_ENERY_STATUS, MSR_PP1_ENERY_STATUS, MSR_DRAM_ENERGY_STATUS
         };
 
+        private readonly float energyUnitMultiplier;
+        private readonly uint[] lastEnergyConsumed;
+        private readonly DateTime[] lastEnergyTime;
+
         private readonly Microarchitecture microarchitecture;
         private readonly Sensor packageTemperature;
 
@@ -46,9 +50,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
 
         private readonly Sensor[] powerSensors;
         private readonly double timeStampCounterMultiplier;
-        private readonly float energyUnitMultiplier;
-        private readonly uint[] lastEnergyConsumed;
-        private readonly DateTime[] lastEnergyTime;
 
         public IntelCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
             : base(processorIndex, cpuid, settings)
@@ -211,7 +212,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 case Microarchitecture.Atom:
                 case Microarchitecture.Core:
                 {
-                        if (Ring0.Rdmsr(IA32_PERF_STATUS, out uint eax, out uint edx))
+                    if (Ring0.Rdmsr(IA32_PERF_STATUS, out uint eax, out uint edx))
                         timeStampCounterMultiplier =
                             ((edx >> 8) & 0x1f) + 0.5 * ((edx >> 14) & 1);
                 }
@@ -226,7 +227,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 case Microarchitecture.Airmont:
                 case Microarchitecture.KabyLake:
                 {
-                        if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out uint eax, out uint edx))
+                    if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out uint eax, out uint edx))
                         timeStampCounterMultiplier = (eax >> 8) & 0xff;
                 }
                     break;
@@ -385,7 +386,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
             base.Update();
 
             for (var i = 0; i < coreTemperatures.Length; i++)
-            {
                 // if reading is valid
                 if (Ring0.RdmsrTx(IA32_THERM_STATUS_MSR, out uint eax, out uint edx,
                         1UL << cpuid[i][0].Thread) && (eax & 0x80000000) != 0)
@@ -400,11 +400,8 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 {
                     coreTemperatures[i].Value = null;
                 }
-            }
 
             if (packageTemperature != null)
-            {
-                // if reading is valid
                 if (Ring0.RdmsrTx(IA32_PACKAGE_THERM_STATUS, out uint eax, out uint edx,
                         1UL << cpuid[0][0].Thread) && (eax & 0x80000000) != 0)
                 {
@@ -418,7 +415,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 {
                     packageTemperature.Value = null;
                 }
-            }
 
             if (HasTimeStampCounter && timeStampCounterMultiplier > 0)
             {

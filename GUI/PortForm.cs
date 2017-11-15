@@ -31,7 +31,6 @@ namespace OpenHardwareMonitor.GUI
                           .AddressList
                           .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)
                           ?.ToString() ?? "?";
-
         }
 
         private void portNumericUpDn_ValueChanged(object sender, EventArgs e)

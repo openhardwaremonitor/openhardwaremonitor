@@ -22,6 +22,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
         private readonly MethodDelegate alternativeRequest;
         private readonly Sensor[] analogTemperatures = new Sensor[4];
         private readonly Sensor[] controls = new Sensor[4];
+        private readonly byte[] data = new byte[285];
         private readonly List<ISensor> deactivating = new List<ISensor>();
         private readonly Sensor[] digitalTemperatures = new Sensor[8];
         private readonly Sensor[] fans = new Sensor[4];
@@ -34,7 +35,6 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
         private readonly Sensor[] sensorhubFlows = new Sensor[2];
         private readonly Sensor[] sensorhubTemperatures = new Sensor[6];
         private byte[] alternativeData = new byte[0];
-        private readonly byte[] data = new byte[285];
 
         private FT_HANDLE handle;
         private byte[] primaryData = new byte[0];

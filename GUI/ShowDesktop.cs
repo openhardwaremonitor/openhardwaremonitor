@@ -25,9 +25,9 @@ namespace OpenHardwareMonitor.GUI
         private readonly string referenceWindowCaption =
             "OpenHardwareMonitorShowDesktopReferenceWindow";
 
-        private bool showDesktop;
-
         private readonly Timer timer;
+
+        private bool showDesktop;
 
         private ShowDesktop()
         {

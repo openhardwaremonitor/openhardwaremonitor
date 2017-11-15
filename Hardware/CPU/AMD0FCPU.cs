@@ -117,7 +117,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
                     if (Ring0.WritePciConfig(
                         miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER,
                         i > 0 ? thermSenseCoreSelCPU1 : thermSenseCoreSelCPU0))
-                    {
                         if (Ring0.ReadPciConfig(
                             miscellaneousControlAddress, THERMTRIP_STATUS_REGISTER,
                             out uint value))
@@ -130,7 +129,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
                         {
                             DeactivateSensor(coreTemperatures[i]);
                         }
-                    }
 
             if (HasTimeStampCounter)
             {

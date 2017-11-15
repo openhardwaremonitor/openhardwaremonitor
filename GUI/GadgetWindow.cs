@@ -54,9 +54,9 @@ namespace OpenHardwareMonitor.GUI
 
         public static readonly IntPtr HWND_BOTTOM = (IntPtr) 1;
         public static readonly IntPtr HWND_TOPMOST = (IntPtr) (-1);
+        private readonly MethodInfo commandDispatch;
         private bool alwaysOnTop;
         private Size bufferSize;
-        private readonly MethodInfo commandDispatch;
         private Graphics graphics;
         private IntPtr handleBitmapDC;
         private Point location = new Point(100, 100);

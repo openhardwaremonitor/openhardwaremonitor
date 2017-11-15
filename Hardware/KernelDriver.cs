@@ -21,9 +21,9 @@ namespace OpenHardwareMonitor.Hardware
             ERROR_SERVICE_EXISTS = unchecked((int) 0x80070431),
             ERROR_SERVICE_ALREADY_RUNNING = unchecked((int) 0x80070420);
 
-        private SafeFileHandle device;
-
         private readonly string id;
+
+        private SafeFileHandle device;
 
         public KernelDriver(string id)
         {
@@ -116,7 +116,7 @@ namespace OpenHardwareMonitor.Hardware
                 return false;
 
             var b = NativeMethods.DeviceIoControl(device, ioControlCode,
-                inBuffer, inBuffer == null ? 0 : (uint)Marshal.SizeOf(inBuffer),
+                inBuffer, inBuffer == null ? 0 : (uint) Marshal.SizeOf(inBuffer),
                 null, 0, out uint bytesReturned, IntPtr.Zero);
             return b;
         }
@@ -129,8 +129,8 @@ namespace OpenHardwareMonitor.Hardware
 
             object boxedOutBuffer = outBuffer;
             var b = NativeMethods.DeviceIoControl(device, ioControlCode,
-                inBuffer, inBuffer == null ? 0 : (uint)Marshal.SizeOf(inBuffer),
-                boxedOutBuffer, (uint)Marshal.SizeOf(boxedOutBuffer),
+                inBuffer, inBuffer == null ? 0 : (uint) Marshal.SizeOf(inBuffer),
+                boxedOutBuffer, (uint) Marshal.SizeOf(boxedOutBuffer),
                 out uint bytesReturned, IntPtr.Zero);
             outBuffer = (T) boxedOutBuffer;
             return b;
