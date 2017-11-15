@@ -29,10 +29,6 @@ namespace OpenHardwareMonitor.GUI
             localIP = getLocalIP();
         }
 
-        private void portTextBox_TextChanged(object sender, EventArgs e)
-        {
-        }
-
         private string getLocalIP()
         {
             IPHostEntry host;
