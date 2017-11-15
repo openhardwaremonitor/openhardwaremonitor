@@ -408,11 +408,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
             out string name)
         {
             var builder = new StringBuilder(SHORT_STRING_MAX);
-            NvStatus status;
-            if (_NvAPI_GPU_GetFullName != null)
-                status = _NvAPI_GPU_GetFullName(gpuHandle, builder);
-            else
-                status = NvStatus.FUNCTION_NOT_FOUND;
+            var status = _NvAPI_GPU_GetFullName?.Invoke(gpuHandle, builder) ?? NvStatus.FUNCTION_NOT_FOUND;
             name = builder.ToString();
             return status;
         }
@@ -420,11 +416,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
         public static NvStatus NvAPI_GetInterfaceVersionString(out string version)
         {
             var builder = new StringBuilder(SHORT_STRING_MAX);
-            NvStatus status;
-            if (_NvAPI_GetInterfaceVersionString != null)
-                status = _NvAPI_GetInterfaceVersionString(builder);
-            else
-                status = NvStatus.FUNCTION_NOT_FOUND;
+            var status = _NvAPI_GetInterfaceVersionString?.Invoke(builder) ?? NvStatus.FUNCTION_NOT_FOUND;
             version = builder.ToString();
             return status;
         }

@@ -25,10 +25,7 @@ namespace OpenHardwareMonitor.GUI
         {
             this.settings = settings;
             this.name = name;
-            if (name != null)
-                this.value = settings.GetValue(name, value);
-            else
-                this.value = value;
+            this.value = name != null ? settings.GetValue(name, value) : value;
             this.menuItem = menuItem;
             this.menuItem.Checked = this.value;
             this.menuItem.Click += menuItem_Click;

@@ -72,10 +72,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard
             get => customName;
             set
             {
-                if (!string.IsNullOrEmpty(value))
-                    customName = value;
-                else
-                    customName = name;
+                customName = !string.IsNullOrEmpty(value) ? value : name;
                 settings.SetValue(new Identifier(Identifier, "name").ToString(),
                     customName);
             }

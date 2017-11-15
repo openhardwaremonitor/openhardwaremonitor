@@ -83,10 +83,7 @@ namespace OpenHardwareMonitor.Hardware
             get => name;
             set
             {
-                if (!string.IsNullOrEmpty(value))
-                    name = value;
-                else
-                    name = defaultName;
+                name = !string.IsNullOrEmpty(value) ? value : defaultName;
                 settings.SetValue(new Identifier(Identifier, "name").ToString(), name);
             }
         }
