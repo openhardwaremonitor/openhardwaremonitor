@@ -27,7 +27,7 @@ namespace OpenHardwareMonitor.Hardware {
     public Control(ISensor sensor, ISettings settings, float minSoftwareValue,
       float maxSoftwareValue) 
     {
-      this.identifier = new Identifier(sensor.Identifier, "control");
+      identifier = new Identifier(sensor.Identifier, "control");
       this.settings = settings;
       this.minSoftwareValue = minSoftwareValue;
       this.maxSoftwareValue = maxSoftwareValue;
@@ -35,9 +35,9 @@ namespace OpenHardwareMonitor.Hardware {
       if (!float.TryParse(settings.GetValue(
           new Identifier(identifier, "value").ToString(), "0"),
         NumberStyles.Float, CultureInfo.InvariantCulture,
-        out this.softwareValue)) 
+        out softwareValue)) 
       {
-        this.softwareValue = 0;
+        softwareValue = 0;
       }
       int mode;
       if (!int.TryParse(settings.GetValue(
@@ -67,7 +67,7 @@ namespace OpenHardwareMonitor.Hardware {
           mode = value;
           if (ControlModeChanged != null)
             ControlModeChanged(this);
-          this.settings.SetValue(new Identifier(identifier, "mode").ToString(),
+          settings.SetValue(new Identifier(identifier, "mode").ToString(),
             ((int)mode).ToString(CultureInfo.InvariantCulture));
         }
       }
@@ -82,7 +82,7 @@ namespace OpenHardwareMonitor.Hardware {
           softwareValue = value;
           if (SoftwareControlValueChanged != null)
             SoftwareControlValueChanged(this);
-          this.settings.SetValue(new Identifier(identifier,
+          settings.SetValue(new Identifier(identifier,
             "value").ToString(),
             value.ToString(CultureInfo.InvariantCulture));
         }
