@@ -408,10 +408,12 @@ namespace OpenHardwareMonitor.Hardware.HDD
                     if (array.Length != 4 && array.Length != 5)
                         throw new Exception();
 
-                    var v = new DriveAttributeValue();
-                    v.Identifier = Convert.ToByte(array[0], idBase);
+                    var v = new DriveAttributeValue
+                    {
+                        Identifier = Convert.ToByte(array[0], idBase),
+                        RawValue = new byte[6]
+                    };
 
-                    v.RawValue = new byte[6];
                     for (var j = 0; j < 6; j++) v.RawValue[j] = Convert.ToByte(array[1].Substring(2 * j, 2), 16);
 
                     v.WorstValue = Convert.ToByte(array[2], 10);
@@ -421,9 +423,11 @@ namespace OpenHardwareMonitor.Hardware.HDD
 
                     if (array.Length == 5)
                     {
-                        var t = new DriveThresholdValue();
-                        t.Identifier = v.Identifier;
-                        t.Threshold = Convert.ToByte(array[4], 10);
+                        var t = new DriveThresholdValue
+                        {
+                            Identifier = v.Identifier,
+                            Threshold = Convert.ToByte(array[4], 10)
+                        };
                         thresholds.Add(t);
                     }
                 }

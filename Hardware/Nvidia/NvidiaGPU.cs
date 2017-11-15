@@ -122,10 +122,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private NvGPUThermalSettings GetThermalSettings()
         {
-            var settings = new NvGPUThermalSettings();
-            settings.Version = NVAPI.GPU_THERMAL_SETTINGS_VER;
-            settings.Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU;
-            settings.Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU];
+            var settings = new NvGPUThermalSettings
+            {
+                Version = NVAPI.GPU_THERMAL_SETTINGS_VER,
+                Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU,
+                Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU]
+            };
             if (!(NVAPI.NvAPI_GPU_GetThermalSettings != null &&
                   NVAPI.NvAPI_GPU_GetThermalSettings(handle, (int) NvThermalTarget.ALL,
                       ref settings) == NvStatus.OK))
@@ -135,9 +137,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private NvGPUCoolerSettings GetCoolerSettings()
         {
-            var settings = new NvGPUCoolerSettings();
-            settings.Version = NVAPI.GPU_COOLER_SETTINGS_VER;
-            settings.Cooler = new NvCooler[NVAPI.MAX_COOLER_PER_GPU];
+            var settings = new NvGPUCoolerSettings
+            {
+                Version = NVAPI.GPU_COOLER_SETTINGS_VER,
+                Cooler = new NvCooler[NVAPI.MAX_COOLER_PER_GPU]
+            };
             if (!(NVAPI.NvAPI_GPU_GetCoolerSettings != null &&
                   NVAPI.NvAPI_GPU_GetCoolerSettings(handle, 0,
                       ref settings) == NvStatus.OK))
@@ -147,9 +151,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private uint[] GetClocks()
         {
-            var allClocks = new NvClocks();
-            allClocks.Version = NVAPI.GPU_CLOCKS_VER;
-            allClocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
+            var allClocks = new NvClocks
+            {
+                Version = NVAPI.GPU_CLOCKS_VER,
+                Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU]
+            };
             if (NVAPI.NvAPI_GPU_GetAllClocks != null &&
                 NVAPI.NvAPI_GPU_GetAllClocks(handle, ref allClocks) == NvStatus.OK) return allClocks.Clock;
             return null;
@@ -183,9 +189,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
                 }
             }
 
-            var states = new NvPStates();
-            states.Version = NVAPI.GPU_PSTATES_VER;
-            states.PStates = new NvPState[NVAPI.MAX_PSTATES_PER_GPU];
+            var states = new NvPStates
+            {
+                Version = NVAPI.GPU_PSTATES_VER,
+                PStates = new NvPState[NVAPI.MAX_PSTATES_PER_GPU]
+            };
             if (NVAPI.NvAPI_GPU_GetPStates != null &&
                 NVAPI.NvAPI_GPU_GetPStates(handle, ref states) == NvStatus.OK)
             {
@@ -198,9 +206,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
             }
             else
             {
-                var usages = new NvUsages();
-                usages.Version = NVAPI.GPU_USAGES_VER;
-                usages.Usage = new uint[NVAPI.MAX_USAGES_PER_GPU];
+                var usages = new NvUsages
+                {
+                    Version = NVAPI.GPU_USAGES_VER,
+                    Usage = new uint[NVAPI.MAX_USAGES_PER_GPU]
+                };
                 if (NVAPI.NvAPI_GPU_GetUsages != null &&
                     NVAPI.NvAPI_GPU_GetUsages(handle, ref usages) == NvStatus.OK)
                 {
@@ -220,9 +230,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
                 ActivateSensor(control);
             }
 
-            var memoryInfo = new NvMemoryInfo();
-            memoryInfo.Version = NVAPI.GPU_MEMORY_INFO_VER;
-            memoryInfo.Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU];
+            var memoryInfo = new NvMemoryInfo
+            {
+                Version = NVAPI.GPU_MEMORY_INFO_VER,
+                Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU]
+            };
             if (NVAPI.NvAPI_GPU_GetMemoryInfo != null && displayHandle.HasValue &&
                 NVAPI.NvAPI_GPU_GetMemoryInfo(displayHandle.Value, ref memoryInfo) ==
                 NvStatus.OK)
@@ -253,8 +265,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (displayHandle.HasValue && NVAPI.NvAPI_GetDisplayDriverVersion != null)
             {
-                var driverVersion = new NvDisplayDriverVersion();
-                driverVersion.Version = NVAPI.DISPLAY_DRIVER_VERSION_VER;
+                var driverVersion = new NvDisplayDriverVersion {Version = NVAPI.DISPLAY_DRIVER_VERSION_VER};
                 if (NVAPI.NvAPI_GetDisplayDriverVersion(displayHandle.Value,
                         ref driverVersion) == NvStatus.OK)
                 {
@@ -291,10 +302,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetThermalSettings != null)
             {
-                var settings = new NvGPUThermalSettings();
-                settings.Version = NVAPI.GPU_THERMAL_SETTINGS_VER;
-                settings.Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU;
-                settings.Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU];
+                var settings = new NvGPUThermalSettings
+                {
+                    Version = NVAPI.GPU_THERMAL_SETTINGS_VER,
+                    Count = NVAPI.MAX_THERMAL_SENSORS_PER_GPU,
+                    Sensor = new NvSensor[NVAPI.MAX_THERMAL_SENSORS_PER_GPU]
+                };
 
                 var status = NVAPI.NvAPI_GPU_GetThermalSettings(handle,
                     (int) NvThermalTarget.ALL, ref settings);
@@ -327,9 +340,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetAllClocks != null)
             {
-                var allClocks = new NvClocks();
-                allClocks.Version = NVAPI.GPU_CLOCKS_VER;
-                allClocks.Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU];
+                var allClocks = new NvClocks
+                {
+                    Version = NVAPI.GPU_CLOCKS_VER,
+                    Clock = new uint[NVAPI.MAX_CLOCKS_PER_GPU]
+                };
                 var status = NVAPI.NvAPI_GPU_GetAllClocks(handle, ref allClocks);
 
                 r.AppendLine("Clocks");
@@ -369,9 +384,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetPStates != null)
             {
-                var states = new NvPStates();
-                states.Version = NVAPI.GPU_PSTATES_VER;
-                states.PStates = new NvPState[NVAPI.MAX_PSTATES_PER_GPU];
+                var states = new NvPStates
+                {
+                    Version = NVAPI.GPU_PSTATES_VER,
+                    PStates = new NvPState[NVAPI.MAX_PSTATES_PER_GPU]
+                };
                 var status = NVAPI.NvAPI_GPU_GetPStates(handle, ref states);
 
                 r.AppendLine("P-States");
@@ -393,9 +410,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetUsages != null)
             {
-                var usages = new NvUsages();
-                usages.Version = NVAPI.GPU_USAGES_VER;
-                usages.Usage = new uint[NVAPI.MAX_USAGES_PER_GPU];
+                var usages = new NvUsages
+                {
+                    Version = NVAPI.GPU_USAGES_VER,
+                    Usage = new uint[NVAPI.MAX_USAGES_PER_GPU]
+                };
                 var status = NVAPI.NvAPI_GPU_GetUsages(handle, ref usages);
 
                 r.AppendLine("Usages");
@@ -417,9 +436,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetCoolerSettings != null)
             {
-                var settings = new NvGPUCoolerSettings();
-                settings.Version = NVAPI.GPU_COOLER_SETTINGS_VER;
-                settings.Cooler = new NvCooler[NVAPI.MAX_COOLER_PER_GPU];
+                var settings = new NvGPUCoolerSettings
+                {
+                    Version = NVAPI.GPU_COOLER_SETTINGS_VER,
+                    Cooler = new NvCooler[NVAPI.MAX_COOLER_PER_GPU]
+                };
                 var status =
                     NVAPI.NvAPI_GPU_GetCoolerSettings(handle, 0, ref settings);
 
@@ -465,9 +486,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
             if (NVAPI.NvAPI_GPU_GetMemoryInfo != null && displayHandle.HasValue)
             {
-                var memoryInfo = new NvMemoryInfo();
-                memoryInfo.Version = NVAPI.GPU_MEMORY_INFO_VER;
-                memoryInfo.Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU];
+                var memoryInfo = new NvMemoryInfo
+                {
+                    Version = NVAPI.GPU_MEMORY_INFO_VER,
+                    Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU]
+                };
                 var status = NVAPI.NvAPI_GPU_GetMemoryInfo(displayHandle.Value,
                     ref memoryInfo);
 
@@ -492,9 +515,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private void SoftwareControlValueChanged(IControl control)
         {
-            var coolerLevels = new NvGPUCoolerLevels();
-            coolerLevels.Version = NVAPI.GPU_COOLER_LEVELS_VER;
-            coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
+            var coolerLevels = new NvGPUCoolerLevels
+            {
+                Version = NVAPI.GPU_COOLER_LEVELS_VER,
+                Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU]
+            };
             coolerLevels.Levels[0].Level = (int) control.SoftwareValue;
             coolerLevels.Levels[0].Policy = 1;
             NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
@@ -519,9 +544,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         private void SetDefaultFanSpeed()
         {
-            var coolerLevels = new NvGPUCoolerLevels();
-            coolerLevels.Version = NVAPI.GPU_COOLER_LEVELS_VER;
-            coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
+            var coolerLevels = new NvGPUCoolerLevels
+            {
+                Version = NVAPI.GPU_COOLER_LEVELS_VER,
+                Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU]
+            };
             coolerLevels.Levels[0].Policy = 0x20;
             NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
         }

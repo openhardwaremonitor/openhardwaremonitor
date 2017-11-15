@@ -371,9 +371,11 @@ namespace OpenHardwareMonitor.Hardware
             if (driver == null)
                 return false;
 
-            var input = new WrmsrInput();
-            input.Register = index;
-            input.Value = ((ulong) edx << 32) | eax;
+            var input = new WrmsrInput
+            {
+                Register = index,
+                Value = ((ulong) edx << 32) | eax
+            };
 
             return driver.DeviceIOControl(IOCTL_OLS_WRITE_MSR, input);
         }
@@ -394,9 +396,11 @@ namespace OpenHardwareMonitor.Hardware
             if (driver == null)
                 return;
 
-            var input = new WriteIoPortInput();
-            input.PortNumber = port;
-            input.Value = value;
+            var input = new WriteIoPortInput
+            {
+                PortNumber = port,
+                Value = value
+            };
 
             driver.DeviceIOControl(IOCTL_OLS_WRITE_IO_PORT_BYTE, input);
         }
@@ -416,9 +420,11 @@ namespace OpenHardwareMonitor.Hardware
                 return false;
             }
 
-            var input = new ReadPciConfigInput();
-            input.PciAddress = pciAddress;
-            input.RegAddress = regAddress;
+            var input = new ReadPciConfigInput
+            {
+                PciAddress = pciAddress,
+                RegAddress = regAddress
+            };
 
             value = 0;
             return driver.DeviceIOControl(IOCTL_OLS_READ_PCI_CONFIG, input,
@@ -431,10 +437,12 @@ namespace OpenHardwareMonitor.Hardware
             if (driver == null || (regAddress & 3) != 0)
                 return false;
 
-            var input = new WritePciConfigInput();
-            input.PciAddress = pciAddress;
-            input.RegAddress = regAddress;
-            input.Value = value;
+            var input = new WritePciConfigInput
+            {
+                PciAddress = pciAddress,
+                RegAddress = regAddress,
+                Value = value
+            };
 
             return driver.DeviceIOControl(IOCTL_OLS_WRITE_PCI_CONFIG, input);
         }
@@ -443,10 +451,12 @@ namespace OpenHardwareMonitor.Hardware
         {
             if (driver == null) return false;
 
-            var input = new ReadMemoryInput();
-            input.address = address;
-            input.unitSize = 1;
-            input.count = (uint) Marshal.SizeOf(buffer);
+            var input = new ReadMemoryInput
+            {
+                address = address,
+                unitSize = 1,
+                count = (uint) Marshal.SizeOf(buffer)
+            };
 
             return driver.DeviceIOControl(IOCTL_OLS_READ_MEMORY, input,
                 ref buffer);

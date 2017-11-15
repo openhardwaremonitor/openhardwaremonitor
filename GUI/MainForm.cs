@@ -108,9 +108,11 @@ namespace OpenHardwareMonitor.GUI
             Font = SystemFonts.MessageBoxFont;
             treeView.Font = SystemFonts.MessageBoxFont;
 
-            plotPanel = new PlotPanel(settings, unitManager);
-            plotPanel.Font = SystemFonts.MessageBoxFont;
-            plotPanel.Dock = DockStyle.Fill;
+            plotPanel = new PlotPanel(settings, unitManager)
+            {
+                Font = SystemFonts.MessageBoxFont,
+                Dock = DockStyle.Fill
+            };
 
             nodeCheckBox.IsVisibleValueNeeded += nodeCheckBox_IsVisibleValueNeeded;
             nodeTextBoxText.DrawText += nodeTextBoxText_DrawText;
@@ -125,8 +127,7 @@ namespace OpenHardwareMonitor.GUI
                         column.Width)));
 
             treeModel = new TreeModel();
-            root = new Node(Environment.MachineName);
-            root.Image = EmbeddedResources.GetImage("computer.png");
+            root = new Node(Environment.MachineName) {Image = EmbeddedResources.GetImage("computer.png")};
 
             treeModel.Nodes.Add(root);
             treeView.Model = treeModel;
@@ -372,10 +373,12 @@ namespace OpenHardwareMonitor.GUI
 
         private void InitializePlotForm()
         {
-            plotForm = new Form();
-            plotForm.FormBorderStyle = FormBorderStyle.SizableToolWindow;
-            plotForm.ShowInTaskbar = false;
-            plotForm.StartPosition = FormStartPosition.Manual;
+            plotForm = new Form
+            {
+                FormBorderStyle = FormBorderStyle.SizableToolWindow,
+                ShowInTaskbar = false,
+                StartPosition = FormStartPosition.Manual
+            };
             AddOwnedForm(plotForm);
             plotForm.Bounds = new Rectangle
             {
@@ -755,8 +758,7 @@ namespace OpenHardwareMonitor.GUI
                         var item = new MenuItem("Pen Color...");
                         item.Click += delegate
                         {
-                            var dialog = new ColorDialog();
-                            dialog.Color = node.PenColor.GetValueOrDefault();
+                            var dialog = new ColorDialog {Color = node.PenColor.GetValueOrDefault()};
                             if (dialog.ShowDialog() == DialogResult.OK)
                                 node.PenColor = dialog.Color;
                         };
@@ -769,8 +771,7 @@ namespace OpenHardwareMonitor.GUI
                     }
                     treeContextMenu.MenuItems.Add(new MenuItem("-"));
                     {
-                        var item = new MenuItem("Show in Tray");
-                        item.Checked = systemTray.Contains(node.Sensor);
+                        var item = new MenuItem("Show in Tray") {Checked = systemTray.Contains(node.Sensor)};
                         item.Click += delegate
                         {
                             if (item.Checked)
@@ -782,8 +783,7 @@ namespace OpenHardwareMonitor.GUI
                     }
                     if (gadget != null)
                     {
-                        var item = new MenuItem("Show in Gadget");
-                        item.Checked = gadget.Contains(node.Sensor);
+                        var item = new MenuItem("Show in Gadget") {Checked = gadget.Contains(node.Sensor)};
                         item.Click += delegate
                         {
                             if (item.Checked) gadget.Remove(node.Sensor);
@@ -796,8 +796,8 @@ namespace OpenHardwareMonitor.GUI
                         treeContextMenu.MenuItems.Add(new MenuItem("-"));
                         var control = node.Sensor.Control;
                         var controlItem = new MenuItem("Control");
-                        var defaultItem = new MenuItem("Default");
-                        defaultItem.Checked = control.ControlMode == ControlMode.Default;
+                        var defaultItem =
+                            new MenuItem("Default") {Checked = control.ControlMode == ControlMode.Default};
                         controlItem.MenuItems.Add(defaultItem);
                         defaultItem.Click += delegate { control.SetDefault(); };
                         var manualItem = new MenuItem("Manual");
@@ -807,8 +807,7 @@ namespace OpenHardwareMonitor.GUI
                             if (i <= control.MaxSoftwareValue &&
                                 i >= control.MinSoftwareValue)
                             {
-                                var item = new MenuItem(i + " %");
-                                item.RadioCheck = true;
+                                var item = new MenuItem(i + " %") {RadioCheck = true};
                                 manualItem.MenuItems.Add(item);
                                 item.Checked = control.ControlMode == ControlMode.Software &&
                                                Math.Round(control.SoftwareValue) == i;
@@ -879,9 +878,11 @@ namespace OpenHardwareMonitor.GUI
 
         private void ShowParameterForm(ISensor sensor)
         {
-            var form = new ParameterForm();
-            form.Parameters = sensor.Parameters;
-            form.captionLabel.Text = sensor.Name;
+            var form = new ParameterForm
+            {
+                Parameters = sensor.Parameters,
+                captionLabel = {Text = sensor.Name}
+            };
             form.ShowDialog();
         }
 
@@ -908,8 +909,7 @@ namespace OpenHardwareMonitor.GUI
 
         private void sumbitReportMenuItem_Click(object sender, EventArgs e)
         {
-            var form = new ReportForm();
-            form.Report = computer.GetReport();
+            var form = new ReportForm {Report = computer.GetReport()};
             form.ShowDialog();
         }
 

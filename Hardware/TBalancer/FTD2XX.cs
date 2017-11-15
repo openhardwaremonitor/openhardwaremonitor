@@ -217,10 +217,12 @@ namespace OpenHardwareMonitor.Hardware.TBalancer
         private static T CreateDelegate<T>(string entryPoint)
             where T : class
         {
-            var attribute = new DllImportAttribute(GetDllName());
-            attribute.CallingConvention = CallingConvention.StdCall;
-            attribute.PreserveSig = true;
-            attribute.EntryPoint = entryPoint;
+            var attribute = new DllImportAttribute(GetDllName())
+            {
+                CallingConvention = CallingConvention.StdCall,
+                PreserveSig = true,
+                EntryPoint = entryPoint
+            };
             PInvokeDelegateFactory.CreateDelegate(attribute, out T newDelegate);
             return newDelegate;
         }

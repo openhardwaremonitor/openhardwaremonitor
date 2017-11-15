@@ -24,8 +24,7 @@ namespace OpenHardwareMonitor.GUI
 
         public TreeModel()
         {
-            root = new Node();
-            root.Model = this;
+            root = new Node {Model = this};
         }
 
         public Collection<Node> Nodes => root.Nodes;
@@ -35,11 +34,9 @@ namespace OpenHardwareMonitor.GUI
             get => forceVisible;
             set
             {
-                if (value != forceVisible)
-                {
-                    forceVisible = value;
-                    OnStructureChanged(root);
-                }
+                if (value == forceVisible) return;
+                forceVisible = value;
+                OnStructureChanged(root);
             }
         }
 

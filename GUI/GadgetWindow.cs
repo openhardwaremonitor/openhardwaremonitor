@@ -102,12 +102,14 @@ namespace OpenHardwareMonitor.GUI
         {
             get
             {
-                var cp = new CreateParams();
-                cp.Width = 4096;
-                cp.Height = 4096;
-                cp.X = location.X;
-                cp.Y = location.Y;
-                cp.ExStyle = WS_EX_LAYERED | WS_EX_TOOLWINDOW;
+                var cp = new CreateParams
+                {
+                    Width = 4096,
+                    Height = 4096,
+                    X = location.X,
+                    Y = location.Y,
+                    ExStyle = WS_EX_LAYERED | WS_EX_TOOLWINDOW
+                };
                 return cp;
             }
         }
@@ -362,11 +364,13 @@ namespace OpenHardwareMonitor.GUI
 
         private BlendFunction CreateBlendFunction()
         {
-            var blend = new BlendFunction();
-            blend.BlendOp = AC_SRC_OVER;
-            blend.BlendFlags = 0;
-            blend.SourceConstantAlpha = opacity;
-            blend.AlphaFormat = AC_SRC_ALPHA;
+            var blend = new BlendFunction
+            {
+                BlendOp = AC_SRC_OVER,
+                BlendFlags = 0,
+                SourceConstantAlpha = opacity,
+                AlphaFormat = AC_SRC_ALPHA
+            };
             return blend;
         }
 

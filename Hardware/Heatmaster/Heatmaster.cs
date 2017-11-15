@@ -64,12 +64,16 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster
                 {
                     var device = 33 + i;
                     var name = ReadString(device, 'C');
-                    fans[i] = new Sensor(name, device, SensorType.Fan, this, settings);
-                    fans[i].Value = ReadInteger(device, 'R');
+                    fans[i] = new Sensor(name, device, SensorType.Fan, this, settings)
+                    {
+                        Value = ReadInteger(device, 'R')
+                    };
                     ActivateSensor(fans[i]);
                     controls[i] =
-                        new Sensor(name, device, SensorType.Control, this, settings);
-                    controls[i].Value = 100 / 255.0f * ReadInteger(device, 'P');
+                        new Sensor(name, device, SensorType.Control, this, settings)
+                        {
+                            Value = 100 / 255.0f * ReadInteger(device, 'P')
+                        };
                     ActivateSensor(controls[i]);
                 }
 
@@ -91,8 +95,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster
                 {
                     var device = 65 + i;
                     var name = ReadString(device, 'C');
-                    flows[i] = new Sensor(name, device, SensorType.Flow, this, settings);
-                    flows[i].Value = 0.1f * ReadInteger(device, 'L');
+                    flows[i] = new Sensor(name, device, SensorType.Flow, this, settings)
+                    {
+                        Value = 0.1f * ReadInteger(device, 'L')
+                    };
                     ActivateSensor(flows[i]);
                 }
 
@@ -102,8 +108,10 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster
                     var device = 81 + i;
                     var name = ReadString(device, 'C');
                     relays[i] =
-                        new Sensor(name, device, SensorType.Control, this, settings);
-                    relays[i].Value = 100 * ReadInteger(device, 'S');
+                        new Sensor(name, device, SensorType.Control, this, settings)
+                        {
+                            Value = 100 * ReadInteger(device, 'S')
+                        };
                     ActivateSensor(relays[i]);
                 }
 

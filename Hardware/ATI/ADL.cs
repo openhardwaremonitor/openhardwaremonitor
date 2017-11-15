@@ -190,10 +190,12 @@ namespace OpenHardwareMonitor.Hardware.ATI
         private static void GetDelegate<T>(string entryPoint, out T newDelegate)
             where T : class
         {
-            var attribute = new DllImportAttribute(dllName);
-            attribute.CallingConvention = CallingConvention.Cdecl;
-            attribute.PreserveSig = true;
-            attribute.EntryPoint = entryPoint;
+            var attribute = new DllImportAttribute(dllName)
+            {
+                CallingConvention = CallingConvention.Cdecl,
+                PreserveSig = true,
+                EntryPoint = entryPoint
+            };
             PInvokeDelegateFactory.CreateDelegate(attribute, out newDelegate);
         }
 

@@ -595,9 +595,11 @@ namespace OpenHardwareMonitor.GUI
                 {
                     window.LockReference(showNotifyIcon);
 
-                    var data = new NativeMethods.NotifyIconData();
-                    data.CallbackMessage = WM_TRAYMOUSEMESSAGE;
-                    data.Flags = NativeMethods.NotifyIconDataFlags.Message;
+                    var data = new NativeMethods.NotifyIconData
+                    {
+                        CallbackMessage = WM_TRAYMOUSEMESSAGE,
+                        Flags = NativeMethods.NotifyIconDataFlags.Message
+                    };
 
                     if (showNotifyIcon && window.Handle == IntPtr.Zero)
                         window.CreateHandle(new CreateParams());

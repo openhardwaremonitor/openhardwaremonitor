@@ -71,10 +71,12 @@ namespace OpenHardwareMonitor.Hardware.ATI
         {
             if (control.ControlMode == ControlMode.Software)
             {
-                var adlf = new ADLFanSpeedValue();
-                adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
-                adlf.Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED;
-                adlf.FanSpeed = (int) control.SoftwareValue;
+                var adlf = new ADLFanSpeedValue
+                {
+                    SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT,
+                    Flags = ADL.ADL_DL_FANCTRL_FLAG_USER_DEFINED_SPEED,
+                    FanSpeed = (int) control.SoftwareValue
+                };
                 ADL.ADL_Overdrive5_FanSpeed_Set(adapterIndex, 0, ref adlf);
             }
         }
@@ -115,8 +117,7 @@ namespace OpenHardwareMonitor.Hardware.ATI
                 temperature.Value = null;
             }
 
-            var adlf = new ADLFanSpeedValue();
-            adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_RPM;
+            var adlf = new ADLFanSpeedValue {SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_RPM};
             if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
                 == ADL.ADL_OK)
             {
@@ -128,8 +129,7 @@ namespace OpenHardwareMonitor.Hardware.ATI
                 fan.Value = null;
             }
 
-            adlf = new ADLFanSpeedValue();
-            adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+            adlf = new ADLFanSpeedValue {SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT};
             if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
                 == ADL.ADL_OK)
             {

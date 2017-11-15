@@ -352,10 +352,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia
 
         static NVAPI()
         {
-            var attribute = new DllImportAttribute(GetDllName());
-            attribute.CallingConvention = CallingConvention.Cdecl;
-            attribute.PreserveSig = true;
-            attribute.EntryPoint = "nvapi_QueryInterface";
+            var attribute = new DllImportAttribute(GetDllName())
+            {
+                CallingConvention = CallingConvention.Cdecl,
+                PreserveSig = true,
+                EntryPoint = "nvapi_QueryInterface"
+            };
             PInvokeDelegateFactory.CreateDelegate(attribute,
                 out nvapi_QueryInterface);
 

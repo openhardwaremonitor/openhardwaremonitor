@@ -71,16 +71,19 @@ namespace OpenHardwareMonitor.GUI
 
             darkWhite = new SolidBrush(Color.FromArgb(0xF0, 0xF0, 0xF0));
 
-            stringFormat = new StringFormat();
-            stringFormat.FormatFlags = StringFormatFlags.NoWrap;
+            stringFormat = new StringFormat {FormatFlags = StringFormatFlags.NoWrap};
 
-            trimStringFormat = new StringFormat();
-            trimStringFormat.Trimming = StringTrimming.EllipsisCharacter;
-            trimStringFormat.FormatFlags = StringFormatFlags.NoWrap;
+            trimStringFormat = new StringFormat
+            {
+                Trimming = StringTrimming.EllipsisCharacter,
+                FormatFlags = StringFormatFlags.NoWrap
+            };
 
-            alignRightStringFormat = new StringFormat();
-            alignRightStringFormat.Alignment = StringAlignment.Far;
-            alignRightStringFormat.FormatFlags = StringFormatFlags.NoWrap;
+            alignRightStringFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Far,
+                FormatFlags = StringFormatFlags.NoWrap
+            };
 
             if (File.Exists("gadget_background.png"))
                 try
@@ -179,8 +182,7 @@ namespace OpenHardwareMonitor.GUI
                         break;
                     default: throw new NotImplementedException();
                 }
-                var item = new MenuItem(name);
-                item.Checked = fontSize == size;
+                var item = new MenuItem(name) {Checked = fontSize == size};
                 item.Click += delegate
                 {
                     SetFontSize(size);

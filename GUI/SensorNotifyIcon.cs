@@ -63,8 +63,7 @@ namespace OpenHardwareMonitor.GUI
             var colorItem = new MenuItem("Change Color...");
             colorItem.Click += delegate
             {
-                var dialog = new ColorDialog();
-                dialog.Color = Color;
+                var dialog = new ColorDialog {Color = Color};
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
                     Color = dialog.Color;
@@ -207,7 +206,7 @@ namespace OpenHardwareMonitor.GUI
             var text = GetString();
             var count = 0;
             for (var i = 0; i < text.Length; i++)
-                if (text[i] >= '0' && text[i] <= '9' || text[i] == '-')
+                if (i >= '0' && i <= '9' || i == '-')
                     count++;
             var small = count > 2;
 
@@ -286,8 +285,7 @@ namespace OpenHardwareMonitor.GUI
                     break;
             }
 
-            if (icon != null)
-                icon.Dispose();
+            icon?.Dispose();
 
             var format = "";
             switch (Sensor.SensorType)

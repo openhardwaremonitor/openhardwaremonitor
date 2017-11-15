@@ -38,9 +38,11 @@ namespace OpenHardwareMonitor.Hardware.RAM
 
         public override void Update()
         {
-            var status = new NativeMethods.MemoryStatusEx();
-            status.Length = checked((uint) Marshal.SizeOf(
-                typeof(NativeMethods.MemoryStatusEx)));
+            var status = new NativeMethods.MemoryStatusEx
+            {
+                Length = checked((uint) Marshal.SizeOf(
+                    typeof(NativeMethods.MemoryStatusEx)))
+            };
 
             if (!NativeMethods.GlobalMemoryStatusEx(ref status))
                 return;

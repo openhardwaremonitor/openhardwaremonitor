@@ -36,13 +36,18 @@ namespace OpenHardwareMonitor.Hardware.HDD
 
         public bool EnableSmart(IntPtr handle, int driveNumber)
         {
-            var parameter = new DriveCommandParameter();
+            var parameter = new DriveCommandParameter
+            {
+                DriveNumber = (byte) driveNumber,
+                Registers =
+                {
+                    Features = RegisterFeature.SmartEnableOperations,
+                    LBAMid = SMART_LBA_MID,
+                    LBAHigh = SMART_LBA_HI,
+                    Command = RegisterCommand.SmartCmd
+                }
+            };
 
-            parameter.DriveNumber = (byte)driveNumber;
-            parameter.Registers.Features = RegisterFeature.SmartEnableOperations;
-            parameter.Registers.LBAMid = SMART_LBA_MID;
-            parameter.Registers.LBAHigh = SMART_LBA_HI;
-            parameter.Registers.Command = RegisterCommand.SmartCmd;
 
             return NativeMethods.DeviceIoControl(handle, DriveCommand.SendDriveCommand,
                 ref parameter, Marshal.SizeOf(typeof(DriveCommandParameter)), out DriveCommandResult result,
@@ -52,13 +57,18 @@ namespace OpenHardwareMonitor.Hardware.HDD
 
         public DriveAttributeValue[] ReadSmartData(IntPtr handle, int driveNumber)
         {
-            var parameter = new DriveCommandParameter();
+            var parameter = new DriveCommandParameter
+            {
+                DriveNumber = (byte) driveNumber,
+                Registers =
+                {
+                    Features = RegisterFeature.SmartReadData,
+                    LBAMid = SMART_LBA_MID,
+                    LBAHigh = SMART_LBA_HI,
+                    Command = RegisterCommand.SmartCmd
+                }
+            };
 
-            parameter.DriveNumber = (byte)driveNumber;
-            parameter.Registers.Features = RegisterFeature.SmartReadData;
-            parameter.Registers.LBAMid = SMART_LBA_MID;
-            parameter.Registers.LBAHigh = SMART_LBA_HI;
-            parameter.Registers.Command = RegisterCommand.SmartCmd;
 
             var isValid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),

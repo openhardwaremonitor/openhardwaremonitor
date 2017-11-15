@@ -74,8 +74,7 @@ namespace OpenHardwareMonitor
 
         private static void ReportException(Exception e)
         {
-            var form = new CrashForm();
-            form.Exception = e;
+            var form = new CrashForm {Exception = e};
             form.ShowDialog();
         }
 
