@@ -1489,15 +1489,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard
             {
             }
 
-            public Voltage(string name, int index, float ri, float rf) :
-                this(name, index, ri, rf, 0, false)
-            {
-            }
-
             // float ri = 0, float rf = 1, float vf = 0, bool hidden = false) 
 
-            public Voltage(string name, int index,
-                float ri, float rf, float vf, bool hidden)
+            public Voltage(string name, int index, float ri, float rf, float vf = 0, bool hidden = false)
             {
                 Name = name;
                 Index = index;
