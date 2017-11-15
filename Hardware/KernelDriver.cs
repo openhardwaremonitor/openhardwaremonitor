@@ -237,6 +237,7 @@ namespace OpenHardwareMonitor.Hardware
             public readonly uint dwWaitHint;
         }
 
+        [Flags]
         private enum FileAccess : uint
         {
             GENERIC_READ = 0x80000000,
