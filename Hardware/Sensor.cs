@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.Hardware
             IsDefaultHidden = defaultHidden;
             SensorType = sensorType;
             this.hardware = hardware;
-            var parameters = new Parameter[parameterDescriptions == null ? 0 : parameterDescriptions.Length];
+            var parameters = new Parameter[parameterDescriptions?.Length ?? 0];
             for (var i = 0; i < parameters.Length; i++)
                 parameters[i] = new Parameter(parameterDescriptions[i], this, settings);
             this.parameters = parameters;

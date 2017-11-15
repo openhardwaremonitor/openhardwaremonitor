@@ -32,7 +32,7 @@ namespace OpenHardwareMonitor.WMI
 
         public void Update()
         {
-            Value = sensor.Value != null ? (float) sensor.Value : 0;
+            Value = sensor.Value ?? 0;
 
             if (sensor.Min != null)
                 Min = (float) sensor.Min;

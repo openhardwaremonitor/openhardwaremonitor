@@ -81,11 +81,7 @@ namespace OpenHardwareMonitor.Hardware.HDD
                 new SmartAttribute(0xFE, SmartNames.FreeFallProtection),
 
                 new SmartAttribute(0xC2, SmartNames.Temperature,
-                    (r, v, p)
-                        =>
-                    {
-                        return r[0] + (p == null ? 0 : p[0].Value);
-                    },
+                    (r, v, p) => r[0] + (p?[0].Value ?? 0),
                     SensorType.Temperature, 0, SmartNames.Temperature, false,
                     new[]
                     {
@@ -94,11 +90,7 @@ namespace OpenHardwareMonitor.Hardware.HDD
                             "Temperature = Value + Offset.", 0)
                     }),
                 new SmartAttribute(0xE7, SmartNames.Temperature,
-                    (r, v, p)
-                        =>
-                    {
-                        return r[0] + (p == null ? 0 : p[0].Value);
-                    },
+                    (r, v, p) => r[0] + (p?[0].Value ?? 0),
                     SensorType.Temperature, 0, SmartNames.Temperature, false,
                     new[]
                     {
@@ -107,11 +99,7 @@ namespace OpenHardwareMonitor.Hardware.HDD
                             "Temperature = Value + Offset.", 0)
                     }),
                 new SmartAttribute(0xBE, SmartNames.TemperatureDifferenceFrom100,
-                    (r, v, p)
-                        =>
-                    {
-                        return r[0] + (p == null ? 0 : p[0].Value);
-                    },
+                    (r, v, p) => r[0] + (p?[0].Value ?? 0),
                     SensorType.Temperature, 0, "Temperature", false,
                     new[]
                     {

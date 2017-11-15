@@ -361,14 +361,8 @@ namespace OpenHardwareMonitor.Hardware.HDD
                             raw.Replace("-", "").PadRight(13),
                             value.WorstValue.ToString(CultureInfo.InvariantCulture).PadRight(6),
                             value.AttrValue.ToString(CultureInfo.InvariantCulture).PadRight(6),
-                            (threshold.HasValue
-                                ? threshold.Value.ToString(
-                                    CultureInfo.InvariantCulture)
-                                : "-").PadRight(6),
-                            (physical.HasValue
-                                ? physical.Value.ToString(
-                                    CultureInfo.InvariantCulture)
-                                : "-").PadRight(8),
+                            (threshold?.ToString(CultureInfo.InvariantCulture) ?? "-").PadRight(6),
+                            (physical?.ToString(CultureInfo.InvariantCulture) ?? "-").PadRight(8),
                             Environment.NewLine);
                     }
                     r.AppendLine();

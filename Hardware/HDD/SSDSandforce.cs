@@ -33,11 +33,7 @@ namespace OpenHardwareMonitor.Hardware.HDD
                 new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToInt),
                 new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
                 new SmartAttribute(0xC2, SmartNames.Temperature,
-                    (raw, value, p)
-                        =>
-                    {
-                        return value + (p == null ? 0 : p[0].Value);
-                    },
+                    (raw, value, p) => value + (p?[0].Value ?? 0),
                     SensorType.Temperature, 0, SmartNames.Temperature, true,
                     new[]
                     {
