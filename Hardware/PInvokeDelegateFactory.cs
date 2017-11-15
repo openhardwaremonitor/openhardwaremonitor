@@ -15,68 +15,69 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using OpenHardwareMonitor.Collections;
 
-namespace OpenHardwareMonitor.Hardware {
-
-  internal static class PInvokeDelegateFactory {
-
-    private static readonly ModuleBuilder moduleBuilder = 
-      AppDomain.CurrentDomain.DefineDynamicAssembly(
-        new AssemblyName("PInvokeDelegateFactoryInternalAssembly"),
-        AssemblyBuilderAccess.Run).DefineDynamicModule(
-        "PInvokeDelegateFactoryInternalModule");
-
-    private static readonly IDictionary<Pair<DllImportAttribute, Type>, Type> wrapperTypes =
-      new Dictionary<Pair<DllImportAttribute, Type>, Type>();
-
-    public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
-      out T newDelegate) where T : class 
+namespace OpenHardwareMonitor.Hardware
+{
+    internal static class PInvokeDelegateFactory
     {
-      Type wrapperType;
-      Pair<DllImportAttribute, Type> key =
-        new Pair<DllImportAttribute, Type>(dllImportAttribute, typeof(T));
-      wrapperTypes.TryGetValue(key, out wrapperType);
+        private static readonly ModuleBuilder moduleBuilder =
+            AppDomain.CurrentDomain.DefineDynamicAssembly(
+                new AssemblyName("PInvokeDelegateFactoryInternalAssembly"),
+                AssemblyBuilderAccess.Run).DefineDynamicModule(
+                "PInvokeDelegateFactoryInternalModule");
 
-      if (wrapperType == null) {
-        wrapperType = CreateWrapperType(typeof(T), dllImportAttribute);
-        wrapperTypes.Add(key, wrapperType);
-      }
+        private static readonly IDictionary<Pair<DllImportAttribute, Type>, Type> wrapperTypes =
+            new Dictionary<Pair<DllImportAttribute, Type>, Type>();
 
-      newDelegate = Delegate.CreateDelegate(typeof(T), wrapperType,
-        dllImportAttribute.EntryPoint) as T;
+        public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
+            out T newDelegate) where T : class
+        {
+            Type wrapperType;
+            var key =
+                new Pair<DllImportAttribute, Type>(dllImportAttribute, typeof(T));
+            wrapperTypes.TryGetValue(key, out wrapperType);
+
+            if (wrapperType == null)
+            {
+                wrapperType = CreateWrapperType(typeof(T), dllImportAttribute);
+                wrapperTypes.Add(key, wrapperType);
+            }
+
+            newDelegate = Delegate.CreateDelegate(typeof(T), wrapperType,
+                dllImportAttribute.EntryPoint) as T;
+        }
+
+
+        private static Type CreateWrapperType(Type delegateType,
+            DllImportAttribute dllImportAttribute)
+        {
+            var typeBuilder = moduleBuilder.DefineType(
+                "PInvokeDelegateFactoryInternalWrapperType" + wrapperTypes.Count);
+
+            var methodInfo = delegateType.GetMethod("Invoke");
+
+            var parameterInfos = methodInfo.GetParameters();
+            var parameterCount = parameterInfos.GetLength(0);
+
+            var parameterTypes = new Type[parameterCount];
+            for (var i = 0; i < parameterCount; i++)
+                parameterTypes[i] = parameterInfos[i].ParameterType;
+
+            var methodBuilder = typeBuilder.DefinePInvokeMethod(
+                dllImportAttribute.EntryPoint, dllImportAttribute.Value,
+                MethodAttributes.Public | MethodAttributes.Static |
+                MethodAttributes.PinvokeImpl, CallingConventions.Standard,
+                methodInfo.ReturnType, parameterTypes,
+                dllImportAttribute.CallingConvention,
+                dllImportAttribute.CharSet);
+
+            foreach (var parameterInfo in parameterInfos)
+                methodBuilder.DefineParameter(parameterInfo.Position + 1,
+                    parameterInfo.Attributes, parameterInfo.Name);
+
+            if (dllImportAttribute.PreserveSig)
+                methodBuilder.SetImplementationFlags(MethodImplAttributes.PreserveSig);
+
+            return typeBuilder.CreateType();
+        }
     }
-
-
-    private static Type CreateWrapperType(Type delegateType,
-      DllImportAttribute dllImportAttribute) {
-
-      TypeBuilder typeBuilder = moduleBuilder.DefineType(
-        "PInvokeDelegateFactoryInternalWrapperType" + wrapperTypes.Count);
-
-      MethodInfo methodInfo = delegateType.GetMethod("Invoke");
-
-      ParameterInfo[] parameterInfos = methodInfo.GetParameters();
-      int parameterCount = parameterInfos.GetLength(0);
-
-      Type[] parameterTypes = new Type[parameterCount];
-      for (int i = 0; i < parameterCount; i++)
-        parameterTypes[i] = parameterInfos[i].ParameterType;
-
-      MethodBuilder methodBuilder = typeBuilder.DefinePInvokeMethod(
-        dllImportAttribute.EntryPoint, dllImportAttribute.Value,
-        MethodAttributes.Public | MethodAttributes.Static |
-        MethodAttributes.PinvokeImpl, CallingConventions.Standard,
-        methodInfo.ReturnType, parameterTypes,
-        dllImportAttribute.CallingConvention,
-        dllImportAttribute.CharSet);
-
-      foreach (ParameterInfo parameterInfo in parameterInfos)
-        methodBuilder.DefineParameter(parameterInfo.Position + 1,
-          parameterInfo.Attributes, parameterInfo.Name);
-
-      if (dllImportAttribute.PreserveSig)
-        methodBuilder.SetImplementationFlags(MethodImplAttributes.PreserveSig);
-
-      return typeBuilder.CreateType();
-    }
-  }
 }

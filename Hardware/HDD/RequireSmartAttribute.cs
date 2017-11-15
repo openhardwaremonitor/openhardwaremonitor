@@ -9,18 +9,17 @@
 */
 
 using System;
-using System.Collections.Generic;
 
-namespace OpenHardwareMonitor.Hardware.HDD {
+namespace OpenHardwareMonitor.Hardware.HDD
+{
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    internal class RequireSmartAttribute : Attribute
+    {
+        public RequireSmartAttribute(byte attributeId)
+        {
+            AttributeId = attributeId;
+        }
 
-  [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-  internal class RequireSmartAttribute : Attribute {
-
-    public RequireSmartAttribute(byte attributeId) {
-      AttributeId = attributeId;
+        public byte AttributeId { get; }
     }
-
-    public byte AttributeId { get; private set; }
-
-  }
 }

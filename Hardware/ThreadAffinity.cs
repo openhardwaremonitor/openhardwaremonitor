@@ -34,7 +34,7 @@ namespace OpenHardwareMonitor.Hardware {
         try {
           uIntPtrMask = (UIntPtr)mask;
         } catch (OverflowException) {
-          throw new ArgumentOutOfRangeException("mask");
+          throw new ArgumentOutOfRangeException(nameof(mask));
         }
         return (ulong)NativeMethods.SetThreadAffinityMask(
           NativeMethods.GetCurrentThread(), uIntPtrMask);
