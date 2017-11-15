@@ -19,7 +19,6 @@ namespace OpenHardwareMonitor.Hardware
     internal class SMBIOS
     {
         private readonly byte[] raw;
-        private readonly Structure[] table;
 
         private readonly Version version;
 
@@ -29,7 +28,6 @@ namespace OpenHardwareMonitor.Hardware
             if (p == 4 || p == 128)
             {
                 raw = null;
-                table = null;
 
                 var boardVendor = ReadSysFS("/sys/class/dmi/id/board_vendor");
                 var boardName = ReadSysFS("/sys/class/dmi/id/board_name");
@@ -151,7 +149,6 @@ namespace OpenHardwareMonitor.Hardware
                 }
 
                 MemoryDevices = memoryDeviceList.ToArray();
-                table = structureList.ToArray();
             }
         }
 

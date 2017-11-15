@@ -139,11 +139,8 @@ namespace OpenHardwareMonitor.Hardware.LPC
 
             private readonly FileStream[] voltageStreams;
 
-            private string path;
-
             public LMChip(Chip chip, string path)
             {
-                this.path = path;
                 Chip = chip;
 
                 var voltagePaths = Directory.GetFiles(path, "in*_input");

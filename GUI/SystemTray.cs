@@ -18,7 +18,6 @@ namespace OpenHardwareMonitor.GUI
 {
     public class SystemTray : IDisposable
     {
-        private IComputer computer;
         private readonly List<SensorNotifyIcon> list = new List<SensorNotifyIcon>();
         private readonly NotifyIconAdv mainIcon;
         private bool mainIconEnabled;
@@ -28,7 +27,6 @@ namespace OpenHardwareMonitor.GUI
         public SystemTray(IComputer computer, PersistentSettings settings,
             UnitManager unitManager)
         {
-            this.computer = computer;
             this.settings = settings;
             this.unitManager = unitManager;
             computer.HardwareAdded += HardwareAdded;

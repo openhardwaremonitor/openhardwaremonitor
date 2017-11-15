@@ -76,7 +76,6 @@ namespace OpenHardwareMonitor.GUI
             new Dictionary<ISensor, Color>();
 
         private UserOption showPlot;
-        private UserOption startMinimized;
 
         public MainForm()
         {
@@ -202,7 +201,7 @@ namespace OpenHardwareMonitor.GUI
             showMax = new UserOption("maxMenuItem", true, maxMenuItem, settings);
             showMax.Changed += delegate { treeView.Columns[3].IsVisible = showMax.Value; };
 
-            startMinimized = new UserOption("startMinMenuItem", false,
+            new UserOption("startMinMenuItem", false,
                 startMinMenuItem, settings);
 
             minimizeToTray = new UserOption("minTrayMenuItem", true,
