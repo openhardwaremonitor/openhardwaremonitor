@@ -149,6 +149,7 @@ namespace OpenHardwareMonitor.Hardware
                 }
 
                 MemoryDevices = memoryDeviceList.ToArray();
+                Structures = structureList.ToArray();
             }
         }
 
@@ -162,6 +163,8 @@ namespace OpenHardwareMonitor.Hardware
         public ProcessorInformation Processor { get; }
 
         public MemoryDevice[] MemoryDevices { get; }
+
+        public Structure[] Structures { get; }
 
         private static string ReadSysFS(string path)
         {
