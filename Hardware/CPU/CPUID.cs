@@ -67,7 +67,6 @@ namespace OpenHardwareMonitor.Hardware.CPU
                         Vendor = Vendor.Unknown;
                         break;
                 }
-                eax = ebx = ecx = edx = 0;
                 if (Opcode.CpuidTx(CPUID_EXT, 0,
                     out eax, out ebx, out ecx, out edx, mask))
                     if (eax > CPUID_EXT)
