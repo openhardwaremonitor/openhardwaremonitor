@@ -58,12 +58,11 @@ namespace OpenHardwareMonitor.Hardware.RAM
                                     (1024 * 1024 * 1024);
         }
 
-        private class NativeMethods
+        private static class NativeMethods
         {
             [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
-            internal static extern bool GlobalMemoryStatusEx(
-                ref MemoryStatusEx buffer);
+            internal static extern bool GlobalMemoryStatusEx(ref MemoryStatusEx buffer);
 
             [StructLayout(LayoutKind.Sequential)]
             public struct MemoryStatusEx
