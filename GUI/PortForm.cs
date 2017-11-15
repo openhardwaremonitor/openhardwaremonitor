@@ -36,7 +36,7 @@ namespace OpenHardwareMonitor.GUI
 
         private void portNumericUpDn_ValueChanged(object sender, EventArgs e)
         {
-            var url = "http://" + localIP + ":" + portNumericUpDn.Value + "/";
+            var url = $"http://{localIP}:{portNumericUpDn.Value}/";
             webServerLinkLabel.Text = url;
             webServerLinkLabel.Links.Remove(webServerLinkLabel.Links[0]);
             webServerLinkLabel.Links.Add(0, webServerLinkLabel.Text.Length, url);
