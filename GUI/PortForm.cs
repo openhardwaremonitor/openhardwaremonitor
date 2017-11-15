@@ -10,6 +10,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
@@ -26,17 +27,11 @@ namespace OpenHardwareMonitor.GUI
             InitializeComponent();
             parent = m;
 
-            localIP = getLocalIP();
-        }
+            localIP = Dns.GetHostEntry(Dns.GetHostName())
+                          .AddressList
+                          .FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork)
+                          ?.ToString() ?? "?";
 
-        private string getLocalIP()
-        {
-            IPHostEntry host;
-            var localIP = "?";
-            host = Dns.GetHostEntry(Dns.GetHostName());
-            foreach (var ip in host.AddressList)
-                if (ip.AddressFamily == AddressFamily.InterNetwork) localIP = ip.ToString();
-            return localIP;
         }
 
         private void portNumericUpDn_ValueChanged(object sender, EventArgs e)
