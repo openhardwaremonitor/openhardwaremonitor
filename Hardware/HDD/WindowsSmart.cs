@@ -71,13 +71,18 @@ namespace OpenHardwareMonitor.Hardware.HDD
         public DriveThresholdValue[] ReadSmartThresholds(IntPtr handle,
             int driveNumber)
         {
-            var parameter = new DriveCommandParameter();
+            var parameter = new DriveCommandParameter
+            {
+                DriveNumber = (byte) driveNumber,
+                Registers =
+                {
+                    Features = RegisterFeature.SmartReadThresholds,
+                    LBAMid = SMART_LBA_MID,
+                    LBAHigh = SMART_LBA_HI,
+                    Command = RegisterCommand.SmartCmd
+                }
+            };
 
-            parameter.DriveNumber = (byte)driveNumber;
-            parameter.Registers.Features = RegisterFeature.SmartReadThresholds;
-            parameter.Registers.LBAMid = SMART_LBA_MID;
-            parameter.Registers.LBAHigh = SMART_LBA_HI;
-            parameter.Registers.Command = RegisterCommand.SmartCmd;
 
             var isValid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),
@@ -90,10 +95,12 @@ namespace OpenHardwareMonitor.Hardware.HDD
         public bool ReadNameAndFirmwareRevision(IntPtr handle, int driveNumber,
             out string name, out string firmwareRevision)
         {
-            var parameter = new DriveCommandParameter();
+            var parameter = new DriveCommandParameter
+            {
+                DriveNumber = (byte) driveNumber,
+                Registers = {Command = RegisterCommand.IdCmd}
+            };
 
-            parameter.DriveNumber = (byte)driveNumber;
-            parameter.Registers.Command = RegisterCommand.IdCmd;
 
             var valid = NativeMethods.DeviceIoControl(handle,
                 DriveCommand.ReceiveDriveData, ref parameter, Marshal.SizeOf(parameter),

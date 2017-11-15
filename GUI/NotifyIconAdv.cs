@@ -641,7 +641,7 @@ namespace OpenHardwareMonitor.GUI
                         if (created)
                         {
                             var i = 0;
-                            var deleted = false;
+                            bool deleted;
                             do
                             {
                                 deleted = NativeMethods.Shell_NotifyIcon(
