@@ -18,7 +18,7 @@ namespace OpenHardwareMonitor.GUI
     {
         private readonly GadgetWindow window;
 
-        public Gadget()
+        protected Gadget()
         {
             window = new GadgetWindow();
             window.Paint += delegate(object sender, PaintEventArgs e) { OnPaint(e); };

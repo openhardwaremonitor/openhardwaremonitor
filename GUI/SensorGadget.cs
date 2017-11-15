@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.Utilities;
@@ -346,10 +347,7 @@ namespace OpenHardwareMonitor.GUI
 
         public bool Contains(ISensor sensor)
         {
-            foreach (var list in sensors.Values)
-                if (list.Contains(sensor))
-                    return true;
-            return false;
+            return sensors.Values.Any(list => list.Contains(sensor));
         }
 
         public void Add(ISensor sensor)

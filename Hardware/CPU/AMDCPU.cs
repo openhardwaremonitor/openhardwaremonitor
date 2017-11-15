@@ -17,7 +17,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
         private const byte DEVICE_VENDOR_ID_REGISTER = 0;
         private const ushort AMD_VENDOR_ID = 0x1022;
 
-        public AMDCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
+        protected AMDCPU(int processorIndex, CPUID[][] cpuid, ISettings settings)
             : base(processorIndex, cpuid, settings)
         {
         }
