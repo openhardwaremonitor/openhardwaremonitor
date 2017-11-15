@@ -36,8 +36,7 @@ namespace OpenHardwareMonitor.GUI
 
         private readonly UnitManager unitManager;
 
-        public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor,
-            bool balloonTip, PersistentSettings settings, UnitManager unitManager)
+        public SensorNotifyIcon(SystemTray sensorSystemTray, ISensor sensor, PersistentSettings settings, UnitManager unitManager)
         {
             this.unitManager = unitManager;
             Sensor = sensor;

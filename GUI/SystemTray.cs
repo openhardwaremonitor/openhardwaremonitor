@@ -122,7 +122,7 @@ namespace OpenHardwareMonitor.GUI
             }
             else
             {
-                list.Add(new SensorNotifyIcon(this, sensor, balloonTip, settings, unitManager));
+                list.Add(new SensorNotifyIcon(this, sensor, settings, unitManager));
                 UpdateMainIconVisibilty();
                 settings.SetValue(new Identifier(sensor.Identifier, "tray").ToString(), true);
             }

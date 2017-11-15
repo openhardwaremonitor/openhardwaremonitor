@@ -16,7 +16,7 @@ namespace OpenHardwareMonitor.Hardware.RAM
     {
         private readonly Hardware[] hardware;
 
-        public RAMGroup(SMBIOS smbios, ISettings settings)
+        public RAMGroup(ISettings settings)
         {
             // No implementation for RAM on Unix systems
             var p = (int) Environment.OSVersion.Platform;

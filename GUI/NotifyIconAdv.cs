@@ -658,8 +658,7 @@ namespace OpenHardwareMonitor.GUI
                 }
             }
 
-            private void ProcessMouseDown(ref Message message, MouseButtons button,
-                bool doubleClick)
+            private void ProcessMouseDown(MouseButtons button,bool doubleClick)
             {
                 if (doubleClick)
                 {
@@ -674,7 +673,7 @@ namespace OpenHardwareMonitor.GUI
                     new MouseEventArgs(button, doubleClick ? 2 : 1, 0, 0, 0));
             }
 
-            private void ProcessMouseUp(ref Message message, MouseButtons button)
+            private void ProcessMouseUp(MouseButtons button)
             {
                 MouseUp?.Invoke(this, new MouseEventArgs(button, 0, 0, 0, 0));
 
@@ -726,33 +725,33 @@ namespace OpenHardwareMonitor.GUI
                                     new MouseEventArgs(Control.MouseButtons, 0, 0, 0, 0));
                                 return;
                             case WM_LBUTTONDOWN:
-                                ProcessMouseDown(ref message, MouseButtons.Left, false);
+                                ProcessMouseDown(MouseButtons.Left, false);
                                 return;
                             case WM_LBUTTONUP:
-                                ProcessMouseUp(ref message, MouseButtons.Left);
+                                ProcessMouseUp(MouseButtons.Left);
                                 return;
                             case WM_LBUTTONDBLCLK:
-                                ProcessMouseDown(ref message, MouseButtons.Left, true);
+                                ProcessMouseDown(MouseButtons.Left, true);
                                 return;
                             case WM_RBUTTONDOWN:
-                                ProcessMouseDown(ref message, MouseButtons.Right, false);
+                                ProcessMouseDown(MouseButtons.Right, false);
                                 return;
                             case WM_RBUTTONUP:
                                 if (ContextMenu != null || ContextMenuStrip != null)
                                     ShowContextMenu();
-                                ProcessMouseUp(ref message, MouseButtons.Right);
+                                ProcessMouseUp(MouseButtons.Right);
                                 return;
                             case WM_RBUTTONDBLCLK:
-                                ProcessMouseDown(ref message, MouseButtons.Right, true);
+                                ProcessMouseDown(MouseButtons.Right, true);
                                 return;
                             case WM_MBUTTONDOWN:
-                                ProcessMouseDown(ref message, MouseButtons.Middle, false);
+                                ProcessMouseDown(MouseButtons.Middle, false);
                                 return;
                             case WM_MBUTTONUP:
-                                ProcessMouseUp(ref message, MouseButtons.Middle);
+                                ProcessMouseUp(MouseButtons.Middle);
                                 return;
                             case WM_MBUTTONDBLCLK:
-                                ProcessMouseDown(ref message, MouseButtons.Middle, true);
+                                ProcessMouseDown(MouseButtons.Middle, true);
                                 return;
                             case NIN_BALLOONSHOW:
                                 BalloonTipShown?.Invoke(this, EventArgs.Empty);

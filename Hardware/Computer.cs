@@ -91,7 +91,7 @@ namespace OpenHardwareMonitor.Hardware {
         Add(new CPU.CPUGroup(settings));
 
       if (ramEnabled)
-        Add(new RAM.RAMGroup(smbios, settings));
+        Add(new RAM.RAMGroup(settings));
 
       if (gpuEnabled) {
         Add(new ATI.ATIGroup(settings));
@@ -146,7 +146,7 @@ namespace OpenHardwareMonitor.Hardware {
       set {
         if (open && value != ramEnabled) {
           if (value)
-            Add(new RAM.RAMGroup(smbios, settings));
+            Add(new RAM.RAMGroup(settings));
           else
             RemoveType<RAM.RAMGroup>();
         }
