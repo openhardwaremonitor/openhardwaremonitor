@@ -441,18 +441,17 @@ namespace OpenHardwareMonitor.GUI
                 }
             };
 
-            EventHandler moveOrResizePlotForm = delegate
+            void MoveOrResizePlotForm(object sender, EventArgs e)
             {
-                if (plotForm.WindowState != FormWindowState.Minimized)
-                {
-                    settings.SetValue("plotForm.Location.X", plotForm.Bounds.X);
-                    settings.SetValue("plotForm.Location.Y", plotForm.Bounds.Y);
-                    settings.SetValue("plotForm.Width", plotForm.Bounds.Width);
-                    settings.SetValue("plotForm.Height", plotForm.Bounds.Height);
-                }
-            };
-            plotForm.Move += moveOrResizePlotForm;
-            plotForm.Resize += moveOrResizePlotForm;
+                if (plotForm.WindowState == FormWindowState.Minimized) return;
+                settings.SetValue("plotForm.Location.X", plotForm.Bounds.X);
+                settings.SetValue("plotForm.Location.Y", plotForm.Bounds.Y);
+                settings.SetValue("plotForm.Width", plotForm.Bounds.Width);
+                settings.SetValue("plotForm.Height", plotForm.Bounds.Height);
+            }
+
+            plotForm.Move += MoveOrResizePlotForm;
+            plotForm.Resize += MoveOrResizePlotForm;
 
             plotForm.VisibleChanged += delegate
             {
