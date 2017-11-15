@@ -97,7 +97,7 @@ namespace OpenHardwareMonitor.Hardware.CPU
                 if (newTotalTimes[i] - totalTimes[i] < 100000)
                     return;
 
-            if (newIdleTimes == null || newTotalTimes == null)
+            if (newIdleTimes == null)
                 return;
 
             float total = 0;
