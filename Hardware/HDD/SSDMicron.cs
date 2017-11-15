@@ -34,11 +34,7 @@ namespace OpenHardwareMonitor.Hardware.HDD
                 new SmartAttribute(0xAD, SmartNames.WearLevelingCount, RawToInt),
                 new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
                 new SmartAttribute(0xB5, SmartNames.Non4kAlignedAccess,
-                    (raw, value, p)
-                        =>
-                    {
-                        return 6e4f * ((raw[5] << 8) | raw[4]);
-                    }),
+                    (raw, value, p) => 6e4f * ((raw[5] << 8) | raw[4])),
                 new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToInt),
                 new SmartAttribute(0xBB, SmartNames.ReportedUncorrectableErrors, RawToInt),
                 new SmartAttribute(0xBC, SmartNames.CommandTimeout, RawToInt),
@@ -48,18 +44,10 @@ namespace OpenHardwareMonitor.Hardware.HDD
                 new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
                 new SmartAttribute(0xC7, SmartNames.UltraDmaCrcErrorCount, RawToInt),
                 new SmartAttribute(0xCA, SmartNames.RemainingLife,
-                    (raw, value, p)
-                        =>
-                    {
-                        return 100 - RawToInt(raw, value, p);
-                    },
+                    (raw, value, p) => 100 - RawToInt(raw, value, p),
                     SensorType.Level, 0, SmartNames.RemainingLife),
                 new SmartAttribute(0xCE, SmartNames.WriteErrorRate,
-                    (raw, value, p)
-                        =>
-                    {
-                        return 6e4f * ((raw[1] << 8) | raw[0]);
-                    })
+                    (raw, value, p) => 6e4f * ((raw[1] << 8) | raw[0]))
             };
 
         public SSDMicron(ISmart smart, string name, string firmwareRevision,

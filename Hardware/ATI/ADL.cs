@@ -175,8 +175,7 @@ namespace OpenHardwareMonitor.Hardware.ATI
         private static string dllName;
 
         // create a Main_Memory_Alloc delegate and keep it alive
-        private static readonly ADL_Main_Memory_AllocDelegate Main_Memory_Alloc =
-            delegate(int size) { return Marshal.AllocHGlobal(size); };
+        private static readonly ADL_Main_Memory_AllocDelegate Main_Memory_Alloc = (int size) => Marshal.AllocHGlobal(size);
 
         static ADL()
         {

@@ -35,28 +35,16 @@ namespace OpenHardwareMonitor.Hardware.HDD
                 new SmartAttribute(0xB8, SmartNames.EndToEndError),
                 new SmartAttribute(0xC0, SmartNames.UnsafeShutdownCount),
                 new SmartAttribute(0xE1, SmartNames.HostWrites,
-                    (r, v, p)
-                        =>
-                    {
-                        return RawToInt(r, v, p) / 0x20;
-                    },
+                    (r, v, p) => RawToInt(r, v, p) / 0x20,
                     SensorType.Data, 0, SmartNames.HostWrites),
                 new SmartAttribute(0xE8, SmartNames.RemainingLife,
                     null, SensorType.Level, 0, SmartNames.RemainingLife),
                 new SmartAttribute(0xE9, SmartNames.MediaWearOutIndicator),
                 new SmartAttribute(0xF1, SmartNames.HostWrites,
-                    (r, v, p)
-                        =>
-                    {
-                        return RawToInt(r, v, p) / 0x20;
-                    },
+                    (r, v, p) => RawToInt(r, v, p) / 0x20,
                     SensorType.Data, 0, SmartNames.HostWrites),
                 new SmartAttribute(0xF2, SmartNames.HostReads,
-                    (r, v, p)
-                        =>
-                    {
-                        return RawToInt(r, v, p) / 0x20;
-                    },
+                    (r, v, p) => RawToInt(r, v, p) / 0x20,
                     SensorType.Data, 1, SmartNames.HostReads)
             };
 
