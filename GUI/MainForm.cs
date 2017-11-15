@@ -724,7 +724,7 @@ namespace OpenHardwareMonitor.GUI
             if (info.Node != null)
             {
                 var node = info.Node.Tag as SensorNode;
-                if (node != null && node.Sensor != null)
+                if (node?.Sensor != null)
                 {
                     treeContextMenu.MenuItems.Clear();
                     if (node.Sensor.Parameters.Length > 0)
@@ -823,7 +823,7 @@ namespace OpenHardwareMonitor.GUI
                 }
 
                 var hardwareNode = info.Node.Tag as HardwareNode;
-                if (hardwareNode != null && hardwareNode.Hardware != null)
+                if (hardwareNode?.Hardware != null)
                 {
                     treeContextMenu.MenuItems.Clear();
 
@@ -890,8 +890,7 @@ namespace OpenHardwareMonitor.GUI
             TreeNodeAdvMouseEventArgs e)
         {
             var node = e.Node.Tag as SensorNode;
-            if (node != null && node.Sensor != null &&
-                node.Sensor.Parameters.Length > 0) ShowParameterForm(node.Sensor);
+            if (node?.Sensor != null && node.Sensor.Parameters.Length > 0) ShowParameterForm(node.Sensor);
         }
 
         private void celsiusMenuItem_Click(object sender, EventArgs e)
