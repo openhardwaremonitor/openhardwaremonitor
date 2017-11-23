@@ -1,13 +1,17 @@
-version: 1.0.{build}
-image: Visual Studio 2017
+image: Visual Studio 2015
+
+before_build:
+  - nuget restore
+
+configuration:
+  - Release
+
 environment:
   matrix:
-  - solution_name: OpenHardwareMonitorLibNetStandard.sln
-before_build:
-- cmd: >-
-    nuget sources add -Name dotnet-core -Source https://dotnet.myget.org/F/dotnet-core/api/v3/index.json
-
-    dotnet restore OpenHardwareMonitorLibNetStandard.csproj
+  - solution_name: OpenHardwareMonitor.sln
 build:
   project: '%solution_name%'
   verbosity: minimal
+
+artifacts:
+  - path: 'Bin\Release\'
