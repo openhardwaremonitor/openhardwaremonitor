@@ -212,7 +212,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.F71889ED:
         case Chip.F71889F:
         case Chip.F71808E:
-          GetFintekConfiguration(superIO, manufacturer, model, v, t, f);
+          GetFintekConfiguration(superIO, manufacturer, model, v, t, f, c);
           break;
 
         case Chip.W83627EHF:
@@ -906,7 +906,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     private static void GetFintekConfiguration(ISuperIO superIO,
       Manufacturer manufacturer, Model model,
-      IList<Voltage> v, IList<Temperature> t, IList<Fan> f) 
+      IList<Voltage> v, IList<Temperature> t, IList<Fan> f, IList<Ctrl> c) 
     {
       switch (manufacturer) {
         case Manufacturer.EVGA:
@@ -960,6 +960,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             t.Add(new Temperature("Temperature #" + (i + 1), i));
           for (int i = 0; i < superIO.Fans.Length; i++)
             f.Add(new Fan("Fan #" + (i + 1), i));
+          for (int i = 0; i < superIO.Controls.Length; i++)
+            c.Add(new Ctrl("Fan Control #" + (i + 1), i));
+
           break;
       }
     }
