@@ -187,6 +187,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 break;
               case 0x5C: // Intel ApolloLake
                 microarchitecture = Microarchitecture.ApolloLake;
+                tjMax = GetTjMaxFromMSR();
+                break;			    
               case 0xAE: // Intel Core i5, i7 8xxxx (14nm++)
                 microarchitecture = Microarchitecture.CoffeeLake;
                 tjMax = GetTjMaxFromMSR();
