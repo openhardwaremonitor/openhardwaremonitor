@@ -29,7 +29,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Skylake,
       Airmont,
       KabyLake,
-      ApolloLake      
+      ApolloLake,
+      CoffeeLake
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -186,6 +187,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 break;
               case 0x5C: // Intel ApolloLake
                 microarchitecture = Microarchitecture.ApolloLake;
+              case 0xAE: // Intel Core i5, i7 8xxxx (14nm++)
+                microarchitecture = Microarchitecture.CoffeeLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
               default:
@@ -237,7 +240,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Skylake:
         case Microarchitecture.Airmont:
         case Microarchitecture.ApolloLake:
-        case Microarchitecture.KabyLake: {
+        case Microarchitecture.KabyLake:
+        case Microarchitecture.CoffeeLake: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -421,7 +425,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.Silvermont:
               case Microarchitecture.Skylake:
               case Microarchitecture.ApolloLake:
-              case Microarchitecture.KabyLake: {
+              case Microarchitecture.KabyLake:
+              case Microarchitecture.CoffeeLake: {
                   uint multiplier = (eax >> 8) & 0xff;
                   coreClocks[i].Value = (float)(multiplier * newBusClock);
                 } break;
