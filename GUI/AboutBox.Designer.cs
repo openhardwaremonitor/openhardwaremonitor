@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2017 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2018 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(273, 13);
       this.label2.TabIndex = 3;
-      this.label2.Text = "Copyright © 2009-2017 Michael Möller and contributors. ";
+      this.label2.Text = "Copyright © 2009-2018 Michael Möller and contributors. ";
       // 
       // label3
       // 
