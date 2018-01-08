@@ -11,6 +11,7 @@
 using System;
 using System.Globalization;
 using System.Text;
+using System.Diagnostics;
 
 namespace OpenHardwareMonitor.Hardware.CPU {
   internal sealed class IntelCPU : GenericCPU {
@@ -189,6 +190,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = GetTjMaxFromMSR();
                 break;
               default:
+                Trace.WriteLine("Unknown CPU model.");
                 microarchitecture = Microarchitecture.Unknown;
                 tjMax = Floats(100);
                 break;
@@ -212,6 +214,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             }
           } break;
         default:
+          Trace.WriteLine("Unknown CPU family.");
           microarchitecture = Microarchitecture.Unknown;
           tjMax = Floats(100);
           break;
