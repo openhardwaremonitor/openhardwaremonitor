@@ -23,6 +23,7 @@ using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.WMI;
 using OpenHardwareMonitor.Utilities;
+using System.Diagnostics;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
@@ -239,11 +240,23 @@ namespace OpenHardwareMonitor.GUI {
         computer.RAMEnabled = readRamSensors.Value;
       };
 
+      // Wake any dormant GPUs before enumerating them.
+      Process process = new Process();
+      process.StartInfo.FileName = "WakeGPU.exe";
+      process.StartInfo.UseShellExecute = false;
+      process.StartInfo.RedirectStandardOutput = true;
+      process.StartInfo.CreateNoWindow = true;
+      bool rc = process.Start();
+      string s = process.StandardOutput.ReadLine();
+
       readGpuSensors = new UserOption("gpuMenuItem", true,
         gpuMenuItem, settings);
       readGpuSensors.Changed += delegate(object sender, EventArgs e) {
         computer.GPUEnabled = readGpuSensors.Value;
       };
+
+      // Kill the process immediately so we don't spin it unnecessarily.
+      process.Kill();
 
       readFanControllersSensors = new UserOption("fanControllerMenuItem", true,
         fanControllerMenuItem, settings);
