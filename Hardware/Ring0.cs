@@ -202,8 +202,12 @@ namespace OpenHardwareMonitor.Hardware {
         isaBusMutex = new Mutex(false, mutexName);
       } catch (UnauthorizedAccessException) {
         try {
+#if NETSTANDARD2_0
+          isaBusMutex = Mutex.OpenExisting(mutexName);
+#else
           isaBusMutex = Mutex.OpenExisting(mutexName, MutexRights.Synchronize);
-        } catch { }
+#endif
+                } catch { }
       }
     }
 
