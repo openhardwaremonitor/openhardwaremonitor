@@ -16,7 +16,7 @@ using System.Text;
 
 namespace OpenHardwareMonitor.Hardware {
 
-  internal class SMBIOS {
+  public class SMBIOS {
 
     private readonly byte[] raw;
     private readonly Structure[] table;

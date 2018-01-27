@@ -40,6 +40,9 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     // ECS
     A890GXM_A,
 
+    // MSI
+    Z270_PC_MATE,
+
     // EVGA
     X58_SLI_Classified,
 
@@ -87,6 +90,6 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     FH67,
 
     // Unknown
-    Unknown    
+    Unknown
   }
 }
