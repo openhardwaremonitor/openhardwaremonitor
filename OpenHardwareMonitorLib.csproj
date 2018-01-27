@@ -3,27 +3,20 @@
   <PropertyGroup>
     <TargetFrameworks>net452;netstandard2.0</TargetFrameworks>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
     <RootNamespace>OpenHardwareMonitor</RootNamespace>
     <AssemblyName>OpenHardwareMonitorLib</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <OutputTypeEx>Library</OutputTypeEx>
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
     <Reference Include="System" />
     <Reference Include="System.Management" />
   </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.4.0" />
-    <PackageReference Include="System.IO.Ports" Version="4.4.0" />
-    <PackageReference Include="System.Management" Version="4.5.0-preview1-25825-08" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="4.5.0-preview2-25707-02" />
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <Compile Include="Collections\Pair.cs" />
@@ -123,5 +116,18 @@
 
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="4.5.0-preview1-25914-04" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Win32.Registry">
+      <Version>4.5.0-preview1-25914-04</Version>
+    </PackageReference>
+    <PackageReference Include="System.IO.Ports">
+      <Version>4.4.0</Version>
+    </PackageReference>
   </ItemGroup>
 </Project>
