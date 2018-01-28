@@ -1,16 +1,16 @@
-image: Visual Studio 2015
+version: 1.0.{build}
+
+image: Visual Studio 2017
+
+configuration: Release
+
+platform: Any CPU
 
 before_build:
-  - nuget restore
-
-configuration:
-  - Release
-
-environment:
-  matrix:
-  - solution_name: OpenHardwareMonitor.sln
+  - ps: nuget restore OpenHardwareMonitor.sln
+  
 build:
-  project: '%solution_name%'
+  project: OpenHardwareMonitor.sln
   verbosity: minimal
 
 artifacts:

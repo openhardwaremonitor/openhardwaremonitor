@@ -10,7 +10,14 @@
     <OutputTypeEx>Library</OutputTypeEx>
     <RuntimeIdentifiers>win</RuntimeIdentifiers>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Authors>Libre Hardware Monitor contributors, Michael Möller</Authors>
+    <PackageId>LibreHardwareMonitorLib</PackageId>
+    <PackageLicenseUrl>https://github.com/LibreHardwareMonitor/LibreHardwareMonitor</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/LibreHardwareMonitor/LibreHardwareMonitor</PackageProjectUrl>
+    <PackageTags>libre open hardware monitor monitoring system logging cpu gpu</PackageTags>
+    <RepositoryUrl>https://github.com/LibreHardwareMonitor/LibreHardwareMonitor</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net452' ">
@@ -118,10 +125,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Management" Version="4.5.0-preview1-25914-04" />
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Win32.Registry">
       <Version>4.5.0-preview1-25914-04</Version>
@@ -129,5 +132,9 @@
     <PackageReference Include="System.IO.Ports">
       <Version>4.4.0</Version>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="4.5.0-preview1-25914-04" />
   </ItemGroup>
 </Project>
