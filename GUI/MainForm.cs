@@ -69,6 +69,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption logSensors;
     private UserRadioGroup loggingInterval;
     private Logger logger;
+    private FanControllers fanControllers;
 
     private bool selectionDragging = false;
 
@@ -152,6 +153,20 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       logger = new Logger(computer);
+
+      string appDir = Path.GetDirectoryName(Application.ExecutablePath);
+
+      FanControllers.Init(Path.Combine(appDir, "FanControllers.log"));
+
+      fanControllers = new FanControllers(computer);
+      if (!fanControllers.LoadConfig(Path.Combine(appDir, "FanControllers.config")))
+      {
+        MessageBox.Show(
+          "FanControllers.config has errors.\n" +
+          "See FanControllers.config.parsing.log for details.",
+          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        Environment.Exit(0);
+      }
 
       plotColorPalette = new Color[13];
       plotColorPalette[0] = Color.Blue;
@@ -566,6 +581,7 @@ namespace OpenHardwareMonitor.GUI {
       if (wmiProvider != null)
         wmiProvider.Update();
 
+      fanControllers.Tick();
 
       if (logSensors != null && logSensors.Value && delayCount >= 4)
         logger.Log();
