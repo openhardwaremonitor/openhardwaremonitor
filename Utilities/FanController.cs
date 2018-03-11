@@ -808,8 +808,8 @@ namespace OpenHardwareMonitor.Utilities
 			{
 				System.IO.Path.ChangeExtension(configFileName, "");
 				parseLog.Save(configFileName + ".parsing.log");
-				return false;
 			}
+
 			return !parseLog.HasErrors();
 		}
 	}

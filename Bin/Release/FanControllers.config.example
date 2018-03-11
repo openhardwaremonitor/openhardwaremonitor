@@ -28,7 +28,7 @@ Example (All Fans):
 		CPU Temp: 60 C => target 50%
 		HDD0Temp: 38 C => target 25%
 		HDD1Temp: 39 C => target 25%
-		----------------------------
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		Max target = 60%
 		Set "/lpc/nct6776f/control/1" = 60%
 
