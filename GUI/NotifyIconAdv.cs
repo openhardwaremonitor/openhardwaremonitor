@@ -525,31 +525,17 @@ namespace OpenHardwareMonitor.GUI {
 
           if (showNotifyIcon && icon != null) {
             if (!created) {
-              int i = 0;
-              do {
-                created = NativeMethods.Shell_NotifyIcon(
-                  NativeMethods.NotifyIconMessage.Add, data);
-                if (!created) {
-                  System.Threading.Thread.Sleep(200);
-                  i++;
-                }
-              } while (!created && i < 40);
+              NativeMethods.Shell_NotifyIcon(
+                NativeMethods.NotifyIconMessage.Add, data);
+              created = true;
             } else {
               NativeMethods.Shell_NotifyIcon(
                 NativeMethods.NotifyIconMessage.Modify, data);
             }
           } else {
             if (created) {
-              int i = 0;
-              bool deleted = false;
-              do {
-                deleted = NativeMethods.Shell_NotifyIcon(
-                  NativeMethods.NotifyIconMessage.Delete, data);
-                if (!deleted) {
-                  System.Threading.Thread.Sleep(200);
-                  i++;
-                }
-              } while (!deleted && i < 40);
+              NativeMethods.Shell_NotifyIcon(
+                NativeMethods.NotifyIconMessage.Delete, data);
               created = false;
             }
           }
