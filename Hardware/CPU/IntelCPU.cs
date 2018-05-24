@@ -29,7 +29,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       Skylake,
       Airmont,
       KabyLake,
-      ApolloLake
+      ApolloLake,
+      CoffeeLake,
     }
 
     private readonly Sensor[] coreTemperatures;
@@ -179,9 +180,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.Airmont;
                 tjMax = GetTjMaxFromMSR();
                 break;
-              case 0x8E: 
-              case 0x9E: // Intel Core i5, i7 7xxxx (14nm)
+              case 0x8E: // Intel Core i5, i7 7xxxx (14nm)
                 microarchitecture = Microarchitecture.KabyLake;
+                tjMax = GetTjMaxFromMSR();
+                break;
+              case 0x9E: // Intel Core i5, i7 8xxxx (14nm)
+                microarchitecture = Microarchitecture.CoffeeLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
               case 0x5C: // Intel Atom processors
@@ -237,7 +241,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.Skylake:
         case Microarchitecture.Airmont:
         case Microarchitecture.KabyLake:
-        case Microarchitecture.ApolloLake: {
+        case Microarchitecture.ApolloLake:
+	case Microarchitecture.CoffeeLake: {
             uint eax, edx;
             if (Ring0.Rdmsr(MSR_PLATFORM_INFO, out eax, out edx)) {
               timeStampCounterMultiplier = (eax >> 8) & 0xff;
@@ -302,7 +307,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           microarchitecture == Microarchitecture.Silvermont ||
           microarchitecture == Microarchitecture.Airmont ||
           microarchitecture == Microarchitecture.KabyLake || 
-          microarchitecture == Microarchitecture.ApolloLake) 
+          microarchitecture == Microarchitecture.ApolloLake ||
+	  microarchitecture == Microarchitecture.CoffeeLake) 
       {
         powerSensors = new Sensor[energyStatusMSRs.Length];
         lastEnergyTime = new DateTime[energyStatusMSRs.Length];
