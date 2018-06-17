@@ -149,6 +149,7 @@
     <Compile Include="GUI\SensorNode.cs" />
     <Compile Include="Utilities\EmbeddedResources.cs" />
     <Compile Include="Utilities\IconFactory.cs" />
+    <Compile Include="WMI\Control.cs" />
     <Compile Include="WMI\Hardware.cs" />
     <Compile Include="WMI\IWmiObject.cs" />
     <Compile Include="WMI\Sensor.cs" />

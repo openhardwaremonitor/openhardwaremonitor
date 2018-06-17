@@ -66,7 +66,15 @@ namespace OpenHardwareMonitor.WMI {
     }
 
     private void HardwareSensorAdded(ISensor data) {
-      Sensor sensor = new Sensor(data);
+      IWmiObject sensor;
+      if (data.SensorType == SensorType.Control)
+      {
+        sensor = new Control(data);
+      } else
+      {
+        sensor = new Sensor(data);
+      }
+      
       activeInstances.Add(sensor);
 
       try {
