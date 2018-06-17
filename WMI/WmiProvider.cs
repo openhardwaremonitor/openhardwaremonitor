@@ -11,10 +11,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Management;
 using System.Management.Instrumentation;
 using OpenHardwareMonitor.Hardware;
 
-[assembly: Instrumented("root/OpenHardwareMonitor")]
+[assembly: WmiConfiguration(@"root\OpenHardwareMonitor", HostingModel = ManagementHostingModel.Decoupled)]
 
 [System.ComponentModel.RunInstaller(true)]
 public class InstanceInstaller : DefaultManagementProjectInstaller { }
@@ -56,7 +57,7 @@ namespace OpenHardwareMonitor.WMI {
         activeInstances.Add(hw);
 
         try {
-          Instrumentation.Publish(hw);
+            InstrumentationManager.Publish(hw);
         } catch (Exception) { }
       }
 
@@ -69,7 +70,7 @@ namespace OpenHardwareMonitor.WMI {
       activeInstances.Add(sensor);
 
       try {
-        Instrumentation.Publish(sensor);
+        InstrumentationManager.Publish(sensor);
       } catch (Exception) { }
     }
 
@@ -107,7 +108,7 @@ namespace OpenHardwareMonitor.WMI {
         return;
 
       try {
-        Instrumentation.Revoke(activeInstances[instanceIndex]);
+        InstrumentationManager.Revoke(activeInstances[instanceIndex]);
       } catch (Exception) { }
 
       activeInstances.RemoveAt(instanceIndex);
@@ -118,7 +119,7 @@ namespace OpenHardwareMonitor.WMI {
     public void Dispose() {
       foreach (IWmiObject instance in activeInstances) {
         try {
-          Instrumentation.Revoke(instance);
+          InstrumentationManager.Revoke(instance);
         } catch (Exception) { }
       }
       activeInstances = null;
