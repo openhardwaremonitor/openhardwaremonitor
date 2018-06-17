@@ -26,7 +26,7 @@ namespace OpenHardwareMonitor.GUI {
     private readonly PersistentSettings settings;
     private readonly UnitManager unitManager;
 
-    private readonly Plot plot;
+    private readonly PlotView plot;
     private readonly PlotModel model;
     private readonly TimeSpanAxis timeAxis = new TimeSpanAxis();
     private readonly SortedDictionary<SensorType, LinearAxis> axes =
@@ -42,7 +42,7 @@ namespace OpenHardwareMonitor.GUI {
 
       this.model = CreatePlotModel();
 
-      this.plot = new Plot();
+      this.plot = new PlotView();
       this.plot.Dock = DockStyle.Fill;
       this.plot.Model = model;
       this.plot.BackColor = Color.White;
@@ -56,12 +56,12 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public void SetCurrentSettings() {
-      settings.SetValue("plotPanel.MinTimeSpan", (float)timeAxis.ViewMinimum);
-      settings.SetValue("plotPanel.MaxTimeSpan", (float)timeAxis.ViewMaximum);
+      settings.SetValue("plotPanel.MinTimeSpan", (float)timeAxis.Minimum);
+      settings.SetValue("plotPanel.MaxTimeSpan", (float)timeAxis.Maximum);
 
       foreach (var axis in axes.Values) {
-        settings.SetValue("plotPanel.Min" + axis.Key, (float)axis.ViewMinimum);
-        settings.SetValue("plotPanel.Max" + axis.Key, (float)axis.ViewMaximum);
+        settings.SetValue("plotPanel.Min" + axis.Key, (float)axis.Minimum);
+        settings.SetValue("plotPanel.Max" + axis.Key, (float)axis.Maximum);
       }
     }
 
@@ -187,15 +187,15 @@ namespace OpenHardwareMonitor.GUI {
       foreach (ISensor sensor in sensors) {
         var series = new LineSeries();
         if (sensor.SensorType == SensorType.Temperature) {
-          series.ItemsSource = sensor.Values.Select(value => new DataPoint {
-            X = (now - value.Time).TotalSeconds,
-            Y = unitManager.TemperatureUnit == TemperatureUnit.Celsius ? 
+          series.ItemsSource = sensor.Values.Select(value => new DataPoint (
+            x: (now - value.Time).TotalSeconds,
+            y: unitManager.TemperatureUnit == TemperatureUnit.Celsius ? 
               value.Value : UnitManager.CelsiusToFahrenheit(value.Value).Value
-          });
+          ));
         } else {
-          series.ItemsSource = sensor.Values.Select(value => new DataPoint {
-            X = (now - value.Time).TotalSeconds, Y = value.Value
-          });
+          series.ItemsSource = sensor.Values.Select(value => new DataPoint (
+            x: (now - value.Time).TotalSeconds, y: value.Value
+          ));
         }
         series.Color = colors[sensor].ToOxyColor();
         series.StrokeThickness = 1;
