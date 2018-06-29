@@ -154,7 +154,8 @@ namespace OpenHardwareMonitorReport
             if (!IsFileAvailable("OpenHardwareMonitor.exe"))
                 return false;
             if (!IsFileAvailable("Aga.Controls.dll"))
-
+                return false;
+            if (!IsFileAvailable("CommandLine.dll"))
                 return false;
             if (!IsFileAvailable("OpenHardwareMonitorLib.dll"))
                 return false;
