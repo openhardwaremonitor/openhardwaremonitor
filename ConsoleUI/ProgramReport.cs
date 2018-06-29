@@ -37,10 +37,10 @@ namespace OpenHardwareMonitorReport
                     settings.CaseSensitive = false;
                     settings.HelpWriter = CommandLine.Parser.Default.Settings.HelpWriter;
                     settings.EnableDashDash = CommandLine.Parser.Default.Settings.EnableDashDash;
-                    settings.CaseInsensitiveEnumValues  = CommandLine.Parser.Default.Settings.CaseInsensitiveEnumValues;
-                    settings.IgnoreUnknownArguments  = CommandLine.Parser.Default.Settings.IgnoreUnknownArguments;
-                    settings.MaximumDisplayWidth =  CommandLine.Parser.Default.Settings.MaximumDisplayWidth;
-                    settings.ParsingCulture =  CommandLine.Parser.Default.Settings.ParsingCulture;
+                    settings.CaseInsensitiveEnumValues = CommandLine.Parser.Default.Settings.CaseInsensitiveEnumValues;
+                    settings.IgnoreUnknownArguments = CommandLine.Parser.Default.Settings.IgnoreUnknownArguments;
+                    settings.MaximumDisplayWidth = CommandLine.Parser.Default.Settings.MaximumDisplayWidth;
+                    settings.ParsingCulture = CommandLine.Parser.Default.Settings.ParsingCulture;
                 });
 
                 var Result = CaseInsensitiveParser.ParseArguments<CommandLineOptions.RunWebserver, CommandLineOptions.ReportToConsole, CommandLineOptions.ReportToFile>(args);
@@ -62,6 +62,13 @@ namespace OpenHardwareMonitorReport
                 }
                 ExitCode = 3;
             }
+            if ((ExitCode == 1) && (!Utility.IsUserAdministrator()))
+            {
+                System.Console.Out.WriteLine("WARNING: you need to run this application with administrator permission");
+                System.Console.Out.WriteLine();
+            }
+
+
             if (WaitOnExitForSeconds > 0)
             {
                 Console.Out.WriteLine("Waiting " + WaitOnExitForSeconds.ToString() + " seconds before exiting . . .");
