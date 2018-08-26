@@ -14,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Security.Permissions;
 using System.Reflection;
+using System.Net.NetworkInformation;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -31,7 +32,9 @@ namespace OpenHardwareMonitor.Hardware {
     private bool ramEnabled;
     private bool gpuEnabled;
     private bool fanControllerEnabled;
-    private bool hddEnabled;    
+    private bool hddEnabled;  
+    private bool nicEnabled;
+    private int nicCount;
 
     public Computer() {
       this.settings = new Settings();
@@ -106,6 +109,12 @@ namespace OpenHardwareMonitor.Hardware {
 
       if (hddEnabled)
         Add(new HDD.HarddriveGroup(settings));
+
+      if (nicEnabled)
+      {
+        nicCount = NetworkInterface.GetAllNetworkInterfaces().Length;
+        Add(new Nic.NicGroup(settings));
+      }
 
       open = true;
     }
@@ -205,6 +214,21 @@ namespace OpenHardwareMonitor.Hardware {
             RemoveType<HDD.HarddriveGroup>();
         }
         hddEnabled = value;
+      }
+    }
+
+    public bool NICEnabled {
+      get { return nicEnabled; }
+
+      [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
+      set {
+        if (open && value != nicEnabled) {
+          if (value)
+            Add(new Nic.NicGroup(settings));
+          else
+            RemoveType<Nic.NicGroup>();
+        }
+        nicEnabled = value;
       }
     }
 
@@ -380,6 +404,12 @@ namespace OpenHardwareMonitor.Hardware {
       foreach (IGroup group in groups)
         foreach (IHardware hardware in group.Hardware) 
           hardware.Accept(visitor);
+          int newNiccount = NetworkInterface.GetAllNetworkInterfaces().Length;
+          if (nicCount != newNiccount) {
+            nicCount = newNiccount;
+            NICEnabled = false;
+            NICEnabled = true;
+          }
     }
 
     private class Settings : ISettings {

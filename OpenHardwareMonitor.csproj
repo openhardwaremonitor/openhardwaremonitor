@@ -173,6 +173,7 @@
     <EmbeddedResource Include="Resources\load.png" />
     <EmbeddedResource Include="Resources\voltage.png" />
     <EmbeddedResource Include="Resources\nvidia.png" />
+    <EmbeddedResource Include="Resources\nic.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -254,6 +255,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\data.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\throughput.png" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\factor.png" />
