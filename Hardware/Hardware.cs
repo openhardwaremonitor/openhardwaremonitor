@@ -9,16 +9,18 @@
 */
 
 using System;
-using OpenHardwareMonitor.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace OpenHardwareMonitor.Hardware {
-    public abstract class Hardware : IHardware {
+namespace OpenHardwareMonitor.Hardware
+{
+  public abstract class Hardware : IHardware {
 
     private readonly Identifier identifier;
     protected readonly string name;
     private string customName;
     protected readonly ISettings settings;
-    protected readonly ListSet<ISensor> active = new ListSet<ISensor>();
+    protected readonly HashSet<ISensor> active = new HashSet<ISensor>();
 
     public Hardware(string name, Identifier identifier, ISettings settings) {
       this.settings = settings;
@@ -41,15 +43,13 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     protected virtual void ActivateSensor(ISensor sensor) {
-      if (active.Add(sensor)) 
-        if (SensorAdded != null)
-          SensorAdded(sensor);
+      if (active.Add(sensor))
+        SensorAdded?.Invoke(sensor);
     }
 
     protected virtual void DeactivateSensor(ISensor sensor) {
       if (active.Remove(sensor))
-        if (SensorRemoved != null)
-          SensorRemoved(sensor);     
+        SensorRemoved?.Invoke(sensor);
     }
 
     public string Name {

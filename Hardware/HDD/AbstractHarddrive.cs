@@ -15,9 +15,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using OpenHardwareMonitor.Collections;
 
-namespace OpenHardwareMonitor.Hardware.HDD {
+namespace OpenHardwareMonitor.Hardware.HDD
+{
   public abstract class AbstractHarddrive : Hardware {
 
     private const int UPDATE_DIVIDER = 30; // update only every 30s
@@ -33,14 +33,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       typeof(GenericHarddisk)
     };
 
-    private string firmwareRevision;
+    private readonly string firmwareRevision;
     private readonly ISmart smart;
 
     private readonly IntPtr handle;
     private readonly int index;
     private int count;
 
-    private IList<SmartAttribute> smartAttributes;
+    private readonly IList<SmartAttribute> smartAttributes;
     private IDictionary<SmartAttribute, Sensor> sensors;
 
     private DriveInfo[] driveInfos;
@@ -178,8 +178,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       sensors = new Dictionary<SmartAttribute, Sensor>();
 
       if (handle != smart.InvalidHandle) {
-        IList<Pair<SensorType, int>> sensorTypeAndChannels =
-          new List<Pair<SensorType, int>>();
+        IList<(SensorType, int)> sensorTypeAndChannels =
+          new List<(SensorType, int)>();
 
         DriveAttributeValue[] values = smart.ReadSmartData(handle, index);
 
@@ -196,9 +196,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           }
           if (!found)
             continue;
-
-          Pair<SensorType, int> pair = new Pair<SensorType, int>(
-            attribute.SensorType.Value, attribute.SensorChannel);
+          var pair = (vaule: attribute.SensorType.Value, 
+                      sensorChannel: attribute.SensorChannel);
 
           if (!sensorTypeAndChannels.Contains(pair)) {
             Sensor sensor = new Sensor(attribute.SensorName,
@@ -352,7 +351,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     protected static float RawToInt(byte[] raw, byte value,
-      IReadOnlyArray<IParameter> parameters) 
+      IReadOnlyList<IParameter> parameters) 
     {
       return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
     }

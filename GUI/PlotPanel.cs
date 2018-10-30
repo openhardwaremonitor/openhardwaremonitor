@@ -18,7 +18,6 @@ using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.WindowsForms;
 using OxyPlot.Series;
-using OpenHardwareMonitor.Collections;
 
 namespace OpenHardwareMonitor.GUI {
   public class PlotPanel : UserControl {
@@ -212,7 +211,7 @@ namespace OpenHardwareMonitor.GUI {
       IDictionary<ISensor, Color> colors) {
       this.model.Series.Clear();
 
-      ListSet<SensorType> types = new ListSet<SensorType>();
+      var types = new System.Collections.Generic.HashSet<SensorType>();
 
       foreach (ISensor sensor in sensors) {
         var series = new LineSeries();
