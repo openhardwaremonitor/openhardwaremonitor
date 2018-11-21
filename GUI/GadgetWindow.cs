@@ -56,20 +56,12 @@ namespace OpenHardwareMonitor.GUI {
       CreateBuffer();
     }
 
-    private void ShowDesktopChanged(bool showDesktop) {
-      if (showDesktop) {
-        if (alwaysOnTop) {
-          MoveToTopMost(Handle);
-        }
-        else {
-          MoveToBottom(Handle);
-        }
+    private void ShowDesktopChanged(bool fullscreen) {
+      if (fullscreen) {
+        MoveToBottom(Handle);
       }
-      else {
-        if (alwaysOnTop) {
-          MoveToBottom(Handle);
-        }
-        else {
+      else {//not fullscreen
+        if (alwaysOnTop && Handle != ShowDesktop.GetForegroundWindow()) {//set to top only when it's not foreground
           MoveToTopMost(Handle);
         }
       }

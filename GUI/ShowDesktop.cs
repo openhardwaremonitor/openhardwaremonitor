@@ -16,7 +16,7 @@ namespace OpenHardwareMonitor.GUI {
   public class ShowDesktop {
     private static ShowDesktop instance = new ShowDesktop();
 
-    public delegate void ShowDesktopChangedEventHandler(bool showDesktop);
+    public delegate void ShowDesktopChangedEventHandler(bool fullscreen);
     
     private event ShowDesktopChangedEventHandler ShowDesktopChangedEvent;
 
@@ -100,7 +100,6 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void OnTimer(Object state) {
-      bool showDesktopDetected;
       
       /*
       IntPtr workerWindow = GetDesktopWorkerWindow();
@@ -115,14 +114,8 @@ namespace OpenHardwareMonitor.GUI {
       }
       */
 
-      if (isFullscreen()) {//hide when fullscreen detected
-        showDesktopDetected = false;
-      } else {//show by default
-        showDesktopDetected = true;
-      }
-
       if (ShowDesktopChangedEvent != null) {
-        ShowDesktopChangedEvent(showDesktopDetected);
+        ShowDesktopChangedEvent(isFullscreen());
       }
     }
 
@@ -146,6 +139,11 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+    
+    public static IntPtr GetForegroundWindow() {
+      return NativeMethods.GetForegroundWindow();
+    }
+    
     public struct Rect {
       public int Left;
       public int Top;
