@@ -91,11 +91,11 @@ namespace OpenHardwareMonitor.GUI {
       if (foregroundHWnd == IntPtr.Zero) {
         return false;
       }
-      int pid;
-      NativeMethods.GetWindowThreadProcessId(foregroundHWnd, out pid);
       Rect rect;
       NativeMethods.GetWindowRect(foregroundHWnd, out rect);
       //return true on fullscreen
+      //NOTE: some application (foorbar's Spectrogram) create a window larger than screen size, but I can't decide whether to use `<=` rather than `==` 
+//      return w <= (rect.Right - rect.Left) && h <= (rect.Bottom - rect.Top);
       return w == (rect.Right - rect.Left) && h == (rect.Bottom - rect.Top);
     }
 
@@ -139,11 +139,20 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+
+    private static int GetPidFromHandle(IntPtr handle) {
+      int pid;
+      NativeMethods.GetWindowThreadProcessId(handle, out pid);
+      return pid;
+    }
     
+    public static bool IsForegroundExplorer() {
+      return GetPidFromHandle(NativeMethods.GetForegroundWindow()) != GetPidFromHandle(NativeMethods.GetShellWindow());
+    }
+
     public static IntPtr GetForegroundWindow() {
       return NativeMethods.GetForegroundWindow();
     }
-    
     public struct Rect {
       public int Left;
       public int Top;

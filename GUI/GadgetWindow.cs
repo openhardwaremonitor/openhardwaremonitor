@@ -58,10 +58,12 @@ namespace OpenHardwareMonitor.GUI {
 
     private void ShowDesktopChanged(bool fullscreen) {
       if (fullscreen) {
-        MoveToBottom(Handle);
+        if (ShowDesktop.IsForegroundExplorer()) {//explorer shouldn't be considered as a fullscreen application
+          MoveToBottom(Handle);
+        }
       }
       else {//not fullscreen
-        if (alwaysOnTop && Handle != ShowDesktop.GetForegroundWindow()) {//set to top only when it's not foreground
+        if (alwaysOnTop && Handle != ShowDesktop.GetForegroundWindow()) {//(alwaysOnTop is set) && (it's not foreground window)
           MoveToTopMost(Handle);
         }
       }
