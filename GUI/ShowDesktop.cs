@@ -21,7 +21,6 @@ namespace OpenHardwareMonitor.GUI {
     private event ShowDesktopChangedEventHandler ShowDesktopChangedEvent;
 
     private System.Threading.Timer timer;
-    private bool showDesktop = false;   
     private NativeWindow referenceWindow;
     private string referenceWindowCaption =
       "OpenHardwareMonitorShowDesktopReferenceWindow";
@@ -44,7 +43,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void StartTimer() {
-      timer.Change(0, 200);
+      timer.Change(0, 1000);
     }
 
     private void StopTimer() {
@@ -81,9 +80,29 @@ namespace OpenHardwareMonitor.GUI {
       return IntPtr.Zero;
     }
 
+    private bool isFullscreen() {
+      int w = NativeMethods.GetSystemMetrics(SM_CXSCREEN);
+      int h = NativeMethods.GetSystemMetrics(SM_CYSCREEN);
+
+        //get forground window and detect if it is fullscreen
+        IntPtr foregroundHWnd = NativeMethods.GetForegroundWindow();
+
+
+      if (foregroundHWnd == IntPtr.Zero) {
+        return false;
+      }
+      int pid;
+      NativeMethods.GetWindowThreadProcessId(foregroundHWnd, out pid);
+      Rect rect;
+      NativeMethods.GetWindowRect(foregroundHWnd, out rect);
+      //return true on fullscreen
+      return w == (rect.Right - rect.Left) && h == (rect.Bottom - rect.Top);
+    }
+
     private void OnTimer(Object state) {
       bool showDesktopDetected;
-
+      
+      /*
       IntPtr workerWindow = GetDesktopWorkerWindow();
       if (workerWindow != IntPtr.Zero) {
         // search if the reference window is behind the worker window
@@ -94,12 +113,16 @@ namespace OpenHardwareMonitor.GUI {
         // if there is no worker window, then nothing can hide the reference
         showDesktopDetected = false;
       }
+      */
 
-      if (showDesktop != showDesktopDetected) {
-        showDesktop = showDesktopDetected;
-        if (ShowDesktopChangedEvent != null) {
-          ShowDesktopChangedEvent(showDesktop);
-        }
+      if (isFullscreen()) {//hide when fullscreen detected
+        showDesktopDetected = false;
+      } else {//show by default
+        showDesktopDetected = true;
+      }
+
+      if (ShowDesktopChangedEvent != null) {
+        ShowDesktopChangedEvent(showDesktopDetected);
       }
     }
 
@@ -123,6 +146,17 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+    public struct Rect {
+      public int Left;
+      public int Top;
+      public int Right;
+      public int Bottom;
+    }
+
+    public const int SM_CXSCREEN = 0;
+    public const int SM_CYSCREEN = 1;
+
+
     private static class NativeMethods {
       private const string USER = "user32.dll";
 
@@ -140,6 +174,15 @@ namespace OpenHardwareMonitor.GUI {
       [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
       public static extern int GetWindowThreadProcessId(IntPtr hWnd,
         out int processId);
-    }  
+
+      [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
+      public static extern IntPtr GetForegroundWindow();
+
+      [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
+      public static extern int GetSystemMetrics(int code);
+
+      [DllImport(USER, CallingConvention = CallingConvention.Winapi)]
+      public static extern bool GetWindowRect(IntPtr handle, out Rect rect);
+    }
   }
 }
