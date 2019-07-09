@@ -1,11 +1,11 @@
 ﻿/*
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
- 
+
   Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
-	
+
 */
 
 namespace OpenHardwareMonitor.Hardware.Mainboard {
@@ -53,6 +53,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case "LENOVO":
           return Manufacturer.Lenovo;
         case "Micro-Star International":
+        case "Micro-Star International Co., Ltd":
         case "MICRO-STAR INTERNATIONAL CO., LTD":
         case "MICRO-STAR INTERNATIONAL CO.,LTD":
         case "MSI":
@@ -80,6 +81,21 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.B85M_DGS;
         case "ASRock AOD790GX/128M":
           return Model.AOD790GX_128M;
+        case "AB350 Pro4":
+          return Model.ASROCK_AB350_PRO4;
+        case "AB350M Pro4":
+          return Model.ASROCK_AB350M_PRO4;
+        case "AB350M":
+          return Model.ASROCK_AB350M;
+        case "Fatal1ty AB350 Gaming K4":
+          return Model.ASROCK_Fatal1ty_AB350_Gaming_K4;
+        case "AB350M-HDV":
+          return Model.ASROCK_AB350M_HDV;
+        case "X399 Phantom Gaming 6":
+          return Model.ASROCK_PHANTOM_GAMING_6;
+        case "A320M-HDV":
+          return Model.ASROCK_A320M_HDV;
+
         case "P55 Deluxe":
           return Model.P55_Deluxe;
         case "Crosshair III Formula":
@@ -184,6 +200,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case "X58A-UD3R":
           return Model.X58A_UD3R;
         case "Z270 PC MATE":
+        case "Z270 PC MATE (MS-7A72)":
           return Model.Z270_PC_MATE;
         case "X79-UD3":
           return Model.X79_UD3;
@@ -209,6 +226,23 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.PRIME_X370_PRO;
         case "ROG MAXIMUS X APEX":
           return Model.ROG_MAXIMUS_APEX;
+        case "AB350-Gaming 3-CF":
+          return Model.AB350_Gaming_3_CF;
+        case "X399 AORUS Gaming 7":
+          return Model.GIGABYTE_X399_AOURUS_GAMING7;
+        case "ROG ZENITH EXTREME":
+          return Model.ROG_ZENITH_EXTREME;
+        case "Z170-A":
+          return Model.ASUS_Z170_A;
+        case "Z77 Pro4-M":
+          return Model.ASROCK_Z77PRO4M;
+        case "AX370-Gaming 5":
+          return Model.AX370_Gaming_5;
+        case "TUF X470-PLUS GAMING":
+          return Model.TUF_X470_PLUS_GAMING;
+        case "B360M PRO-VDH (MS-7B24)":
+          return Model.B360M_PRO_VDH;
+
         case "Base Board Product Name":
         case "To be filled by O.E.M.":
           return Model.Unknown;
