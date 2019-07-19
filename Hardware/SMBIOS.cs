@@ -175,6 +175,8 @@ namespace OpenHardwareMonitor.Hardware {
         r.AppendLine(System.ProductName);
         r.Append("System Version: ");
         r.AppendLine(System.Version);
+        r.Append("System Wakeup: ");
+        r.AppendLine(System.WakeUp.ToString());
         r.AppendLine();
       }
 
@@ -375,9 +377,10 @@ namespace OpenHardwareMonitor.Hardware {
       private readonly string version;
       private readonly string serialNumber;
       private readonly string family;
+      private readonly SystemWakeUp wakeUp;
 
       public SystemInformation(string manufacturerName, string productName, 
-        string version, string serialNumber, string family) 
+        string version, string serialNumber, string family, SystemWakeUp wakeUp = SystemWakeUp.Unknown) 
         : base (0x01, 0, null, null) 
       {
         this.manufacturerName = manufacturerName;
@@ -385,6 +388,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.version = version;
         this.serialNumber = serialNumber;
         this.family = family;
+        this.wakeUp = wakeUp;
       }
 
       public SystemInformation(byte type, ushort handle, byte[] data,
@@ -396,6 +400,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.version = GetString(0x06);
         this.serialNumber = GetString(0x07);
         this.family = GetString(0x1A);
+        this.wakeUp = (SystemWakeUp)GetByte(0x18);
       }
 
       public string ManufacturerName { get { return manufacturerName; } }
@@ -408,6 +413,20 @@ namespace OpenHardwareMonitor.Hardware {
 
       public string Family { get { return family; } }
 
+      public SystemWakeUp WakeUp { get { return wakeUp; } }
+    }
+
+    public enum SystemWakeUp
+    {
+        Reserved,
+        Other,
+        Unknown,
+        APMTimer,
+        ModemRing,
+        LANRemote,
+        PowerSwitch,
+        PCIPME,
+        ACPowerRestored
     }
 
     public class ChassisInformation : Structure {
@@ -524,7 +543,7 @@ namespace OpenHardwareMonitor.Hardware {
         this.manufacturerName = GetString(0x04).Trim();
         this.productName = GetString(0x05).Trim();
         this.version = GetString(0x06).Trim();
-        this.serialNumber = GetString(0x07).Trim();               
+        this.serialNumber = GetString(0x07).Trim();
       }
       
       public string ManufacturerName { get { return manufacturerName; } }
@@ -534,7 +553,6 @@ namespace OpenHardwareMonitor.Hardware {
       public string Version { get { return version; } }
 
       public string SerialNumber { get { return serialNumber; } }
-
     }
 
     public class ProcessorInformation : Structure {
