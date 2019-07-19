@@ -64,7 +64,8 @@ namespace OpenHardwareMonitor.Hardware {
 
         string biosVendor = ReadSysFS("/sys/class/dmi/id/bios_vendor");
         string biosVersion = ReadSysFS("/sys/class/dmi/id/bios_version");
-        this.biosInformation = new BIOSInformation(biosVendor, biosVersion);
+        string biosDate = ReadSysFS("/sys/class/dmi/id/bios_date");
+        this.biosInformation = new BIOSInformation(biosVendor, biosVersion, biosDate);
 
         this.memoryDevices = new MemoryDevice[0];
       } else {              
@@ -165,6 +166,17 @@ namespace OpenHardwareMonitor.Hardware {
       if (BIOS != null) {
         r.Append("BIOS Vendor: "); r.AppendLine(BIOS.Vendor);
         r.Append("BIOS Version: "); r.AppendLine(BIOS.Version);
+        if (BIOS.Date != null) {
+            r.Append("BIOS Date: "); r.AppendLine(BIOS.Date.Value.ToShortDateString());
+        }
+        if (BIOS.Size != null) { 
+            const int megabyte = 1024 * 1024;
+            r.Append("BIOS Size: ");
+            if (BIOS.Size > megabyte)
+              r.AppendLine(BIOS.Size.Value / megabyte + " MB");
+            else
+              r.AppendLine(BIOS.Size.Value / 1024 + " KB");
+        }
         r.AppendLine();
       }
 
@@ -349,12 +361,16 @@ namespace OpenHardwareMonitor.Hardware {
 
       private readonly string vendor;
       private readonly string version;
+      private readonly DateTime? date;
+      private readonly ulong? size;
       
-      public BIOSInformation(string vendor, string version) 
+      public BIOSInformation(string vendor, string version, string date = null, ulong? size = null) 
         : base (0x00, 0, null, null) 
       {
         this.vendor = vendor;
         this.version = version;
+        this.date = ParseBIOSDate(date);
+        this.size = size;
       }
       
       public BIOSInformation(byte type, ushort handle, byte[] data,
@@ -363,7 +379,45 @@ namespace OpenHardwareMonitor.Hardware {
       {
         this.vendor = GetString(0x04);
         this.version = GetString(0x05);
+        this.date = ParseBIOSDate(GetString(0x08));
+        this.size = CalculateBIOSRomSize();
       }
+
+      private ulong? CalculateBIOSRomSize()
+      {
+        var biosROMSize = GetByte(0x09);
+        var extendedBIOSROMSize = GetWord(0x18);
+        var isExtendedBIOSROMSize = biosROMSize == 0xFF && extendedBIOSROMSize != 0;
+        if (!isExtendedBIOSROMSize)
+            return 65536 * (ulong)(biosROMSize + 1);
+
+        var unit = (extendedBIOSROMSize & 0xC000) >> 14;
+        var extendedSize = (ulong)(extendedBIOSROMSize & ~0xC000) * 1024 * 1024;
+
+        switch(unit) {
+            case 0x00: return extendedSize; // Megabytes
+            case 0x01: return extendedSize * 1024; // Gigabytes - might overflow in the future
+            default:
+                return null; // Other patterns not defined in DMI 3.2.0
+        }
+      }
+
+      private static DateTime? ParseBIOSDate(string biosDate)
+      {
+        var parts = (biosDate ?? "").Split('/');
+        if (parts.Length == 3 &&
+            int.TryParse(parts[0], out int month) &&
+            int.TryParse(parts[1], out int day) &&
+            int.TryParse(parts[2], out int year)) { 
+            return new DateTime(year < 100 ? 1900 + year : year, month, day);
+        }
+
+        return null;
+      }
+      
+      public DateTime? Date { get { return date; } }
+
+      public ulong? Size { get { return size; } }
 
       public string Vendor { get { return vendor; } }
 
