@@ -4,7 +4,7 @@
 // All Rights Reserved
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  internal abstract class NVMeInfo {
+  public abstract class NVMeInfo {
     public ushort ControllerId { get; protected set; }
 
     public byte[] IEEE { get; protected set; }

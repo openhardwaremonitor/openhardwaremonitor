@@ -8,13 +8,18 @@ using System.Text;
 using OpenHardwareMonitor.Interop;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  internal sealed class NVMeGeneric : AbstractStorage {
+  public sealed class NVMeGeneric : AbstractStorage {
     private const ulong Scale = 1000000;
     private const ulong Units = 512;
 
     private readonly NVMeInfo info;
     private readonly List<NVMeSensor> sensors = new List<NVMeSensor>();
     private readonly NVMeSmart smart;
+
+    /// <summary>
+    /// Gets the SMART data.
+    /// </summary>
+    public NVMeSmart Smart => smart;
 
     private NVMeGeneric(StorageInfo storageInfo, NVMeInfo info, int index, ISettings settings)
       : base(storageInfo, info.Model, info.Revision, "nvme", index, settings) {
@@ -29,7 +34,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return info;
     }
 
-    public static AbstractStorage CreateInstance(StorageInfo storageInfo, ISettings settings) {
+    internal static AbstractStorage CreateInstance(StorageInfo storageInfo, ISettings settings) {
       NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo);
       return nvmeInfo == null ? null : new NVMeGeneric(storageInfo, nvmeInfo, storageInfo.Index, settings);
     }
@@ -95,22 +100,22 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         return;
 
 
-      if (health.CriticalWarning == Kernel32.NVMeCriticalWarning.None)
+      if (health.CriticalWarning == Kernel32.NVME_CRITICAL_WARNING.None)
         r.AppendLine("Critical Warning: -");
       else {
-        if ((health.CriticalWarning & Kernel32.NVMeCriticalWarning.AvailableSpaceLow) != 0)
+        if ((health.CriticalWarning & Kernel32.NVME_CRITICAL_WARNING.AvailableSpaceLow) != 0)
           r.AppendLine("Critical Warning: the available spare space has fallen below the threshold.");
 
-        if ((health.CriticalWarning & Kernel32.NVMeCriticalWarning.TemperatureThreshold) != 0)
+        if ((health.CriticalWarning & Kernel32.NVME_CRITICAL_WARNING.TemperatureThreshold) != 0)
           r.AppendLine("Critical Warning: a temperature is above an over temperature threshold or below an under temperature threshold.");
 
-        if ((health.CriticalWarning & Kernel32.NVMeCriticalWarning.ReliabilityDegraded) != 0)
+        if ((health.CriticalWarning & Kernel32.NVME_CRITICAL_WARNING.ReliabilityDegraded) != 0)
           r.AppendLine("Critical Warning: the device reliability has been degraded due to significant media related errors or any internal error that degrades device reliability.");
 
-        if ((health.CriticalWarning & Kernel32.NVMeCriticalWarning.ReadOnly) != 0)
+        if ((health.CriticalWarning & Kernel32.NVME_CRITICAL_WARNING.ReadOnly) != 0)
           r.AppendLine("Critical Warning: the media has been placed in read only mode.");
 
-        if ((health.CriticalWarning & Kernel32.NVMeCriticalWarning.VolatileMemoryBackupDeviceFailed) != 0)
+        if ((health.CriticalWarning & Kernel32.NVME_CRITICAL_WARNING.VolatileMemoryBackupDeviceFailed) != 0)
           r.AppendLine("Critical Warning: the volatile memory backup device has failed.");
       }
 

@@ -6,7 +6,7 @@
 using OpenHardwareMonitor.Interop;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  internal abstract class NVMeHealthInfo {
+  public abstract class NVMeHealthInfo {
     public byte AvailableSpare { get; protected set; }
 
     public byte AvailableSpareThreshold { get; protected set; }
@@ -15,7 +15,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public uint CriticalCompositeTemperatureTime { get; protected set; }
 
-    public Kernel32.NVMeCriticalWarning CriticalWarning { get; protected set; }
+    public Kernel32.NVME_CRITICAL_WARNING CriticalWarning { get; protected set; }
 
     public ulong DataUnitRead { get; protected set; }
 

@@ -17,15 +17,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           return null;
 
 
-        var query = new Kernel32.StoragePropertyQuery { PropertyId = Kernel32.StoragePropertyId.StorageDeviceProperty, QueryType = Kernel32.StorageQueryType.PropertyStandardQuery };
+        var query = new Kernel32.STORAGE_PROPERTY_QUERY { PropertyId = Kernel32.STORAGE_PROPERTY_ID.StorageDeviceProperty, QueryType = Kernel32.STORAGE_QUERY_TYPE.PropertyStandardQuery };
 
 
         if (!Kernel32.DeviceIoControl(handle,
-                                      Kernel32.StorageCommand.QueryProperty,
+                                      Kernel32.IOCTL.IOCTL_STORAGE_QUERY_PROPERTY,
                                       ref query,
                                       Marshal.SizeOf(query),
                                       out var header,
-                                      Marshal.SizeOf<Kernel32.StorageDescriptorHeader>(),
+                                      Marshal.SizeOf<Kernel32.STORAGE_DEVICE_DESCRIPTOR_HEADER>(),
                                       out _,
                                       IntPtr.Zero))
           return null;
@@ -33,7 +33,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
         IntPtr descriptorPtr = Marshal.AllocHGlobal((int) header.Size);
         try {
-          if (!Kernel32.DeviceIoControl(handle, Kernel32.StorageCommand.QueryProperty, ref query, Marshal.SizeOf(query), descriptorPtr, header.Size, out _, IntPtr.Zero))
+          if (!Kernel32.DeviceIoControl(handle, Kernel32.IOCTL.IOCTL_STORAGE_QUERY_PROPERTY, ref query, Marshal.SizeOf(query), descriptorPtr, header.Size, out _, IntPtr.Zero))
             return null;
 
 
@@ -66,7 +66,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private class StorageInfo : HDD.StorageInfo {
       public StorageInfo(int index, IntPtr descriptorPtr) {
-        Kernel32.StorageDeviceDescriptor descriptor = Marshal.PtrToStructure<Kernel32.StorageDeviceDescriptor>(descriptorPtr);
+        Kernel32.STORAGE_DEVICE_DESCRIPTOR descriptor = Marshal.PtrToStructure<Kernel32.STORAGE_DEVICE_DESCRIPTOR>(descriptorPtr);
         Index = index;
         Vendor = GetString(descriptorPtr, descriptor.VendorIdOffset);
         Product = GetString(descriptorPtr, descriptor.ProductIdOffset);

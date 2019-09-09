@@ -7,7 +7,7 @@ using OpenHardwareMonitor.Interop;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class StorageInfo {
-    public Kernel32.StorageBusType BusType { get; protected set; }
+    public Kernel32.STORAGE_BUS_TYPE BusType { get; protected set; }
 
     public string DeviceId { get; set; }
 

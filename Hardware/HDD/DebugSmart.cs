@@ -361,7 +361,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return true;
     }
 
-    public Kernel32.DriveAttributeValue[] ReadSmartData() {
+    public Kernel32.SMART_ATTRIBUTE[] ReadSmartData() {
       if (driveNumber < 0)
         throw new ObjectDisposedException(nameof(DebugSmart));
 
@@ -369,7 +369,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return drives[driveNumber].DriveAttributeValues;
     }
 
-    public Kernel32.DriveThresholdValue[] ReadSmartThresholds() {
+    public Kernel32.SMART_THRESHOLD[] ReadSmartThresholds() {
       if (driveNumber < 0)
         throw new ObjectDisposedException(nameof(DebugSmart));
 
@@ -404,8 +404,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         string[] lines = value.Split(new[] { '\r', '\n' },
                                      StringSplitOptions.RemoveEmptyEntries);
 
-        DriveAttributeValues = new Kernel32.DriveAttributeValue[lines.Length];
-        var thresholds = new List<Kernel32.DriveThresholdValue>();
+        DriveAttributeValues = new Kernel32.SMART_ATTRIBUTE[lines.Length];
+        var thresholds = new List<Kernel32.SMART_THRESHOLD>();
 
         for (int i = 0; i < lines.Length; i++) {
           string[] array = lines[i].Split(new[] { ' ' },
@@ -415,19 +415,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             throw new Exception();
 
 
-          var v = new Kernel32.DriveAttributeValue { Identifier = Convert.ToByte(array[0], idBase), RawValue = new byte[6] };
+          var v = new Kernel32.SMART_ATTRIBUTE { Id = Convert.ToByte(array[0], idBase), RawValue = new byte[6] };
 
           for (int j = 0; j < 6; j++) {
             v.RawValue[j] = Convert.ToByte(array[1].Substring(2 * j, 2), 16);
           }
 
           v.WorstValue = Convert.ToByte(array[2], 10);
-          v.AttrValue = Convert.ToByte(array[3], 10);
+          v.CurrentValue = Convert.ToByte(array[3], 10);
 
           DriveAttributeValues[i] = v;
 
           if (array.Length == 5) {
-            var t = new Kernel32.DriveThresholdValue { Identifier = v.Identifier, Threshold = Convert.ToByte(array[4], 10) };
+            var t = new Kernel32.SMART_THRESHOLD { Id = v.Id, Threshold = Convert.ToByte(array[4], 10) };
             thresholds.Add(t);
           }
         }
@@ -435,9 +435,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         DriveThresholdValues = thresholds.ToArray();
       }
 
-      public Kernel32.DriveAttributeValue[] DriveAttributeValues { get; }
+      public Kernel32.SMART_ATTRIBUTE[] DriveAttributeValues { get; }
 
-      public Kernel32.DriveThresholdValue[] DriveThresholdValues { get; }
+      public Kernel32.SMART_THRESHOLD[] DriveThresholdValues { get; }
 
       public string FirmwareVersion { get; }
 

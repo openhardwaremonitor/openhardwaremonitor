@@ -13,7 +13,7 @@ using System.Text;
 using OpenHardwareMonitor.Interop;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
-  internal abstract class AbstractStorage : Hardware {
+  public abstract class AbstractStorage : Hardware {
     private readonly PerformanceValue perfTotal = new PerformanceValue();
     private readonly PerformanceValue perfWrite = new PerformanceValue();
     private readonly StorageInfo storageInfo;
@@ -30,7 +30,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private Sensor usageSensor;
     private ulong writeRateCounterlast;
 
-    protected AbstractStorage(StorageInfo storageInfo, string name, string firmwareRevision, string id, int index, ISettings settings)
+    internal AbstractStorage(StorageInfo storageInfo, string name, string firmwareRevision, string id, int index, ISettings settings)
       : base(name, new Identifier(id, index.ToString(CultureInfo.InvariantCulture)), settings) {
       this.storageInfo = storageInfo;
       FirmwareRevision = firmwareRevision;
@@ -51,11 +51,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public DriveInfo[] DriveInfos { get; }
 
-    public string FirmwareRevision { get; set; }
+    public string FirmwareRevision { get; }
 
     public override HardwareType HardwareType => HardwareType.HDD;
 
-    public int Index { get; set; }
+    public int Index { get; }
 
     public static AbstractStorage CreateInstance(string deviceId, uint driveNumber, ulong diskSize, int scsiPort, ISettings settings) {
       StorageInfo info = WindowsStorage.GetStorageInfo(deviceId, driveNumber);
@@ -63,21 +63,21 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       info.DeviceId = deviceId;
       info.Scsi = $@"\\.\SCSI{scsiPort}:";
 
-      if (info.Removable || info.BusType == Kernel32.StorageBusType.BusTypeVirtual || info.BusType == Kernel32.StorageBusType.BusTypeFileBackedVirtual)
+      if (info.Removable || info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeVirtual || info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeFileBackedVirtual)
         return null;
 
 
       //fallback, when it is not possible to read out with the nvme implementation,
       //try it with the sata smart implementation
-      if (info.BusType == Kernel32.StorageBusType.BusTypeNvme) {
+      if (info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeNvme) {
         var x = NVMeGeneric.CreateInstance(info, settings);
         if (x != null)
           return x;
       }
 
-      if (info.BusType == Kernel32.StorageBusType.BusTypeAta ||
-          info.BusType == Kernel32.StorageBusType.BusTypeSata ||
-          info.BusType == Kernel32.StorageBusType.BusTypeNvme) {
+      if (info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeAta ||
+          info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeSata ||
+          info.BusType == Kernel32.STORAGE_BUS_TYPE.BusTypeNvme) {
         return ATAStorage.CreateInstance(info, settings);
       }
 

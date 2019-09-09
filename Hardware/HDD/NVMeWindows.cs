@@ -15,8 +15,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return IdentifyDevice(storageInfo);
     }
 
-    public bool IdentifyController(SafeHandle hDevice, out Kernel32.NVMeIdentifyControllerData data) {
-      data = Kernel32.CreateStruct<Kernel32.NVMeIdentifyControllerData>();
+    public bool IdentifyController(SafeHandle hDevice, out Kernel32.NVME_IDENTIFY_CONTROLLER_DATA data) {
+      data = Kernel32.CreateStruct<Kernel32.NVME_IDENTIFY_CONTROLLER_DATA>();
       if (hDevice == null || hDevice.IsInvalid)
         return false;
 
@@ -24,23 +24,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       bool result = false;
       IntPtr buffer;
 
-      Kernel32.StorageQueryWithBuffer nptwb = Kernel32.CreateStruct<Kernel32.StorageQueryWithBuffer>();
-      nptwb.ProtocolSpecific.ProtocolType = Kernel32.TStroageProtocolType.ProtocolTypeNvme;
-      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.StorageProtocolNVMeDataType.NVMeDataTypeIdentify;
-      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.StorageProtocolSpecificData>();
+      Kernel32.STORAGE_QUERY_BUFFER nptwb = Kernel32.CreateStruct<Kernel32.STORAGE_QUERY_BUFFER>();
+      nptwb.ProtocolSpecific.ProtocolType = Kernel32.STORAGE_PROTOCOL_TYPE.ProtocolTypeNvme;
+      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.STORAGE_PROTOCOL_NVME_DATA_TYPE.NVMeDataTypeIdentify;
+      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.STORAGE_PROTOCOL_SPECIFIC_DATA>();
       nptwb.ProtocolSpecific.ProtocolDataLength = (uint) nptwb.Buffer.Length;
-      nptwb.Query.PropertyId = Kernel32.StoragePropertyId.StorageAdapterProtocolSpecificProperty;
-      nptwb.Query.QueryType = Kernel32.StorageQueryType.PropertyStandardQuery;
+      nptwb.PropertyId = Kernel32.STORAGE_PROPERTY_ID.StorageAdapterProtocolSpecificProperty;
+      nptwb.QueryType = Kernel32.STORAGE_QUERY_TYPE.PropertyStandardQuery;
 
-      var length = Marshal.SizeOf<Kernel32.StorageQueryWithBuffer>();
+      var length = Marshal.SizeOf<Kernel32.STORAGE_QUERY_BUFFER>();
       buffer = Marshal.AllocHGlobal(length);
       Marshal.StructureToPtr(nptwb, buffer, false);
-      var validTransfer = Kernel32.DeviceIoControl(hDevice, Kernel32.Command.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
+      var validTransfer = Kernel32.DeviceIoControl(hDevice, Kernel32.IOCTL.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
       if (validTransfer) {
-        //map NVMeIdentifyControllerData to nptwb.Buffer
-        var offset = Marshal.OffsetOf<Kernel32.StorageQueryWithBuffer>(nameof(Kernel32.StorageQueryWithBuffer.Buffer));
+        //map NVME_IDENTIFY_CONTROLLER_DATA to nptwb.Buffer
+        var offset = Marshal.OffsetOf<Kernel32.STORAGE_QUERY_BUFFER>(nameof(Kernel32.STORAGE_QUERY_BUFFER.Buffer));
         var newPtr = IntPtr.Add(buffer, offset.ToInt32());
-        var item = Marshal.PtrToStructure<Kernel32.NVMeIdentifyControllerData>(newPtr);
+        var item = Marshal.PtrToStructure<Kernel32.NVME_IDENTIFY_CONTROLLER_DATA>(newPtr);
         data = item;
         Marshal.FreeHGlobal(buffer);
         result = true;
@@ -51,8 +51,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return result;
     }
 
-    public bool HealthInfoLog(SafeHandle hDevice, out Kernel32.NVMeHealthInfoLog data) {
-      data = Kernel32.CreateStruct<Kernel32.NVMeHealthInfoLog>();
+    public bool HealthInfoLog(SafeHandle hDevice, out Kernel32.NVME_HEALTH_INFO_LOG data) {
+      data = Kernel32.CreateStruct<Kernel32.NVME_HEALTH_INFO_LOG>();
       if (hDevice == null || hDevice.IsInvalid)
         return false;
 
@@ -60,24 +60,24 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       bool result = false;
       IntPtr buffer;
 
-      Kernel32.StorageQueryWithBuffer nptwb = Kernel32.CreateStruct<Kernel32.StorageQueryWithBuffer>();
-      nptwb.ProtocolSpecific.ProtocolType = Kernel32.TStroageProtocolType.ProtocolTypeNvme;
-      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.StorageProtocolNVMeDataType.NVMeDataTypeLogPage;
+      Kernel32.STORAGE_QUERY_BUFFER nptwb = Kernel32.CreateStruct<Kernel32.STORAGE_QUERY_BUFFER>();
+      nptwb.ProtocolSpecific.ProtocolType = Kernel32.STORAGE_PROTOCOL_TYPE.ProtocolTypeNvme;
+      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.STORAGE_PROTOCOL_NVME_DATA_TYPE.NVMeDataTypeLogPage;
       nptwb.ProtocolSpecific.ProtocolDataRequestValue = (uint) Kernel32.NVME_LOG_PAGES.NVME_LOG_PAGE_HEALTH_INFO;
-      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.StorageProtocolSpecificData>();
+      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.STORAGE_PROTOCOL_SPECIFIC_DATA>();
       nptwb.ProtocolSpecific.ProtocolDataLength = (uint) nptwb.Buffer.Length;
-      nptwb.Query.PropertyId = Kernel32.StoragePropertyId.StorageAdapterProtocolSpecificProperty;
-      nptwb.Query.QueryType = Kernel32.StorageQueryType.PropertyStandardQuery;
+      nptwb.PropertyId = Kernel32.STORAGE_PROPERTY_ID.StorageAdapterProtocolSpecificProperty;
+      nptwb.QueryType = Kernel32.STORAGE_QUERY_TYPE.PropertyStandardQuery;
 
-      var length = Marshal.SizeOf<Kernel32.StorageQueryWithBuffer>();
+      var length = Marshal.SizeOf<Kernel32.STORAGE_QUERY_BUFFER>();
       buffer = Marshal.AllocHGlobal(length);
       Marshal.StructureToPtr(nptwb, buffer, false);
-      var validTransfer = Kernel32.DeviceIoControl(hDevice, Kernel32.Command.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
+      var validTransfer = Kernel32.DeviceIoControl(hDevice, Kernel32.IOCTL.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
       if (validTransfer) {
-        //map NVMeHealthInfoLog to nptwb.Buffer
-        var offset = Marshal.OffsetOf<Kernel32.StorageQueryWithBuffer>(nameof(Kernel32.StorageQueryWithBuffer.Buffer));
+        //map NVME_HEALTH_INFO_LOG to nptwb.Buffer
+        var offset = Marshal.OffsetOf<Kernel32.STORAGE_QUERY_BUFFER>(nameof(Kernel32.STORAGE_QUERY_BUFFER.Buffer));
         var newPtr = IntPtr.Add(buffer, offset.ToInt32());
-        var item = Marshal.PtrToStructure<Kernel32.NVMeHealthInfoLog>(newPtr);
+        var item = Marshal.PtrToStructure<Kernel32.NVME_HEALTH_INFO_LOG>(newPtr);
         data = item;
         Marshal.FreeHGlobal(buffer);
         result = true;
@@ -96,18 +96,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       IntPtr buffer;
 
-      Kernel32.StorageQueryWithBuffer nptwb = Kernel32.CreateStruct<Kernel32.StorageQueryWithBuffer>();
-      nptwb.ProtocolSpecific.ProtocolType = Kernel32.TStroageProtocolType.ProtocolTypeNvme;
-      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.StorageProtocolNVMeDataType.NVMeDataTypeIdentify;
-      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.StorageProtocolSpecificData>();
+      Kernel32.STORAGE_QUERY_BUFFER nptwb = Kernel32.CreateStruct<Kernel32.STORAGE_QUERY_BUFFER>();
+      nptwb.ProtocolSpecific.ProtocolType = Kernel32.STORAGE_PROTOCOL_TYPE.ProtocolTypeNvme;
+      nptwb.ProtocolSpecific.DataType = (uint) Kernel32.STORAGE_PROTOCOL_NVME_DATA_TYPE.NVMeDataTypeIdentify;
+      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint) Marshal.SizeOf<Kernel32.STORAGE_PROTOCOL_SPECIFIC_DATA>();
       nptwb.ProtocolSpecific.ProtocolDataLength = (uint) nptwb.Buffer.Length;
-      nptwb.Query.PropertyId = Kernel32.StoragePropertyId.StorageAdapterProtocolSpecificProperty;
-      nptwb.Query.QueryType = Kernel32.StorageQueryType.PropertyStandardQuery;
+      nptwb.PropertyId = Kernel32.STORAGE_PROPERTY_ID.StorageAdapterProtocolSpecificProperty;
+      nptwb.QueryType = Kernel32.STORAGE_QUERY_TYPE.PropertyStandardQuery;
 
-      var length = Marshal.SizeOf<Kernel32.StorageQueryWithBuffer>();
+      var length = Marshal.SizeOf<Kernel32.STORAGE_QUERY_BUFFER>();
       buffer = Marshal.AllocHGlobal(length);
       Marshal.StructureToPtr(nptwb, buffer, false);
-      var validTransfer = Kernel32.DeviceIoControl(handle, Kernel32.Command.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
+      var validTransfer = Kernel32.DeviceIoControl(handle, Kernel32.IOCTL.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
       if (validTransfer) {
         Marshal.FreeHGlobal(buffer);
       } else {

@@ -40,82 +40,81 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         throw new ObjectDisposedException("WindowsATASmart");
 
 
-      var parameter = new Kernel32.DriveCommandParameter {
-        DriveNumber = (byte) driveNumber,
-        Registers = {
-          Features = Kernel32.RegisterFeature.SmartEnableOperations,
-          LBAMid = Kernel32.SMART_LBA_MID,
-          LBAHigh = Kernel32.SMART_LBA_HI,
-          Command = Kernel32.RegisterCommand.SmartCmd
+      var parameter = new Kernel32.SENDCMDINPARAMS {
+        bDriveNumber = (byte) driveNumber,
+        irDriveRegs = {
+          bFeaturesReg = Kernel32.SMART_FEATURES.ENABLE_SMART,
+          bCylLowReg = Kernel32.SMART_LBA_MID,
+          bCylHighReg = Kernel32.SMART_LBA_HI,
+          bCommandReg = Kernel32.ATA_COMMAND.ATA_SMART
         }
       };
 
 
-      return Kernel32.DeviceIoControl(
-                                      handle,
-                                      Kernel32.DriveCommand.SendDriveCommand,
+      return Kernel32.DeviceIoControl(handle,
+                                      Kernel32.DFP.DFP_SEND_DRIVE_COMMAND,
                                       ref parameter,
                                       Marshal.SizeOf(parameter),
-                                      out Kernel32.DriveCommandResult _,
-                                      Marshal.SizeOf<Kernel32.DriveCommandResult>(),
+                                      out Kernel32.SENDCMDOUTPARAMS _,
+                                      Marshal.SizeOf<Kernel32.SENDCMDOUTPARAMS>(),
                                       out _,
                                       IntPtr.Zero);
     }
 
-    public Kernel32.DriveAttributeValue[] ReadSmartData() {
+    public Kernel32.SMART_ATTRIBUTE[] ReadSmartData() {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsATASmart");
 
 
-      var parameter = new Kernel32.DriveCommandParameter {
-        DriveNumber = (byte) driveNumber,
-        Registers = {
-          Features = Kernel32.RegisterFeature.SmartReadData,
-          LBAMid = Kernel32.SMART_LBA_MID,
-          LBAHigh = Kernel32.SMART_LBA_HI,
-          Command = Kernel32.RegisterCommand.SmartCmd
+      var parameter = new Kernel32.SENDCMDINPARAMS {
+        bDriveNumber = (byte) driveNumber,
+        irDriveRegs = {
+          bFeaturesReg = Kernel32.SMART_FEATURES.SMART_READ_DATA,
+          bCylLowReg = Kernel32.SMART_LBA_MID,
+          bCylHighReg = Kernel32.SMART_LBA_HI,
+          bCommandReg = Kernel32.ATA_COMMAND.ATA_SMART
         }
       };
 
 
       bool isValid = Kernel32.DeviceIoControl(handle,
-                                              Kernel32.DriveCommand.ReceiveDriveData,
+                                              Kernel32.DFP.DFP_RECEIVE_DRIVE_DATA,
                                               ref parameter,
                                               Marshal.SizeOf(parameter),
-                                              out Kernel32.DriveSmartReadDataResult result,
-                                              Marshal.SizeOf<Kernel32.DriveSmartReadDataResult>(),
+                                              out Kernel32.ATTRIBUTECMDOUTPARAMS result,
+                                              Marshal.SizeOf<Kernel32.ATTRIBUTECMDOUTPARAMS>(),
                                               out _,
                                               IntPtr.Zero);
 
-      return (isValid) ? result.Attributes : new Kernel32.DriveAttributeValue[0];
+      return (isValid) ? result.Attributes : new Kernel32.SMART_ATTRIBUTE[0];
     }
 
-    public Kernel32.DriveThresholdValue[] ReadSmartThresholds() {
+    public Kernel32.SMART_THRESHOLD[] ReadSmartThresholds() {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsATASmart");
 
 
-      var parameter = new Kernel32.DriveCommandParameter {
-        DriveNumber = (byte) driveNumber,
-        Registers = {
-          Features = Kernel32.RegisterFeature.SmartReadThresholds,
-          LBAMid = Kernel32.SMART_LBA_MID,
-          LBAHigh = Kernel32.SMART_LBA_HI,
-          Command = Kernel32.RegisterCommand.SmartCmd
+      var parameter = new Kernel32.SENDCMDINPARAMS {
+        bDriveNumber = (byte) driveNumber,
+        irDriveRegs = {
+          bFeaturesReg = Kernel32.SMART_FEATURES.READ_THRESHOLDS,
+          bCylLowReg = Kernel32.SMART_LBA_MID,
+          bCylHighReg = Kernel32.SMART_LBA_HI,
+          bCommandReg = Kernel32.ATA_COMMAND.ATA_SMART
         }
       };
 
 
       bool isValid = Kernel32.DeviceIoControl(handle,
-                                              Kernel32.DriveCommand.ReceiveDriveData,
+                                              Kernel32.DFP.DFP_RECEIVE_DRIVE_DATA,
                                               ref parameter,
                                               Marshal.SizeOf(parameter),
-                                              out Kernel32.DriveSmartReadThresholdsResult result,
-                                              Marshal.SizeOf<Kernel32.DriveSmartReadThresholdsResult>(),
+                                              out Kernel32.THRESHOLDCMDOUTPARAMS result,
+                                              Marshal.SizeOf<Kernel32.THRESHOLDCMDOUTPARAMS>(),
                                               out _,
                                               IntPtr.Zero);
 
-      return (isValid) ? result.Thresholds : new Kernel32.DriveThresholdValue[0];
+      return (isValid) ? result.Thresholds : new Kernel32.SMART_THRESHOLD[0];
     }
 
     public bool ReadNameAndFirmwareRevision(out string name, out string firmwareRevision) {
@@ -123,15 +122,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         throw new ObjectDisposedException("WindowsATASmart");
 
 
-      var parameter = new Kernel32.DriveCommandParameter { DriveNumber = (byte) driveNumber, Registers = { Command = Kernel32.RegisterCommand.IdCmd } };
+      var parameter = new Kernel32.SENDCMDINPARAMS { bDriveNumber = (byte) driveNumber, irDriveRegs = { bCommandReg = Kernel32.ATA_COMMAND.ATA_IDENTIFY_DEVICE } };
 
 
       bool valid = Kernel32.DeviceIoControl(handle,
-                                            Kernel32.DriveCommand.ReceiveDriveData,
+                                            Kernel32.DFP.DFP_RECEIVE_DRIVE_DATA,
                                             ref parameter,
                                             Marshal.SizeOf(parameter),
-                                            out Kernel32.DriveIdentifyResult result,
-                                            Marshal.SizeOf<Kernel32.DriveIdentifyResult>(),
+                                            out Kernel32.IDENTIFYCMDOUTPARAMS result,
+                                            Marshal.SizeOf<Kernel32.IDENTIFYCMDOUTPARAMS>(),
                                             out _,
                                             IntPtr.Zero);
 

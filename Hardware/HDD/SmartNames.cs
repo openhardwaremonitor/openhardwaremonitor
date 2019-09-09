@@ -7,7 +7,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   /// <summary>
   /// Localization class for SMART attribute names.
   /// </summary>
-  internal static class SmartNames {
+  public static class SmartNames {
     public static string AirflowTemperature => "Airflow Temperature";
 
     public static string AlternativeEraseFailCount => "Alternative Erase Fail Count";

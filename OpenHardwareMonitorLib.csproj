@@ -41,7 +41,7 @@
     <Compile Include="Hardware\HDD\AbstractStorage.cs" />
     <Compile Include="Hardware\HDD\ATAStorage.cs" />
     <Compile Include="Hardware\HDD\DebugSmart.cs" />
-    <Compile Include="Hardware\HDD\HDDGeneric.cs" />
+    <Compile Include="Hardware\HDD\GenericHarddisk.cs" />
     <Compile Include="Hardware\HDD\INVMeDrive.cs" />
     <Compile Include="Hardware\HDD\ISmart.cs" />
     <Compile Include="Hardware\HDD\NVMeGeneric.cs" />

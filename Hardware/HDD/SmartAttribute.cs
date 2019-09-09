@@ -102,12 +102,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public SensorType? SensorType { get; }
 
-    internal float ConvertValue(Kernel32.DriveAttributeValue value, IReadOnlyList<IParameter> parameters) {
+    internal float ConvertValue(Kernel32.SMART_ATTRIBUTE value, IReadOnlyList<IParameter> parameters) {
       if (rawValueConversion == null) {
-        return value.AttrValue;
+        return value.CurrentValue;
       }
 
-      return rawValueConversion(value.RawValue, value.AttrValue, parameters);
+      return rawValueConversion(value.RawValue, value.CurrentValue, parameters);
     }
   }
 }

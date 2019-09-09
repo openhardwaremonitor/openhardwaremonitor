@@ -52,15 +52,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       writeAmplification = new Sensor("Write Amplification", 1, SensorType.Factor, this, settings);
     }
 
-    protected override void UpdateAdditionalSensors(Kernel32.DriveAttributeValue[] values) {
+    protected override void UpdateAdditionalSensors(Kernel32.SMART_ATTRIBUTE[] values) {
       float? controllerWritesToNand = null;
       float? hostWritesToController = null;
-      foreach (Kernel32.DriveAttributeValue value in values) {
-        if (value.Identifier == 0xE9)
-          controllerWritesToNand = RawToInt(value.RawValue, value.AttrValue, null);
+      foreach (Kernel32.SMART_ATTRIBUTE value in values) {
+        if (value.Id == 0xE9)
+          controllerWritesToNand = RawToInt(value.RawValue, value.CurrentValue, null);
 
-        if (value.Identifier == 0xEA)
-          hostWritesToController = RawToInt(value.RawValue, value.AttrValue, null);
+        if (value.Id == 0xEA)
+          hostWritesToController = RawToInt(value.RawValue, value.CurrentValue, null);
       }
 
       if (controllerWritesToNand.HasValue && hostWritesToController.HasValue) {
