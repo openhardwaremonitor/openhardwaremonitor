@@ -123,6 +123,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int ADL_Overdrive5_Temperature_Get(int adapterIndex, int thermalControllerIndex, ref ADLTemperature temperature);
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int ADL2_OverdriveN_Temperature_Get(IntPtr context, int adapterIndex, int thermalControllerIndex, ref int temp);
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int ADL_Overdrive5_FanSpeed_Get(int adapterIndex, int thermalControllerIndex, ref ADLFanSpeedValue fanSpeedValue);
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int ADL_Overdrive5_FanSpeedInfo_Get(int adapterIndex, int thermalControllerIndex, ref ADLFanSpeedInfo fanSpeedInfo);
@@ -130,6 +132,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public static extern int ADL_Overdrive5_FanSpeedToDefault_Set(int adapterIndex, int thermalControllerIndex);
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern int ADL_Overdrive5_FanSpeed_Set(int adapterIndex, int thermalControllerIndex, ref ADLFanSpeedValue fanSpeedValue);
+    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
+    public static extern int ADL_Overdrive_Caps(int adapterIndex, ref int supported, ref int enabled, ref int version);
 
     public static int ADL_Main_Control_Create(int enumConnectedAdapters) {
       try {
