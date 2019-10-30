@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2012 Michael MÃ¶ller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -93,7 +93,18 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       adapterInfo[i].BusNumber,
                       adapterInfo[i].DeviceNumber, settings));
                 }
-
+		bool flag; ATIGPU buf;
+                do { flag = false;
+                  for (int n = 1; n < hardware.Count; n++) {
+                    if (hardware[n - 1].BusNumber > hardware[n].BusNumber) {
+                      flag = true;
+                      buf = hardware[n - 1];
+                      hardware[n - 1] = hardware[n];
+                      hardware[n] = buf;
+                    }
+                  }
+                } while (flag);
+		
                 report.AppendLine();
               }
           }
