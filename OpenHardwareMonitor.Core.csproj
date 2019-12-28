@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.8.0.5</Version>
+    <AssemblyVersion>$(Version)</AssemblyVersion>
+    <FileVersion>$(Version)</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="**\*.*" />
+    <Compile Remove="External\**" />
+    <Compile Remove="GUI\**" />
+    <EmbeddedResource Remove="External\**" />
+    <EmbeddedResource Remove="GUI\**" />
+    <None Remove="**\*.*" />
+    <None Remove="External\**" />
+    <None Remove="GUI\**" />
+    <Compile Include="Collections/*.cs" />
+    <Compile Include="Hardware/*.cs" />
+
+    <EmbeddedResource Include="Hardware\WinRing0.sys" />
+    <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="4.7.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="4.7.0" />
+  </ItemGroup>
+ </Project>

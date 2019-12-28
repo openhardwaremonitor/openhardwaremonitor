@@ -19,8 +19,7 @@ namespace OpenHardwareMonitor.Hardware {
 
   internal static class PInvokeDelegateFactory {
 
-    private static readonly ModuleBuilder moduleBuilder = 
-      AppDomain.CurrentDomain.DefineDynamicAssembly(
+    private static readonly ModuleBuilder moduleBuilder =  AssemblyBuilder.DefineDynamicAssembly(
         new AssemblyName("PInvokeDelegateFactoryInternalAssembly"),
         AssemblyBuilderAccess.Run).DefineDynamicModule(
         "PInvokeDelegateFactoryInternalModule");

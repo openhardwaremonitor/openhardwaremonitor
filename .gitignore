@@ -2,3 +2,6 @@
 *.suo
 /Bin
 /Obj
+/.vs
+/obj
+/bin
