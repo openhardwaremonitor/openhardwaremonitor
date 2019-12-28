@@ -4,9 +4,14 @@
     <Version>0.8.0.5</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version)</FileVersion>
+
+    <PackageProjectUrl>https://github.com/Epsil0neR/openhardwaremonitor-core</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Epsil0neR/openhardwaremonitor-core</RepositoryUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
 
@@ -35,4 +40,4 @@
     <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
     <PackageReference Include="System.Threading.AccessControl" Version="4.7.0" />
   </ItemGroup>
- </Project>
+</Project>
