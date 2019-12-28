@@ -19,8 +19,8 @@
     <None Remove="**\*.*" />
     <None Remove="External\**" />
     <None Remove="GUI\**" />
-    <Compile Include="Collections/*.cs" />
-    <Compile Include="Hardware/*.cs" />
+    <Compile Include="Collections/**/*.cs" />
+    <Compile Include="Hardware/**/*.cs" />
 
     <EmbeddedResource Include="Hardware\WinRing0.sys" />
     <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
@@ -31,8 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="4.7.0" />
     <PackageReference Include="System.Management" Version="4.7.0" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.7.0" />
+    <PackageReference Include="System.IO.Ports" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
     <PackageReference Include="System.Threading.AccessControl" Version="4.7.0" />
