@@ -11,14 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="**" />
     <Compile Remove="**\*.*" />
-    <Compile Remove="External\**" />
-    <Compile Remove="GUI\**" />
-    <EmbeddedResource Remove="External\**" />
-    <EmbeddedResource Remove="GUI\**" />
-    <None Remove="**\*.*" />
-    <None Remove="External\**" />
-    <None Remove="GUI\**" />
+    <EmbeddedResource Remove="**" />
+
     <Compile Include="Collections/**/*.cs" />
     <Compile Include="Hardware/**/*.cs" />
 
