@@ -7,6 +7,7 @@
 
     <PackageProjectUrl>https://github.com/Epsil0neR/openhardwaremonitor-core</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Epsil0neR/openhardwaremonitor-core</RepositoryUrl>
+    <PackageLicenseUrl>https://openhardwaremonitor.org/license/</PackageLicenseUrl>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
