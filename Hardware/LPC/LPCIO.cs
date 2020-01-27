@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -333,6 +333,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       switch (chipID) {
         case 0x8620: chip = Chip.IT8620E; break;
         case 0x8628: chip = Chip.IT8628E; break;
+        case 0x8688: chip = Chip.IT8688E; break;
         case 0x8705: chip = Chip.IT8705F; break;
         case 0x8712: chip = Chip.IT8712F; break;
         case 0x8716: chip = Chip.IT8716F; break;

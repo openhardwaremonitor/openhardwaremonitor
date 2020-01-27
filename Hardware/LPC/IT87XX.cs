@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -58,7 +58,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private byte ReadByte(byte register, out bool valid) {
       Ring0.WriteIoPort(addressReg, register);
       byte value = Ring0.ReadIoPort(dataReg);
-      valid = register == Ring0.ReadIoPort(addressReg);
+      if (this.chip == Chip.IT8688E)
+        valid = true;
+      else
+        valid = register == Ring0.ReadIoPort(addressReg);
       return value;
     }
 
@@ -138,15 +141,22 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (!valid)
         return;
 
-      voltages = new float?[9];
-      temperatures = new float?[3];
-      fans = new float?[chip == Chip.IT8705F ? 3 : 5];
-      controls = new float?[3];
+      if (chip == Chip.IT8688E) {
+        voltages = new float?[9];
+        temperatures = new float?[6];
+        fans = new float?[5];
+      } else { 
+        voltages = new float?[9];
+        temperatures = new float?[3];
+        fans = new float?[chip == Chip.IT8705F ? 3 : 5];
+        controls = new float?[3];
+      }
 
-      // IT8620E, IT8628E, IT8721F, IT8728F and IT8772E use a 12mV resultion 
-      // ADC, all others 16mV
-      if (chip == Chip.IT8620E || chip == Chip.IT8628E || chip == Chip.IT8721F 
-        || chip == Chip.IT8728F || chip == Chip.IT8771E || chip == Chip.IT8772E) 
+      // IT8620E, IT8628E, IT8688E, IT8721F, IT8728F and IT8772E use a 12mV 
+      // resultion ADC, all others 16mV
+      if (chip == Chip.IT8620E || chip == Chip.IT8628E || chip == Chip.IT8688E 
+        || chip == Chip.IT8721F || chip == Chip.IT8728F || chip == Chip.IT8771E 
+        || chip == Chip.IT8772E) 
       {
         voltageGain = 0.012f;
       } else {
@@ -176,6 +186,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           break;
         case Chip.IT8620E:
         case Chip.IT8628E:
+        case Chip.IT8688E:
         case Chip.IT8705F: 
         case Chip.IT8728F:
         case Chip.IT8771E:

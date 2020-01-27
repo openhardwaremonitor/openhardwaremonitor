@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -27,6 +27,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     IT8620E = 0x8620,
     IT8628E = 0x8628,
+    IT8688E = 0x8688,
     IT8705F = 0x8705,
     IT8712F = 0x8712,
     IT8716F = 0x8716,
@@ -74,6 +75,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         case Chip.IT8620E: return "ITE IT8620E";
         case Chip.IT8628E: return "ITE IT8628E";
+        case Chip.IT8688E: return "ITE IT8688E";
         case Chip.IT8705F: return "ITE IT8705F";
         case Chip.IT8712F: return "ITE IT8712F";
         case Chip.IT8716F: return "ITE IT8716F";
