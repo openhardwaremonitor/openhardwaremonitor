@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -188,6 +188,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
         case Chip.IT8620E:
         case Chip.IT8628E:
+        case Chip.IT8688E:
         case Chip.IT8721F:
         case Chip.IT8728F:
         case Chip.IT8771E:
@@ -776,6 +777,29 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("System Fan #1", 1));
               f.Add(new Fan("Power Fan", 2));
               f.Add(new Fan("System Fan #2", 3));
+              break;
+            case Model.Z390_M_GAMING: // IT8688E
+            case Model.Z390_AORUS_ULTRA:
+            case Model.Z390_UD:
+              v.Add(new Voltage("CPU VCore", 0));
+              v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
+              v.Add(new Voltage("+12V", 2, 5f, 1));
+              v.Add(new Voltage("+5V", 3, 1.5f, 1));
+              v.Add(new Voltage("CPU VCCGT", 4));
+              v.Add(new Voltage("CPU VCCSA", 5));
+              v.Add(new Voltage("VDDQ", 6));
+              v.Add(new Voltage("DDRVTT", 7));
+              v.Add(new Voltage("PCHCore", 8));
+              t.Add(new Temperature("System1", 0));
+              t.Add(new Temperature("PCH", 1));
+              t.Add(new Temperature("CPU", 2));
+              t.Add(new Temperature("PCIEX16", 3));
+              t.Add(new Temperature("VRM MOS", 4));
+              t.Add(new Temperature("System2", 5));
+              f.Add(new Fan("CPU Fan", 0));
+              f.Add(new Fan("System Fan #1", 1));
+              f.Add(new Fan("System Fan #2", 2));
+              f.Add(new Fan("System Fan #3", 3));
               break;
             case Model.Z68A_D3H_B3: // IT8728F
               v.Add(new Voltage("VTT", 0));
