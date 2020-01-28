@@ -778,6 +778,28 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("Power Fan", 2));
               f.Add(new Fan("System Fan #2", 3));
               break;
+            case Model.X570_AORUS_MASTER: // IT8688E
+              v.Add(new Voltage("CPU VCore", 0));
+              v.Add(new Voltage("+3.3V", 1, 29.4f, 45.3f));
+              v.Add(new Voltage("+12V", 2, 10f, 2f));
+              v.Add(new Voltage("+5V", 3, 15f, 10f));
+              v.Add(new Voltage("CPU VCore SOC", 4));
+              v.Add(new Voltage("CPU VDDP", 5));
+              v.Add(new Voltage("DRAM CH(A/B)", 6));
+              v.Add(new Voltage("Standby +3.3V", 7, 1f, 10f));
+              v.Add(new Voltage("VBat", 8, 1f, 10f));
+              t.Add(new Temperature("System 1", 0));
+              t.Add(new Temperature("EC_TEMP1", 1));
+              t.Add(new Temperature("CPU", 2));
+              t.Add(new Temperature("PCIEX16", 3));
+              t.Add(new Temperature("VRM MOS", 4));
+              t.Add(new Temperature("PCH", 5));
+              f.Add(new Fan("CPU Fan", 0));
+              f.Add(new Fan("System 1 Fan", 1));
+              f.Add(new Fan("System 2 Fan", 2));
+              f.Add(new Fan("PCH Fan", 3));
+              f.Add(new Fan("CPU OPT Fan", 4));
+              break;
             case Model.Z390_M_GAMING: // IT8688E
             case Model.Z390_AORUS_ULTRA:
             case Model.Z390_UD:
