@@ -4,11 +4,11 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
-
+using OpenHardwareMonitor.Utilities;
 using System;
 using System.IO;
 using System.Net;
@@ -59,10 +59,10 @@ namespace OpenHardwareMonitor.GUI {
 
         string report =
           "type=crash&" +
-          "version=" + Uri.EscapeDataString(version.ToString()) + "&" +
-          "report=" + Uri.EscapeDataString(reportTextBox.Text) + "&" +
-          "comment=" + Uri.EscapeDataString(commentTextBox.Text) + "&" +
-          "email=" + Uri.EscapeDataString(emailTextBox.Text);
+          "version=" + HttpUtility.UrlEncode(version.ToString()) + "&" +
+          "report=" + HttpUtility.UrlEncode(reportTextBox.Text) + "&" +
+          "comment=" + HttpUtility.UrlEncode(commentTextBox.Text) + "&" +
+          "email=" + HttpUtility.UrlEncode(emailTextBox.Text);
         byte[] byteArray = Encoding.UTF8.GetBytes(report);
         request.ContentLength = byteArray.Length;
 
