@@ -435,7 +435,7 @@ namespace OpenHardwareMonitor.GUI {
     private void InsertSorted(Collection<Node> nodes, HardwareNode node) {
       int i = 0;
       while (i < nodes.Count && nodes[i] is HardwareNode &&
-        ((HardwareNode)nodes[i]).Hardware.HardwareType < 
+        ((HardwareNode)nodes[i]).Hardware.HardwareType <= 
           node.Hardware.HardwareType)
         i++;
       nodes.Insert(i, node);
