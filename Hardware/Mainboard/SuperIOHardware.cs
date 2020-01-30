@@ -196,6 +196,10 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           GetITEConfigurationsB(superIO, manufacturer, model, v, t, f, c);
           break;
 
+        case Chip.IT879XE:
+          GetITEConfigurationsC(superIO, manufacturer, model, v, t, f, c);
+          break;
+
         case Chip.F71858:
           v.Add(new Voltage("VCC3V", 0, 150, 150));
           v.Add(new Voltage("VSB3V", 1, 150, 150));
@@ -786,8 +790,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               v.Add(new Voltage("CPU VCore SOC", 4));
               v.Add(new Voltage("CPU VDDP", 5));
               v.Add(new Voltage("DRAM CH(A/B)", 6));
-              v.Add(new Voltage("Standby +3.3V", 7, 1f, 10f));
-              v.Add(new Voltage("VBat", 8, 1f, 10f));
+              v.Add(new Voltage("Standby +3.3V", 7, 1f, 1f));
+              v.Add(new Voltage("VBat", 8, 1f, 1f));
               t.Add(new Temperature("System 1", 0));
               t.Add(new Temperature("EC_TEMP1", 1));
               t.Add(new Temperature("CPU", 2));
@@ -930,6 +934,69 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
           }
           break;
+        default:
+          v.Add(new Voltage("Voltage #1", 0, true));
+          v.Add(new Voltage("Voltage #2", 1, true));
+          v.Add(new Voltage("Voltage #3", 2, true));
+          v.Add(new Voltage("Voltage #4", 3, true));
+          v.Add(new Voltage("Voltage #5", 4, true));
+          v.Add(new Voltage("Voltage #6", 5, true));
+          v.Add(new Voltage("Voltage #7", 6, true));
+          v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+          v.Add(new Voltage("VBat", 8, 10, 10));
+          for (int i = 0; i < superIO.Temperatures.Length; i++)
+            t.Add(new Temperature("Temperature #" + (i + 1), i));
+          for (int i = 0; i < superIO.Fans.Length; i++)
+            f.Add(new Fan("Fan #" + (i + 1), i));
+          for (int i = 0; i < superIO.Controls.Length; i++)
+            c.Add(new Ctrl("Fan Control #" + (i + 1), i));
+          break;
+      }
+    }
+
+    private static void GetITEConfigurationsC(ISuperIO superIO,
+      Manufacturer manufacturer, Model model,
+      IList<Voltage> v, IList<Temperature> t, IList<Fan> f, IList<Ctrl> c) 
+    {
+      switch (manufacturer) {        
+        case Manufacturer.Gigabyte:
+          switch (model) {            
+            case Model.X570_AORUS_MASTER: // IT879XE
+              v.Add(new Voltage("CPU VDD18", 0));
+              v.Add(new Voltage("DDRVTT CH(A/B)", 1));
+              v.Add(new Voltage("Chipset Core", 2));
+              v.Add(new Voltage("Voltage #4", 3, true));
+              v.Add(new Voltage("CPU VDD18", 4));
+              v.Add(new Voltage("PM_CLDO12", 5));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("Standby +3.3V", 7, 1f, 1f));
+              v.Add(new Voltage("VBat", 8, 1f, 1f));
+              t.Add(new Temperature("PCIEX8", 0));
+              t.Add(new Temperature("EC_TEMP2", 1));
+              t.Add(new Temperature("System 2", 2));
+              f.Add(new Fan("System 5 Pump", 0));
+              f.Add(new Fan("System 6 Pump", 1));
+              f.Add(new Fan("System 4 Fan", 2));
+              break;           
+            default:
+              v.Add(new Voltage("Voltage #1", 0, true));
+              v.Add(new Voltage("Voltage #2", 1, true));
+              v.Add(new Voltage("Voltage #3", 2, true));
+              v.Add(new Voltage("Voltage #4", 3, true));
+              v.Add(new Voltage("Voltage #5", 4, true));
+              v.Add(new Voltage("Voltage #6", 5, true));
+              v.Add(new Voltage("Voltage #7", 6, true));
+              v.Add(new Voltage("Standby +3.3V", 7, 10, 10, 0, true));
+              v.Add(new Voltage("VBat", 8, 10, 10));
+              for (int i = 0; i < superIO.Temperatures.Length; i++)
+                t.Add(new Temperature("Temperature #" + (i + 1), i));
+              for (int i = 0; i < superIO.Fans.Length; i++)
+                f.Add(new Fan("Fan #" + (i + 1), i));
+              for (int i = 0; i < superIO.Controls.Length; i++)
+                c.Add(new Ctrl("Fan Control #" + (i + 1), i));
+              break;
+          }
+          break;        
         default:
           v.Add(new Voltage("Voltage #1", 0, true));
           v.Add(new Voltage("Voltage #2", 1, true));
