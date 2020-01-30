@@ -322,8 +322,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private bool DetectIT87(LPCPort port) {
 
-      // IT87XX can enter only on port 0x2E
-      if (port.RegisterPort != 0x2E)
+      // IT87XX can enter only on port 0x2E and 0x4E
+      if (port.RegisterPort != 0x2E && port.RegisterPort != 0x4E)
         return false;
 
       port.IT87Enter();
@@ -342,6 +342,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case 0x8721: chip = Chip.IT8721F; break;
         case 0x8726: chip = Chip.IT8726F; break;
         case 0x8728: chip = Chip.IT8728F; break;
+        case 0x8733: chip = Chip.IT879XE; break;
         case 0x8771: chip = Chip.IT8771E; break;
         case 0x8772: chip = Chip.IT8772E; break;
         default: chip = Chip.Unknown; break;
