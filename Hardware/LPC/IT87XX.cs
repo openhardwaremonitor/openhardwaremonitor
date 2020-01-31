@@ -136,30 +136,50 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return;
 
       // Bit 0x10 of the configuration register should always be 1
-      if ((ReadByte(CONFIGURATION_REGISTER, out valid) & 0x10) == 0)
+      byte configuration = ReadByte(CONFIGURATION_REGISTER, out valid);
+      if ((configuration & 0x10) == 0 && 
+        chip != Chip.IT8655E && chip != Chip.IT8665E)
         return;
       if (!valid)
         return;
 
-      if (chip == Chip.IT8688E) {
-        voltages = new float?[9];
-        temperatures = new float?[6];
-        fans = new float?[5];
-      } else if (chip == Chip.IT879XE) {
-        voltages = new float?[9];
-        temperatures = new float?[3];
-        fans = new float?[3];
-      } else { 
-        voltages = new float?[9];
-        temperatures = new float?[3];
-        fans = new float?[chip == Chip.IT8705F ? 3 : 5];
-        controls = new float?[3];
+      switch (chip) {        
+        case Chip.IT8665E:
+        case Chip.IT8686E:
+        case Chip.IT8688E:        
+          voltages = new float?[9];
+          temperatures = new float?[6];
+          fans = new float?[5];
+          break;
+        case Chip.IT8655E:
+          voltages = new float?[9];
+          temperatures = new float?[6];
+          fans = new float?[3];
+          break;
+        case Chip.IT879XE:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[3];
+          break;
+        case Chip.IT8705F:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[3];
+          controls = new float?[3];
+          break;
+        default:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[5];
+          controls = new float?[3];
+          break;
       }
 
       // set the voltage for the ADC LSB 
       switch (chip) {
         case Chip.IT8620E:
         case Chip.IT8628E:
+        case Chip.IT8686E:
         case Chip.IT8688E:
         case Chip.IT8721F:
         case Chip.IT8728F:
@@ -167,6 +187,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8772E:
           voltageGain = 0.012f;
           break;
+        case Chip.IT8655E:
+        case Chip.IT8665E:
         case Chip.IT879XE:
           voltageGain = 0.011f;
           break;
@@ -196,14 +218,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F:
           gpioCount = 8;
           break;
-        case Chip.IT8620E:
-        case Chip.IT8628E:
-        case Chip.IT8688E:
-        case Chip.IT8705F: 
-        case Chip.IT8728F:
-        case Chip.IT8771E:
-        case Chip.IT8772E:
-        case Chip.IT879XE:
+        default:
           gpioCount = 0;
           break;
       }
