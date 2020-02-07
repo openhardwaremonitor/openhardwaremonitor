@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -178,14 +178,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             NextLog2(maxCoreAndThreadIdPerPackage / maxCoreIdPerPackage);
           coreMaskWith = NextLog2(maxCoreIdPerPackage);
           break;
-        case Vendor.AMD:
-          uint corePerPackage;
-          if (maxCpuidExt >= 8)
-            corePerPackage = (cpuidExtData[8, 2] & 0xFF) + 1;
-          else
-            corePerPackage = 1;
-          threadMaskWith = 0;
-          coreMaskWith = NextLog2(corePerPackage);
+        case Vendor.AMD:          
+          if (this.family == 0x17) {
+            coreMaskWith = (cpuidExtData[8, 2] >> 12) & 0xF;
+            threadMaskWith = 
+              NextLog2(((cpuidExtData[0x1E, 1] >> 8) & 0xFF) + 1);
+          } else {
+            uint corePerPackage;
+            if (maxCpuidExt >= 8)
+              corePerPackage = (cpuidExtData[8, 2] & 0xFF) + 1;
+            else
+              corePerPackage = 1;
+            coreMaskWith = NextLog2(corePerPackage);
+            threadMaskWith = 0;
+          }          
           break;
         default:
           threadMaskWith = 0;
