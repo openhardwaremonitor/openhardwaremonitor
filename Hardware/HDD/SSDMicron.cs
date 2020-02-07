@@ -15,7 +15,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
   [NamePrefix(""), RequireSmart(0xAA), RequireSmart(0xAB), RequireSmart(0xAC), 
    RequireSmart(0xAD), RequireSmart(0xAE), RequireSmart(0xCA)]
-  internal class SSDMicron : AbstractHarddrive {
+  internal class SSDMicron : ATAStorage {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
@@ -51,6 +51,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public SSDMicron(ISmart smart, string name, string firmwareRevision, 
       int index, ISettings settings)
-      : base(smart, name, firmwareRevision, index, smartAttributes, settings) {}
+      : base(smart, name, firmwareRevision, "ssd", index, smartAttributes, settings) {}
   }
 }

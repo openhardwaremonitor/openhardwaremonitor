@@ -63,11 +63,13 @@
     <Compile Include="Hardware\ATI\ATIGroup.cs" />
     <Compile Include="Hardware\Control.cs" />
     <Compile Include="Hardware\FirmwareTable.cs" />
+    <Compile Include="Hardware\HDD\AbstractStorage.cs" />
     <Compile Include="Hardware\HDD\DebugSmart.cs" />
     <Compile Include="Hardware\HDD\DriveAttributeValue.cs" />
     <Compile Include="Hardware\HDD\DriveThresholdValue.cs" />
     <Compile Include="Hardware\HDD\HDDGeneric.cs" />
     <Compile Include="Hardware\HDD\ISmart.cs" />
+    <Compile Include="Hardware\HDD\NVMeGeneric.cs" />
     <Compile Include="Hardware\HDD\SmartAttribute.cs" />
     <Compile Include="Hardware\HDD\SmartNames.cs" />
     <Compile Include="Hardware\HDD\RequireSmartAttribute.cs" />
@@ -78,6 +80,9 @@
     <Compile Include="Hardware\HDD\SSDPlextor.cs" />
     <Compile Include="Hardware\HDD\SSDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSandforce.cs" />
+    <Compile Include="Hardware\HDD\StorageGeneric.cs" />
+    <Compile Include="Hardware\HDD\WindowsNVMeSmart.cs" />
+    <Compile Include="Hardware\HDD\WindowsStorage.cs" />
     <Compile Include="Hardware\IControl.cs" />
     <Compile Include="Hardware\IOControlCode.cs" />
     <Compile Include="Hardware\Computer.cs" />
