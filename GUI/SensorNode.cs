@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -43,7 +43,7 @@ namespace OpenHardwareMonitor.GUI {
       this.unitManager = unitManager;
       switch (sensor.SensorType) {
         case SensorType.Voltage: format = "{0:F3} V"; break;
-        case SensorType.Clock: format = "{0:F0} MHz"; break;
+        case SensorType.Clock: format = "{0:F1} MHz"; break;
         case SensorType.Load: format = "{0:F1} %"; break;
         case SensorType.Temperature: format = "{0:F1} °C"; break;
         case SensorType.Fan: format = "{0:F0} RPM"; break;
