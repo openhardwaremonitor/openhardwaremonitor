@@ -13,58 +13,150 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public static Manufacturer GetManufacturer(string name) {
       switch (name) {
+        case "acer":
+        case "Acer":
+        case "ACER":
+        case "Acer, Inc.":
+          return Manufacturer.Acer;
+        case "AMD":
+        case "AMD Corp.":
+        case "AMD Corporation":
+          return Manufacturer.AMD;
         case "Alienware":
           return Manufacturer.Alienware;
+        case "AOpen":
+        case "AOpen Inc.":
+          return Manufacturer.AOpen;
+        case "Apple Computer, Inc.":
         case "Apple Inc.":
           return Manufacturer.Apple;
         case "ASRock":
           return Manufacturer.ASRock;
+        case "ASUS CORPORATION":
+        case "ASUSTek Computer Inc.":
+        case "ASUSTek Computer INC.":
+        case "ASUSTeK Computer Inc.":
         case "ASUSTeK Computer INC.":
         case "ASUSTeK COMPUTER INC.":
           return Manufacturer.ASUS;
+        case "Biostar":
+        case "Biostar Group":
+        case "BIOSTAR Group":
+          return Manufacturer.Biostar;
+        case "clevo":
+        case "Clevo":
+        case "CLEVO":
+        case "CLEVO Co.":
+        case "CLEVO CO.":
+          return Manufacturer.Clevo;
+        case "Dell Computer Corp.":
+        case "Dell Computer Corporation":
+        case "Dell Inc":
         case "Dell Inc.":
+        case "DELL Inc.":
+        case "DellInc.":
           return Manufacturer.Dell;
         case "DFI":
         case "DFI Inc.":
           return Manufacturer.DFI;
         case "ECS":
+        case "ELITEGROUP":
+        case "ELITEGROUP COMPUTER SYSTEM CO.,LTD.":
           return Manufacturer.ECS;
         case "EPoX COMPUTER CO., LTD":
           return Manufacturer.EPoX;
         case "EVGA":
+        case "EVGA INTERNATIONAL CO.,LTD":
           return Manufacturer.EVGA;
+        case "FIC":
         case "First International Computer, Inc.":
           return Manufacturer.FIC;
+        case "Foxconn":
+        case "FOXCONN":
+          return Manufacturer.Foxconn;
         case "FUJITSU":
         case "FUJITSU SIEMENS":
+        case "FUJITSU-SV":
           return Manufacturer.Fujitsu;
+        case "Gateway":
+        case "GATEWAY":
+          return Manufacturer.Gateway;
+        case "Gigabyte":
+        case "GIGABYTE":
         case "Gigabyte Technology Co., Ltd.":
+        case "Gigabyte Technology Co.,Ltd":
+        case "Gigabyte Technology Co.,Ltd.":
+        case "Gigabyte Tecohnology Co., Ltd.":
           return Manufacturer.Gigabyte;
+        case "Hewleet-Packard":
         case "Hewlett-Packard":
+        case "HP":
           return Manufacturer.HP;
+        case "http://www.abit.com.tw/":
+        case "www.abit.com.tw":
+          return Manufacturer.Abit;
         case "IBM":
           return Manufacturer.IBM;
         case "Intel":
+        case "INTEL":
         case "Intel Corp.":
         case "Intel Corporation":
         case "INTEL Corporation":
+        case "Intel.":
           return Manufacturer.Intel;
+        case "JETWAY":
+          return Manufacturer.Jetway;
+        case "LattePanda":
+          return Manufacturer.LattePanda;
         case "Lenovo":
         case "LENOVO":
           return Manufacturer.Lenovo;
+        case "Medion":
+        case "MEDION":
+        case "MEDIONPC":
+          return Manufacturer.Medion;
+        case "Microsoft Corporation":
+          return Manufacturer.Microsoft;
+        case "Micro Star":
+        case "Micro-Star":
+        case "MICRO-STAR INC.":
+        case "MICRO-STAR INTERANTIONAL CO.,LTD":
+        case "MICRO-STAR INTERANTONAL CO.,LTD":
         case "Micro-Star International":
+        case "Micro-Star International Co., Ltd":
         case "MICRO-STAR INTERNATIONAL CO., LTD":
+        case "Micro-Star International Co., Ltd.":
         case "MICRO-STAR INTERNATIONAL CO.,LTD":
+        case "msi":
         case "MSI":
           return Manufacturer.MSI;
+        case "NEC":
+        case "NEC COMPUTERS INTERNATIONAL":
+          return Manufacturer.NEC;
+        case "PEGATRON CORPORATION":
+        case "PEGATRON CORPORATION.":
+        case "PEGATRON INC.":
+          return Manufacturer.Pegatron;
+        case "SAMSUNG ELECTRONICS CO., LTD.":
+        case "SAMSUNG ELECTRONICS CO.,LTD":
+          return Manufacturer.Samsung;
+        case "SAPPHIRE":
+        case "Sapphire Tech":
+          return Manufacturer.Sapphire;
         case "Shuttle":
+        case "Shuttle Inc":
+        case "Shuttle Inc.":
           return Manufacturer.Shuttle;
+        case "Sony Corporation":
+          return Manufacturer.Sony;
         case "Supermicro":
           return Manufacturer.Supermicro;
         case "TOSHIBA":
           return Manufacturer.Toshiba;
         case "XFX":
           return Manufacturer.XFX;
+        case "ZOTAC":
+          return Manufacturer.ZOTAC;
         case "To be filled by O.E.M.":
           return Manufacturer.Unknown;
         default:
