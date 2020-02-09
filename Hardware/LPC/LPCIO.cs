@@ -115,6 +115,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0x11: //ASUS A88X-PLUS
+          switch (revision){
+            case 0x18:
+              chip = Chip.F71811;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+            }break;
         case 0x52:
           switch (revision) {
             case 0x17:

@@ -24,6 +24,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     F71889ED = 0x0909,
     F71889F = 0x0723,
     F71808E = 0x0901,
+    F71811 = 0x1007, //ASUS A88X-PLUS
 
     IT8620E = 0x8620,
     IT8628E = 0x8628,
@@ -67,7 +68,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.F71858: return "Fintek F71858";
         case Chip.F71862: return "Fintek F71862";
         case Chip.F71869: return "Fintek F71869";
-        case Chip.F71869A: return "Fintek F71869A";
+        case Chip.F71869A: return "Fintek F71869A/F71811/F71812"; //ASUS A88X-PLUS
         case Chip.F71882: return "Fintek F71882";
         case Chip.F71889AD: return "Fintek F71889AD";
         case Chip.F71889ED: return "Fintek F71889ED";
