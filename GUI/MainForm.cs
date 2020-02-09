@@ -576,6 +576,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private void SaveConfiguration() {
       plotPanel.SetCurrentSettings();
+      settings.SetValue("splitContainer.SplitterDistance", splitContainer.SplitterDistance); //Save splitContainer distance
       foreach (TreeColumn column in treeView.Columns)
         settings.SetValue("treeView.Columns." + column.Header + ".Width",
           column.Width);
@@ -623,6 +624,9 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       this.Bounds = newBounds;
+
+      //Update splitter (plot) distance
+      updateSplitterDistance();
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -904,5 +908,19 @@ namespace OpenHardwareMonitor.GUI {
       get { return server; }
     }
 
+    //Set the splitter distance
+    private void updateSplitterDistance() {
+      int splitterDistance = settings.GetValue("splitContainer.SplitterDistance", 0); //Get saved distance from config or set 0
+      switch (settings.GetValue("plotLocation", 0)) {
+        case 1: //Plot docked on the bottom
+          if ((splitterDistance <= 0) || (splitterDistance > Height)) splitterDistance = Height / 2; //If distance is invalid, set half of the window height
+          splitContainer.SplitterDistance = splitterDistance;
+          break;
+        case 2: //Plot docked on the right
+          if ((splitterDistance <= 0) || (splitterDistance > Width)) splitterDistance = Width / 2; //If distance is invalid, set half of the window width
+          splitContainer.SplitterDistance = splitterDistance;
+          break;
+      }
+    }
   }
 }
