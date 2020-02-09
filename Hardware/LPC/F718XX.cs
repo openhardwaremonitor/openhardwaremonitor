@@ -4,10 +4,11 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
+using System;
 using System.Globalization;
 using System.Text;
 
@@ -36,7 +37,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       new byte[] { 0xA0, 0xB0, 0xC0, 0xD0 };
     private readonly byte[] FAN_PWM_REG = 
       new byte[] { 0xA3, 0xB3, 0xC3, 0xD3 };
-    
+
+    private bool[] restoreDefaultFanPwmControlRequired = new bool[4];
+    private byte[] initialFanPwmControl = new byte[4];
+
     private byte ReadByte(byte register) {
       Ring0.WriteIoPort(
         (ushort)(address + ADDRESS_REGISTER_OFFSET), register);
@@ -54,9 +58,37 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     public void WriteGPIO(int index, byte value) { }
 
+    private void SaveDefaultFanPwmControl(int index) {
+
+      if (!restoreDefaultFanPwmControlRequired[index]) {
+        initialFanPwmControl[index] = ReadByte(FAN_PWM_REG[index]);
+        restoreDefaultFanPwmControlRequired[index] = true;
+      }
+    }
+
+    private void RestoreDefaultFanPwmControl(int index) {
+      if (restoreDefaultFanPwmControlRequired[index]) {
+        WriteByte(FAN_PWM_REG[index], initialFanPwmControl[index]);
+        restoreDefaultFanPwmControlRequired[index] = false;
+      }
+    }
+
     public void SetControl(int index, byte? value) {
-      if(index < controls.Length)
-        WriteByte(FAN_PWM_REG[index], value ?? 128);
+      if (index < 0 || index >= controls.Length)
+        throw new ArgumentOutOfRangeException("index");
+
+      if (!Ring0.WaitIsaBusMutex(10))
+        return;
+
+      if (value.HasValue) {
+        SaveDefaultFanPwmControl(index);
+
+        WriteByte(FAN_PWM_REG[index], value.Value);
+      } else {
+        RestoreDefaultFanPwmControl(index);
+      }
+
+      Ring0.ReleaseIsaBusMutex();
     }   
 
     public F718XX(Chip chip, ushort address) {
@@ -168,7 +200,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fans[i] = null;        
       }
       for (int i = 0; i < controls.Length; i++) {
-        controls[i] = (100*ReadByte((byte)(PWM_VALUES_OFFSET + i)))/256.0f;
+        controls[i] = ReadByte((byte)(PWM_VALUES_OFFSET + i)) * 100.0f / 0xFF;
       }
 
       Ring0.ReleaseIsaBusMutex();
