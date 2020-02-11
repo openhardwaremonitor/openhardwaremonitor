@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -19,18 +19,24 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly List<ATIGPU> hardware = new List<ATIGPU>();
     private readonly StringBuilder report = new StringBuilder();
 
+    private IntPtr context = IntPtr.Zero;
+
     public ATIGroup(ISettings settings) {
       try {
-        int status = ADL.ADL_Main_Control_Create(1);
+        int adlStatus = ADL.ADL_Main_Control_Create(1);
+        int adl2Status = ADL.ADL2_Main_Control_Create(1, out context);
 
         report.AppendLine("AMD Display Library");
         report.AppendLine();
-        report.Append("Status: ");
-        report.AppendLine(status == ADL.ADL_OK ? "OK" : 
-          status.ToString(CultureInfo.InvariantCulture));
+        report.Append("ADL Status: ");
+        report.AppendLine(adlStatus == ADL.ADL_OK ? "OK" : 
+          adlStatus.ToString(CultureInfo.InvariantCulture));
+        report.Append("ADL2 Status: ");
+        report.AppendLine(adl2Status == ADL.ADL_OK ? "OK" :
+          adl2Status.ToString(CultureInfo.InvariantCulture));
         report.AppendLine();
 
-        if (status == ADL.ADL_OK) {
+        if (adlStatus == ADL.ADL_OK) {
           int numberOfAdapters = 0;
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);
           
@@ -91,7 +97,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       adapterInfo[i].AdapterName.Trim(),
                       adapterInfo[i].AdapterIndex,
                       adapterInfo[i].BusNumber,
-                      adapterInfo[i].DeviceNumber, settings));
+                      adapterInfo[i].DeviceNumber, context, settings));
                 }
 
                 report.AppendLine();
@@ -120,6 +126,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       try {
         foreach (ATIGPU gpu in hardware)
           gpu.Close();
+
+        if (context != IntPtr.Zero) {
+          ADL.ADL2_Main_Control_Destroy(context);
+          context = IntPtr.Zero;
+        }
+
         ADL.ADL_Main_Control_Destroy();
       } catch (Exception) { }
     }

@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -77,6 +77,23 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public int MaxRPM;
   }
 
+  internal enum ADLODNCurrentPowerType {
+    TOTAL_POWER = 0,
+    PPT_POWER,
+    SOCKET_POWER,
+    CHIP_POWER,
+  }
+
+  internal enum ADLODNTemperatureType {
+    CORE = 1,
+    MEMORY = 2,
+    VRM_CORE = 3,
+    VRM_MEMORY = 4,
+    LIQUID = 5,
+    PLX = 6,
+    HOTSPOT = 7,
+  }
+
   internal class ADL {
     public const int ADL_MAX_PATH = 256;
     public const int ADL_MAX_ADAPTERS = 40;
@@ -127,6 +144,18 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       int adapterIndex, int thermalControllerIndex);
     public delegate int ADL_Overdrive5_FanSpeed_SetDelegate(int adapterIndex,
       int thermalControllerIndex, ref	ADLFanSpeedValue fanSpeedValue);
+    public delegate int ADL_Overdrive_CapsDelegate(int adapterIndex,
+      out int supported, out int enabled, out int version);
+    private delegate int ADL2_Main_Control_CreateDelegate(
+      ADL_Main_Memory_AllocDelegate callback, int enumConnectedAdapters, 
+      out IntPtr context);
+    public delegate int ADL2_Main_Control_DestroyDelegate(IntPtr context);
+    public delegate int ADL2_OverdriveN_Temperature_GetDelegate(IntPtr context,
+      int adapterIndex, ADLODNTemperatureType temperatureType,
+      out int temperature);                        
+    public delegate int ADL2_Overdrive6_CurrentPower_GetDelegate(IntPtr context,
+      int adapterIndex, ADLODNCurrentPowerType powerType,
+      out int currentValue);
 
     private static ADL_Main_Control_CreateDelegate
       _ADL_Main_Control_Create;
@@ -155,6 +184,16 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADL_Overdrive5_FanSpeedToDefault_Set;
     public static ADL_Overdrive5_FanSpeed_SetDelegate
       ADL_Overdrive5_FanSpeed_Set;
+    public static ADL_Overdrive_CapsDelegate 
+      ADL_Overdrive_Caps;
+    private static ADL2_Main_Control_CreateDelegate
+      _ADL2_Main_Control_Create;
+    public static ADL2_Main_Control_DestroyDelegate
+      ADL2_Main_Control_Destroy;
+    public static ADL2_OverdriveN_Temperature_GetDelegate
+      ADL2_OverdriveN_Temperature_Get;
+    public static ADL2_Overdrive6_CurrentPower_GetDelegate
+      ADL2_Overdrive6_CurrentPower_Get;
 
     private static string dllName;
 
@@ -201,7 +240,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         out ADL_Overdrive5_FanSpeedToDefault_Set);
       GetDelegate("ADL_Overdrive5_FanSpeed_Set",
         out ADL_Overdrive5_FanSpeed_Set);
-    }
+      GetDelegate("ADL_Overdrive_Caps", 
+        out ADL_Overdrive_Caps);
+      GetDelegate("ADL2_Main_Control_Create",
+        out _ADL2_Main_Control_Create);
+      GetDelegate("ADL2_Main_Control_Destroy",
+        out ADL2_Main_Control_Destroy);
+      GetDelegate("ADL2_OverdriveN_Temperature_Get",
+        out ADL2_OverdriveN_Temperature_Get);
+      GetDelegate("ADL2_Overdrive6_CurrentPower_Get",
+        out ADL2_Overdrive6_CurrentPower_Get);
+  }
 
     static ADL() {
       CreateDelegates("atiadlxx");
@@ -223,6 +272,21 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         return ADL_ERR;
       }
     }
+
+    public static int ADL2_Main_Control_Create(int enumConnectedAdapters,
+      out IntPtr context) 
+    {
+      try {
+        var result = _ADL2_Main_Control_Create(Main_Memory_Alloc,
+          enumConnectedAdapters, out context);
+        if (result != ADL.ADL_OK)
+          context = IntPtr.Zero;
+        return result;
+      } catch {
+        context = IntPtr.Zero;
+        return ADL_ERR;
+      }
+     }
 
     public static int ADL_Adapter_AdapterInfo_Get(ADLAdapterInfo[] info) {
       int elementSize = Marshal.SizeOf(typeof(ADLAdapterInfo));
