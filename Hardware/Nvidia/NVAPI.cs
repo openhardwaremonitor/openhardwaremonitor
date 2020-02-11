@@ -237,41 +237,72 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       Marshal.SizeOf(typeof(NvGPUCoolerLevels)) | 0x10000;
 
     private delegate IntPtr nvapi_QueryInterfaceDelegate(uint id);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate NvStatus NvAPI_InitializeDelegate();
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate NvStatus NvAPI_GPU_GetFullNameDelegate(
       NvPhysicalGpuHandle gpuHandle, StringBuilder name);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetThermalSettingsDelegate(
       NvPhysicalGpuHandle gpuHandle, int sensorIndex,
       ref NvGPUThermalSettings nvGPUThermalSettings);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_EnumNvidiaDisplayHandleDelegate(int thisEnum,
       ref NvDisplayHandle displayHandle);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GetPhysicalGPUsFromDisplayDelegate(
       NvDisplayHandle displayHandle, [Out] NvPhysicalGpuHandle[] gpuHandles,
       out uint gpuCount);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_EnumPhysicalGPUsDelegate(
       [Out] NvPhysicalGpuHandle[] gpuHandles, out int gpuCount);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetTachReadingDelegate(
       NvPhysicalGpuHandle gpuHandle, out int value);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetAllClocksDelegate(
       NvPhysicalGpuHandle gpuHandle, ref NvClocks nvClocks);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetPStatesDelegate(
       NvPhysicalGpuHandle gpuHandle, ref NvPStates nvPStates);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetUsagesDelegate(
       NvPhysicalGpuHandle gpuHandle, ref NvUsages nvUsages);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetCoolerSettingsDelegate(
       NvPhysicalGpuHandle gpuHandle, int coolerIndex,
       ref NvGPUCoolerSettings nvGPUCoolerSettings);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_SetCoolerLevelsDelegate(
       NvPhysicalGpuHandle gpuHandle, int coolerIndex,
       ref NvGPUCoolerLevels NvGPUCoolerLevels);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetMemoryInfoDelegate(
       NvDisplayHandle displayHandle, ref NvMemoryInfo nvMemoryInfo);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GetDisplayDriverVersionDelegate(
       NvDisplayHandle displayHandle, [In, Out] ref NvDisplayDriverVersion
       nvDisplayDriverVersion);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GetInterfaceVersionStringDelegate(
       StringBuilder version);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetPCIIdentifiersDelegate(
       NvPhysicalGpuHandle gpuHandle, out uint deviceId, out uint subSystemId, 
       out uint revisionId, out uint extDeviceId);
