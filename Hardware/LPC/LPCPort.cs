@@ -90,8 +90,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public void IT87Exit() {
-      Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
-      Ring0.WriteIoPort(valuePort, 0x02);
+      // do not exit config mode for secondary super IO
+      if (registerPort != 0x4E) {
+        Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
+        Ring0.WriteIoPort(valuePort, 0x02);
+      }
     }
 
     public void SMSCEnter() {
