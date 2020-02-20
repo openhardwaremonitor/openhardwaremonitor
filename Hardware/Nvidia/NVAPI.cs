@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2011 Christian Vallières
  
 */
@@ -307,6 +307,10 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvPhysicalGpuHandle gpuHandle, out uint deviceId, out uint subSystemId, 
       out uint revisionId, out uint extDeviceId);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate NvStatus NvAPI_GPU_GetBusIdDelegate(
+      NvPhysicalGpuHandle gpuHandle, out uint busId);
+
     private static readonly bool available;
     private static readonly nvapi_QueryInterfaceDelegate nvapi_QueryInterface;
     private static readonly NvAPI_InitializeDelegate NvAPI_Initialize;
@@ -341,6 +345,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvAPI_GetDisplayDriverVersion;
     public static readonly NvAPI_GPU_GetPCIIdentifiersDelegate
       NvAPI_GPU_GetPCIIdentifiers;
+    public static readonly NvAPI_GPU_GetBusIdDelegate
+      NvAPI_GPU_GetBusId;
 
     private NVAPI() { }
 
@@ -416,6 +422,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         GetDelegate(0xF951A4D1, out NvAPI_GetDisplayDriverVersion);
         GetDelegate(0x01053FA5, out _NvAPI_GetInterfaceVersionString);
         GetDelegate(0x2DDFB66E, out NvAPI_GPU_GetPCIIdentifiers);
+        GetDelegate(0x1BE0B8E5, out NvAPI_GPU_GetBusId);
 
         available = true;
       }

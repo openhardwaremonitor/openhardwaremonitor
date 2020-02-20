@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2011 Christian Vallières
  
 */
@@ -19,6 +19,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private readonly int adapterIndex;
     private readonly NvPhysicalGpuHandle handle;
     private readonly NvDisplayHandle? displayHandle;
+    private readonly NVML.NvmlDevice? device;
 
     private readonly Sensor[] temperatures;
     private readonly Sensor fan;
@@ -29,12 +30,16 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private readonly Sensor memoryUsed;
     private readonly Sensor memoryFree;
     private readonly Sensor memoryAvail;
+    private readonly Sensor power;
+    private readonly Sensor pcieThroughputRx;
+    private readonly Sensor pcieThroughputTx;
     private readonly Control fanControl;
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle,
       NvDisplayHandle? displayHandle, ISettings settings)
       : base(GetName(handle), new Identifier("nvidiagpu",
-          adapterIndex.ToString(CultureInfo.InvariantCulture)), settings) {
+          adapterIndex.ToString(CultureInfo.InvariantCulture)), settings) 
+    {
       this.adapterIndex = adapterIndex;
       this.handle = handle;
       this.displayHandle = displayHandle;
@@ -57,13 +62,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         ActivateSensor(temperatures[i]);
       }
 
-      int value;
       if (NVAPI.NvAPI_GPU_GetTachReading != null &&
-        NVAPI.NvAPI_GPU_GetTachReading(handle, out value) == NvStatus.OK) {
-        if (value >= 0) {
-          fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
-          ActivateSensor(fan);
-        }
+        NVAPI.NvAPI_GPU_GetTachReading(handle, out _) == NvStatus.OK) 
+      {
+        fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
+        ActivateSensor(fan);
       }
 
       clocks = new Sensor[3];
@@ -93,6 +96,24 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         ControlModeChanged(fanControl);
         control.Control = fanControl;
       }
+
+      if (NVML.IsInitialized) {
+        if (NVAPI.NvAPI_GPU_GetBusId != null && 
+            NVAPI.NvAPI_GPU_GetBusId(handle, out uint busId) == NvStatus.OK) {
+          if (NVML.NvmlDeviceGetHandleByPciBusId(
+            "0000:" + busId.ToString("X2") + ":00.0", out var result)
+            == NVML.NvmlReturn.Success) 
+          {
+            device = result;
+            power = new Sensor("GPU Power", 0, SensorType.Power, this, settings);
+            pcieThroughputRx = new Sensor("GPU PCIE Rx", 0, 
+              SensorType.Throughput, this, settings);
+            pcieThroughputTx = new Sensor("GPU PCIE Tx", 1, 
+              SensorType.Throughput, this, settings);
+          }
+        }
+      }
+
       Update();
     }
 
@@ -152,10 +173,10 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       foreach (Sensor sensor in temperatures)
         sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
 
-      if (fan != null) {
-        int value = 0;
-        NVAPI.NvAPI_GPU_GetTachReading(handle, out value);
-        fan.Value = value;
+      if (fan != null && NVAPI.NvAPI_GPU_GetTachReading(handle, out int fanValue) 
+        == NvStatus.OK)
+      {
+        fan.Value = fanValue;
       }
 
       uint[] values = GetClocks();
@@ -218,6 +239,34 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         ActivateSensor(memoryUsed);
         ActivateSensor(memoryFree);
         ActivateSensor(memoryLoad);
+      }
+
+      if (power != null) {
+        if (NVML.NvmlDeviceGetPowerUsage(device.Value, out int powerValue) 
+          == NVML.NvmlReturn.Success) 
+        {
+          power.Value = powerValue * 0.001f;
+          ActivateSensor(power);
+        }
+      }
+
+      if (pcieThroughputRx != null) {
+        if (NVML.NvmlDeviceGetPcieThroughput(device.Value, 
+          NVML.NvmlPcieUtilCounter.RxBytes, out uint value) 
+          == NVML.NvmlReturn.Success) 
+        {
+          pcieThroughputRx.Value = value * (1.0f / 0x400);
+          ActivateSensor(pcieThroughputRx);
+        }
+      }
+
+      if (pcieThroughputTx != null) {
+        if (NVML.NvmlDeviceGetPcieThroughput(device.Value,
+          NVML.NvmlPcieUtilCounter.TxBytes, out uint value)
+          == NVML.NvmlReturn.Success) {
+          pcieThroughputTx.Value = value * (1.0f / 0x400);
+          ActivateSensor(pcieThroughputTx);
+        }
       }
     }
 

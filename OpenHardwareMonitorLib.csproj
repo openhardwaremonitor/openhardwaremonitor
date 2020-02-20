@@ -94,6 +94,7 @@
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Mainboard\Identification.cs" />
+    <Compile Include="Hardware\Nvidia\NVML.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\OperatingSystem.cs" />
     <Compile Include="Hardware\RAM\GenericRAM.cs" />
