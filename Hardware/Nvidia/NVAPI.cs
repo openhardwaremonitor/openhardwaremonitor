@@ -131,24 +131,40 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  internal struct NvPState {
+  internal struct NvUtilizationDomainEx {
     public bool Present;
     public int Percentage;
   }
 
-  [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  internal struct NvPStates {
-    public uint Version;
-    public uint Flags;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_PSTATES_PER_GPU)]
-    public NvPState[] PStates;
+  public enum UtilizationDomain {
+    GPU,
+    FrameBuffer,
+    VideoEngine,
+    BusInterface
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  internal struct NvUsages {
+  internal struct NvDynamicPstatesInfoEx {
     public uint Version;
-    [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_USAGES_PER_GPU)]
-    public uint[] Usage;
+    public uint Flags;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.NVAPI_MAX_GPU_UTILIZATIONS)]
+    public NvUtilizationDomainEx[] UtilizationDomains;
+  }
+
+
+  [StructLayout(LayoutKind.Sequential, Pack = 8)]
+  internal struct NvUtilizationDomain {
+    public bool Present;
+    public int Percentage;
+    public ulong Reserved;
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 8)]
+  internal struct NvDynamicPstatesInfo {
+    public uint Version;
+    public uint Flags;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.NVAPI_MAX_GPU_UTILIZATIONS)]
+    public NvUtilizationDomain[] UtilizationDomains;
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
@@ -189,7 +205,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
-  internal struct NvMemoryInfo {
+  internal struct NvDisplayDriverMemoryInfo {
     public uint Version;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst =
       NVAPI.MAX_MEMORY_VALUES_PER_GPU)]
@@ -214,8 +230,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     public const int MAX_THERMAL_SENSORS_PER_GPU = 3;
     public const int MAX_CLOCKS_PER_GPU = 0x120;
-    public const int MAX_PSTATES_PER_GPU = 8;
-    public const int MAX_USAGES_PER_GPU = 33;
+    public const int NVAPI_MAX_GPU_UTILIZATIONS = 8;
     public const int MAX_COOLER_PER_GPU = 20;
     public const int MAX_MEMORY_VALUES_PER_GPU = 5;
 
@@ -223,14 +238,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       Marshal.SizeOf(typeof(NvGPUThermalSettings)) | 0x10000;
     public static readonly uint GPU_CLOCKS_VER = (uint)
       Marshal.SizeOf(typeof(NvClocks)) | 0x20000;
-    public static readonly uint GPU_PSTATES_VER = (uint)
-      Marshal.SizeOf(typeof(NvPStates)) | 0x10000;
-    public static readonly uint GPU_USAGES_VER = (uint)
-      Marshal.SizeOf(typeof(NvUsages)) | 0x10000;
+    public static readonly uint GPU_DYNAMIC_PSTATES_INFO_EX_VER = (uint)
+      Marshal.SizeOf(typeof(NvDynamicPstatesInfoEx)) | 0x10000;
+    public static readonly uint GPU_DYNAMIC_PSTATES_INFO_VER = (uint)
+      Marshal.SizeOf(typeof(NvDynamicPstatesInfo)) | 0x10000;
     public static readonly uint GPU_COOLER_SETTINGS_VER = (uint)
       Marshal.SizeOf(typeof(NvGPUCoolerSettings)) | 0x20000;
-    public static readonly uint GPU_MEMORY_INFO_VER = (uint)
-      Marshal.SizeOf(typeof(NvMemoryInfo)) | 0x20000;
+    public static readonly uint DISPLAY_DRIVER_MEMORY_INFO_VER = (uint)
+      Marshal.SizeOf(typeof(NvDisplayDriverMemoryInfo)) | 0x20000;
     public static readonly uint DISPLAY_DRIVER_VERSION_VER = (uint)
       Marshal.SizeOf(typeof(NvDisplayDriverVersion)) | 0x10000;
     public static readonly uint GPU_COOLER_LEVELS_VER = (uint)
@@ -272,12 +287,14 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvPhysicalGpuHandle gpuHandle, ref NvClocks nvClocks);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate NvStatus NvAPI_GPU_GetPStatesDelegate(
-      NvPhysicalGpuHandle gpuHandle, ref NvPStates nvPStates);
+    public delegate NvStatus NvAPI_GPU_GetDynamicPstatesInfoExDelegate(
+      NvPhysicalGpuHandle gpuHandle, 
+      ref NvDynamicPstatesInfoEx nvDynamicPstatesInfoEx);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate NvStatus NvAPI_GPU_GetUsagesDelegate(
-      NvPhysicalGpuHandle gpuHandle, ref NvUsages nvUsages);
+    public delegate NvStatus NvAPI_GPU_GetDynamicPstatesInfoDelegate(
+      NvPhysicalGpuHandle gpuHandle, 
+      ref NvDynamicPstatesInfo nvDynamicPstatesInfo);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GPU_GetCoolerSettingsDelegate(
@@ -290,8 +307,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       ref NvGPUCoolerLevels NvGPUCoolerLevels);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate NvStatus NvAPI_GPU_GetMemoryInfoDelegate(
-      NvDisplayHandle displayHandle, ref NvMemoryInfo nvMemoryInfo);
+    public delegate NvStatus NvAPI_GetDisplayDriverMemoryInfoDelegate(
+      NvDisplayHandle displayHandle, ref NvDisplayDriverMemoryInfo nvMemoryInfo);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GetDisplayDriverVersionDelegate(
@@ -331,16 +348,16 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvAPI_GPU_GetTachReading;
     public static readonly NvAPI_GPU_GetAllClocksDelegate
       NvAPI_GPU_GetAllClocks;
-    public static readonly NvAPI_GPU_GetPStatesDelegate
-      NvAPI_GPU_GetPStates;
-    public static readonly NvAPI_GPU_GetUsagesDelegate
-      NvAPI_GPU_GetUsages;
+    public static readonly NvAPI_GPU_GetDynamicPstatesInfoExDelegate
+      NvAPI_GPU_GetDynamicPstatesInfoEx;
+    public static readonly NvAPI_GPU_GetDynamicPstatesInfoDelegate
+      NvAPI_GPU_GetDynamicPstatesInfo;
     public static readonly NvAPI_GPU_GetCoolerSettingsDelegate
       NvAPI_GPU_GetCoolerSettings;
     public static readonly NvAPI_GPU_SetCoolerLevelsDelegate
       NvAPI_GPU_SetCoolerLevels;
-    public static readonly NvAPI_GPU_GetMemoryInfoDelegate
-      NvAPI_GPU_GetMemoryInfo;
+    public static readonly NvAPI_GetDisplayDriverMemoryInfoDelegate
+      NvAPI_GetDisplayDriverMemoryInfo;
     public static readonly NvAPI_GetDisplayDriverVersionDelegate
       NvAPI_GetDisplayDriverVersion;
     public static readonly NvAPI_GPU_GetPCIIdentifiersDelegate
@@ -414,11 +431,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         GetDelegate(0xE5AC921F, out NvAPI_EnumPhysicalGPUs);
         GetDelegate(0x5F608315, out NvAPI_GPU_GetTachReading);
         GetDelegate(0x1BD69F49, out NvAPI_GPU_GetAllClocks);
-        GetDelegate(0x60DED2ED, out NvAPI_GPU_GetPStates);
-        GetDelegate(0x189A1FDF, out NvAPI_GPU_GetUsages);
+        GetDelegate(0x60DED2ED, out NvAPI_GPU_GetDynamicPstatesInfoEx);
+        GetDelegate(0x189A1FDF, out NvAPI_GPU_GetDynamicPstatesInfo);
         GetDelegate(0xDA141340, out NvAPI_GPU_GetCoolerSettings);
         GetDelegate(0x891FA0AE, out NvAPI_GPU_SetCoolerLevels);
-        GetDelegate(0x774AA982, out NvAPI_GPU_GetMemoryInfo);
+        GetDelegate(0x774AA982, out NvAPI_GetDisplayDriverMemoryInfo);
         GetDelegate(0xF951A4D1, out NvAPI_GetDisplayDriverVersion);
         GetDelegate(0x01053FA5, out _NvAPI_GetInterfaceVersionString);
         GetDelegate(0x2DDFB66E, out NvAPI_GPU_GetPCIIdentifiers);
