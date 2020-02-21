@@ -62,12 +62,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         ActivateSensor(temperatures[i]);
       }
 
-      if (NVAPI.NvAPI_GPU_GetTachReading != null &&
-        NVAPI.NvAPI_GPU_GetTachReading(handle, out _) == NvStatus.OK) 
-      {
-        fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
-        ActivateSensor(fan);
-      }
+      fan = new Sensor("GPU", 0, SensorType.Fan, this, settings);
 
       clocks = new Sensor[3];
       clocks[0] = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
@@ -158,6 +153,21 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return settings;  
     }
 
+    private NvFanCoolersStatus GetFanCoolersStatus() {
+      var coolers = new NvFanCoolersStatus();
+      coolers.Version = NVAPI.GPU_FAN_COOLERS_STATUS_VER;
+      coolers.Items =
+        new NvFanCoolersStatusItem[NVAPI.MAX_FAN_COOLERS_STATUS_ITEMS];
+
+      if (!(NVAPI.NvAPI_GPU_ClientFanCoolersGetStatus != null &&
+         NVAPI.NvAPI_GPU_ClientFanCoolersGetStatus(handle, ref coolers) 
+         == NvStatus.OK)) 
+      {
+        coolers.Count = 0;
+      }
+      return coolers;
+    }
+
     private uint[] GetClocks() {
       NvClocks allClocks = new NvClocks();
       allClocks.Version = NVAPI.GPU_CLOCKS_VER;
@@ -174,10 +184,13 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       foreach (Sensor sensor in temperatures)
         sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
 
+      bool tachReadingOk = false;
       if (fan != null && NVAPI.NvAPI_GPU_GetTachReading(handle, out int fanValue) 
         == NvStatus.OK)
       {
         fan.Value = fanValue;
+        ActivateSensor(fan);
+        tachReadingOk = true;
       }
 
       uint[] values = GetClocks();
@@ -220,11 +233,28 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         }
       }
 
-
-      NvGPUCoolerSettings coolerSettings = GetCoolerSettings();
+      var coolerSettings = GetCoolerSettings();
+      var coolerSettingsOk = false;
       if (coolerSettings.Count > 0) {
         control.Value = coolerSettings.Cooler[0].CurrentLevel;
         ActivateSensor(control);
+        coolerSettingsOk = true;
+      } 
+      
+      if (!tachReadingOk || !coolerSettingsOk) {       
+        var coolersStatus = GetFanCoolersStatus();
+        if (coolersStatus.Count > 0) {
+          if (!coolerSettingsOk) {
+            control.Value = coolersStatus.Items[0].CurrentLevel;
+            ActivateSensor(control);
+            coolerSettingsOk = true;
+          }
+          if (!tachReadingOk) {
+            fan.Value = coolersStatus.Items[0].CurrentRpm;
+            ActivateSensor(fan);
+            tachReadingOk = true;
+          }
+        }
       }
 
       NvDisplayDriverMemoryInfo memoryInfo = new NvDisplayDriverMemoryInfo();
@@ -487,6 +517,36 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           for (int i = 0; i < memoryInfo.Values.Length; i++)
             r.AppendFormat(" Value[{0}]: {1}{2}", i,
                 memoryInfo.Values[i], Environment.NewLine);
+        } else {
+          r.Append(" Status: ");
+          r.AppendLine(status.ToString());
+        }
+        r.AppendLine();
+      }
+
+      if (NVAPI.NvAPI_GPU_ClientFanCoolersGetStatus != null) {
+        var coolers = new NvFanCoolersStatus();
+        coolers.Version = NVAPI.GPU_FAN_COOLERS_STATUS_VER;
+        coolers.Items =
+          new NvFanCoolersStatusItem[NVAPI.MAX_FAN_COOLERS_STATUS_ITEMS];
+
+        var status = NVAPI.NvAPI_GPU_ClientFanCoolersGetStatus(handle, ref coolers);
+
+        r.AppendLine("Fan Coolers Status");
+        r.AppendLine();
+        if (status == NvStatus.OK) {
+          for (int i = 0; i < coolers.Count; i++) {
+            r.AppendFormat(" Items[{0}].Type: {1}{2}", i,
+              coolers.Items[i].Type, Environment.NewLine);
+            r.AppendFormat(" Items[{0}].CurrentRpm: {1}{2}", i,
+              coolers.Items[i].CurrentRpm, Environment.NewLine);
+            r.AppendFormat(" Items[{0}].CurrentMinLevel: {1}{2}", i,
+              coolers.Items[i].CurrentMinLevel, Environment.NewLine);
+            r.AppendFormat(" Items[{0}].CurrentMaxLevel: {1}{2}", i,
+              coolers.Items[i].CurrentMaxLevel, Environment.NewLine);
+            r.AppendFormat(" Items[{0}].CurrentLevel: {1}{2}", i,
+              coolers.Items[i].CurrentLevel, Environment.NewLine);
+          }
         } else {
           r.Append(" Status: ");
           r.AppendLine(status.ToString());
