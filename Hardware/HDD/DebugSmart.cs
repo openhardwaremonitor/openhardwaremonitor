@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2011-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2011-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -329,7 +329,34 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             C3 000000000000 200 200 0  
             C7 020000000000 99  99  0  
             EB 690000000000 99  99  0  
-            F1 A56AA1F60200 99  99  0")};
+            F1 A56AA1F60200 99  99  0"),
+
+        new Drive("INTEL SSDSC2KW128G8", "LHF004C", 16,
+          @"05 000000000000 100 100 0 
+            09 F70100000000 100 100 0 
+            0C 590100000000 100 100 0 
+            AA 000000000000 100 100 10
+            AB 000000000000 100 100 0 
+            AC 000000000000 100 100 0 
+            AD 02002D000900 100 100 5 
+            AE 000000000000 100 100 0 
+            B7 000000000000 100 100 0 
+            B8 000000000000 100 100 90
+            BB 000000000000 100 100 0 
+            BE 1A002F000F00 47  26  0 
+            C0 000000000000 100 100 0 
+            C7 000000000000 100 100 0 
+            E1 DDA100000000 100 100 0 
+            E2 000000000000 100 100 0 
+            E3 000000000000 100 100 0 
+            E4 000000000000 100 100 0 
+            E8 000000000000 100 100 10
+            E9 000000000000 99  99  0 
+            EC 000000000000 99  99  0 
+            F1 DDA100000000 100 100 0 
+            F2 5DF400000000 100 100 0 
+            F9 FD0400000000 100 100 0 
+            FC 090000000000 100 100 0")};
 
     public IntPtr OpenDrive(int driveNumber) {
       if (driveNumber < drives.Length)
