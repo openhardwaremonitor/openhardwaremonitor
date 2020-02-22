@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -558,9 +558,6 @@ namespace OpenHardwareMonitor.GUI {
                 case SensorType.Clock:
                   format = "{0:F0} MHz";
                   break;
-                case SensorType.Temperature:
-                  format = "{0:F1} °C";
-                  break;
                 case SensorType.Fan:
                   format = "{0:F0} RPM";
                   break;
@@ -576,14 +573,33 @@ namespace OpenHardwareMonitor.GUI {
                 case SensorType.Factor:
                   format = "{0:F3}";
                   break;
+                case SensorType.SmallData:
+                  format = "{0:F1} MB";
+                  break;
               }
 
-              if (sensor.SensorType == SensorType.Temperature &&
-                unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) {
-                formatted = string.Format("{0:F1} °F",
-                  UnitManager.CelsiusToFahrenheit(sensor.Value));
-              } else {
-                formatted = string.Format(format, sensor.Value);
+              switch (sensor.SensorType) {
+                case SensorType.Temperature:
+                  if (unitManager.TemperatureUnit == TemperatureUnit.Fahrenheit) 
+                  {
+                    formatted = string.Format("{0:F1} °F", 
+                      UnitManager.CelsiusToFahrenheit(sensor.Value));
+                  } else {
+                    formatted = string.Format("{0:F1} °C", sensor.Value);
+                  }
+                  break;
+                case SensorType.Throughput:
+                  if (sensor.Value < 1) {
+                    formatted =
+                      string.Format("{0:F1} KB/s", sensor.Value * 0x400);
+                  } else {
+                    formatted =
+                      string.Format("{0:F1} MB/s", sensor.Value);
+                  }
+                  break;
+                default:
+                  formatted = string.Format(format, sensor.Value);
+                  break;
               }
             } else {
               formatted = "-";
