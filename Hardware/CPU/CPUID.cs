@@ -149,9 +149,19 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       nameBuilder.Replace("(TM)", " ");
       nameBuilder.Replace("(tm)", "");
       nameBuilder.Replace("CPU", "");
+      nameBuilder.Replace("Dual-Core Processor", "");
+      nameBuilder.Replace("Triple-Core Processor", "");
       nameBuilder.Replace("Quad-Core Processor", "");
       nameBuilder.Replace("Six-Core Processor", "");
       nameBuilder.Replace("Eight-Core Processor", "");
+      nameBuilder.Replace("12-Core Processor", "");
+      nameBuilder.Replace("16-Core Processor", "");
+      nameBuilder.Replace("24-Core Processor", "");
+      nameBuilder.Replace("32-Core Processor", "");
+      nameBuilder.Replace("64-Core Processor", "");
+      nameBuilder.Replace("6-Core Processor", "");
+      nameBuilder.Replace("8-Core Processor", "");
+
       for (int i = 0; i < 10; i++) nameBuilder.Replace("  ", " ");
       name = nameBuilder.ToString();
       if (name.Contains("@"))
