@@ -111,10 +111,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             "CPU Package", 0, SensorType.Power, this, settings);
           ActivateSensor(packagePowerSensor);
         }
-
-        coresPowerSensor = new Sensor("CPU Cores", 1, SensorType.Power, this, 
-          settings);
       }
+      coresPowerSensor = new Sensor("CPU Cores", 1, SensorType.Power, this,
+        settings);
 
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       timeStampCounterMultiplier = GetTimeStampCounterMultiplier();
@@ -236,8 +235,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         ActivateSensor(ccdAvgTemperature);
       }
 
-      if (Ring0.Rdmsr(MSR_PKG_ENERGY_STAT, out uint energyConsumed, out _)) {
-
+      if (energyUnitMultiplier != 0 && 
+        Ring0.Rdmsr(MSR_PKG_ENERGY_STAT, out uint energyConsumed, out _)) 
+      {
         DateTime time = DateTime.UtcNow;
         float deltaTime = (float)(time - lastEnergyTime).TotalSeconds;
         if (deltaTime > 0.01) {
@@ -318,14 +318,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         multiplier = GetMultiplier();
         ThreadAffinity.Set(mask);
-                       
-        float deltaTime = (float)(energyTime - lastEnergyTime).TotalSeconds;
-        if (deltaTime > 0.01) {
-          power = cpu.energyUnitMultiplier * 
-            unchecked(energyConsumed - lastEnergyConsumed) / deltaTime;
-          powerSensor.Value = power;
-          lastEnergyTime = energyTime;
-          lastEnergyConsumed = energyConsumed;
+
+        if (cpu.energyUnitMultiplier != 0) {
+          float deltaTime = (float)(energyTime - lastEnergyTime).TotalSeconds;
+          if (deltaTime > 0.01) {
+            power = cpu.energyUnitMultiplier *
+              unchecked(energyConsumed - lastEnergyConsumed) / deltaTime;
+            powerSensor.Value = power;
+            lastEnergyTime = energyTime;
+            lastEnergyConsumed = energyConsumed;
+          }
         }
 
         if (multiplier.HasValue) {
