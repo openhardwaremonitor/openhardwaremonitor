@@ -32,7 +32,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const uint FAMILY_17H_M01H_THM_TCON_TEMP_RANGE_SEL = 0x80000;
     private uint FAMILY_17H_M70H_CCD_TEMP(uint i) { return 0x00059954 + i * 4; }
     private const uint FAMILY_17H_M70H_CCD_TEMP_VALID = 0x800;
-    private const uint MAX_CCD_COUNT = 8;
+    private uint maxCcdCount;
 
     private const uint MSR_RAPL_PWR_UNIT = 0xC0010299;
     private const uint MSR_CORE_ENERGY_STAT = 0xC001029A;
@@ -90,8 +90,16 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       ccdAvgTemperature = new Sensor(
         "CPU CCD Average", 3, SensorType.Temperature, this, this.settings);
 
-      ccdTemperatures = new Sensor[MAX_CCD_COUNT];
-      for (int i = 0; i < MAX_CCD_COUNT; i++) {
+      switch (model & 0xf0) {
+        case 0x30:
+        case 0x70:
+          maxCcdCount = 8; break;
+        default: 
+          maxCcdCount = 4; break;
+      }
+
+      ccdTemperatures = new Sensor[maxCcdCount];
+      for (int i = 0; i < ccdTemperatures.Length; i++) {
         ccdTemperatures[i] = new Sensor(
         "CPU CCD #" + (i + 1), i + 4, SensorType.Temperature, this, 
           new[] {
@@ -137,7 +145,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private IList<uint> GetSmnRegisters() {
       var registers = new List<uint>();
       registers.Add(FAMILY_17H_M01H_THM_TCON_TEMP);
-      for (uint i = 0; i < MAX_CCD_COUNT; i++) {
+      for (uint i = 0; i < maxCcdCount; i++) {
         registers.Add(FAMILY_17H_M70H_CCD_TEMP(i));
       }
       return registers;
@@ -209,7 +217,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       float maxTemperature = float.MinValue;
       int ccdCount = 0;
       float ccdTemperatureSum = 0;
-      for (uint i = 0; i < MAX_CCD_COUNT; i++) {
+      for (uint i = 0; i < ccdTemperatures.Length; i++) {
         if (ReadSmnRegister(FAMILY_17H_M70H_CCD_TEMP(i), out value)) {
           if ((value & FAMILY_17H_M70H_CCD_TEMP_VALID) == 0)
             continue;
