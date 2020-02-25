@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds <paul@werelds.net>
 	Copyright (C) 2012 Prince Samuel <prince.samuel@gmail.com>
 
@@ -575,12 +575,19 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void SaveConfiguration() {
-      plotPanel.SetCurrentSettings();
-      foreach (TreeColumn column in treeView.Columns)
-        settings.SetValue("treeView.Columns." + column.Header + ".Width",
-          column.Width);
+      if (settings == null)
+        return;
 
-      this.settings.SetValue("listenerPort", server.ListenerPort);
+      if (plotPanel != null) {
+        plotPanel.SetCurrentSettings();
+        foreach (TreeColumn column in treeView.Columns)
+          settings.SetValue("treeView.Columns." + column.Header + ".Width",
+            column.Width);
+      }
+
+      if (server != null) {
+        this.settings.SetValue("listenerPort", server.ListenerPort);
+      }
 
       string fileName = Path.ChangeExtension(
           System.Windows.Forms.Application.ExecutablePath, ".config");
