@@ -96,7 +96,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       if (NVML.IsInitialized) {
         if (NVAPI.NvAPI_GPU_GetBusId != null && 
             NVAPI.NvAPI_GPU_GetBusId(handle, out uint busId) == NvStatus.OK) {
-          if (NVML.NvmlDeviceGetHandleByPciBusId(
+          if (NVML.NvmlDeviceGetHandleByPciBusId != null && 
+            NVML.NvmlDeviceGetHandleByPciBusId(
             "0000:" + busId.ToString("X2") + ":00.0", out var result)
             == NVML.NvmlReturn.Success) 
           {
@@ -185,8 +186,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
 
       bool tachReadingOk = false;
-      if (fan != null && NVAPI.NvAPI_GPU_GetTachReading(handle, out int fanValue) 
-        == NvStatus.OK)
+      if (NVAPI.NvAPI_GPU_GetTachReading != null && 
+        NVAPI.NvAPI_GPU_GetTachReading(handle, out int fanValue) == NvStatus.OK)
       {
         fan.Value = fanValue;
         ActivateSensor(fan);
