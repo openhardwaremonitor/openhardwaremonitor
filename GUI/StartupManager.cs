@@ -55,11 +55,11 @@ namespace OpenHardwareMonitor.GUI {
         }
 
         if (scheduler != null) {
-          try {            
+          try {
             try {
               // check if the taskscheduler is running
               IRunningTaskCollection collection = scheduler.GetRunningTasks(0);
-            } catch (ArgumentException) { }
+            } catch (ArgumentException) { }            
 
             ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
             IRegisteredTask task = folder.GetTask("Startup");
@@ -79,6 +79,8 @@ namespace OpenHardwareMonitor.GUI {
           } catch (UnauthorizedAccessException) {
             scheduler = null;
           } catch (COMException) {
+            scheduler = null;
+          } catch (NotImplementedException) {
             scheduler = null;
           }
         } 
