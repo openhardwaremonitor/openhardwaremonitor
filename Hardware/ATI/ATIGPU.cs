@@ -10,6 +10,7 @@
 
 using System;
 using System.Globalization;
+using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
   internal sealed class ATIGPU : Hardware {
@@ -164,6 +165,36 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         sensor.Value = null;
       }
 
+    }
+
+    public override string GetReport() {
+      var r = new StringBuilder();
+
+      r.AppendLine("AMD GPU");
+      r.AppendLine();
+
+      r.Append("AdapterIndex: ");
+      r.AppendLine(adapterIndex.ToString(CultureInfo.InvariantCulture));
+      r.AppendLine();
+
+      r.AppendLine("ADL Overdrive");
+      r.AppendLine();
+      int status = ADL.ADL_Overdrive_Caps(adapterIndex,
+        out int supported, out int enabled, out int version);
+      
+      r.Append(" Status: ");
+      r.AppendLine(status == ADL.ADL_OK ? "OK" :
+          status.ToString(CultureInfo.InvariantCulture));
+      r.Append(" Supported: ");
+      r.AppendLine(supported.ToString(CultureInfo.InvariantCulture));
+      r.Append(" Enabled: ");
+      r.AppendLine(enabled.ToString(CultureInfo.InvariantCulture));
+      r.Append(" Version: ");
+      r.AppendLine(version.ToString(CultureInfo.InvariantCulture));
+
+      r.AppendLine();
+
+      return r.ToString();
     }
 
     public override void Update() {
