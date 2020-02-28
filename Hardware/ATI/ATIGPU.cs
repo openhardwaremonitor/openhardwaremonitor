@@ -33,6 +33,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly Sensor coreClock;
     private readonly Sensor memoryClock;
     private readonly Sensor coreVoltage;
+    private readonly Sensor memoryVoltage;
     private readonly Sensor coreLoad;
     private readonly Sensor controlSensor;
     private readonly Control fanControl;
@@ -76,12 +77,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       this.powerCore = new Sensor("GPU Core", 1, SensorType.Power, this, settings);
       this.powerPpt = new Sensor("GPU PPT", 2, SensorType.Power, this, settings);
       this.powerSocket = new Sensor("GPU Socket", 3, SensorType.Power, this, settings);
-      
 
       this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, settings);
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this, settings);
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this, settings);
+      this.memoryVoltage = new Sensor("GPU Memory", 1, SensorType.Voltage, this, settings);
       this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this, settings);
       this.controlSensor = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
 
@@ -191,92 +192,182 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       r.AppendLine(enabled.ToString(CultureInfo.InvariantCulture));
       r.Append(" Version: ");
       r.AppendLine(version.ToString(CultureInfo.InvariantCulture));
-
       r.AppendLine();
+
+      if (context != IntPtr.Zero && overdriveVersion >= 6) {
+        r.AppendLine("Overdrive6 CurrentPower:");
+        r.AppendLine();
+        for (int i = 0; i < 4; i++) {
+          var pt = ((ADLODNCurrentPowerType)i).ToString();
+          var ps = ADL.ADL2_Overdrive6_CurrentPower_Get(
+            context, adapterIndex, (ADLODNCurrentPowerType)i,
+            out int power);
+          if (ps == ADL.ADL_OK) {
+            r.AppendFormat(" Power[{0}].Value: {1}{2}", pt,
+              power * (1.0f / 0xFF), Environment.NewLine);
+          } else {
+            r.AppendFormat(" Power[{0}].Status: {1}{2}", pt,
+              ps, Environment.NewLine);
+          }
+        }
+        r.AppendLine();
+      }
+
+      if (context != IntPtr.Zero && overdriveVersion >= 7) {
+        r.AppendLine("OverdriveN Temperature:");
+        r.AppendLine();
+        for (int i = 1; i < 8; i++) {
+          var tt = ((ADLODNTemperatureType)i).ToString();
+          var ts = ADL.ADL2_OverdriveN_Temperature_Get(
+            context, adapterIndex, (ADLODNTemperatureType)i, 
+            out int temperature);
+          if (ts == ADL.ADL_OK) {
+            r.AppendFormat(" Temperature[{0}].Value: {1}{2}", tt,
+              0.001f * temperature, Environment.NewLine);
+          } else {
+            r.AppendFormat(" Temperature[{0}].Status: {1}{2}", tt,
+              ts, Environment.NewLine);
+          }
+        }
+        r.AppendLine();
+      }
+
+      if (context != IntPtr.Zero && overdriveVersion >= 8) {
+        r.AppendLine("Performance Metrics:");
+        r.AppendLine();
+        var ps = ADL.ADL2_New_QueryPMLogData_Get(context, adapterIndex, 
+          out var data);
+
+        if (ps == ADL.ADL_OK) {
+          r.Append(" Size: ");
+          r.AppendLine(data.Size.ToString(CultureInfo.InvariantCulture));
+          for (int i = 0; i < data.Size; i++) {
+            var st = ((ADLSensorType)i).ToString();
+            r.AppendFormat(" Sensor[{0}].Supported: {1}{2}", st,
+              data.Sensors[i].Supported, Environment.NewLine);
+            r.AppendFormat(" Sensor[{0}].Value: {1}{2}", st,
+              data.Sensors[i].Value, Environment.NewLine);
+          }
+        } else {
+          r.Append(" Status: ");
+          r.AppendLine(ps.ToString(CultureInfo.InvariantCulture));
+        }       
+        r.AppendLine();
+      }
 
       return r.ToString();
     }
 
+    private void GetPMLog(ADLPMLogDataOutput data, 
+      ADLSensorType sensorType, Sensor sensor, float factor = 1.0f) 
+    {
+      int i = (int)sensorType;
+      if (i < data.Size && data.Sensors[i].Supported) {
+        sensor.Value = data.Sensors[i].Value * factor;
+        ActivateSensor(sensor);
+      }
+    }
+
     public override void Update() {
-      if (context != IntPtr.Zero && overdriveVersion >= 7) {
-        GetODNTemperature(ADLODNTemperatureType.CORE, temperatureCore);
-        GetODNTemperature(ADLODNTemperatureType.MEMORY, temperatureMemory);
-        GetODNTemperature(ADLODNTemperatureType.VRM_CORE, temperatureVrmCore);
-        GetODNTemperature(ADLODNTemperatureType.VRM_MEMORY, temperatureVrmMemory);
-        GetODNTemperature(ADLODNTemperatureType.LIQUID, temperatureLiquid);
-        GetODNTemperature(ADLODNTemperatureType.PLX, temperaturePlx);
-        GetODNTemperature(ADLODNTemperatureType.HOTSPOT, temperatureHotSpot);
+      if (context != IntPtr.Zero && overdriveVersion >= 8 && 
+        ADL.ADL2_New_QueryPMLogData_Get(context, adapterIndex, 
+        out var data) == ADL.ADL_OK) 
+      {
+        GetPMLog(data, ADLSensorType.TEMPERATURE_EDGE, temperatureCore);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_MEM, temperatureMemory);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_VRVDDC, temperatureVrmCore);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_VRMVDD, temperatureVrmMemory);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_LIQUID, temperatureLiquid);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_PLX, temperaturePlx);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_HOTSPOT, temperatureHotSpot);
+        GetPMLog(data, ADLSensorType.GFX_POWER, powerCore);
+        GetPMLog(data, ADLSensorType.ASIC_POWER, powerTotal);
+        GetPMLog(data, ADLSensorType.FAN_RPM, fan);
+        GetPMLog(data, ADLSensorType.CLK_GFXCLK, coreClock);
+        GetPMLog(data, ADLSensorType.CLK_MEMCLK, memoryClock);        
+        GetPMLog(data, ADLSensorType.GFX_VOLTAGE, coreVoltage, 0.001f);
+        GetPMLog(data, ADLSensorType.MEM_VOLTAGE, memoryVoltage, 0.001f);
+        GetPMLog(data, ADLSensorType.INFO_ACTIVITY_GFX, coreLoad);
+        GetPMLog(data, ADLSensorType.FAN_PERCENTAGE, controlSensor);
       } else {
-        ADLTemperature adlt = new ADLTemperature();
-        if (ADL.ADL_Overdrive5_Temperature_Get(adapterIndex, 0, ref adlt)
-          == ADL.ADL_OK) {
-          temperatureCore.Value = 0.001f * adlt.Temperature;
-          ActivateSensor(temperatureCore);
+        if (context != IntPtr.Zero && overdriveVersion >= 7) {
+          GetODNTemperature(ADLODNTemperatureType.CORE, temperatureCore);
+          GetODNTemperature(ADLODNTemperatureType.MEMORY, temperatureMemory);
+          GetODNTemperature(ADLODNTemperatureType.VRM_CORE, temperatureVrmCore);
+          GetODNTemperature(ADLODNTemperatureType.VRM_MEMORY, temperatureVrmMemory);
+          GetODNTemperature(ADLODNTemperatureType.LIQUID, temperatureLiquid);
+          GetODNTemperature(ADLODNTemperatureType.PLX, temperaturePlx);
+          GetODNTemperature(ADLODNTemperatureType.HOTSPOT, temperatureHotSpot);
         } else {
-          temperatureCore.Value = null;
+          ADLTemperature adlt = new ADLTemperature();
+          if (ADL.ADL_Overdrive5_Temperature_Get(adapterIndex, 0, ref adlt)
+            == ADL.ADL_OK) {
+            temperatureCore.Value = 0.001f * adlt.Temperature;
+            ActivateSensor(temperatureCore);
+          } else {
+            temperatureCore.Value = null;
+          }
         }
-      }
 
-      if (context != IntPtr.Zero && overdriveVersion >= 6) {
-        GetOD6Power(ADLODNCurrentPowerType.TOTAL_POWER, powerTotal);
-        GetOD6Power(ADLODNCurrentPowerType.CHIP_POWER, powerCore);
-        GetOD6Power(ADLODNCurrentPowerType.PPT_POWER, powerPpt);
-        GetOD6Power(ADLODNCurrentPowerType.SOCKET_POWER, powerSocket);
-      }
-      
-      ADLFanSpeedValue adlf = new ADLFanSpeedValue();
-      adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_RPM;
-      if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
-        == ADL.ADL_OK) 
-      {
-        fan.Value = adlf.FanSpeed;
-        ActivateSensor(fan);
-      } else {
-        fan.Value = null;
-      }
+        if (context != IntPtr.Zero && overdriveVersion >= 6) {
+          GetOD6Power(ADLODNCurrentPowerType.TOTAL_POWER, powerTotal);
+          GetOD6Power(ADLODNCurrentPowerType.CHIP_POWER, powerCore);
+          GetOD6Power(ADLODNCurrentPowerType.PPT_POWER, powerPpt);
+          GetOD6Power(ADLODNCurrentPowerType.SOCKET_POWER, powerSocket);
+        }
 
-      adlf = new ADLFanSpeedValue();
-      adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
-      if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
-        == ADL.ADL_OK) {
-        controlSensor.Value = adlf.FanSpeed;
-        ActivateSensor(controlSensor);
-      } else {
-        controlSensor.Value = null;
-      }
+        ADLFanSpeedValue adlf = new ADLFanSpeedValue();
+        adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_RPM;
+        if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
+          == ADL.ADL_OK) {
+          fan.Value = adlf.FanSpeed;
+          ActivateSensor(fan);
+        } else {
+          fan.Value = null;
+        }
 
-      ADLPMActivity adlp = new ADLPMActivity();
-      if (ADL.ADL_Overdrive5_CurrentActivity_Get(adapterIndex, ref adlp)
-        == ADL.ADL_OK) 
-      {
-        if (adlp.EngineClock > 0) {
-          coreClock.Value = 0.01f * adlp.EngineClock;
-          ActivateSensor(coreClock);
+        adlf = new ADLFanSpeedValue();
+        adlf.SpeedType = ADL.ADL_DL_FANCTRL_SPEED_TYPE_PERCENT;
+        if (ADL.ADL_Overdrive5_FanSpeed_Get(adapterIndex, 0, ref adlf)
+          == ADL.ADL_OK) {
+          controlSensor.Value = adlf.FanSpeed;
+          ActivateSensor(controlSensor);
+        } else {
+          controlSensor.Value = null;
+        }
+
+        ADLPMActivity adlp = new ADLPMActivity();
+        if (ADL.ADL_Overdrive5_CurrentActivity_Get(adapterIndex, ref adlp)
+          == ADL.ADL_OK) {
+          if (adlp.EngineClock > 0) {
+            coreClock.Value = 0.01f * adlp.EngineClock;
+            ActivateSensor(coreClock);
+          } else {
+            coreClock.Value = null;
+          }
+
+          if (adlp.MemoryClock > 0) {
+            memoryClock.Value = 0.01f * adlp.MemoryClock;
+            ActivateSensor(memoryClock);
+          } else {
+            memoryClock.Value = null;
+          }
+
+          if (adlp.Vddc > 0) {
+            coreVoltage.Value = 0.001f * adlp.Vddc;
+            ActivateSensor(coreVoltage);
+          } else {
+            coreVoltage.Value = null;
+          }
+
+          coreLoad.Value = Math.Min(adlp.ActivityPercent, 100);
+          ActivateSensor(coreLoad);
         } else {
           coreClock.Value = null;
-        }
-
-        if (adlp.MemoryClock > 0) {
-          memoryClock.Value = 0.01f * adlp.MemoryClock;
-          ActivateSensor(memoryClock);
-        } else {
           memoryClock.Value = null;
-        }
-
-        if (adlp.Vddc > 0) {
-          coreVoltage.Value = 0.001f * adlp.Vddc;
-          ActivateSensor(coreVoltage);
-        } else {
           coreVoltage.Value = null;
+          coreLoad.Value = null;
         }
-
-        coreLoad.Value = Math.Min(adlp.ActivityPercent, 100);                        
-        ActivateSensor(coreLoad);
-      } else {
-        coreClock.Value = null;
-        memoryClock.Value = null;
-        coreVoltage.Value = null;
-        coreLoad.Value = null;
       }
     }
 

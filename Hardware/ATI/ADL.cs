@@ -77,6 +77,19 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public int MaxRPM;
   }
 
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLSingleSensorData {
+    public bool Supported;
+    public int Value;
+  }
+
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLPMLogDataOutput {
+    public int Size;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = ADL.ADL_PMLOG_MAX_SENSORS)]
+    public ADLSingleSensorData[] Sensors;
+  }
+
   internal enum ADLODNCurrentPowerType {
     TOTAL_POWER = 0,
     PPT_POWER,
@@ -94,6 +107,48 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     HOTSPOT = 7,
   }
 
+  internal enum ADLSensorType {
+    CLK_GFXCLK = 1,
+    CLK_MEMCLK = 2,
+    CLK_SOCCLK = 3,
+    CLK_UVDCLK1 = 4,
+    CLK_UVDCLK2 = 5,
+    CLK_VCECLK = 6,
+    CLK_VCNCLK = 7,
+    TEMPERATURE_EDGE = 8,
+    TEMPERATURE_MEM = 9,
+    TEMPERATURE_VRVDDC = 10,
+    TEMPERATURE_VRMVDD = 11,
+    TEMPERATURE_LIQUID = 12,
+    TEMPERATURE_PLX = 13,
+    FAN_RPM = 14,
+    FAN_PERCENTAGE = 15,
+    SOC_VOLTAGE = 16,
+    SOC_POWER = 17,
+    SOC_CURRENT = 18,
+    INFO_ACTIVITY_GFX = 19,
+    INFO_ACTIVITY_MEM = 20,
+    GFX_VOLTAGE = 21,
+    MEM_VOLTAGE = 22,
+    ASIC_POWER = 23,
+    TEMPERATURE_VRSOC = 24,
+    TEMPERATURE_VRMVDD0 = 25,
+    TEMPERATURE_VRMVDD1 = 26,
+    TEMPERATURE_HOTSPOT = 27,
+    TEMPERATURE_GFX = 28,
+    TEMPERATURE_SOC = 29,
+    GFX_POWER = 30,
+    GFX_CURRENT = 31,
+    TEMPERATURE_CPU = 32,
+    CPU_POWER = 33,
+    CLK_CPUCLK = 34,
+    THROTTLER_STATUS = 35,
+    CLK_VCN1CLK1 = 36,
+    CLK_VCN1CLK2 = 37,
+    SMART_POWERSHIFT_CPU = 38,
+    SMART_POWERSHIFT_DGPU = 39
+  }
+
   internal class ADL {
     public const int ADL_MAX_PATH = 256;
     public const int ADL_MAX_ADAPTERS = 40;
@@ -105,6 +160,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public const int ADL_MAX_GLSYNC_PORTS = 8;
     public const int ADL_MAX_GLSYNC_PORT_LEDS = 8;
     public const int ADL_MAX_NUM_DISPLAYMODES = 1024;
+    public const int ADL_PMLOG_MAX_SENSORS = 256;
 
     public const int ADL_DL_FANCTRL_SPEED_TYPE_PERCENT = 1;
     public const int ADL_DL_FANCTRL_SPEED_TYPE_RPM = 2;
@@ -156,6 +212,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public delegate int ADL2_Overdrive6_CurrentPower_GetDelegate(IntPtr context,
       int adapterIndex, ADLODNCurrentPowerType powerType,
       out int currentValue);
+    public delegate int ADL2_New_QueryPMLogData_GetDelegate(IntPtr context,
+      int adapterIndex, out ADLPMLogDataOutput dataOutput);
 
     private static ADL_Main_Control_CreateDelegate
       _ADL_Main_Control_Create;
@@ -194,6 +252,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADL2_OverdriveN_Temperature_Get;
     public static ADL2_Overdrive6_CurrentPower_GetDelegate
       ADL2_Overdrive6_CurrentPower_Get;
+    public static ADL2_New_QueryPMLogData_GetDelegate
+      ADL2_New_QueryPMLogData_Get;
 
     private static string dllName;
 
@@ -250,6 +310,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         out ADL2_OverdriveN_Temperature_Get);
       GetDelegate("ADL2_Overdrive6_CurrentPower_Get",
         out ADL2_Overdrive6_CurrentPower_Get);
+      GetDelegate("ADL2_New_QueryPMLogData_Get",
+        out ADL2_New_QueryPMLogData_Get);
   }
 
     static ADL() {
