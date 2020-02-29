@@ -239,14 +239,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           out var data);
 
         if (ps == ADL.ADL_OK) {
-          r.Append(" Size: ");
-          r.AppendLine(data.Size.ToString(CultureInfo.InvariantCulture));
-          for (int i = 0; i < data.Size; i++) {
-            var st = ((ADLSensorType)i).ToString();
-            r.AppendFormat(" Sensor[{0}].Supported: {1}{2}", st,
-              data.Sensors[i].Supported, Environment.NewLine);
-            r.AppendFormat(" Sensor[{0}].Value: {1}{2}", st,
-              data.Sensors[i].Value, Environment.NewLine);
+          for (int i = 0; i < data.Sensors.Length; i++) {
+            if (data.Sensors[i].Supported) {
+              var st = ((ADLSensorType)i).ToString();
+              r.AppendFormat(" Sensor[{0}].Value: {1}{2}", st,
+                data.Sensors[i].Value, Environment.NewLine);
+            }
           }
         } else {
           r.Append(" Status: ");
@@ -262,7 +260,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADLSensorType sensorType, Sensor sensor, float factor = 1.0f) 
     {
       int i = (int)sensorType;
-      if (i < data.Size && data.Sensors[i].Supported) {
+      if (i < data.Sensors.Length && data.Sensors[i].Supported) {
         sensor.Value = data.Sensors[i].Value * factor;
         ActivateSensor(sensor);
       }
