@@ -33,6 +33,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       GoldmontPlus,
       CannonLake,
       IceLake,
+      CometLake,
       Tremont,
       TigerLake
     }
@@ -209,6 +210,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.IceLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0xA6: // Intel Core i3, i5, i7 10xxxU (14nm)
+                microarchitecture = Microarchitecture.CometLake;
+                tjMax = GetTjMaxFromMSR();
+                break;
               case 0x86: // Intel Atom processors
                 microarchitecture = Microarchitecture.Tremont;
                 tjMax = GetTjMaxFromMSR();
@@ -271,6 +276,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         case Microarchitecture.GoldmontPlus:
         case Microarchitecture.CannonLake:
         case Microarchitecture.IceLake:
+        case Microarchitecture.CometLake:
         case Microarchitecture.Tremont:
         case Microarchitecture.TigerLake: {
             uint eax, edx;
@@ -341,6 +347,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           microarchitecture == Microarchitecture.GoldmontPlus ||
           microarchitecture == Microarchitecture.CannonLake ||
           microarchitecture == Microarchitecture.IceLake ||
+          microarchitecture == Microarchitecture.CometLake ||
           microarchitecture == Microarchitecture.Tremont ||
           microarchitecture == Microarchitecture.TigerLake) 
       {
@@ -465,6 +472,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case Microarchitecture.GoldmontPlus:
               case Microarchitecture.CannonLake:
               case Microarchitecture.IceLake:
+              case Microarchitecture.CometLake:
               case Microarchitecture.Tremont:
               case Microarchitecture.TigerLake: {
                   uint multiplier = (eax >> 8) & 0xff;
