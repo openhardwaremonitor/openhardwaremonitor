@@ -22,19 +22,26 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     private readonly Sensor temperatureMemory;
     private readonly Sensor temperatureVrmCore;
     private readonly Sensor temperatureVrmMemory;
+    private readonly Sensor temperatureVrmMemory0;
+    private readonly Sensor temperatureVrmMemory1;
     private readonly Sensor temperatureLiquid;
     private readonly Sensor temperaturePlx;
     private readonly Sensor temperatureHotSpot;
+    private readonly Sensor temperatureVrmSoc;
     private readonly Sensor powerCore;
     private readonly Sensor powerPpt;
     private readonly Sensor powerSocket;
     private readonly Sensor powerTotal;
+    private readonly Sensor powerSoc;
     private readonly Sensor fan;
     private readonly Sensor coreClock;
     private readonly Sensor memoryClock;
+    private readonly Sensor socClock;
     private readonly Sensor coreVoltage;
     private readonly Sensor memoryVoltage;
+    private readonly Sensor socVoltage;
     private readonly Sensor coreLoad;
+    private readonly Sensor memoryLoad;
     private readonly Sensor controlSensor;
     private readonly Control fanControl;
 
@@ -66,24 +73,38 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         new Sensor("GPU VRM Core", 2, SensorType.Temperature, this, settings);
       this.temperatureVrmMemory = 
         new Sensor("GPU VRM Memory", 3, SensorType.Temperature, this, settings);
-      this.temperatureLiquid = 
-        new Sensor("GPU Liquid", 4, SensorType.Temperature, this, settings);
+      this.temperatureVrmMemory0 =
+        new Sensor("GPU VRM Memory #1", 4, SensorType.Temperature, this, settings);
+      this.temperatureVrmMemory1 =
+        new Sensor("GPU VRM Memory #2", 5, SensorType.Temperature, this, settings);
+      this.temperatureVrmSoc =
+        new Sensor("GPU VRM SOC", 6, SensorType.Temperature, this, settings);
+      this.temperatureLiquid =
+        new Sensor("GPU Liquid", 7, SensorType.Temperature, this, settings);
       this.temperaturePlx = 
-        new Sensor("GPU PLX", 5, SensorType.Temperature, this, settings);
+        new Sensor("GPU PLX", 8, SensorType.Temperature, this, settings);
       this.temperatureHotSpot = 
-        new Sensor("GPU Hot Spot", 6, SensorType.Temperature, this, settings);
+        new Sensor("GPU Hot Spot", 9, SensorType.Temperature, this, settings);
 
       this.powerTotal = new Sensor("GPU Total", 0, SensorType.Power, this, settings);
       this.powerCore = new Sensor("GPU Core", 1, SensorType.Power, this, settings);
       this.powerPpt = new Sensor("GPU PPT", 2, SensorType.Power, this, settings);
       this.powerSocket = new Sensor("GPU Socket", 3, SensorType.Power, this, settings);
+      this.powerSoc = new Sensor("GPU SOC", 4, SensorType.Power, this, settings);
 
       this.fan = new Sensor("GPU Fan", 0, SensorType.Fan, this, settings);
+
       this.coreClock = new Sensor("GPU Core", 0, SensorType.Clock, this, settings);
       this.memoryClock = new Sensor("GPU Memory", 1, SensorType.Clock, this, settings);
+      this.socClock = new Sensor("GPU SOC", 2, SensorType.Clock, this, settings);
+
       this.coreVoltage = new Sensor("GPU Core", 0, SensorType.Voltage, this, settings);
       this.memoryVoltage = new Sensor("GPU Memory", 1, SensorType.Voltage, this, settings);
+      this.socVoltage = new Sensor("GPU SOC", 2, SensorType.Voltage, this, settings);
+
       this.coreLoad = new Sensor("GPU Core", 0, SensorType.Load, this, settings);
+      this.memoryLoad = new Sensor("GPU Memory", 1, SensorType.Load, this, settings);
+
       this.controlSensor = new Sensor("GPU Fan", 0, SensorType.Control, this, settings);
 
       ADLFanSpeedInfo afsi = new ADLFanSpeedInfo();
@@ -275,17 +296,24 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         GetPMLog(data, ADLSensorType.TEMPERATURE_MEM, temperatureMemory);
         GetPMLog(data, ADLSensorType.TEMPERATURE_VRVDDC, temperatureVrmCore);
         GetPMLog(data, ADLSensorType.TEMPERATURE_VRMVDD, temperatureVrmMemory);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_VRMVDD0, temperatureVrmMemory0);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_VRMVDD1, temperatureVrmMemory1);
+        GetPMLog(data, ADLSensorType.TEMPERATURE_VRSOC, temperatureVrmSoc);
         GetPMLog(data, ADLSensorType.TEMPERATURE_LIQUID, temperatureLiquid);
         GetPMLog(data, ADLSensorType.TEMPERATURE_PLX, temperaturePlx);
         GetPMLog(data, ADLSensorType.TEMPERATURE_HOTSPOT, temperatureHotSpot);
         GetPMLog(data, ADLSensorType.GFX_POWER, powerCore);
         GetPMLog(data, ADLSensorType.ASIC_POWER, powerTotal);
+        GetPMLog(data, ADLSensorType.SOC_POWER, powerSoc);
         GetPMLog(data, ADLSensorType.FAN_RPM, fan);
         GetPMLog(data, ADLSensorType.CLK_GFXCLK, coreClock);
-        GetPMLog(data, ADLSensorType.CLK_MEMCLK, memoryClock);        
+        GetPMLog(data, ADLSensorType.CLK_MEMCLK, memoryClock);
+        GetPMLog(data, ADLSensorType.CLK_SOCCLK, socClock);
         GetPMLog(data, ADLSensorType.GFX_VOLTAGE, coreVoltage, 0.001f);
         GetPMLog(data, ADLSensorType.MEM_VOLTAGE, memoryVoltage, 0.001f);
+        GetPMLog(data, ADLSensorType.SOC_VOLTAGE, socVoltage, 0.001f);
         GetPMLog(data, ADLSensorType.INFO_ACTIVITY_GFX, coreLoad);
+        GetPMLog(data, ADLSensorType.INFO_ACTIVITY_MEM, memoryLoad);
         GetPMLog(data, ADLSensorType.FAN_PERCENTAGE, controlSensor);
       } else {
         if (context != IntPtr.Zero && overdriveVersion >= 7) {
