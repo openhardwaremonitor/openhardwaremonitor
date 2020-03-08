@@ -92,12 +92,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       found = true;
                       break;
                     }
-                  if (!found)
-                    hardware.Add(new ATIGPU(
-                      adapterInfo[i].AdapterName.Trim(),
+                  if (!found) {
+                    var nameBuilder = new StringBuilder(adapterInfo[i].AdapterName);
+                    nameBuilder.Replace("(TM)", " ");
+                    for (int j = 0; j < 10; j++) nameBuilder.Replace("  ", " ");
+                    var name = nameBuilder.ToString().Trim();
+
+                    hardware.Add(new ATIGPU(name,
                       adapterInfo[i].AdapterIndex,
                       adapterInfo[i].BusNumber,
                       adapterInfo[i].DeviceNumber, context, settings));
+                  }
                 }
 
                 report.AppendLine();

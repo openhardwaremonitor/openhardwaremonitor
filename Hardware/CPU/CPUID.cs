@@ -144,16 +144,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
       nameBuilder.Replace('\0', ' ');
-      cpuBrandString = nameBuilder.ToString().Trim();
-      nameBuilder.Replace("(R)", " ");
-      nameBuilder.Replace("(TM)", " ");
-      nameBuilder.Replace("(tm)", "");
-      nameBuilder.Replace("CPU", "");
+      cpuBrandString = nameBuilder.ToString().Trim();      
       nameBuilder.Replace("Dual-Core Processor", "");
       nameBuilder.Replace("Triple-Core Processor", "");
       nameBuilder.Replace("Quad-Core Processor", "");
       nameBuilder.Replace("Six-Core Processor", "");
       nameBuilder.Replace("Eight-Core Processor", "");
+      nameBuilder.Replace("Dual Core Processor", "");
+      nameBuilder.Replace("Quad Core Processor", "");
       nameBuilder.Replace("12-Core Processor", "");
       nameBuilder.Replace("16-Core Processor", "");
       nameBuilder.Replace("24-Core Processor", "");
@@ -161,6 +159,33 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       nameBuilder.Replace("64-Core Processor", "");
       nameBuilder.Replace("6-Core Processor", "");
       nameBuilder.Replace("8-Core Processor", "");
+      nameBuilder.Replace("with Radeon Vega Mobile Gfx", "");
+      nameBuilder.Replace("w/ Radeon Vega Mobile Gfx", "");
+      nameBuilder.Replace("with Radeon Vega Graphics", "");
+      nameBuilder.Replace("APU with Radeon(tm) HD Graphics", "");
+      nameBuilder.Replace("APU with Radeon(TM) HD Graphics", "");
+      nameBuilder.Replace("APU with AMD Radeon R2 Graphics", "");
+      nameBuilder.Replace("APU with AMD Radeon R3 Graphics", "");
+      nameBuilder.Replace("APU with AMD Radeon R4 Graphics", "");
+      nameBuilder.Replace("APU with AMD Radeon R5 Graphics", "");
+      nameBuilder.Replace("APU with Radeon(tm) R3", "");
+      nameBuilder.Replace("RADEON R2, 4 COMPUTE CORES 2C+2G", "");
+      nameBuilder.Replace("RADEON R4, 5 COMPUTE CORES 2C+3G", "");
+      nameBuilder.Replace("RADEON R5, 5 COMPUTE CORES 2C+3G", "");
+      nameBuilder.Replace("RADEON R5, 10 COMPUTE CORES 4C+6G", "");
+      nameBuilder.Replace("RADEON R7, 10 COMPUTE CORES 4C+6G", "");
+      nameBuilder.Replace("RADEON R7, 12 COMPUTE CORES 4C+8G", "");
+      nameBuilder.Replace("Radeon R5, 6 Compute Cores 2C+4G", "");      
+      nameBuilder.Replace("Radeon R5, 8 Compute Cores 4C+4G", "");
+      nameBuilder.Replace("Radeon R6, 10 Compute Cores 4C+6G", "");
+      nameBuilder.Replace("Radeon R7, 10 Compute Cores 4C+6G", "");
+      nameBuilder.Replace("Radeon R7, 12 Compute Cores 4C+8G", "");
+      nameBuilder.Replace("R5, 10 Compute Cores 4C+6G", "");
+      nameBuilder.Replace("R7, 12 COMPUTE CORES 4C+8G", "");
+      nameBuilder.Replace("(R)", " ");
+      nameBuilder.Replace("(TM)", " ");
+      nameBuilder.Replace("(tm)", " ");
+      nameBuilder.Replace("CPU", " ");
 
       for (int i = 0; i < 10; i++) nameBuilder.Replace("  ", " ");
       name = nameBuilder.ToString();
