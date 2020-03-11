@@ -34,6 +34,25 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         report.AppendLine(adl2Status.ToString());
         report.AppendLine();
 
+        report.AppendLine("Graphics Versions");
+        report.AppendLine();
+        try {
+          var status = ADL.ADL_Graphics_Versions_Get(out var versionInfo);
+          report.Append(" Status: ");
+          report.AppendLine(status.ToString());
+          report.Append(" DriverVersion: ");
+          report.AppendLine(versionInfo.DriverVersion);
+          report.Append(" CatalystVersion: ");
+          report.AppendLine(versionInfo.CatalystVersion);
+          report.Append(" CatalystWebLink: ");
+          report.AppendLine(versionInfo.CatalystWebLink);
+        } catch (DllNotFoundException) {
+          report.AppendLine(" Status: DLL not found");
+        } catch (Exception e) {
+          report.AppendLine(" Status: " + e.Message);
+        }
+        report.AppendLine();
+
         if (adlStatus == ADLStatus.OK) {
           int numberOfAdapters = 0;
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);

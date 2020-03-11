@@ -131,6 +131,18 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public int VDDCI;
   }
 
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLVersionsInfo {
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string DriverVersion;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string CatalystVersion;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string CatalystWebLink;
+  }
+
   internal enum ADLODNCurrentPowerType {
     TOTAL_POWER = 0,
     PPT_POWER,
@@ -357,6 +369,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public delegate ADLStatus ADL2_OverdriveN_PerformanceStatus_GetDelegate(
       IntPtr context, int adapterIndex, 
       out ADLODNPerformanceStatus performanceStatus);
+    public delegate ADLStatus ADL_Graphics_Versions_GetDelegate(
+      out ADLVersionsInfo versionInfo);
 
     private static ADL_Main_Control_CreateDelegate
       _ADL_Main_Control_Create;
@@ -401,6 +415,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADL_Overdrive5_ODParameters_Get;
     public static ADL2_OverdriveN_PerformanceStatus_GetDelegate
       ADL2_OverdriveN_PerformanceStatus_Get;
+    public static ADL_Graphics_Versions_GetDelegate
+      ADL_Graphics_Versions_Get;
 
     private static string dllName;
 
@@ -463,6 +479,8 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         out ADL_Overdrive5_ODParameters_Get);
       GetDelegate("ADL2_OverdriveN_PerformanceStatus_Get",
         out ADL2_OverdriveN_PerformanceStatus_Get);
+      GetDelegate("ADL_Graphics_Versions_Get",
+        out ADL_Graphics_Versions_Get);
   }
 
     static ADL() {
