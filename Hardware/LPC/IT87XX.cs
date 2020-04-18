@@ -51,9 +51,12 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       { 0x18, 0x19, 0x1a, 0x81, 0x83 };
     private const byte VOLTAGE_BASE_REG = 0x20;
     private readonly byte[] FAN_PWM_CTRL_REG = { 0x15, 0x16, 0x17 };
-
+    private readonly byte FAN_MAIN_CTRL_REG = 0x13; //Address of the Fan Controller Main Control Register
+        //no need for the 2nd control register (bit 7 of 0x15 0x16 0x17), PWM value will set it to manual mode when new value is set.
+    private readonly byte[] fanControlValue = { 0b00000001, 0b00000010, 0b00000100 }; //values to  be applied to FAN_MAIN_CTRL_REG to gain control of each fan
     private bool[] restoreDefaultFanPwmControlRequired = new bool[3];       
-    private byte[] initialFanPwmControl = new byte[3];
+    private byte[] initialFanPwmControl = new byte[3]; //this will also store the 2nd control register value
+    private byte[] initialFanControlValue = new byte[3]; //Initial Fan Controller Main Control Register value. 
 
     private byte ReadByte(byte register, out bool valid) {
       Ring0.WriteIoPort(addressReg, register);
@@ -90,12 +93,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (!restoreDefaultFanPwmControlRequired[index]) {
         initialFanPwmControl[index] = 
           ReadByte(FAN_PWM_CTRL_REG[index], out valid);
+        initialFanControlValue[index] = 
+          ReadByte(FAN_MAIN_CTRL_REG, out valid); //save default control reg value
         restoreDefaultFanPwmControlRequired[index] = true;
       }
     }
 
     private void RestoreDefaultFanPwmControl(int index) {
+      bool valid;
       if (restoreDefaultFanPwmControlRequired[index]) {
+        if ((initialFanControlValue[index] & ~fanControlValue[index]) == initialFanControlValue[index]){ //bitwise opperand to check if control bit needs to be changed to restore defaults
+          WriteByte(FAN_MAIN_CTRL_REG, (byte)( ReadByte(FAN_MAIN_CTRL_REG, out valid) & ~fanControlValue[index]));
+        }
         WriteByte(FAN_PWM_CTRL_REG[index], initialFanPwmControl[index]);
         restoreDefaultFanPwmControlRequired[index] = false;
       }
@@ -109,10 +118,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         return;
 
       if (value.HasValue) {
+        bool valid;
         SaveDefaultFanPwmControl(index);
-
+        WriteByte(FAN_MAIN_CTRL_REG, (byte)(fanControlValue[index] | ReadByte(FAN_MAIN_CTRL_REG, out valid))); //bitwise opperand to get control of the fan
         // set output value
-        WriteByte(FAN_PWM_CTRL_REG[index], (byte)(value.Value >> 1));  
+	WriteByte(FAN_PWM_CTRL_REG[index], (byte)(value.Value >> 1));  
       } else {
         RestoreDefaultFanPwmControl(index);
       }
@@ -121,7 +131,6 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
-
       this.address = address;
       this.chip = chip;
       this.version = version;
@@ -354,18 +363,17 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < controls.Length; i++) {
         bool valid;
         byte value = ReadByte(FAN_PWM_CTRL_REG[i], out valid);
-        if (!valid)
-          continue;
 
+        if (!valid)
+            continue;
         if ((value & 0x80) > 0) {
-          // automatic operation (value can't be read)
-          controls[i] = null;  
+	    // automatic operation (value can't be read)
+	    controls[i] = null;  
         } else {
-          // software operation
-          controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
+	    // software operation
+	    controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
         }
       }
-
       Ring0.ReleaseIsaBusMutex();
     }
   } 
