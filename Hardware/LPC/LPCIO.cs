@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -115,6 +115,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0x11:
+          switch (revision) {
+            case 0x06:
+              chip = Chip.F71878AD;
+              logicalDeviceNumber = FINTEK_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
         case 0x52:
           switch (revision) {
             case 0x17:
@@ -209,6 +216,50 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
               break;
           } break;
+        case 0xC9:
+          switch (revision) {
+            case 0x11:
+              chip = Chip.NCT6792D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x13:
+              chip = Chip.NCT6792DA;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xD1:
+          switch (revision) {
+            case 0x21:
+              chip = Chip.NCT6793D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xD3:
+          switch (revision) {
+            case 0x52:
+              chip = Chip.NCT6795D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
+        case 0xD4:
+          switch (revision) {
+            case 0x23:
+              chip = Chip.NCT6796D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x2A:
+              chip = Chip.NCT6796DR;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x2B:
+              chip = Chip.NCT6798D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+            case 0x51:
+              chip = Chip.NCT6797D;
+              logicalDeviceNumber = WINBOND_NUVOTON_HARDWARE_MONITOR_LDN;
+              break;
+          } break;
       }
       if (chip == Chip.Unknown) {
         if (id != 0 && id != 0xff) {
@@ -226,8 +277,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         ushort vendorID = port.ReadWord(FINTEK_VENDOR_ID_REGISTER);
 
-        // disable the hardware monitor i/o space lock on NCT6791D chips
-        if (address == verify && chip == Chip.NCT6791D) {
+        // disable the hardware monitor i/o space lock on NCT679XD chips
+        if (address == verify && (
+          chip == Chip.NCT6791D ||
+          chip == Chip.NCT6792D ||
+          chip == Chip.NCT6792DA ||
+          chip == Chip.NCT6793D ||
+          chip == Chip.NCT6795D ||
+          chip == Chip.NCT6796D ||
+          chip == Chip.NCT6796DR ||
+          chip == Chip.NCT6797D ||
+          chip == Chip.NCT6798D)) 
+        {
           port.NuvotonDisableIOSpaceLock();
         }
 
@@ -277,11 +338,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           case Chip.NCT6776F:
           case Chip.NCT6779D:
           case Chip.NCT6791D:
+          case Chip.NCT6792D:
+          case Chip.NCT6792DA:
+          case Chip.NCT6793D:
+          case Chip.NCT6795D:
+          case Chip.NCT6796D:
+          case Chip.NCT6796DR:
+          case Chip.NCT6797D:
+          case Chip.NCT6798D:
             superIOs.Add(new NCT677X(chip, revision, address, port));
             break;
           case Chip.F71858:
           case Chip.F71862:
           case Chip.F71869:
+          case Chip.F71878AD:
           case Chip.F71869A:
           case Chip.F71882:
           case Chip.F71889AD:
@@ -322,8 +392,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private bool DetectIT87(LPCPort port) {
 
-      // IT87XX can enter only on port 0x2E
-      if (port.RegisterPort != 0x2E)
+      // IT87XX can enter only on port 0x2E and 0x4E
+      if (port.RegisterPort != 0x2E && port.RegisterPort != 0x4E)
         return false;
 
       port.IT87Enter();
@@ -333,6 +403,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       switch (chipID) {
         case 0x8620: chip = Chip.IT8620E; break;
         case 0x8628: chip = Chip.IT8628E; break;
+        case 0x8655: chip = Chip.IT8655E; break;
+        case 0x8665: chip = Chip.IT8665E; break;
+        case 0x8686: chip = Chip.IT8686E; break;
+        case 0x8688: chip = Chip.IT8688E; break;
         case 0x8705: chip = Chip.IT8705F; break;
         case 0x8712: chip = Chip.IT8712F; break;
         case 0x8716: chip = Chip.IT8716F; break;
@@ -341,6 +415,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case 0x8721: chip = Chip.IT8721F; break;
         case 0x8726: chip = Chip.IT8726F; break;
         case 0x8728: chip = Chip.IT8728F; break;
+        case 0x8733: chip = Chip.IT879XE; break;
         case 0x8771: chip = Chip.IT8771E; break;
         case 0x8772: chip = Chip.IT8772E; break;
         default: chip = Chip.Unknown; break;

@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -81,12 +81,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       Ring0.WriteIoPort(registerPort, 0x87);
       Ring0.WriteIoPort(registerPort, 0x01);
       Ring0.WriteIoPort(registerPort, 0x55);
-      Ring0.WriteIoPort(registerPort, 0x55);
+
+      if (registerPort == 0x4E) {
+        Ring0.WriteIoPort(registerPort, 0xAA);
+      } else {
+        Ring0.WriteIoPort(registerPort, 0x55);
+      }
     }
 
     public void IT87Exit() {
-      Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
-      Ring0.WriteIoPort(valuePort, 0x02);
+      // do not exit config mode for secondary super IO
+      if (registerPort != 0x4E) {
+        Ring0.WriteIoPort(registerPort, CONFIGURATION_CONTROL_REGISTER);
+        Ring0.WriteIoPort(valuePort, 0x02);
+      }
     }
 
     public void SMSCEnter() {

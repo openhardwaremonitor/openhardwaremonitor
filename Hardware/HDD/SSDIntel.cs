@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2010 Paul Werelds
   Copyright (C) 2011 Roland Reinl <roland-reinl@gmx.de>
 	
@@ -31,8 +31,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xAA, SmartNames.AvailableReservedSpace),
       new SmartAttribute(0xAB, SmartNames.ProgramFailCount),
       new SmartAttribute(0xAC, SmartNames.EraseFailCount),
+      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
+      new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToInt),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
       new SmartAttribute(0xB8, SmartNames.EndToEndError),
+      new SmartAttribute(0xBE, SmartNames.Temperature,
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p)
+          => { return r[0] + (p == null ? 0 : p[0].Value); },
+          SensorType.Temperature, 0, SmartNames.Temperature, false,
+        new[] { new ParameterDescription("Offset [°C]",
+                  "Temperature offset of the thermal sensor.\n" +
+                  "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xC0, SmartNames.UnsafeShutdownCount), 
+      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt),
       new SmartAttribute(0xE1, SmartNames.HostWrites, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return RawToInt(r, v, p) / 0x20; }, 

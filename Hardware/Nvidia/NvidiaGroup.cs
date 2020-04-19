@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2011 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -28,7 +28,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
       string version;
       if (NVAPI.NvAPI_GetInterfaceVersionString(out version) == NvStatus.OK) {
-        report.Append("Version: ");
+        report.Append(" Version: ");
         report.AppendLine(version);
       }
 
@@ -36,17 +36,25 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         new NvPhysicalGpuHandle[NVAPI.MAX_PHYSICAL_GPUS];
       int count;
       if (NVAPI.NvAPI_EnumPhysicalGPUs == null) {
-        report.AppendLine("Error: NvAPI_EnumPhysicalGPUs not available");
+        report.AppendLine(" Error: NvAPI_EnumPhysicalGPUs not available");
         report.AppendLine();
         return;
       } else {        
         NvStatus status = NVAPI.NvAPI_EnumPhysicalGPUs(handles, out count);
         if (status != NvStatus.OK) {
-          report.AppendLine("Status: " + status);
+          report.AppendLine(" Status: " + status);
           report.AppendLine();
           return;
         }
       }
+
+      var result = NVML.NvmlInit();
+
+      report.AppendLine();
+      report.AppendLine("NVML");
+      report.AppendLine();
+      report.AppendLine(" Status: " + result);
+      report.AppendLine();
 
       IDictionary<NvPhysicalGpuHandle, NvDisplayHandle> displayHandles =
         new Dictionary<NvPhysicalGpuHandle, NvDisplayHandle>();
@@ -100,7 +108,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     public void Close() {
       foreach (Hardware gpu in hardware)
-        gpu.Close();      
+        gpu.Close();
+
+      if (NVML.IsInitialized) {
+        NVML.NvmlShutdown();
+      }
     }
   }
 }

@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -58,7 +58,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private byte ReadByte(byte register, out bool valid) {
       Ring0.WriteIoPort(addressReg, register);
       byte value = Ring0.ReadIoPort(dataReg);
-      valid = register == Ring0.ReadIoPort(addressReg);
+      if (this.chip == Chip.IT8688E)
+        valid = true;
+      else
+        valid = register == Ring0.ReadIoPort(addressReg);
       return value;
     }
 
@@ -115,7 +118,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       Ring0.ReleaseIsaBusMutex();
-    } 
+    }
 
     public IT87XX(Chip chip, ushort address, ushort gpioAddress, byte version) {
 
@@ -128,29 +131,70 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       // Check vendor id
       bool valid;
-      byte vendorId = ReadByte(VENDOR_ID_REGISTER, out valid);       
+      byte vendorId = ReadByte(VENDOR_ID_REGISTER, out valid);
       if (!valid || vendorId != ITE_VENDOR_ID)
         return;
 
       // Bit 0x10 of the configuration register should always be 1
-      if ((ReadByte(CONFIGURATION_REGISTER, out valid) & 0x10) == 0)
+      byte configuration = ReadByte(CONFIGURATION_REGISTER, out valid);
+      if ((configuration & 0x10) == 0 && 
+        chip != Chip.IT8655E && chip != Chip.IT8665E)
         return;
       if (!valid)
         return;
 
-      voltages = new float?[9];
-      temperatures = new float?[3];
-      fans = new float?[chip == Chip.IT8705F ? 3 : 5];
-      controls = new float?[3];
+      switch (chip) {        
+        case Chip.IT8665E:
+        case Chip.IT8686E:
+        case Chip.IT8688E:        
+          voltages = new float?[9];
+          temperatures = new float?[6];
+          fans = new float?[5];
+          break;
+        case Chip.IT8655E:
+          voltages = new float?[9];
+          temperatures = new float?[6];
+          fans = new float?[3];
+          break;
+        case Chip.IT879XE:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[3];
+          break;
+        case Chip.IT8705F:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[3];
+          controls = new float?[3];
+          break;
+        default:
+          voltages = new float?[9];
+          temperatures = new float?[3];
+          fans = new float?[5];
+          controls = new float?[3];
+          break;
+      }
 
-      // IT8620E, IT8628E, IT8721F, IT8728F and IT8772E use a 12mV resultion 
-      // ADC, all others 16mV
-      if (chip == Chip.IT8620E || chip == Chip.IT8628E || chip == Chip.IT8721F 
-        || chip == Chip.IT8728F || chip == Chip.IT8771E || chip == Chip.IT8772E) 
-      {
-        voltageGain = 0.012f;
-      } else {
-        voltageGain = 0.016f;        
+      // set the voltage for the ADC LSB 
+      switch (chip) {
+        case Chip.IT8620E:
+        case Chip.IT8628E:
+        case Chip.IT8686E:
+        case Chip.IT8688E:
+        case Chip.IT8721F:
+        case Chip.IT8728F:
+        case Chip.IT8771E:
+        case Chip.IT8772E:
+          voltageGain = 0.012f;
+          break;
+        case Chip.IT8655E:
+        case Chip.IT8665E:
+        case Chip.IT879XE:
+          voltageGain = 0.011f;
+          break;
+        default:
+          voltageGain = 0.016f;
+          break;
       }
 
       // older IT8705F and IT8721F revisions do not have 16-bit fan counters
@@ -174,12 +218,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8721F:
           gpioCount = 8;
           break;
-        case Chip.IT8620E:
-        case Chip.IT8628E:
-        case Chip.IT8705F: 
-        case Chip.IT8728F:
-        case Chip.IT8771E:
-        case Chip.IT8772E:
+        default:
           gpioCount = 0;
           break;
       }
