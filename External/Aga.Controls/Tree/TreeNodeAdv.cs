@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
@@ -205,7 +206,12 @@ namespace Aga.Controls.Tree
 
 		internal void AssignIsExpanded(bool value)
 		{
-			_isExpanded = value;
+			if (_isExpanded != value) 
+			{
+				_isExpanded = value;
+				var ma = GetMemberAdapter("IsExpanded");
+				ma.Value = value;
+			}
 		}
 
 		private TreeNodeAdv _parent;
@@ -336,7 +342,7 @@ namespace Aga.Controls.Tree
 			set { _isExpandingNow = value; }
 		}
 
-		private bool _autoExpandOnStructureChanged = true;
+		private bool _autoExpandOnStructureChanged = false;
 		public bool AutoExpandOnStructureChanged
 		{
 			get { return _autoExpandOnStructureChanged; }
@@ -357,6 +363,12 @@ namespace Aga.Controls.Tree
 			_nodes = new NodeCollection(this);
 			_children = new ReadOnlyCollection<TreeNodeAdv>(_nodes);
 			_tag = tag;
+
+			var value = GetMemberAdapter("IsExpanded").Value;
+			if (value != null && value is bool) 
+			{
+				_isExpanded = (bool)value;
+			}	
 		}
 
 		public override string ToString()
@@ -402,9 +414,27 @@ namespace Aga.Controls.Tree
 		private void SetIsExpanded(bool value, bool ignoreChildren)
 		{
 			if (Tree == null)
-				_isExpanded = value;
+				AssignIsExpanded(value);
 			else
 				Tree.SetIsExpanded(this, value, ignoreChildren);
+		}
+
+		private MemberAdapter GetMemberAdapter(string propertyName)
+		{
+			if (this.Tag != null && !string.IsNullOrEmpty(propertyName))
+			{
+				Type type = this.Tag.GetType();
+				PropertyInfo pi = type.GetProperty(propertyName);
+				if (pi != null)
+					return new MemberAdapter(this.Tag, pi);
+				else
+				{
+					FieldInfo fi = type.GetField(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+					if (fi != null)
+						return new MemberAdapter(this.Tag, fi);
+				}
+			}
+			return MemberAdapter.Empty;
 		}
 
 		#region ISerializable Members

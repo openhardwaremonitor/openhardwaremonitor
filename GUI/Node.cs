@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -25,6 +25,7 @@ namespace OpenHardwareMonitor.GUI {
     private string text;
     private Image image;
     private bool visible;
+    private bool expanded;
 
     private TreeModel RootTreeModel() {
       Node node = this;
@@ -42,6 +43,7 @@ namespace OpenHardwareMonitor.GUI {
       this.text = text;
       this.nodes = new NodeCollection(this);
       this.visible = true;
+      this.expanded = true;
     }
 
     public TreeModel Model {
@@ -79,6 +81,17 @@ namespace OpenHardwareMonitor.GUI {
       set {
         if (image != value) {
           image = value;
+        }
+      }
+    }
+
+    public virtual bool IsExpanded {
+      get {
+        return expanded;
+      }
+      set {
+        if (value != expanded) {
+          expanded = value;
         }
       }
     }
