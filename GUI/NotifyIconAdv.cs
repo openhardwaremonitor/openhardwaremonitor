@@ -23,8 +23,7 @@ namespace OpenHardwareMonitor.GUI {
     private NotifyIconWindowsImplementation windowsNotifyIcon;
 
     public NotifyIconAdv() {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) { // Unix
+      if (Hardware.OperatingSystem.IsUnix) { // Unix
         genericNotifyIcon = new NotifyIcon();
       } else { // Windows
         windowsNotifyIcon = new NotifyIconWindowsImplementation();

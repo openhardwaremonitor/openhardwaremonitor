@@ -21,7 +21,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
   internal class CPUID {
 
+    private readonly int group;
     private readonly int thread;
+    private readonly GroupAffinity affinity;
 
     private readonly Vendor vendor = Vendor.Unknown;
 
@@ -68,83 +70,87 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return count;
     }
 
-    public CPUID(int thread) {
+    public static CPUID Get(int group, int thread) {
+      if (thread >= 64)
+        return null;
+
+      var affinity = GroupAffinity.Single((ushort)group, thread);
+
+      var previousAffinity = ThreadAffinity.Set(affinity);
+      if (previousAffinity == GroupAffinity.Undefined)
+        return null;
+
+      try {
+        return new CPUID(group, thread, affinity);
+      } finally {
+        ThreadAffinity.Set(previousAffinity);
+      }
+    }
+
+    private CPUID(int group, int thread, GroupAffinity affinity) {
+      this.group = group;
       this.thread = thread;
+      this.affinity = affinity;
 
       uint maxCpuid = 0;
       uint maxCpuidExt = 0;
 
       uint eax, ebx, ecx, edx;
 
-      if (thread >= 64)
-        throw new ArgumentOutOfRangeException("thread");
-      ulong mask = 1UL << thread;
+      Opcode.Cpuid(CPUID_0, 0, out eax, out ebx, out ecx, out edx);
+      if (eax > 0)
+        maxCpuid = eax;
+      else
+        return;
 
-      if (Opcode.CpuidTx(CPUID_0, 0,
-          out eax, out ebx, out ecx, out edx, mask)) {
-        if (eax > 0)
-          maxCpuid = eax;
-        else
-          return;
-
-        StringBuilder vendorBuilder = new StringBuilder();
-        AppendRegister(vendorBuilder, ebx);
-        AppendRegister(vendorBuilder, edx);
-        AppendRegister(vendorBuilder, ecx);
-        string cpuVendor = vendorBuilder.ToString();
-        switch (cpuVendor) {
-          case "GenuineIntel":
-            vendor = Vendor.Intel;
-            break;
-          case "AuthenticAMD":
-            vendor = Vendor.AMD;
-            break;
-          default:
-            vendor = Vendor.Unknown;
-            break;
-        }
-        eax = ebx = ecx = edx = 0;
-        if (Opcode.CpuidTx(CPUID_EXT, 0,
-          out eax, out ebx, out ecx, out edx, mask)) {
-          if (eax > CPUID_EXT)
-            maxCpuidExt = eax - CPUID_EXT;
-          else
-            return;
-        } else {
-          throw new ArgumentOutOfRangeException("thread");
-        }
-      } else {
-        throw new ArgumentOutOfRangeException("thread");
+      StringBuilder vendorBuilder = new StringBuilder();
+      AppendRegister(vendorBuilder, ebx);
+      AppendRegister(vendorBuilder, edx);
+      AppendRegister(vendorBuilder, ecx);
+      string cpuVendor = vendorBuilder.ToString();
+      switch (cpuVendor) {
+        case "GenuineIntel":
+          vendor = Vendor.Intel;
+          break;
+        case "AuthenticAMD":
+          vendor = Vendor.AMD;
+          break;
+        default:
+          vendor = Vendor.Unknown;
+          break;
       }
+      eax = ebx = ecx = edx = 0;
+      Opcode.Cpuid(CPUID_EXT, 0, out eax, out ebx, out ecx, out edx);
+      if (eax > CPUID_EXT)
+        maxCpuidExt = eax - CPUID_EXT;
+      else
+        return;
 
       maxCpuid = Math.Min(maxCpuid, 1024);
-      maxCpuidExt = Math.Min(maxCpuidExt, 1024);   
+      maxCpuidExt = Math.Min(maxCpuidExt, 1024);
 
       cpuidData = new uint[maxCpuid + 1, 4];
       for (uint i = 0; i < (maxCpuid + 1); i++)
-        Opcode.CpuidTx(CPUID_0 + i, 0, 
+        Opcode.Cpuid(CPUID_0 + i, 0,
           out cpuidData[i, 0], out cpuidData[i, 1],
-          out cpuidData[i, 2], out cpuidData[i, 3], mask);
+          out cpuidData[i, 2], out cpuidData[i, 3]);
 
       cpuidExtData = new uint[maxCpuidExt + 1, 4];
       for (uint i = 0; i < (maxCpuidExt + 1); i++)
-        Opcode.CpuidTx(CPUID_EXT + i, 0, 
-          out cpuidExtData[i, 0], out cpuidExtData[i, 1], 
-          out cpuidExtData[i, 2], out cpuidExtData[i, 3], mask);
+        Opcode.Cpuid(CPUID_EXT + i, 0,
+          out cpuidExtData[i, 0], out cpuidExtData[i, 1],
+          out cpuidExtData[i, 2], out cpuidExtData[i, 3]);
 
       StringBuilder nameBuilder = new StringBuilder();
       for (uint i = 2; i <= 4; i++) {
-        if (Opcode.CpuidTx(CPUID_EXT + i, 0, 
-          out eax, out ebx, out ecx, out edx, mask)) 
-        {
-          AppendRegister(nameBuilder, eax);
-          AppendRegister(nameBuilder, ebx);
-          AppendRegister(nameBuilder, ecx);
-          AppendRegister(nameBuilder, edx);
-        }
+        Opcode.Cpuid(CPUID_EXT + i, 0, out eax, out ebx, out ecx, out edx);
+        AppendRegister(nameBuilder, eax);
+        AppendRegister(nameBuilder, ebx);
+        AppendRegister(nameBuilder, ecx);
+        AppendRegister(nameBuilder, edx);        
       }
       nameBuilder.Replace('\0', ' ');
-      cpuBrandString = nameBuilder.ToString().Trim();      
+      cpuBrandString = nameBuilder.ToString().Trim();
       nameBuilder.Replace("Dual-Core Processor", "");
       nameBuilder.Replace("Triple-Core Processor", "");
       nameBuilder.Replace("Quad-Core Processor", "");
@@ -175,7 +181,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       nameBuilder.Replace("RADEON R5, 10 COMPUTE CORES 4C+6G", "");
       nameBuilder.Replace("RADEON R7, 10 COMPUTE CORES 4C+6G", "");
       nameBuilder.Replace("RADEON R7, 12 COMPUTE CORES 4C+8G", "");
-      nameBuilder.Replace("Radeon R5, 6 Compute Cores 2C+4G", "");      
+      nameBuilder.Replace("Radeon R5, 6 Compute Cores 2C+4G", "");
       nameBuilder.Replace("Radeon R5, 8 Compute Cores 4C+4G", "");
       nameBuilder.Replace("Radeon R6, 10 Compute Cores 4C+6G", "");
       nameBuilder.Replace("Radeon R7, 10 Compute Cores 4C+6G", "");
@@ -191,7 +197,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       name = nameBuilder.ToString();
       if (name.Contains("@"))
         name = name.Remove(name.LastIndexOf('@'));
-      name = name.Trim();      
+      name = name.Trim();
 
       this.family = ((cpuidData[1, 0] & 0x0FF00000) >> 20) +
         ((cpuidData[1, 0] & 0x0F00) >> 8);
@@ -209,14 +215,14 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             maxCoreIdPerPackage = ((cpuidData[4, 0] >> 26) & 0x3F) + 1;
           else
             maxCoreIdPerPackage = 1;
-          threadMaskWith = 
+          threadMaskWith =
             NextLog2(maxCoreAndThreadIdPerPackage / maxCoreIdPerPackage);
           coreMaskWith = NextLog2(maxCoreIdPerPackage);
           break;
-        case Vendor.AMD:          
+        case Vendor.AMD:
           if (this.family == 0x17) {
             coreMaskWith = (cpuidExtData[8, 2] >> 12) & 0xF;
-            threadMaskWith = 
+            threadMaskWith =
               NextLog2(((cpuidExtData[0x1E, 1] >> 8) & 0xFF) + 1);
           } else {
             uint corePerPackage;
@@ -226,7 +232,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               corePerPackage = 1;
             coreMaskWith = NextLog2(corePerPackage);
             threadMaskWith = 0;
-          }          
+          }
           break;
         default:
           threadMaskWith = 0;
@@ -235,11 +241,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       processorId = (apicId >> (int)(coreMaskWith + threadMaskWith));
-      coreId = ((apicId >> (int)(threadMaskWith)) 
+      coreId = ((apicId >> (int)(threadMaskWith))
         - (processorId << (int)(coreMaskWith)));
       threadId = apicId
         - (processorId << (int)(coreMaskWith + threadMaskWith))
-        - (coreId << (int)(threadMaskWith)); 
+        - (coreId << (int)(threadMaskWith));
     }
 
     public string Name {
@@ -250,8 +256,20 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return cpuBrandString; }
     }
 
+    public int Group {
+      get {
+        return group;
+      }
+    }
+
     public int Thread {
       get { return thread; }
+    }
+
+    public GroupAffinity Affinity {
+      get {
+        return affinity;
+      }
     }
 
     public Vendor Vendor {

@@ -61,8 +61,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     }
 
     private static string GetDllName() {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         return "libnvidia-ml.so";
       else
         return "nvml.dll";

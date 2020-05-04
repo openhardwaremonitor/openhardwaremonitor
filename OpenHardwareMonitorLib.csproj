@@ -64,6 +64,7 @@
     <Compile Include="Hardware\Control.cs" />
     <Compile Include="Hardware\CPU\AMD17CPU.cs" />
     <Compile Include="Hardware\FirmwareTable.cs" />
+    <Compile Include="Hardware\GroupAffinity.cs" />
     <Compile Include="Hardware\HDD\DebugSmart.cs" />
     <Compile Include="Hardware\HDD\DriveAttributeValue.cs" />
     <Compile Include="Hardware\HDD\DriveThresholdValue.cs" />

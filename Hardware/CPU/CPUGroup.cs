@@ -23,10 +23,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private static CPUID[][] GetProcessorThreads() {
 
       List<CPUID> threads = new List<CPUID>();
-      for (int i = 0; i < 64; i++) {
-        try {
-          threads.Add(new CPUID(i));
-        } catch (ArgumentOutOfRangeException) { }
+      for (int i = 0; i < ThreadAffinity.ProcessorGroupCount; i++) {
+        for (int j = 0; j < 64; j++) {
+          try {
+            if (!ThreadAffinity.IsValid(GroupAffinity.Single((ushort)i, j)))
+              continue;
+            var cpuid = CPUID.Get(i, j);
+            if (cpuid != null)
+              threads.Add(cpuid);
+          } catch (ArgumentOutOfRangeException) { 
+          }
+        }
       }
 
       SortedDictionary<uint, List<CPUID>> processors =
@@ -172,6 +179,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         r.AppendLine();
         for (int j = 0; j < threads[i].Length; j++)
           for (int k = 0; k < threads[i][j].Length; k++) {
+            r.AppendLine(" CPU Group: " + threads[i][j][k].Group);
             r.AppendLine(" CPU Thread: " + threads[i][j][k].Thread);
             r.AppendLine(" APIC ID: " + threads[i][j][k].ApicId);
             r.AppendLine(" Processor ID: " + threads[i][j][k].ProcessorId);

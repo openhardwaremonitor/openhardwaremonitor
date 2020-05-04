@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -80,7 +80,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static bool ExtractDriver(string fileName) {
       string resourceName = "OpenHardwareMonitor.Hardware." +
-        (OperatingSystem.Is64BitOperatingSystem() ? "WinRing0x64.sys" : 
+        (OperatingSystem.Is64BitOperatingSystem ? "WinRing0x64.sys" : 
         "WinRing0.sys");
 
       string[] names = GetAssembly().GetManifestResourceNames();
@@ -129,8 +129,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     public static void Open() {
       // no implementation for unix systems
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         return;  
       
       if (driver != null)
@@ -284,13 +283,13 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static bool RdmsrTx(uint index, out uint eax, out uint edx,
-      ulong threadAffinityMask) 
+      GroupAffinity affinity) 
     {
-      ulong mask = ThreadAffinity.Set(threadAffinityMask);
+      var previousAffinity = ThreadAffinity.Set(affinity);
 
       bool result = Rdmsr(index, out eax, out edx);
 
-      ThreadAffinity.Set(mask);
+      ThreadAffinity.Set(previousAffinity);
       return result;
     }
 

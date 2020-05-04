@@ -272,7 +272,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private class Core {
 
       private readonly AMD17CPU cpu;
-      private readonly ulong threadAffinityMask;
+      private readonly GroupAffinity affinity;
 
       private readonly Sensor powerSensor;
       private readonly Sensor clockSensor;
@@ -284,7 +284,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       public Core(int index, CPUID[] threads, AMD17CPU cpu, ISettings settings) 
       {
         this.cpu = cpu;
-        this.threadAffinityMask = 1UL << threads[0].Thread;
+        this.affinity = threads[0].Affinity;
 
         string coreString = cpu.CoreString(index);
         this.powerSensor =
@@ -294,7 +294,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
         if (cpu.energyUnitMultiplier != 0) {
           if (Ring0.RdmsrTx(MSR_CORE_ENERGY_STAT, out uint energyConsumed, 
-            out _, threadAffinityMask)) 
+            out _, affinity)) 
           {
             lastEnergyTime = DateTime.UtcNow;
             lastEnergyConsumed = energyConsumed;
@@ -319,13 +319,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         DateTime energyTime = DateTime.MinValue;
         double? multiplier = null;
 
-        ulong mask = ThreadAffinity.Set(threadAffinityMask);
+        var previousAffinity = ThreadAffinity.Set(affinity);
         if (Ring0.Rdmsr(MSR_CORE_ENERGY_STAT, out uint energyConsumed, out _)) {
           energyTime = DateTime.UtcNow;                   
         }
 
         multiplier = GetMultiplier();
-        ThreadAffinity.Set(mask);
+        ThreadAffinity.Set(previousAffinity);
 
         if (cpu.energyUnitMultiplier != 0) {
           float deltaTime = (float)(energyTime - lastEnergyTime).TotalSeconds;

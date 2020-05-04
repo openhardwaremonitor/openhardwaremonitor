@@ -431,8 +431,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     private static void CreateDelegates(string name) {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         dllName = name + ".so";
       else
         dllName = name + ".dll";

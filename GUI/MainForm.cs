@@ -130,8 +130,7 @@ namespace OpenHardwareMonitor.GUI {
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) { // Unix
+      if (Hardware.OperatingSystem.IsUnix) { // Unix
         treeView.RowHeight = Math.Max(treeView.RowHeight, 18); 
         splitContainer.BorderStyle = BorderStyle.None;
         splitContainer.Border3DStyle = Border3DStyle.Adjust;

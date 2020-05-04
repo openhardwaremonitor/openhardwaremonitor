@@ -108,7 +108,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       corePerformanceBoostSupport = (cpuid[0][0].ExtData[7, 3] & (1 << 9)) > 0;
 
       // set affinity to the first thread for all frequency estimations     
-      ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
+      var previousAffinity = ThreadAffinity.Set(cpuid[0][0].Affinity);
 
       // disable core performance boost  
       uint hwcrEax, hwcrEdx;
@@ -132,12 +132,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         Ring0.Wrmsr(HWCR, hwcrEax, hwcrEdx);
 
       // restore the thread affinity.
-      ThreadAffinity.Set(mask);
+      ThreadAffinity.Set(previousAffinity);
 
       // the file reader for lm-sensors support on Linux
       temperatureStream = null;
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
+      if (OperatingSystem.IsUnix) {
         string[] devicePaths = Directory.GetDirectories("/sys/class/hwmon/");
         foreach (string path in devicePaths) {
           string name = null;
@@ -345,8 +344,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           Thread.Sleep(1);
 
           uint curEax, curEdx;
-          if (Ring0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx,
-            1UL << cpuid[i][0].Thread)) 
+          if (Ring0.RdmsrTx(COFVID_STATUS, out curEax, out curEdx, 
+            cpuid[i][0].Affinity)) 
           {
             double multiplier;
             multiplier = GetCoreMultiplier(curEax);

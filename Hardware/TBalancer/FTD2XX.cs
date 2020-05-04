@@ -184,8 +184,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
     }
 
     private static string GetDllName() {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         return "libftd2xx.so";
       else
         return "ftd2xx.dll";
