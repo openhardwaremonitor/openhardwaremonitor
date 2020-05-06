@@ -50,6 +50,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption startMinimized;
     private UserOption minimizeToTray;
     private UserOption minimizeOnClose;
+    private UserOption hideTaskbarIcon; 
     private UserOption autoStart;
 
     private UserOption readMainboardSensors;
@@ -198,6 +199,7 @@ namespace OpenHardwareMonitor.GUI {
 
       startMinimized = new UserOption("startMinMenuItem", false,
         startMinMenuItem, settings);
+      hideTaskbarIcon = new UserOption("hideTaskbarIconMenuItem", false, hideTaskbarIconMenuItem, settings);		
 
       minimizeToTray = new UserOption("minTrayMenuItem", true,
         minTrayMenuItem, settings);
@@ -312,6 +314,8 @@ namespace OpenHardwareMonitor.GUI {
       InitializePlotForm();
 
       startupMenuItem.Visible = startupManager.IsAvailable;
+
+      ShowInTaskbar = !hideTaskbarIconMenuItem.Checked;
       
       if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
@@ -902,7 +906,13 @@ namespace OpenHardwareMonitor.GUI {
       selectionDragging = false;
     }
 
-    private void serverPortMenuItem_Click(object sender, EventArgs e) {
+    private void hideTaskbarIconMenuItem_Clicked(object sender, EventArgs e)
+    {
+        ShowInTaskbar = hideTaskbarIconMenuItem.Checked;
+    }
+
+    private void serverPortMenuItem_Click(object sender, EventArgs e)
+    {
       new PortForm(this).ShowDialog();
     }
 
