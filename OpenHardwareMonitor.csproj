@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\FanControlManager.cs" />
     <Compile Include="GUI\GadgetWindow.cs" />
     <Compile Include="GUI\Gadget.cs" />
     <Compile Include="GUI\HardwareTypeImage.cs" />
@@ -113,6 +114,12 @@
     <Compile Include="GUI\ShowDesktop.cs" />
     <Compile Include="GUI\SplitContainerAdv.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GUI\StringInputBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\StringInputBox.Designer.cs">
+      <DependentUpon>StringInputBox.cs</DependentUpon>
     </Compile>
     <Compile Include="GUI\SystemTray.cs" />
     <Compile Include="GUI\StartupManager.cs" />
@@ -160,6 +167,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\PortForm.resx">
       <DependentUpon>PortForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\StringInputBox.resx">
+      <DependentUpon>StringInputBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\ati.png">
     </EmbeddedResource>

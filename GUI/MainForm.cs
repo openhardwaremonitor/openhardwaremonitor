@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
@@ -26,6 +27,7 @@ using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
+    private FanControlManager fanControlManager;
 
     private PersistentSettings settings;
     private UnitManager unitManager;
@@ -332,6 +334,19 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+
+      var fanControls = treeView.AllNodes
+            .Select(node => node.Tag)
+            .OfType<SensorNode>()
+            .Select(node => node.Sensor)
+            .Where(sensor => sensor.SensorType == SensorType.Control)
+            .ToList();
+
+      fanControlManager = new FanControlManager(settings, fanControls);
+
+      ReloadProfileList(availableProfilesList.MenuItems, LoadSelectedProfile);
+      ReloadProfileList(deleteProfilesList.MenuItems, DeleteSelectedProfile);
+      CheckLoadedProfile();
     }
 
     private void InitializePlotForm() {
@@ -909,6 +924,88 @@ namespace OpenHardwareMonitor.GUI {
     public HttpServer Server {
       get { return server; }
     }
+        
+    private void saveCurrentSettingsAsProfile_Click(object sender, EventArgs e)
+    {
+      var profileNameBox = new StringInputBox
+                               {
+                                   Title = "Profile Name", PromptMessage = "Profile Name:",
+                                   IsValidInput = input => !input.Contains(";"),
+                                   StartPosition = FormStartPosition.CenterParent
+                               };
+      profileNameBox.ShowDialog();
 
-  }
+      if (!profileNameBox.Accepted)
+      {
+          return;
+      }
+
+      var profileName = profileNameBox.UserInput;
+
+      fanControlManager.SaveCurrentSettingsAsProfile(profileName);
+      fanControlManager.LoadProfile(profileName);
+
+      ReloadProfileList(availableProfilesList.MenuItems, LoadSelectedProfile);
+      ReloadProfileList(deleteProfilesList.MenuItems, DeleteSelectedProfile);
+      CheckLoadedProfile();
+    }
+
+    /// <summary>
+    /// Deletes selected profile.
+    /// </summary>
+    private void DeleteSelectedProfile(object sender, EventArgs e)
+    {
+      var profileName = ((MenuItem)sender).Text;
+      fanControlManager.DeleteProfile(profileName);
+
+      ReloadProfileList(availableProfilesList.MenuItems, LoadSelectedProfile);
+      ReloadProfileList(deleteProfilesList.MenuItems, DeleteSelectedProfile);
+
+      CheckLoadedProfile();
+    }
+
+    /// <summary>
+    /// Reloads the list of available profiles. Clears and then appends the list to collectionDestination.
+    /// </summary>
+    private void ReloadProfileList(Menu.MenuItemCollection collectionDestination, EventHandler itemClickHandler)
+    {
+      collectionDestination.Clear();
+
+      foreach (var profile in fanControlManager.AvailableProfiles)
+      {
+          var profileItem = collectionDestination.Add(profile);
+          profileItem.Click += itemClickHandler;
+      }
+    }
+
+    /// <summary>
+    /// Sets checkmark next to loaded profile and clears all other checkmarks.
+    /// </summary>
+    private void CheckLoadedProfile()
+    {
+      foreach (var profile in availableProfilesList.MenuItems.Cast<MenuItem>())
+      {
+          profile.Checked = profile.Text == fanControlManager.LoadedProfile;
+      }
+    }
+
+    /// <summary>
+    /// Loads a profile and sets checkmark.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="eventArgs"></param>
+    private void LoadSelectedProfile(object sender, EventArgs eventArgs)
+    {
+      var profileItem = (MenuItem)sender;
+      var profileName = profileItem.Text;
+      fanControlManager.LoadProfile(profileName);
+
+      CheckLoadedProfile();
+    }
+
+    private void updateMenuButton_Click(object sender, EventArgs e)
+    {
+      fanControlManager.UpdateLoadedProfileWithCurrentSettings();
+    }
+    }
 }
