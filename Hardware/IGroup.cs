@@ -10,7 +10,7 @@
 
 namespace OpenHardwareMonitor.Hardware {
 
-  internal interface IGroup {
+    public interface IGroup {
 
     IHardware[] Hardware { get; }
 

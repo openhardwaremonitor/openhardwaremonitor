@@ -14,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Security.Permissions;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -106,10 +107,55 @@ namespace OpenHardwareMonitor.Hardware {
       if (hddEnabled)
         Add(new HDD.HarddriveGroup(settings));
 
-      open = true;
+      HardwareAdded += delegate(IHardware hardware){ 
+          // Find all Control sensors and give all hardware
+          NotifyNotifySoftwareCurveControllersAllHardware();
+      };
+
+      HardwareRemoved += delegate(IHardware removed){ 
+          // Find all Control sensors and notify removed hardware
+          foreach(var group in groups)
+            foreach(var hardware in group.Hardware)
+                NotifySoftwareCurveControllersHardwareRemoved(hardware, removed);
+      };
+
+       open = true;
     }
 
-    public bool MainboardEnabled {
+    private void NotifyNotifySoftwareCurveControllersAllHardware()
+    {
+        foreach(var group in groups)
+            foreach(var hardware in group.Hardware)
+                NotifySoftwareCurveControllersHardwareAdded(hardware, groups);
+    }
+
+    private void NotifySoftwareCurveControllersHardwareAdded(IHardware iterate, List<IGroup> allhardware)
+    {
+        iterate.SensorAdded += delegate(ISensor sensor){
+            if(sensor.Control != null){
+                sensor.Control.NotifyHardwareAdded(allhardware);
+            }
+        };
+
+        foreach (ISensor sensor in iterate.Sensors)
+            if(sensor.Control != null)
+                sensor.Control.NotifyHardwareAdded(allhardware);
+
+        foreach (IHardware subHardware in iterate.SubHardware)
+            NotifySoftwareCurveControllersHardwareAdded(subHardware, allhardware);
+    }
+
+    private void NotifySoftwareCurveControllersHardwareRemoved(IHardware iterate, IHardware removed)
+    {
+        foreach (ISensor sensor in iterate.Sensors)
+            if(sensor.Control != null)
+                sensor.Control.NotifyHardwareRemoved(removed);
+
+        foreach (IHardware subHardware in iterate.SubHardware)
+            NotifySoftwareCurveControllersHardwareRemoved(subHardware, removed);
+    }
+
+    public bool MainboardEnabled {  
       get { return mainboardEnabled; }
 
       [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
