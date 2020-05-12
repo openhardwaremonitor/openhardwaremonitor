@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -39,12 +39,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private const ushort FAMILY_15H_MODEL_10_MISC_CONTROL_DEVICE_ID = 0x1403;
     private const ushort FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x141D;
     private const ushort FAMILY_15H_MODEL_60_MISC_CONTROL_DEVICE_ID = 0x1573;
+    private const ushort FAMILY_15H_MODEL_70_MISC_CONTROL_DEVICE_ID = 0x15B3;
     private const ushort FAMILY_16H_MODEL_00_MISC_CONTROL_DEVICE_ID = 0x1533;
     private const ushort FAMILY_16H_MODEL_30_MISC_CONTROL_DEVICE_ID = 0x1583;
 
     private const uint REPORTED_TEMPERATURE_CONTROL_REGISTER = 0xA4;
     private const uint CLOCK_POWER_TIMING_CONTROL_0_REGISTER = 0xD4;
-    private const uint F15H_M60H_REPORTED_TEMP_CTRL_OFFSET = 0xD8200CA4;
+    private const uint SMU_REPORTED_TEMP_CONTROL_REGISTER = 0xD8200CA4;
+
+    private readonly bool hasSmuTemperatureRegister = false;
 
     private readonly uint miscellaneousControlAddress;
     private readonly ushort miscellaneousControlDeviceId;
@@ -82,7 +85,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             case 0x30: miscellaneousControlDeviceId =
               FAMILY_15H_MODEL_30_MISC_CONTROL_DEVICE_ID; break;
             case 0x60: miscellaneousControlDeviceId =
-              FAMILY_15H_MODEL_60_MISC_CONTROL_DEVICE_ID; break;
+              FAMILY_15H_MODEL_60_MISC_CONTROL_DEVICE_ID;
+              hasSmuTemperatureRegister = true;
+              break;
+            case 0x70: miscellaneousControlDeviceId =
+              FAMILY_15H_MODEL_70_MISC_CONTROL_DEVICE_ID;
+              hasSmuTemperatureRegister = true;
+              break;
             default: miscellaneousControlDeviceId = 0; break;
           } break;
         case 0x16:
@@ -301,37 +310,34 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       return sb.ToString();
     }
 
+    private bool ReadSmuRegister(uint address, out uint value) {
+      if (!Ring0.WritePciConfig(0, 0xB8, address)) {
+        value = 0;
+        return false;
+      }
+      return Ring0.ReadPciConfig(0, 0xBC, out value);
+    }
+
     public override void Update() {
       base.Update();
 
       if (temperatureStream == null) {
         if (miscellaneousControlAddress != Ring0.InvalidPciAddress) {
           uint value;
-        if (miscellaneousControlAddress == FAMILY_15H_MODEL_60_MISC_CONTROL_DEVICE_ID) {
-          value = F15H_M60H_REPORTED_TEMP_CTRL_OFFSET;
-          Ring0.WritePciConfig(Ring0.GetPciAddress(0, 0, 0), 0xB8, value);
-          Ring0.ReadPciConfig(Ring0.GetPciAddress(0, 0, 0), 0xBC, out value);
-          coreTemperature.Value = ((value >> 21) & 0x7FF) * 0.125f +
-              coreTemperature.Parameters[0].Value;
-          ActivateSensor(coreTemperature);
-          return;
-        }
-          if (Ring0.ReadPciConfig(miscellaneousControlAddress,
-            REPORTED_TEMPERATURE_CONTROL_REGISTER, out value)) {
-            if (family == 0x15 && (value & 0x30000) == 0x30000) {
-              if ((model & 0xF0) == 0x00) {
-                coreTemperature.Value = ((value >> 21) & 0x7FC) / 8.0f +
-                  coreTemperature.Parameters[0].Value - 49;
-              } else {
-                coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
-                  coreTemperature.Parameters[0].Value - 49;
-              }
-            } else if (family == 0x16 && 
-              ((value & 0x30000) == 0x30000 || (value & 0x80000) == 0x80000)) {
-                coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
-                  coreTemperature.Parameters[0].Value - 49;
+          bool valueValid;
+          if (hasSmuTemperatureRegister) {
+            valueValid =
+              ReadSmuRegister(SMU_REPORTED_TEMP_CONTROL_REGISTER, out value);
+          } else {
+            valueValid = Ring0.ReadPciConfig(miscellaneousControlAddress,
+              REPORTED_TEMPERATURE_CONTROL_REGISTER, out value);
+          }
+          if (valueValid) {
+            if ((family == 0x15 || family == 0x16) && (value & 0x30000) == 0x30000) {        
+              coreTemperature.Value = ((value >> 21) & 0x7FF) * 0.125f +
+                coreTemperature.Parameters[0].Value - 49;
             } else {
-              coreTemperature.Value = ((value >> 21) & 0x7FF) / 8.0f +
+              coreTemperature.Value = ((value >> 21) & 0x7FF) * 0.125f +
                 coreTemperature.Parameters[0].Value;
             }
             ActivateSensor(coreTemperature);
