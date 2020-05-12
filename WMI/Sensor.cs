@@ -12,19 +12,28 @@ using System.Management.Instrumentation;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.WMI {
-  [InstrumentationClass(InstrumentationType.Instance)]
-  public class Sensor : IWmiObject {
+  [ManagementEntity]
+  [ManagementQualifier("Description", Value = "Provide data from a sensor.")]
+  public class Sensor : IWmiObject { 
     private ISensor sensor;
 
     #region WMI Exposed
 
+    [ManagementProbe]
     public string SensorType { get; private set; }
+    [ManagementKey]
     public string Identifier { get; private set; }
+    [ManagementProbe]
     public string Parent { get; private set; }
+    [ManagementProbe]
     public string Name { get; private set; }
+    [ManagementProbe]
     public float Value { get; private set; }
+    [ManagementProbe]
     public float Min { get; private set; }
+    [ManagementProbe]
     public float Max { get; private set; }
+    [ManagementProbe]
     public int Index { get; private set; }
 
     #endregion

@@ -1,0 +1,690 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>OxyPlot.WindowsForms</name>
+    </assembly>
+    <members>
+        <member name="T:OxyPlot.WindowsForms.ExporterExtensions">
+            <summary>
+            Provides extension methods for exporters.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ExporterExtensions.ExportToFile(OxyPlot.IExporter,OxyPlot.IPlotModel,System.String)">
+            <summary>
+            Exports the specified <see cref="T:OxyPlot.PlotModel" /> to a file.
+            </summary>
+            <param name="exporter">The exporter.</param>
+            <param name="model">The model to export.</param>
+            <param name="path">The path to the file.</param>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.PlotView">
+            <summary>
+            Represents a control that displays a <see cref="T:OxyPlot.PlotModel" />.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.OxyPlotCategory">
+            <summary>
+            The category for the properties of this control.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.invalidateLock">
+            <summary>
+            The invalidate lock.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.modelLock">
+            <summary>
+            The model lock.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.renderingLock">
+            <summary>
+            The rendering lock.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.renderContext">
+            <summary>
+            The render context.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.trackerLabel">
+            <summary>
+            The tracker label.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.currentModel">
+            <summary>
+            The current model (holding a reference to this plot view).
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.isModelInvalidated">
+            <summary>
+            The is model invalidated.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.model">
+            <summary>
+            The model.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.defaultController">
+            <summary>
+            The default controller.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.updateDataFlag">
+            <summary>
+            The update data flag.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.PlotView.zoomRectangle">
+            <summary>
+            The zoom rectangle.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:OxyPlot.WindowsForms.PlotView" /> class.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.OxyPlot#IView#ActualModel">
+            <summary>
+            Gets the actual model in the view.
+            </summary>
+            <value>
+            The actual model.
+            </value>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ActualModel">
+            <summary>
+            Gets the actual model.
+            </summary>
+            <value>The actual model.</value>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.OxyPlot#IView#ActualController">
+            <summary>
+            Gets the actual controller.
+            </summary>
+            <value>
+            The actual <see cref="T:OxyPlot.IController" />.
+            </value>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ClientArea">
+            <summary>
+            Gets the coordinates of the client area of the view.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ActualController">
+            <summary>
+            Gets the actual plot controller.
+            </summary>
+            <value>The actual plot controller.</value>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.Model">
+            <summary>
+            Gets or sets the model.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.Controller">
+            <summary>
+            Gets or sets the plot controller.
+            </summary>
+            <value>The controller.</value>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.PanCursor">
+            <summary>
+            Gets or sets the pan cursor.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ZoomHorizontalCursor">
+            <summary>
+            Gets or sets the horizontal zoom cursor.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ZoomRectangleCursor">
+            <summary>
+            Gets or sets the rectangle zoom cursor.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PlotView.ZoomVerticalCursor">
+            <summary>
+            Gets or sets the vertical zoom cursor.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.HideTracker">
+            <summary>
+            Hides the tracker.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.HideZoomRectangle">
+            <summary>
+            Hides the zoom rectangle.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.InvalidatePlot(System.Boolean)">
+            <summary>
+            Invalidates the plot (not blocking the UI thread)
+            </summary>
+            <param name="updateData">if set to <c>true</c>, all data collections will be updated.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnModelChanged">
+            <summary>
+            Called when the Model property has been changed.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.SetCursorType(OxyPlot.CursorType)">
+            <summary>
+            Sets the cursor type.
+            </summary>
+            <param name="cursorType">The cursor type.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.ShowTracker(OxyPlot.TrackerHitResult)">
+            <summary>
+            Shows the tracker.
+            </summary>
+            <param name="data">The data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.ShowZoomRectangle(OxyPlot.OxyRect)">
+            <summary>
+            Shows the zoom rectangle.
+            </summary>
+            <param name="rectangle">The rectangle.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.SetClipboardText(System.String)">
+            <summary>
+            Sets the clipboard text.
+            </summary>
+            <param name="text">The text.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseDown(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseDown" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.MouseEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseMove(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseMove" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.MouseEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseUp(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseUp" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.MouseEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseEnter(System.EventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseEnter" /> event.
+            </summary>
+            <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseLeave(System.EventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseLeave" /> event.
+            </summary>
+            <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnMouseWheel(System.Windows.Forms.MouseEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.MouseWheel" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.MouseEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnPaint(System.Windows.Forms.PaintEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.Paint" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnPreviewKeyDown(System.Windows.Forms.PreviewKeyDownEventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.PreviewKeyDown" /> event.
+            </summary>
+            <param name="e">A <see cref="T:System.Windows.Forms.PreviewKeyDownEventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.OnResize(System.EventArgs)">
+            <summary>
+            Raises the <see cref="E:System.Windows.Forms.Control.Resize" /> event.
+            </summary>
+            <param name="e">An <see cref="T:System.EventArgs" /> that contains the event data.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotView.GetModifiers">
+            <summary>
+            Gets the current modifier keys.
+            </summary>
+            <returns>A <see cref="T:OxyPlot.OxyModifierKeys" /> value.</returns>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.ConverterExtensions">
+            <summary>
+            Extension method used to convert to/from Windows/Windows.Media classes.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.DistanceTo(System.Drawing.Point,System.Drawing.Point)">
+            <summary>
+            Calculate the distance between two points.
+            </summary>
+            <param name="p1">The first point.</param>
+            <param name="p2">The second point.</param>
+            <returns>The distance.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToBrush(OxyPlot.OxyColor)">
+            <summary>
+            Converts a color to a Brush.
+            </summary>
+            <param name="c">The color.</param>
+            <returns>A SolidColorBrush.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToColor(OxyPlot.OxyColor)">
+            <summary>
+            Converts an OxyColor to a Color.
+            </summary>
+            <param name="c">The color.</param>
+            <returns>A Color.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToHorizontalTextAlign(System.Windows.Forms.HorizontalAlignment)">
+            <summary>
+            Converts a HorizontalAlignment to a HorizontalTextAlign.
+            </summary>
+            <param name="alignment">The alignment.</param>
+            <returns>A HorizontalTextAlign.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToOxyColor(System.Drawing.Color)">
+            <summary>
+            Converts a <see cref="T:System.Drawing.Color" /> to an <see cref="T:OxyPlot.OxyColor" />.
+            </summary>
+            <param name="color">The color to convert.</param>
+            <returns>An <see cref="T:OxyPlot.OxyColor" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToOxyColor(System.Drawing.Brush)">
+            <summary>
+            Converts a <see cref="T:System.Drawing.Brush" /> to an <see cref="T:OxyPlot.OxyColor" />.
+            </summary>
+            <param name="brush">The brush to convert.</param>
+            <returns>An <see cref="T:OxyPlot.OxyColor" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToPoint(OxyPlot.ScreenPoint,System.Boolean)">
+            <summary>
+            Converts a Thickness to an OxyThickness.
+            </summary>
+            <param name="pt">The screen point.</param>
+            <param name="aliased">use pixel alignment conversion if set to <c>true</c>.</param>
+            <returns>An OxyPlot thickness.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToRect(OxyPlot.OxyRect,System.Boolean)">
+            <summary>
+            Converts an <see cref="T:OxyPlot.OxyRect" /> to a <see cref="T:System.Drawing.Rectangle" />.
+            </summary>
+            <param name="r">The rectangle.</param>
+            <param name="aliased">use pixel alignment if set to <c>true</c>.</param>
+            <returns>A <see cref="T:System.Drawing.Rectangle" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToScreenPoint(System.Drawing.Point)">
+            <summary>
+            Converts a point to a ScreenPoint.
+            </summary>
+            <param name="pt">The point.</param>
+            <returns>A screen point.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToScreenPointArray(System.Drawing.Point[])">
+            <summary>
+            Converts a Point array to a ScreenPoint array.
+            </summary>
+            <param name="points">The points.</param>
+            <returns>A ScreenPoint array.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.Convert(System.Windows.Forms.MouseButtons)">
+            <summary>
+            Converts a <see cref="T:System.Windows.Forms.MouseButtons" /> to a <see cref="T:OxyPlot.OxyMouseButton" />.
+            </summary>
+            <param name="button">The button to convert.</param>
+            <returns>The converted mouse button.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToMouseWheelEventArgs(System.Windows.Forms.MouseEventArgs,OxyPlot.OxyModifierKeys)">
+            <summary>
+            Converts <see cref="T:System.Windows.Forms.MouseEventArgs" /> to <see cref="T:OxyPlot.OxyMouseWheelEventArgs" /> for a mouse wheel event.
+            </summary>
+            <param name="e">The <see cref="T:System.Windows.Forms.MouseEventArgs" /> instance containing the event data.</param>
+            <param name="modifiers">The modifiers.</param>
+            <returns>A <see cref="T:OxyPlot.OxyMouseWheelEventArgs" /> containing the converted event arguments.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToMouseDownEventArgs(System.Windows.Forms.MouseEventArgs,OxyPlot.OxyModifierKeys)">
+            <summary>
+            Converts <see cref="T:System.Windows.Forms.MouseEventArgs" /> to <see cref="T:OxyPlot.OxyMouseEventArgs" /> for a mouse down event.
+            </summary>
+            <param name="e">The <see cref="T:System.Windows.Forms.MouseEventArgs" /> instance containing the event data.</param>
+            <param name="modifiers">The modifiers.</param>
+            <returns>A <see cref="T:OxyPlot.OxyMouseDownEventArgs" /> containing the converted event arguments.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToMouseUpEventArgs(System.Windows.Forms.MouseEventArgs,OxyPlot.OxyModifierKeys)">
+            <summary>
+            Converts <see cref="T:System.Windows.Forms.MouseEventArgs" /> to <see cref="T:OxyPlot.OxyMouseEventArgs" /> for a mouse up event.
+            </summary>
+            <param name="e">The <see cref="T:System.Windows.Forms.MouseEventArgs" /> instance containing the event data.</param>
+            <param name="modifiers">The modifiers.</param>
+            <returns>A <see cref="T:OxyPlot.OxyMouseEventArgs" /> containing the converted event arguments.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToMouseEventArgs(System.Windows.Forms.MouseEventArgs,OxyPlot.OxyModifierKeys)">
+            <summary>
+            Converts <see cref="T:System.Windows.Forms.MouseEventArgs" /> to <see cref="T:OxyPlot.OxyMouseEventArgs" /> for a mouse event.
+            </summary>
+            <param name="e">The <see cref="T:System.Windows.Forms.MouseEventArgs" /> instance containing the event data.</param>
+            <param name="modifiers">The modifiers.</param>
+            <returns>A <see cref="T:OxyPlot.OxyMouseEventArgs" /> containing the converted event arguments.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.ToMouseEventArgs(System.EventArgs,OxyPlot.OxyModifierKeys)">
+            <summary>
+            Converts <see cref="T:System.Windows.Forms.MouseEventArgs" /> to <see cref="T:OxyPlot.OxyMouseEventArgs" /> for a mouse event.
+            </summary>
+            <param name="e">The <see cref="T:System.Windows.Forms.MouseEventArgs" /> instance containing the event data.</param>
+            <param name="modifiers">The modifiers.</param>
+            <returns>A <see cref="T:OxyPlot.OxyMouseEventArgs" /> containing the converted event arguments.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.ConverterExtensions.Convert(System.Windows.Forms.Keys)">
+            <summary>
+            Converts the specified key.
+            </summary>
+            <param name="k">The key to convert.</param>
+            <returns>The converted key.</returns>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.GraphicsRenderContext">
+            <summary>
+            The graphics render context.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.FontsizeFactor">
+            <summary>
+            The font size factor.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.imagesInUse">
+            <summary>
+            The images in use
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.imageCache">
+            <summary>
+            The image cache
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.brushes">
+            <summary>
+            The brush cache.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.stringFormat">
+            <summary>
+            The string format.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.GraphicsRenderContext.g">
+            <summary>
+            The GDI+ drawing surface.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.#ctor(System.Drawing.Graphics)">
+            <summary>
+            Initializes a new instance of the <see cref="T:OxyPlot.WindowsForms.GraphicsRenderContext" /> class.
+            </summary>
+            <param name="graphics">The drawing surface.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.SetGraphicsTarget(System.Drawing.Graphics)">
+            <summary>
+            Sets the graphics target.
+            </summary>
+            <param name="graphics">The graphics surface.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawEllipse(OxyPlot.OxyRect,OxyPlot.OxyColor,OxyPlot.OxyColor,System.Double)">
+            <summary>
+            Draws an ellipse.
+            </summary>
+            <param name="rect">The rectangle.</param>
+            <param name="fill">The fill color.</param>
+            <param name="stroke">The stroke color.</param>
+            <param name="thickness">The thickness.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawLine(System.Collections.Generic.IList{OxyPlot.ScreenPoint},OxyPlot.OxyColor,System.Double,System.Double[],OxyPlot.LineJoin,System.Boolean)">
+            <summary>
+            Draws the polyline from the specified points.
+            </summary>
+            <param name="points">The points.</param>
+            <param name="stroke">The stroke color.</param>
+            <param name="thickness">The stroke thickness.</param>
+            <param name="dashArray">The dash array.</param>
+            <param name="lineJoin">The line join type.</param>
+            <param name="aliased">if set to <c>true</c> the shape will be aliased.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawPolygon(System.Collections.Generic.IList{OxyPlot.ScreenPoint},OxyPlot.OxyColor,OxyPlot.OxyColor,System.Double,System.Double[],OxyPlot.LineJoin,System.Boolean)">
+            <summary>
+            Draws the polygon from the specified points. The polygon can have stroke and/or fill.
+            </summary>
+            <param name="points">The points.</param>
+            <param name="fill">The fill color.</param>
+            <param name="stroke">The stroke color.</param>
+            <param name="thickness">The stroke thickness.</param>
+            <param name="dashArray">The dash array.</param>
+            <param name="lineJoin">The line join type.</param>
+            <param name="aliased">if set to <c>true</c> the shape will be aliased.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawRectangle(OxyPlot.OxyRect,OxyPlot.OxyColor,OxyPlot.OxyColor,System.Double)">
+            <summary>
+            Draws the rectangle.
+            </summary>
+            <param name="rect">The rectangle.</param>
+            <param name="fill">The fill color.</param>
+            <param name="stroke">The stroke color.</param>
+            <param name="thickness">The stroke thickness.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawText(OxyPlot.ScreenPoint,System.String,OxyPlot.OxyColor,System.String,System.Double,System.Double,System.Double,OxyPlot.HorizontalAlignment,OxyPlot.VerticalAlignment,System.Nullable{OxyPlot.OxySize})">
+            <summary>
+            Draws the text.
+            </summary>
+            <param name="p">The p.</param>
+            <param name="text">The text.</param>
+            <param name="fill">The fill color.</param>
+            <param name="fontFamily">The font family.</param>
+            <param name="fontSize">Size of the font.</param>
+            <param name="fontWeight">The font weight.</param>
+            <param name="rotate">The rotation angle.</param>
+            <param name="halign">The horizontal alignment.</param>
+            <param name="valign">The vertical alignment.</param>
+            <param name="maxSize">The maximum size of the text.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.MeasureText(System.String,System.String,System.Double,System.Double)">
+            <summary>
+            Measures the text.
+            </summary>
+            <param name="text">The text.</param>
+            <param name="fontFamily">The font family.</param>
+            <param name="fontSize">Size of the font.</param>
+            <param name="fontWeight">The font weight.</param>
+            <returns>The text size.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.CleanUp">
+            <summary>
+            Cleans up resources not in use.
+            </summary>
+            <remarks>This method is called at the end of each rendering.</remarks>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.DrawImage(OxyPlot.OxyImage,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Double,System.Boolean)">
+            <summary>
+            Draws the image.
+            </summary>
+            <param name="source">The source.</param>
+            <param name="srcX">The source executable.</param>
+            <param name="srcY">The source asynchronous.</param>
+            <param name="srcWidth">Width of the source.</param>
+            <param name="srcHeight">Height of the source.</param>
+            <param name="x">The executable.</param>
+            <param name="y">The asynchronous.</param>
+            <param name="w">The forward.</param>
+            <param name="h">The authentication.</param>
+            <param name="opacity">The opacity.</param>
+            <param name="interpolate">if set to <c>true</c> [interpolate].</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.SetClip(OxyPlot.OxyRect)">
+            <summary>
+            Sets the clip rectangle.
+            </summary>
+            <param name="rect">The clip rectangle.</param>
+            <returns>True if the clip rectangle was set.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.ResetClip">
+            <summary>
+            Resets the clip rectangle.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.CreateFont(System.String,System.Double,System.Drawing.FontStyle)">
+            <summary>
+            Creates a font.
+            </summary>
+            <param name="fontFamily">The font family.</param>
+            <param name="fontSize">Size of the font.</param>
+            <param name="fontStyle">The font style.</param>
+            <returns>A font</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.GetImage(OxyPlot.OxyImage)">
+            <summary>
+            Loads the image from the specified source.
+            </summary>
+            <param name="source">The image source.</param>
+            <returns>A <see cref="T:System.Drawing.Image" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.GetCachedBrush(OxyPlot.OxyColor)">
+            <summary>
+            Gets the cached brush.
+            </summary>
+            <param name="fill">The fill color.</param>
+            <returns>A <see cref="T:System.Drawing.Brush" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.CreatePen(OxyPlot.OxyColor,System.Double,System.Double[],OxyPlot.LineJoin)">
+            <summary>
+            Gets a cached pen.
+            </summary>
+            <param name="stroke">The stroke.</param>
+            <param name="thickness">The thickness.</param>
+            <param name="dashArray">The dash array.</param>
+            <param name="lineJoin">The line join.</param>
+            <returns>A <see cref="T:System.Drawing.Pen" />.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.ToFloatArray(System.Double[])">
+            <summary>
+            Converts a double array to a float array.
+            </summary>
+            <param name="a">The a.</param>
+            <returns>The float array.</returns>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.GraphicsRenderContext.ToPoints(System.Collections.Generic.IList{OxyPlot.ScreenPoint})">
+            <summary>
+            Converts a list of point to an array of PointF.
+            </summary>
+            <param name="points">The points.</param>
+            <returns>An array of points.</returns>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.NamespaceDoc">
+            <summary>
+            The OxyPlot.WindowsForms namespace contains controls for Windows Forms and a bitmap exporter.
+            </summary>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.PlotModelExtensions">
+            <summary>
+            Provides extension methods to the <see cref="T:OxyPlot.PlotModel" />.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PlotModelExtensions.ToSvg(OxyPlot.PlotModel,System.Double,System.Double,System.Boolean)">
+            <summary>
+            Creates an SVG string.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="width">The width (points).</param>
+            <param name="height">The height (points).</param>
+            <param name="isDocument">if set to <c>true</c>, the xml headers will be included (?xml and !DOCTYPE).</param>
+            <returns>A <see cref="T:System.String" />.</returns>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.PngExporter">
+            <summary>
+            Provides functionality to export plots to png.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PngExporter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:OxyPlot.WindowsForms.PngExporter" /> class.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PngExporter.Width">
+            <summary>
+            Gets or sets the width of the output image.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PngExporter.Height">
+            <summary>
+            Gets or sets the height of the output image.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PngExporter.Resolution">
+            <summary>
+            Gets or sets the resolution (dpi) of the output image.
+            </summary>
+        </member>
+        <member name="P:OxyPlot.WindowsForms.PngExporter.Background">
+            <summary>
+            Gets or sets the background color.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PngExporter.Export(OxyPlot.IPlotModel,System.String,System.Int32,System.Int32,System.Drawing.Brush)">
+            <summary>
+            Exports the specified model.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="fileName">The file name.</param>
+            <param name="width">The width.</param>
+            <param name="height">The height.</param>
+            <param name="background">The background.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PngExporter.Export(OxyPlot.IPlotModel,System.IO.Stream)">
+            <summary>
+            Exports the specified <see cref="T:OxyPlot.PlotModel" /> to the specified <see cref="T:System.IO.Stream" />.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="stream">The output stream.</param>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.PngExporter.ExportToBitmap(OxyPlot.IPlotModel)">
+            <summary>
+            Exports the specified <see cref="T:OxyPlot.PlotModel" /> to a <see cref="T:System.Drawing.Bitmap" />.
+            </summary>
+            <param name="model">The model to export.</param>
+            <returns>A bitmap.</returns>
+        </member>
+        <member name="T:OxyPlot.WindowsForms.SvgExporter">
+            <summary>
+            Provides functionality to export plots to scalable vector graphics using <see cref="T:System.Drawing.Graphics" /> for text measuring.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.SvgExporter.g">
+            <summary>
+            The graphics drawing surface.
+            </summary>
+        </member>
+        <member name="F:OxyPlot.WindowsForms.SvgExporter.grc">
+            <summary>
+            The render context.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.SvgExporter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:OxyPlot.WindowsForms.SvgExporter" /> class.
+            </summary>
+        </member>
+        <member name="M:OxyPlot.WindowsForms.SvgExporter.Dispose">
+            <summary>
+            Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            </summary>
+        </member>
+    </members>
+</doc>
