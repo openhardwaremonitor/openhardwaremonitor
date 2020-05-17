@@ -311,11 +311,22 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
     private bool ReadSmuRegister(uint address, out uint value) {
-      if (!Ring0.WritePciConfig(0, 0xB8, address)) {
+      if (Ring0.WaitPciBusMutex(10)) {
+
+        if (!Ring0.WritePciConfig(0, 0xB8, address)) {
+          value = 0;
+
+          Ring0.ReleasePciBusMutex();
+          return false;
+        }
+        var result = Ring0.ReadPciConfig(0, 0xBC, out value);
+
+        Ring0.ReleasePciBusMutex();
+        return result;
+      } else {
         value = 0;
         return false;
       }
-      return Ring0.ReadPciConfig(0, 0xBC, out value);
     }
 
     public override void Update() {

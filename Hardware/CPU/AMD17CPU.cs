@@ -160,19 +160,24 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         CultureInfo.InvariantCulture));
       r.AppendLine();
 
-      r.AppendLine("SMN Registers");
-      r.AppendLine();
-      r.AppendLine(" Register  Value");
-      var registers = GetSmnRegisters();
-      for (int i = 0; i < registers.Count; i++)
-        if (ReadSmnRegister(registers[i], out uint value)) {
-          r.Append(" ");
-          r.Append(registers[i].ToString("X8", CultureInfo.InvariantCulture));
-          r.Append("  ");
-          r.Append(value.ToString("X8", CultureInfo.InvariantCulture));
-          r.AppendLine();
-        }
-      r.AppendLine();
+      if (Ring0.WaitPciBusMutex(100)) {
+        r.AppendLine("SMN Registers");
+        r.AppendLine();
+        r.AppendLine(" Register  Value");
+        var registers = GetSmnRegisters();
+
+        for (int i = 0; i < registers.Count; i++)
+          if (ReadSmnRegister(registers[i], out uint value)) {
+            r.Append(" ");
+            r.Append(registers[i].ToString("X8", CultureInfo.InvariantCulture));
+            r.Append("  ");
+            r.Append(value.ToString("X8", CultureInfo.InvariantCulture));
+            r.AppendLine();
+          }
+        r.AppendLine();
+
+        Ring0.ReleasePciBusMutex();
+      }
 
       return r.ToString();
     }
@@ -195,52 +200,57 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     public override void Update() {
       base.Update();
 
-      uint value;
-      if (ReadSmnRegister(FAMILY_17H_M01H_THM_TCON_TEMP, out value)) {
-        float temperature = ((value >> 21) & 0x7FF) / 8.0f;
-        if ((value & FAMILY_17H_M01H_THM_TCON_TEMP_RANGE_SEL) != 0)
-          temperature -= 49;
+      if (Ring0.WaitPciBusMutex(10)) { 
 
-        if (tctlTemperature != null) {
-          tctlTemperature.Value = temperature +
-            tctlTemperature.Parameters[0].Value;
-          ActivateSensor(tctlTemperature);
+        uint value;
+        if (ReadSmnRegister(FAMILY_17H_M01H_THM_TCON_TEMP, out value)) {
+          float temperature = ((value >> 21) & 0x7FF) / 8.0f;
+          if ((value & FAMILY_17H_M01H_THM_TCON_TEMP_RANGE_SEL) != 0)
+            temperature -= 49;
+
+          if (tctlTemperature != null) {
+            tctlTemperature.Value = temperature +
+              tctlTemperature.Parameters[0].Value;
+            ActivateSensor(tctlTemperature);
+          }
+
+          temperature -= tctlOffset;
+
+          coreTemperature.Value = temperature +
+            coreTemperature.Parameters[0].Value;
+          ActivateSensor(coreTemperature);
         }
 
-        temperature -= tctlOffset;
+        float maxTemperature = float.MinValue;
+        int ccdCount = 0;
+        float ccdTemperatureSum = 0;
+        for (uint i = 0; i < ccdTemperatures.Length; i++) {
+          if (ReadSmnRegister(FAMILY_17H_M70H_CCD_TEMP(i), out value)) {
+            if ((value & FAMILY_17H_M70H_CCD_TEMP_VALID) == 0)
+              continue;
 
-        coreTemperature.Value = temperature +
-          coreTemperature.Parameters[0].Value;
-        ActivateSensor(coreTemperature);
-      }
+            float temperature = (value & 0x7FF) / 8.0f - 49;
+            temperature += ccdTemperatures[i].Parameters[0].Value;
 
-      float maxTemperature = float.MinValue;
-      int ccdCount = 0;
-      float ccdTemperatureSum = 0;
-      for (uint i = 0; i < ccdTemperatures.Length; i++) {
-        if (ReadSmnRegister(FAMILY_17H_M70H_CCD_TEMP(i), out value)) {
-          if ((value & FAMILY_17H_M70H_CCD_TEMP_VALID) == 0)
-            continue;
+            if (temperature > maxTemperature)
+              maxTemperature = temperature;
+            ccdCount++;
+            ccdTemperatureSum += temperature;
 
-          float temperature = (value & 0x7FF) / 8.0f - 49;
-          temperature += ccdTemperatures[i].Parameters[0].Value;
-
-          if (temperature > maxTemperature)
-            maxTemperature = temperature;
-          ccdCount++;
-          ccdTemperatureSum += temperature;
-
-          ccdTemperatures[i].Value = temperature;
-          ActivateSensor(ccdTemperatures[i]);
+            ccdTemperatures[i].Value = temperature;
+            ActivateSensor(ccdTemperatures[i]);
+          }
         }
-      }
 
-      if (ccdCount > 1) {
-        ccdMaxTemperature.Value = maxTemperature;
-        ActivateSensor(ccdMaxTemperature);
+        if (ccdCount > 1) {
+          ccdMaxTemperature.Value = maxTemperature;
+          ActivateSensor(ccdMaxTemperature);
 
-        ccdAvgTemperature.Value = ccdTemperatureSum / ccdCount;
-        ActivateSensor(ccdAvgTemperature);
+          ccdAvgTemperature.Value = ccdTemperatureSum / ccdCount;
+          ActivateSensor(ccdAvgTemperature);
+        }
+
+        Ring0.ReleasePciBusMutex();
       }
 
       if (energyUnitMultiplier != 0 && 

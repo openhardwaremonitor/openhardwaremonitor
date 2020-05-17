@@ -22,6 +22,7 @@ namespace OpenHardwareMonitor.Hardware {
     private static KernelDriver driver;
     private static string fileName;
     private static Mutex isaBusMutex;
+    private static Mutex pciBusMutex;
     private static readonly StringBuilder report = new StringBuilder();
 
     private const uint OLS_TYPE = 40000;
@@ -196,12 +197,21 @@ namespace OpenHardwareMonitor.Hardware {
       if (!driver.IsOpen) 
         driver = null;
 
-      string mutexName = "Global\\Access_ISABUS.HTP.Method";
+      string isaMutexName = "Global\\Access_ISABUS.HTP.Method";
       try {
-        isaBusMutex = new Mutex(false, mutexName);
+        isaBusMutex = new Mutex(false, isaMutexName);
       } catch (UnauthorizedAccessException) {
         try {
-          isaBusMutex = Mutex.OpenExisting(mutexName, MutexRights.Synchronize);
+          isaBusMutex = Mutex.OpenExisting(isaMutexName, MutexRights.Synchronize);
+        } catch { }
+      }
+
+      string pciMutexName = "Global\\Access_PCI";
+      try {
+        pciBusMutex = new Mutex(false, pciMutexName);
+      } catch (UnauthorizedAccessException) {
+        try {
+          pciBusMutex = Mutex.OpenExisting(pciMutexName, MutexRights.Synchronize);
         } catch { }
       }
     }
@@ -227,6 +237,11 @@ namespace OpenHardwareMonitor.Hardware {
       if (isaBusMutex != null) {
         isaBusMutex.Close();
         isaBusMutex = null;
+      }
+
+      if (pciBusMutex != null) {
+        pciBusMutex.Close();
+        pciBusMutex = null;
       }
 
       // try to delete temporary driver file again if failed during open
@@ -264,6 +279,21 @@ namespace OpenHardwareMonitor.Hardware {
       if (isaBusMutex == null)
         return;
       isaBusMutex.ReleaseMutex();
+    }
+
+    public static bool WaitPciBusMutex(int millisecondsTimeout) {
+      if (pciBusMutex == null)
+        return true;
+      try {
+        return pciBusMutex.WaitOne(millisecondsTimeout, false);
+      } catch (AbandonedMutexException) { return true; }
+        catch (InvalidOperationException) { return false; }
+    }
+
+    public static void ReleasePciBusMutex() {
+      if (pciBusMutex == null)
+        return;
+      pciBusMutex.ReleaseMutex();
     }
 
     public static bool Rdmsr(uint index, out uint eax, out uint edx) {
