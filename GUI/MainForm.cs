@@ -172,6 +172,8 @@ namespace OpenHardwareMonitor.GUI {
 
       computer.Open();
 
+      Microsoft.Win32.SystemEvents.PowerModeChanged += PowerModeChanged;
+
       timer.Enabled = true;
 
       showHiddenSensors = new UserOption("hiddenMenuItem", false,
@@ -332,6 +334,14 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+    }
+
+    private void PowerModeChanged(object sender,
+      Microsoft.Win32.PowerModeChangedEventArgs e) {
+
+      if (e.Mode == Microsoft.Win32.PowerModes.Resume) {
+        computer.Reset();
+      }
     }
 
     private void InitializePlotForm() {
@@ -880,8 +890,7 @@ namespace OpenHardwareMonitor.GUI {
       // disable the fallback MainIcon during reset, otherwise icon visibility
       // might be lost 
       systemTray.IsMainIconEnabled = false;
-      computer.Close();
-      computer.Open();
+      computer.Reset();
       // restore the MainIcon setting
       systemTray.IsMainIconEnabled = minimizeToTray.Value;
     }
