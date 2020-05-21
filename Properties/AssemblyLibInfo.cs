@@ -24,3 +24,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
 
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32)]

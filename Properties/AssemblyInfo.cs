@@ -23,3 +23,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
+
+[assembly: DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
