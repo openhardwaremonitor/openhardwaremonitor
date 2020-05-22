@@ -210,6 +210,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.IceLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0xA5:
               case 0xA6: // Intel Core i3, i5, i7 10xxxU (14nm)
                 microarchitecture = Microarchitecture.CometLake;
                 tjMax = GetTjMaxFromMSR();
