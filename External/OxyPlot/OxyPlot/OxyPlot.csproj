@@ -221,6 +221,7 @@
     <Compile Include="Foundation\XmlWriterBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".editorconfig" />
     <None Include="ClassDiagrams\Series.cd" />
     <None Include="ClassDiagrams\PlotModel.cd" />
     <None Include="ClassDiagrams\Reporting.cd" />
