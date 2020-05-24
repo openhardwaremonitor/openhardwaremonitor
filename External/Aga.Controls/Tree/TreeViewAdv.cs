@@ -30,6 +30,7 @@ namespace Aga.Controls.Tree
 		private const int DividerCorrectionGap = -2;
 
 		private Pen _linePen;
+        private Pen _lightGrayPen;
 		private Pen _markPen;
 		private bool _suspendUpdate;
 		private bool _needFullUpdate;
@@ -256,7 +257,7 @@ namespace Aga.Controls.Tree
 		{
 			// https://msdn.microsoft.com/en-us/library/windows/desktop/dn469266(v=vs.85).aspx
 			const int _default_dpi = 96;
-			Graphics g = this.CreateGraphics();
+			Graphics g = Graphics.FromHwnd(IntPtr.Zero);
 
 			try
 			{

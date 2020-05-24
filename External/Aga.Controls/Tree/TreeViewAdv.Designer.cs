@@ -15,6 +15,7 @@ namespace Aga.Controls.Tree
 				if (_dragTimer != null) _dragTimer.Dispose();
 				if (_linePen != null) _linePen.Dispose();
 				if (_markPen != null) _markPen.Dispose();
+                if (_lightGrayPen != null) _lightGrayPen.Dispose();
 			}
 			base.Dispose(disposing);
 		}
