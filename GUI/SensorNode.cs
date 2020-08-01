@@ -133,6 +133,10 @@ namespace OpenHardwareMonitor.GUI {
       get { return ValueToString(sensor.Max); }
     }
 
+    public string Average {
+      get { return ValueToString(sensor.Average); }
+    }
+
     public override bool Equals(System.Object obj) {
       if (obj == null) 
         return false;

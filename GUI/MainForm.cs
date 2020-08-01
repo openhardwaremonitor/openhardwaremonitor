@@ -47,6 +47,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption showValue;
     private UserOption showMin;
     private UserOption showMax;
+    private UserOption showAvg;
     private UserOption startMinimized;
     private UserOption minimizeToTray;
     private UserOption minimizeOnClose;
@@ -110,12 +111,18 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxValue.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMin.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
+
+      // MM - Update average textbox
+      nodeTextBoxAvg.DrawText += nodeTextBoxText_DrawTextAvg;
+      //nodeTextBoxAvg.DrawText += nodeTextBoxText_DrawText;
+
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
       this.sensor.Width = DpiHelper.LogicalToDeviceUnits(250);
       this.value.Width = DpiHelper.LogicalToDeviceUnits(100);
       this.min.Width = DpiHelper.LogicalToDeviceUnits(100);
       this.max.Width = DpiHelper.LogicalToDeviceUnits(100);
+      this.avg.Width = DpiHelper.LogicalToDeviceUnits(100);
 
       foreach (TreeColumn column in treeView.Columns) 
         column.Width = Math.Max(DpiHelper.LogicalToDeviceUnits(20), Math.Min(
@@ -205,6 +212,11 @@ namespace OpenHardwareMonitor.GUI {
       showMax = new UserOption("maxMenuItem", true, maxMenuItem, settings);
       showMax.Changed += delegate(object sender, EventArgs e) {
         treeView.Columns[3].IsVisible = showMax.Value;
+      };
+
+      showAvg = new UserOption("avgMenuItem", true, avgMenuItem, settings);
+      showAvg.Changed += delegate (object sender, EventArgs e) {
+        treeView.Columns[4].IsVisible = showAvg.Value;
       };
 
       startMinimized = new UserOption("startMinMenuItem", false,
@@ -494,6 +506,26 @@ namespace OpenHardwareMonitor.GUI {
       if (node != null) {
         Color color;
         if (node.IsVisible) {
+          SensorNode sensorNode = node as SensorNode;
+          if (plotMenuItem.Checked && sensorNode != null &&
+            sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
+            e.TextColor = color;
+        } else {
+          e.TextColor = Color.DarkGray;
+        }
+      }
+    }
+
+    private void nodeTextBoxText_DrawTextAvg(object sender, DrawEventArgs e) {
+      Node node = e.Node.Tag as Node;
+      if (node != null) {
+        Color color;
+        if (node.IsVisible) {
+          if (node.Text == "CPU Package") {
+            node.Text = "CPU Package";
+            SensorNode sensorNode1 = node as SensorNode;
+            String s = sensorNode1.Average;
+          }
           SensorNode sensorNode = node as SensorNode;
           if (plotMenuItem.Checked && sensorNode != null &&
             sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
