@@ -136,7 +136,6 @@ namespace OpenHardwareMonitor.Hardware {
 
       // Calculate moving average
       if (!float.IsNaN(value)) {
-      //if (sensorType == SensorType.Temperature && !float.IsNaN(value)) {
           if (avgValue == null) avgValue = 0.0f;
 
         countForAvg += 1;

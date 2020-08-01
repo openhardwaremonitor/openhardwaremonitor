@@ -112,9 +112,7 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxMin.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
 
-      // MM - Update average textbox
-      nodeTextBoxAvg.DrawText += nodeTextBoxText_DrawTextAvg;
-      //nodeTextBoxAvg.DrawText += nodeTextBoxText_DrawText;
+      nodeTextBoxAvg.DrawText += nodeTextBoxText_DrawText;
 
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
@@ -506,26 +504,6 @@ namespace OpenHardwareMonitor.GUI {
       if (node != null) {
         Color color;
         if (node.IsVisible) {
-          SensorNode sensorNode = node as SensorNode;
-          if (plotMenuItem.Checked && sensorNode != null &&
-            sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
-            e.TextColor = color;
-        } else {
-          e.TextColor = Color.DarkGray;
-        }
-      }
-    }
-
-    private void nodeTextBoxText_DrawTextAvg(object sender, DrawEventArgs e) {
-      Node node = e.Node.Tag as Node;
-      if (node != null) {
-        Color color;
-        if (node.IsVisible) {
-          if (node.Text == "CPU Package") {
-            node.Text = "CPU Package";
-            SensorNode sensorNode1 = node as SensorNode;
-            String s = sensorNode1.Average;
-          }
           SensorNode sensorNode = node as SensorNode;
           if (plotMenuItem.Checked && sensorNode != null &&
             sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
