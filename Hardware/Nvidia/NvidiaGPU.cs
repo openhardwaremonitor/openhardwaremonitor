@@ -10,10 +10,12 @@
 */
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
+  
   internal class NvidiaGPU : Hardware {
 
     private readonly int adapterIndex;
@@ -34,6 +36,25 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     private readonly Sensor pcieThroughputRx;
     private readonly Sensor pcieThroughputTx;
     private readonly Control fanControl;
+
+    static Dictionary<string, string> VendorList = new Dictionary<string, string>
+      {
+
+      { "1462","MSI" },
+      { "1458","Gigabyte" },
+      { "1043","Asus" },
+      { "3842","EVGA" },
+      { "1569","Palit" },
+      { "19DA","ZOTAC" },
+      { "F849","ASRock" },
+      { "196E","PNY" },
+      { "102B","Matrox" },
+      { "148C","PowerColor" },
+      { "174B","Sapphire" },
+      { "1771","INNO3D" }
+
+    };
+
 
     public NvidiaGPU(int adapterIndex, NvPhysicalGpuHandle handle,
       NvDisplayHandle? displayHandle, ISettings settings)
@@ -116,8 +137,19 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     private static string GetName(NvPhysicalGpuHandle handle) {
       string gpuName;
+      string gpuVendor="";
+      uint deviceId, subSystemId, revisionId, extDeviceId;
+
       if (NVAPI.NvAPI_GPU_GetFullName(handle, out gpuName) == NvStatus.OK) {
-        return "NVIDIA " + gpuName.Trim();
+
+        if (NVAPI.NvAPI_GPU_GetPCIIdentifiers(handle,
+        out deviceId, out subSystemId, out revisionId, out extDeviceId) == NvStatus.OK)
+        {
+          gpuVendor = subSystemId.ToString("X", CultureInfo.InvariantCulture).Remove(0,4);
+          gpuVendor = GetVendorFromId(gpuVendor);
+        }
+
+        return gpuVendor + "NVIDIA " + gpuName.Trim();
       } else {
         return "NVIDIA";
       }
@@ -588,6 +620,18 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       coolerLevels.Levels = new NvLevel[NVAPI.MAX_COOLER_PER_GPU];
       coolerLevels.Levels[0].Policy = 0x20;
       NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
+    }
+
+    private static string GetVendorFromId(string idVendor)
+    {
+
+      foreach (var item in VendorList)
+      {
+        if (item.Key == idVendor.ToUpper())return item.Value + " ";
+
+      }
+
+        return "";
     }
 
     public override void Close() {
