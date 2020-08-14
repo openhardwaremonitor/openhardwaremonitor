@@ -76,6 +76,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           return "libnvidia-ml.so";
         else {
           string windrive = System.IO.Path.GetPathRoot(Environment.SystemDirectory);
+          nvmldll = "nvml.dll";
 
           string[] pathNvmldll =
             {
