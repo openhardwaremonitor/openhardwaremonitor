@@ -72,6 +72,8 @@ namespace OpenHardwareMonitor.GUI {
 
     private bool selectionDragging = false;
 
+    private HttpAgent httpAgent;
+
     public MainForm() {      
       InitializeComponent();
 
@@ -293,6 +295,7 @@ namespace OpenHardwareMonitor.GUI {
           server.StopHTTPListener();
       };
 
+
       logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
         settings);
 
@@ -343,6 +346,11 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+
+      httpAgent = new HttpAgent(root);
+      httpAgent.ActionUrl = this.settings.GetValue("AgentActionUrl", "");
+      httpAgent.IntervalSecond = this.settings.GetValue("AgentIntervalSecond", 30);
+
     }
 
     private void PowerModeChanged(object sender,
@@ -605,6 +613,13 @@ namespace OpenHardwareMonitor.GUI {
 
       if (server != null) {
         this.settings.SetValue("listenerPort", server.ListenerPort);
+      }
+
+      if (httpAgent != null)
+      {
+        this.settings.SetValue("AgentActionUrl", httpAgent.ActionUrl);
+        if (httpAgent.IntervalSecond <= 0) httpAgent.IntervalSecond = 30;
+        this.settings.SetValue("AgentIntervalSecond", httpAgent.IntervalSecond);
       }
 
       string fileName = Path.ChangeExtension(
@@ -930,5 +945,43 @@ namespace OpenHardwareMonitor.GUI {
       get { return server; }
     }
 
-  }
+    private void AgentSettingMenuItem_Click(object sender, EventArgs e)
+    {
+
+      AgentSettingForm agentForm = new AgentSettingForm();
+
+      agentForm.ActionUrl = httpAgent.ActionUrl;
+      agentForm.Interval = httpAgent.IntervalSecond;
+
+      if (agentForm.ShowDialog() == DialogResult.OK) {
+
+        httpAgent.ActionUrl= agentForm.ActionUrl;
+        httpAgent.IntervalSecond= agentForm.Interval;
+
+        if (httpAgent.isRunAgent)
+        {
+          httpAgent.StopAgent();
+          httpAgent.StartAgent();
+        }
+
+      }
+
+
+      }
+
+        private void runAgentMenuItem_Click(object sender, EventArgs e)
+        {
+      if (runAgentMenuItem.Checked)
+      {
+        runAgentMenuItem.Checked = false;
+        httpAgent.StopAgent();
+      }
+      else {
+
+        runAgentMenuItem.Checked = true;
+        httpAgent.StartAgent();
+      }
+        }
+
+    }
 }
