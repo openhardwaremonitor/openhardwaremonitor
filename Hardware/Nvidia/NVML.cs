@@ -9,6 +9,7 @@
 */
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
@@ -75,13 +76,15 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         if (OperatingSystem.IsUnix)
           return "libnvidia-ml.so";
         else {
-          string windrive = System.IO.Path.GetPathRoot(Environment.SystemDirectory);
+          string windrive = Path.GetPathRoot(Environment.SystemDirectory);
+          string currentPath = Directory.GetCurrentDirectory();
           nvmldll = "nvml.dll";
 
           string[] pathNvmldll =
             {
             "nvml.dll",
-            windrive + @"\Program Files\NVIDIA Corporation\NVSMI\nvml.dll"
+            windrive + @"\Program Files\NVIDIA Corporation\NVSMI\nvml.dll",
+            currentPath + @"\nvml.dll"
 
             };
 
