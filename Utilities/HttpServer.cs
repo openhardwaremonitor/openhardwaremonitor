@@ -220,6 +220,7 @@ namespace OpenHardwareMonitor.Utilities {
       byte[] buffer = Encoding.UTF8.GetBytes(responseContent);
 
       response.AddHeader("Cache-Control", "no-cache");
+      response.AddHeader("Access-Control-Allow-Origin", "*");
 
       response.ContentLength64 = buffer.Length;
       response.ContentType = "application/json";
