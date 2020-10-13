@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OxyPlot", "External\OxyPlot
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OxyPlot.WindowsForms", "External\OxyPlot\OxyPlot.WindowsForms\OxyPlot.WindowsForms.csproj", "{D4554296-094E-4CAC-8EAE-44EB250666C6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHardwareMonitor.Core", "OpenHardwareMonitor.Core.csproj", "{3FFAD4F0-C283-4795-80C4-A2EF262139EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -49,6 +51,10 @@ Global
 		{D4554296-094E-4CAC-8EAE-44EB250666C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4554296-094E-4CAC-8EAE-44EB250666C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4554296-094E-4CAC-8EAE-44EB250666C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FFAD4F0-C283-4795-80C4-A2EF262139EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FFAD4F0-C283-4795-80C4-A2EF262139EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FFAD4F0-C283-4795-80C4-A2EF262139EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FFAD4F0-C283-4795-80C4-A2EF262139EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
