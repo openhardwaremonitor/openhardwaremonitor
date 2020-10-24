@@ -93,6 +93,10 @@ namespace OpenHardwareMonitor.Hardware {
       ControlMode = ControlMode.Default;
     }
 
+    public void SetAuto() {
+      ControlMode = ControlMode.Auto;
+    }
+
     public float MinSoftwareValue {
       get {
         return minSoftwareValue;

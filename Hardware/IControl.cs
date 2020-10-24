@@ -13,7 +13,8 @@ namespace OpenHardwareMonitor.Hardware {
   public enum ControlMode {
     Undefined,
     Software,
-    Default
+    Default,
+    Auto
   }
 
   public interface IControl {
@@ -25,6 +26,8 @@ namespace OpenHardwareMonitor.Hardware {
     float SoftwareValue { get; }
 
     void SetDefault();
+
+    void SetAuto();
 
     float MinSoftwareValue { get; }
     float MaxSoftwareValue { get; }
