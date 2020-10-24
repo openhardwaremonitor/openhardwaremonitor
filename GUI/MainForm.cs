@@ -10,6 +10,7 @@
 
 */
 
+
 using System;
 using System.Management;
 using System.Collections.Generic;
@@ -28,6 +29,7 @@ using OxyPlot;
 using System.Xml;
 using System.Windows.Forms.VisualStyles;
 using System.Runtime.CompilerServices;
+
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
