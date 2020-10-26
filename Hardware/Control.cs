@@ -8,7 +8,6 @@
 	
 */
 
-using System;
 using System.Globalization;
 
 namespace OpenHardwareMonitor.Hardware {
@@ -23,10 +22,10 @@ namespace OpenHardwareMonitor.Hardware {
     private float softwareValue;
     private float minSoftwareValue;
     private float maxSoftwareValue;
+    private float deviationValue;
 
     public Control(ISensor sensor, ISettings settings, float minSoftwareValue,
-      float maxSoftwareValue) 
-    {
+      float maxSoftwareValue) {
       this.identifier = new Identifier(sensor.Identifier, "control");
       this.settings = settings;
       this.minSoftwareValue = minSoftwareValue;
@@ -35,17 +34,23 @@ namespace OpenHardwareMonitor.Hardware {
       if (!float.TryParse(settings.GetValue(
           new Identifier(identifier, "value").ToString(), "0"),
         NumberStyles.Float, CultureInfo.InvariantCulture,
-        out this.softwareValue)) 
-      {
+        out this.softwareValue)) {
         this.softwareValue = 0;
       }
+
+      if (!float.TryParse(settings.GetValue(
+          new Identifier(identifier, "deviation").ToString(), "50"),
+        NumberStyles.Float, CultureInfo.InvariantCulture,
+        out this.deviationValue)) {
+        this.deviationValue = 0;
+      }
+
       int mode;
       if (!int.TryParse(settings.GetValue(
           new Identifier(identifier, "mode").ToString(),
           ((int)ControlMode.Undefined).ToString(CultureInfo.InvariantCulture)),
         NumberStyles.Integer, CultureInfo.InvariantCulture,
-        out mode)) 
-      {
+        out mode)) {
         this.mode = ControlMode.Undefined;
       } else {
         this.mode = (ControlMode)mode;
@@ -89,12 +94,24 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public void SetDefault() {
-      ControlMode = ControlMode.Default;
+    public float DeviationValue {
+      get {
+        return deviationValue;
+      }
+      private set {
+        if (deviationValue != value) {
+          deviationValue = value;
+          if (DeviationControlValueChanged != null)
+            DeviationControlValueChanged(this);
+          this.settings.SetValue(new Identifier(identifier,
+            "deviation").ToString(),
+            value.ToString(CultureInfo.InvariantCulture));
+        }
+      }
     }
 
-    public void SetAuto() {
-      ControlMode = ControlMode.Auto;
+    public void SetDefault() {
+      ControlMode = ControlMode.Default;
     }
 
     public float MinSoftwareValue {
@@ -114,7 +131,15 @@ namespace OpenHardwareMonitor.Hardware {
       SoftwareValue = value;
     }
 
+    public void SetAuto(float value) {
+      ControlMode = ControlMode.Auto;
+      if (value != -1)
+        DeviationValue = value;
+    }
+
+
     internal event ControlEventHandler ControlModeChanged;
     internal event ControlEventHandler SoftwareControlValueChanged;
+    internal event ControlEventHandler DeviationControlValueChanged;
   }
 }

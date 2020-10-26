@@ -25,14 +25,16 @@ namespace OpenHardwareMonitor.Hardware {
 
     float SoftwareValue { get; }
 
-    void SetDefault();
+    float DeviationValue { get; }
 
-    void SetAuto();
+    void SetDefault();
 
     float MinSoftwareValue { get; }
     float MaxSoftwareValue { get; }
 
     void SetSoftware(float value);
+
+    void SetAuto(float value);
 
   }
 }
