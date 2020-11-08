@@ -23,6 +23,7 @@ using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.WMI;
 using OpenHardwareMonitor.Utilities;
+using System.IO.Ports;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class MainForm : Form {
@@ -65,6 +66,9 @@ namespace OpenHardwareMonitor.GUI {
 
     private UserOption runWebServer;
     private HttpServer server;
+
+    private UserOption runComServer;
+    private ComServer comServer;
 
     private UserOption logSensors;
     private UserRadioGroup loggingInterval;
@@ -291,6 +295,23 @@ namespace OpenHardwareMonitor.GUI {
           server.StartHTTPListener();
         else
           server.StopHTTPListener();
+      };
+
+      comServer = new ComServer(root,
+        this.settings.GetValue("comServerSendInterval", 5000),
+        this.settings.GetValue("comServerPortName", "COM1"),
+        this.settings.GetValue("comServerBaudRate", 9600),
+        this.settings.GetValue("comServerParity", (int)Parity.None),
+        this.settings.GetValue("comServerDataBits", 8),
+        this.settings.GetValue("comServerStopBits", (int)StopBits.One)
+        );
+
+      runComServer = new UserOption("runComServerMenuItem", false, runComServerMenuItem, settings);
+      runComServer.Changed += delegate (object sender, EventArgs e) {
+        if (runComServer.Value)
+          runComServer.Value = comServer.StartServer();
+        else
+          comServer.StopServer();
       };
 
       logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
@@ -607,6 +628,15 @@ namespace OpenHardwareMonitor.GUI {
         this.settings.SetValue("listenerPort", server.ListenerPort);
       }
 
+      if (comServer != null) {
+        this.settings.SetValue("comServerSendInterval", comServer.SendInterval);
+        this.settings.SetValue("comServerPortName", comServer.PortName);
+        this.settings.SetValue("comServerBaudRate", comServer.BaudRate);
+        this.settings.SetValue("comServerParity", comServer.Parity);
+        this.settings.SetValue("comServerDataBits", comServer.DataBits);
+        this.settings.SetValue("comServerStopBits", comServer.StopBits);
+      }
+
       string fileName = Path.ChangeExtension(
           System.Windows.Forms.Application.ExecutablePath, ".config");
       try {
@@ -660,6 +690,8 @@ namespace OpenHardwareMonitor.GUI {
       SaveConfiguration();
       if (runWebServer.Value)
           server.Quit();
+      if (runComServer.Value)
+        comServer.StopServer();
       systemTray.Dispose();
     }
 
@@ -930,5 +962,12 @@ namespace OpenHardwareMonitor.GUI {
       get { return server; }
     }
 
+    public ComServer ComServer {
+      get { return comServer; }
+    }
+
+    private void comSettingsMenuItem_Click(object sender, EventArgs e) {
+      new ComServerSettingsForm(this).ShowDialog();
+    }
   }
 }
