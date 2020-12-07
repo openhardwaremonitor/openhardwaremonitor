@@ -112,6 +112,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 hardware.Add(new AMD10CPU(index, coreThreads, settings));
                 break;
               case 0x17:
+              case 0x19:
                 hardware.Add(new AMD17CPU(index, coreThreads, settings));
                 break;
               default:
