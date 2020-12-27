@@ -282,6 +282,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.Z68X_UD3H_B3;
         case "Z68X-UD7-B3":
           return Model.Z68X_UD7_B3;
+        case "Z68XP-UD3R":
+          return Model.Z68XP_UD3R;
         case "Z390 M GAMING-CF":
           return Model.Z390_M_GAMING;
         case "Z390 AORUS ULTRA":

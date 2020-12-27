@@ -864,6 +864,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
             case Model.P67A_UD4_B3: // IT8728F                
             case Model.Z68AP_D3: // IT8728F
             case Model.Z68X_UD3H_B3: // IT8728F               
+            case Model.Z68XP_UD3R: // IT8728F
               v.Add(new Voltage("VTT", 0));
               v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
               v.Add(new Voltage("+12V", 2, 30.9f, 10));
