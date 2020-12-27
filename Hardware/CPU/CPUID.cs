@@ -168,6 +168,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       nameBuilder.Replace("with Radeon Vega Mobile Gfx", "");
       nameBuilder.Replace("w/ Radeon Vega Mobile Gfx", "");
       nameBuilder.Replace("with Radeon Vega Graphics", "");
+      nameBuilder.Replace("with Radeon Graphics", "");
       nameBuilder.Replace("APU with Radeon(tm) HD Graphics", "");
       nameBuilder.Replace("APU with Radeon(TM) HD Graphics", "");
       nameBuilder.Replace("APU with AMD Radeon R2 Graphics", "");
@@ -220,7 +221,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           coreMaskWith = NextLog2(maxCoreIdPerPackage);
           break;
         case Vendor.AMD:
-          if (this.family == 0x17) {
+          if (this.family == 0x17 || this.family == 0x19) {
             coreMaskWith = (cpuidExtData[8, 2] >> 12) & 0xF;
             threadMaskWith =
               NextLog2(((cpuidExtData[0x1E, 1] >> 8) & 0xFF) + 1);
