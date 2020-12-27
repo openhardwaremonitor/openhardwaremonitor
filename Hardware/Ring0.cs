@@ -80,9 +80,9 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private static bool ExtractDriver(string fileName) {
-      string resourceName = "OpenHardwareMonitor.Hardware." +
-        (OperatingSystem.Is64BitOperatingSystem ? "WinRing0x64.sys" : 
-        "WinRing0.sys");
+      var assemblyName = Assembly.GetExecutingAssembly().GetName().Name;
+      var resourceFileName = OperatingSystem.Is64BitOperatingSystem ? "WinRing0x64.sys" : "WinRing0.sys";
+      string resourceName = $"{assemblyName}.Hardware.{resourceFileName}";
 
       string[] names = GetAssembly().GetManifestResourceNames();
       byte[] buffer = null;
@@ -202,7 +202,7 @@ namespace OpenHardwareMonitor.Hardware {
         isaBusMutex = new Mutex(false, isaMutexName);
       } catch (UnauthorizedAccessException) {
         try {
-          isaBusMutex = Mutex.OpenExisting(isaMutexName, MutexRights.Synchronize);
+          isaBusMutex = Mutex.OpenExisting(isaMutexName);
         } catch { }
       }
 
@@ -211,7 +211,7 @@ namespace OpenHardwareMonitor.Hardware {
         pciBusMutex = new Mutex(false, pciMutexName);
       } catch (UnauthorizedAccessException) {
         try {
-          pciBusMutex = Mutex.OpenExisting(pciMutexName, MutexRights.Synchronize);
+          pciBusMutex = Mutex.OpenExisting(pciMutexName);
         } catch { }
       }
     }
