@@ -368,15 +368,16 @@ namespace OpenHardwareMonitor.GUI {
 
       showPlot = new UserOption("plotMenuItem", false, plotMenuItem, settings);
       plotLocation = new UserRadioGroup("plotLocation", 0,
-        new[] { plotWindowMenuItem, plotBottomMenuItem, plotRightMenuItem },
+        new[] { plotWindowMenuItem, plotWindowIndepMenuItem, plotBottomMenuItem, plotRightMenuItem },
         settings);
 
       showPlot.Changed += delegate(object sender, EventArgs e) {
-        if (plotLocation.Value == 0) {
+        if (plotLocation.Value <= 1)
+        {
           if (showPlot.Value && this.Visible)
             plotForm.Show();
           else
-            plotForm.Hide();
+            plotForm.Hide(); // only non independent window
         } else {
           splitContainer.Panel2Collapsed = !showPlot.Value;
         }
@@ -384,21 +385,22 @@ namespace OpenHardwareMonitor.GUI {
       };
       plotLocation.Changed += delegate(object sender, EventArgs e) {
         switch (plotLocation.Value) {
-          case 0:
+          case 0: // Window
+          case 1: // Window Indep.
             splitContainer.Panel2.Controls.Clear();
             splitContainer.Panel2Collapsed = true;
             plotForm.Controls.Add(plotPanel);
             if (showPlot.Value && this.Visible)
               plotForm.Show();
             break;
-          case 1:
+          case 2: // Bottom
             plotForm.Controls.Clear();
             plotForm.Hide();
             splitContainer.Orientation = Orientation.Horizontal;
             splitContainer.Panel2.Controls.Add(plotPanel);
             splitContainer.Panel2Collapsed = !showPlot.Value;
             break;
-          case 2:
+          case 3: // Right
             plotForm.Controls.Clear();
             plotForm.Hide();
             splitContainer.Orientation = Orientation.Vertical;
@@ -411,7 +413,7 @@ namespace OpenHardwareMonitor.GUI {
       plotForm.FormClosing += delegate(object sender, FormClosingEventArgs e) {
         if (e.CloseReason == CloseReason.UserClosing) {
           // just switch off the plotting when the user closes the form
-          if (plotLocation.Value == 0) {
+          if (plotLocation.Value <= 1){
             showPlot.Value = false;
           }
           e.Cancel = true;
@@ -443,10 +445,11 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       this.VisibleChanged += delegate(object sender, EventArgs e) {
-        if (this.Visible && showPlot.Value && plotLocation.Value == 0)
+        if (this.Visible && showPlot.Value && plotLocation.Value <= 1)
           plotForm.Show();
         else
-          plotForm.Hide();
+          if(plotLocation.Value == 0)
+            plotForm.Hide();
       };
     }
 
