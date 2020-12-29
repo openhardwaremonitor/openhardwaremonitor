@@ -29,6 +29,7 @@ namespace OpenHardwareMonitor.Hardware {
     private float? currentValue;
     private float? minValue;
     private float? maxValue;
+    private float? avgValue;
     private readonly RingCollection<SensorValue> 
       values = new RingCollection<SensorValue>();
     private readonly ISettings settings;
@@ -36,6 +37,7 @@ namespace OpenHardwareMonitor.Hardware {
     
     private float sum;
     private int count;
+    private int countForAvg = 0;
    
     public Sensor(string name, int index, SensorType sensorType,
       Hardware hardware, ISettings settings) : 
@@ -131,6 +133,14 @@ namespace OpenHardwareMonitor.Hardware {
       } 
 
       values.Append(new SensorValue(value, time));
+
+      // Calculate moving average
+      if (!float.IsNaN(value)) {
+          if (avgValue == null) avgValue = 0.0f;
+
+        countForAvg += 1;
+        avgValue = ((avgValue * (countForAvg - 1)) + value) / countForAvg;
+      }
     }
 
     public IHardware Hardware {
@@ -204,12 +214,18 @@ namespace OpenHardwareMonitor.Hardware {
     public float? Min { get { return minValue; } }
     public float? Max { get { return maxValue; } }
 
+    public float? Average {  get { return avgValue; } }
+
     public void ResetMin() {
       minValue = null;
     }
 
     public void ResetMax() {
       maxValue = null;
+    }
+
+    public void ResetAvg() {
+      avgValue = null;
     }
 
     public IEnumerable<SensorValue> Values {
