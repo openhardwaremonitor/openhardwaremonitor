@@ -249,7 +249,7 @@ namespace OpenHardwareMonitor.GUI {
       }
       graphics.FillRectangle(darkBrush, 0.5f, -0.5f, bitmap.Width - 2, bitmap.Height);
       float value = sensor.Value.GetValueOrDefault();
-      float y = 0.16f * (100 - value);
+      float y = (float)bitmap.Height/100 * (100 - value);
       graphics.FillRectangle(brush, 0.5f, -0.5f + y, bitmap.Width - 2, bitmap.Height - y);
       graphics.DrawRectangle(pen, 1, 0, bitmap.Width - 3, bitmap.Height - 1);
 

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+!!! BE CAREFUL, IMPROPER CONTROL CAN DAMAGE YOUR HARDWARE. !!!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is an example of FanControllers.config.
+FanControllers.config needs to be created in the same folder as OpenHardwareMonitor.exe file.
+
+See FanControllers.config.parsing.log to debug errors in this configuration file.
+
+See OpenHardwareMonitor.Report.txt (Menu/File/Save report) to determine existing sensors ids.
+
+Use enableLog="yes" to debug signal readings and control events, "FanControllers.log" will
+be created near OpenHardwareMonitor.exe.
+
+
+Example (All Fans):
+	fanController name="All Fans"
+	"/lpc/nct6776f/control/1" controls speed of all fans on the "Supermicro X10SAE" motherboard.
+
+	All controlSignals provide desired target every 2 seconds:
+		CPU Temp: 60 C => target 50%
+		GPU Temp: 55 C => target 37%
+		CPU Load: 100% => target 60%
+		GPU Load:   8% => target 25%
+		CPU Temp: 60 C => target 50%
+		HDD0Temp: 38 C => target 25%
+		HDD1Temp: 39 C => target 25%
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		Max target = 60%
+		Set "/lpc/nct6776f/control/1" = 60%
+
+Example (Two Fans controlled independently):
+	fanController name="CPU Fan" controlledSensorId="/lpc/nct6776f/control/0"
+		controlSignal name="CPU Temp" id="/intelcpu/0/temperature/4"
+			points...
+	fanController name="Case Fans" controlledSensorId="/lpc/nct6776f/control/3"
+		controlSignal name="CPU Temp" id="/intelcpu/0/temperature/4"
+			points...
+		controlSignal name="GPU Temp" id="/nvidiagpu/0/temperature/0"
+			points...
+-->
+
+<configuration>
+	<fanControllers alwaysSaveParsingLog="no" enableLog="no">
+
+		<!--
+		The fanController changes controlledSensorId (fan speed) in range [minTarget, maxTarget].
+		The fanController applies the highest target (fan speed) of all defined controlSignals inside fanController.
+		controlledSensorId can be determined from OpenHardwareMonitor.Report.txt (Menu/File/Save report).
+		-->
+		<fanController name="All Fans"
+				controlledSensorId="/lpc/nct6776f/control/1"
+				minTarget="25"
+				maxTarget="100"
+				tickIntervalSeconds="2"
+				enableLog="no" >
+
+			<!--
+			The slowTargetController delays the fan speed decrease to exhaust heat after a heavy load period.
+			-->
+			<slowTargetController smaPeriod="20" delayPeriod="30" enableLog="no" />
+
+			<!--
+			This controlSignal reads CPU temperature 'value' and interpolates desired Fan speed 'target' (%).
+			'name' User friendly name (unused).
+			'id' can be determined from OpenHardwareMonitor.Report.txt (Menu/File/Save report).
+			'smaPeriod' enables smoothing of value readings. Use 0 to disable smoothing.
+			-->
+			<controlSignal name="CPU Temp" id="/intelcpu/0/temperature/4" smaPeriod="4" enableLog="no" >
+				<!--
+				If CPU Temp <= 40 C, then set 25% fan speed
+				If CPU Temp 40-60 C, then set 25-50% fan speed
+				If CPU Temp 60-80 C, then set 50-100% fan speed
+				If CPU Temp >= 80 C, then set 100% fan speed
+				-->
+				<point value="40" target="25"/>
+				<point value="60" target="50"/>
+				<point value="80" target="100"/>
+			</controlSignal>
+
+			<!--
+			This controlSignal reads GPU temperature 'value' and interpolates desired Fan speed 'target' (%).
+			-->
+			<controlSignal name="GPU Temp" id="/nvidiagpu/0/temperature/0" smaPeriod="4" enableLog="no" >
+				<point value="50" target="25"/>
+				<point value="60" target="50"/>
+				<point value="75" target="80"/>
+			</controlSignal>
+
+			<!--
+			This controlSignal reads CPU load 'value' and interpolates desired Fan speed 'target' (%).
+			-->
+			<controlSignal name="CPU Load" id="/intelcpu/0/load/0" smaPeriod="10" enableLog="no" >
+				<point value="40" target="25"/>
+				<point value="60" target="40"/>
+				<point value="100" target="60"/>
+			</controlSignal>
+
+			<!--
+			This controlSignal reads GPU load 'value' and interpolates desired Fan speed 'target' (%).
+			-->
+			<controlSignal name="GPU Load" id="/nvidiagpu/0/load/0" smaPeriod="10" enableLog="no" >
+				<point value="20" target="25"/>
+				<point value="50" target="60"/>
+				<point value="100" target="80"/>
+			</controlSignal>
+
+			<!--
+			This controlSignal reads HDD0 temperature 'value' and interpolates desired Fan speed 'target' (%).
+			-->
+			<controlSignal name="HDD0 Temp" id="/hdd/0/temperature/0" smaPeriod="4" enableLog="no" >
+				<point value="42" target="25"/>
+				<point value="45" target="40"/>
+				<point value="55" target="100"/>
+			</controlSignal>
+
+			<!--
+			This controlSignal reads HDD1 temperature 'value' and interpolates desired Fan speed 'target' (%).
+			-->
+			<controlSignal name="HDD1 Temp" id="/hdd/1/temperature/0" smaPeriod="4" enableLog="no" >
+				<point value="42" target="25"/>
+				<point value="45" target="40"/>
+				<point value="55" target="100"/>
+			</controlSignal>
+
+		</fanController>
+
+	</fanControllers>
+</configuration>
