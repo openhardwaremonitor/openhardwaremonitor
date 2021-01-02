@@ -597,6 +597,7 @@ namespace OpenHardwareMonitor.GUI {
         return;
 
       if (plotPanel != null) {
+        settings.SetValue("splitContainer.SplitterDistance", splitContainer.SplitterDistance);
         plotPanel.SetCurrentSettings();
         foreach (TreeColumn column in treeView.Columns)
           settings.SetValue("treeView.Columns." + column.Header + ".Width",
@@ -650,6 +651,9 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       this.Bounds = newBounds;
+
+      if (!splitContainer.Panel2Collapsed)
+        splitContainer.SplitterDistance = settings.GetValue("splitContainer.SplitterDistance", splitContainer.SplitterDistance);
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
