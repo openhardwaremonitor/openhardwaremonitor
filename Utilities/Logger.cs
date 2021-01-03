@@ -17,6 +17,8 @@ using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.Utilities {
   public class Logger {
+    // status of logger after writing to log file
+    public enum Status { Success, Wait, FileLocked };
 
     private const string fileNameFormat = 
       "OpenHardwareMonitorLog-{0:yyyy-MM-dd}.csv";
@@ -113,15 +115,15 @@ namespace OpenHardwareMonitor.Utilities {
     }
 
     private void CreateNewLogFile() {
-      IList<ISensor> list = new List<ISensor>();
-      SensorVisitor visitor = new SensorVisitor(sensor => {
-        list.Add(sensor);
-      });
-      visitor.VisitComputer(computer);
-      sensors = list.ToArray();
-      identifiers = sensors.Select(s => s.Identifier.ToString()).ToArray();
-
       using (StreamWriter writer = new StreamWriter(fileName, false)) {
+        IList<ISensor> list = new List<ISensor>();
+        SensorVisitor visitor = new SensorVisitor(sensor => {
+          list.Add(sensor);
+        });
+        visitor.VisitComputer(computer);
+        sensors = list.ToArray();
+        identifiers = sensors.Select(s => s.Identifier.ToString()).ToArray();
+
         writer.Write(",");
         for (int i = 0; i < sensors.Length; i++) {
           writer.Write(sensors[i].Identifier);
@@ -146,18 +148,24 @@ namespace OpenHardwareMonitor.Utilities {
 
     public TimeSpan LoggingInterval { get; set; }
 
-    public void Log() {      
+    public Status Log() {  
       var now = DateTime.Now;
 
       if (lastLoggedTime + LoggingInterval - new TimeSpan(5000000) > now)
-        return;      
+        return Status.Wait;
 
       if (day != now.Date || !File.Exists(fileName)) {
         day = now.Date;
-        fileName = GetFileName(day);
+        fileName = GetFileName(now.Date);
 
-        if (!OpenExistingLogFile())
-          CreateNewLogFile();
+        if (!OpenExistingLogFile()) {
+          try {
+            CreateNewLogFile();
+          } catch (IOException) { 
+            day = DateTime.MinValue;
+            return Status.FileLocked;
+          }
+        }
       }
 
       try {
@@ -178,9 +186,12 @@ namespace OpenHardwareMonitor.Utilities {
               writer.WriteLine();
           }
         }
-      } catch (IOException) { }
+      } catch (IOException) {
+        return Status.FileLocked;
+      }
 
       lastLoggedTime = now;
+      return Status.Success;
     }
   }
 }
