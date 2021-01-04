@@ -103,7 +103,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
-            chip == Chip.IT879XE) 
+            chip == Chip.IT879XE ||
+            chip == Chip.IT8669E) 
         {
           initialFanPwmControlExt[index] =
             ReadByte(FAN_PWM_CTRL_EXT_REG[index], out _);
@@ -128,7 +129,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
-            chip == Chip.IT879XE) 
+            chip == Chip.IT879XE ||
+            chip == Chip.IT8669E) 
         {
           WriteByte(FAN_PWM_CTRL_EXT_REG[index], initialFanPwmControlExt[index]);
         }
@@ -157,7 +159,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
-            chip == Chip.IT879XE) 
+            chip == Chip.IT879XE ||
+            chip == Chip.IT8669E) 
         { 
           WriteByte(FAN_PWM_CTRL_REG[index],
             (byte)(initialFanPwmControl[index] & 0x7F));
@@ -222,6 +225,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           controls = new float?[3];
           break;
         case Chip.IT8705F:
+        case Chip.IT8669E:
           voltages = new float?[9];
           temperatures = new float?[3];
           fans = new float?[3];
@@ -426,7 +430,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               chip == Chip.IT8665E ||
               chip == Chip.IT8686E ||
               chip == Chip.IT8688E ||
-              chip == Chip.IT879XE)
+              chip == Chip.IT879XE ||
+              chip == Chip.IT8669E)
           {
             value = ReadByte(FAN_PWM_CTRL_EXT_REG[i], out valid);
             if (valid)
