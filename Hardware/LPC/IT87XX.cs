@@ -34,7 +34,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly bool has16bitFanCounter;
    
     // Consts
-    private const byte ITE_VENDOR_ID = 0x90;
+    private readonly byte[] ITE_VENDOR_IDS = { 0x7F, 0x90 };
        
     // Environment Controller
     private const byte ADDRESS_REGISTER_OFFSET = 0x05;
@@ -99,7 +99,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             (ReadByte(FAN_MAIN_CTRL_REG, out _) & (1 << index)) > 0;
         }
 
-        if (chip == Chip.IT8721F || 
+        if (chip == Chip.IT8721F ||
+            chip == Chip.IT8655E ||
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
@@ -125,6 +126,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
 
         if (chip == Chip.IT8721F ||
+            chip == Chip.IT8655E ||
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
@@ -154,6 +156,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         }
 
         if (chip == Chip.IT8721F ||
+            chip == Chip.IT8655E ||
             chip == Chip.IT8665E ||
             chip == Chip.IT8686E ||
             chip == Chip.IT8688E ||
@@ -184,7 +187,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       // Check vendor id
       bool valid;
       byte vendorId = ReadByte(VENDOR_ID_REGISTER, out valid);
-      if (!valid || vendorId != ITE_VENDOR_ID)
+      if (!valid || Array.IndexOf(ITE_VENDOR_IDS, vendorId) < 0)
         return;
 
       // Bit 0x10 of the configuration register should always be 1
@@ -214,6 +217,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           voltages = new float?[9];
           temperatures = new float?[6];
           fans = new float?[3];
+          controls = new float?[3];
           break;
         case Chip.IT879XE:
           voltages = new float?[9];
@@ -423,6 +427,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         } else {
           // software operation
           if (chip == Chip.IT8721F ||
+              chip == Chip.IT8655E ||
               chip == Chip.IT8665E ||
               chip == Chip.IT8686E ||
               chip == Chip.IT8688E ||
