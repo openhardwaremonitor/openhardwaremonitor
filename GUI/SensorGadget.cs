@@ -115,21 +115,21 @@ namespace OpenHardwareMonitor.GUI {
         } catch { }
       }
 
-      this.Location = new Point(
-        settings.GetValue("sensorGadget.Location.X", 100),
-        settings.GetValue("sensorGadget.Location.Y", 100)); 
-      LocationChanged += delegate(object sender, EventArgs e) {
-        settings.SetValue("sensorGadget.Location.X", Location.X);
-        settings.SetValue("sensorGadget.Location.Y", Location.Y);
-      };
-
       // get the custom to default dpi ratio
       using (Bitmap b = new Bitmap(1, 1)) {
         scale = b.HorizontalResolution / 96.0f;
       }
 
+      Location = new Point(
+        (int)(settings.GetValue("sensorGadget.Location.X", 100) * scale),
+        (int)(settings.GetValue("sensorGadget.Location.Y", 100) * scale));
+      LocationChanged += delegate(object sender, EventArgs e) {
+        settings.SetValue("sensorGadget.Location.X", (int)(Location.X / scale));
+        settings.SetValue("sensorGadget.Location.Y", (int)(Location.Y / scale));
+      };
+
       SetFontSize(settings.GetValue("sensorGadget.FontSize", 7.5f));
-      Resize(settings.GetValue("sensorGadget.Width", Size.Width));
+      Resize((int)(settings.GetValue("sensorGadget.Width", Size.Width) * scale));
       
       ContextMenu contextMenu = new ContextMenu();
       MenuItem hardwareNamesItem = new MenuItem("Hardware Names");
@@ -211,7 +211,7 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       SizeChanged += delegate(object sender, EventArgs e) {
-        settings.SetValue("sensorGadget.Width", Size.Width);
+        settings.SetValue("sensorGadget.Width", (int)(Size.Width / scale));
         Redraw();
       };
 
