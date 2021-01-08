@@ -56,11 +56,16 @@ namespace OpenHardwareMonitor.GUI {
       CreateBuffer();
     }
 
-    private void ShowDesktopChanged(bool showDesktop) {
-      if (showDesktop) {
-        MoveToTopMost(Handle);
-      } else {
-        MoveToBottom(Handle);
+    private void ShowDesktopChanged(bool fullscreen) {
+      if (fullscreen) {
+        if (ShowDesktop.IsForegroundExplorer()) {//explorer shouldn't be considered as a fullscreen application
+          MoveToBottom(Handle);
+        }
+      }
+      else {//not fullscreen
+        if (alwaysOnTop && Handle != ShowDesktop.GetForegroundWindow()) {//(alwaysOnTop is set) && (it's not foreground window)
+          MoveToTopMost(Handle);
+        }
       }
     }
 
@@ -284,17 +289,17 @@ namespace OpenHardwareMonitor.GUI {
       get {
         return visible;
       }
-      set {
+      set {//only call once in option change
         if (visible != value) {
           visible = value;
           NativeMethods.SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER |
             (value ? SWP_SHOWWINDOW : SWP_HIDEWINDOW));
           if (value) {
-            if (!alwaysOnTop)
+            //if (!alwaysOnTop)
               ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
           } else {
-            if (!alwaysOnTop)
+            //if (!alwaysOnTop)
               ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
           }
         }
@@ -319,13 +324,13 @@ namespace OpenHardwareMonitor.GUI {
         if (value != alwaysOnTop) {
           alwaysOnTop = value;
           if (alwaysOnTop) {
-            if (visible)
-              ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
+            //if (visible)
+             // ShowDesktop.Instance.ShowDesktopChanged -= ShowDesktopChanged;
             MoveToTopMost(Handle);            
           } else {
             MoveToBottom(Handle);
-            if (visible)
-              ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
+            //if (visible)
+              //ShowDesktop.Instance.ShowDesktopChanged += ShowDesktopChanged;
           }
         }
       }
