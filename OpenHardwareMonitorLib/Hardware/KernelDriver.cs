@@ -68,10 +68,12 @@ namespace OpenHardwareMonitor.Hardware {
       try {
         // restrict the driver access to system (SY) and builtin admins (BA)
         // TODO: replace with a call to IoCreateDeviceSecure in the driver
-        FileSecurity fileSecurity = File.GetAccessControl(@"\\.\" + id);
+        ;
+        var finfo = new FileInfo(@"\\.\" + id);
+        FileSecurity fileSecurity = finfo.GetAccessControl();
         fileSecurity.SetSecurityDescriptorSddlForm(
           "O:BAG:SYD:(A;;FA;;;SY)(A;;FA;;;BA)");
-        File.SetAccessControl(@"\\.\" + id, fileSecurity);
+        finfo.SetAccessControl(fileSecurity);
       } catch { }
 
       errorMessage = null;
