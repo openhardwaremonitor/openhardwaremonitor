@@ -1,81 +1,27 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E73BB233-D88B-44A7-A98F-D71EE158381D}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aga.Controls</RootNamespace>
-    <AssemblyName>Aga.Controls</AssemblyName>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <SignAssembly>false</SignAssembly>
-    <AssemblyOriginatorKeyFile>
-    </AssemblyOriginatorKeyFile>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkProfile />
+      <OutputType>Library</OutputType>
+      <TargetFramework>net5.0-windows</TargetFramework>
+
+      <UseWindowsForms>true</UseWindowsForms>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <EnableDefaultItems>false</EnableDefaultItems>
+
+      <RootNamespace>Aga.Controls</RootNamespace>
+      <AssemblyName>Aga.Controls</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>Bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PERF_TEST</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRules>
-    </CodeAnalysisRules>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+      <OutputPath>Bin\Debug\</OutputPath>
+      <DefineConstants>TRACE;DEBUG;PERF_TEST</DefineConstants>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>Bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+      <OutputPath>Bin\Release\</OutputPath>
+      <DefineConstants>TRACE</DefineConstants>
+      <WarningLevel>5</WarningLevel>
+      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Design" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="GifDecoder.cs" />
     <Compile Include="PerformanceAnalyzer.cs" />
@@ -102,9 +48,7 @@
     <Compile Include="Tree\NodeControls\NodeDecimalTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="NumericTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="NumericTextBox.cs" />
     <Compile Include="Tree\NodeControls\ExpandingIcon.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -118,15 +62,9 @@
     <Compile Include="Tree\AutoRowHeightLayout.cs" />
     <Compile Include="Tree\Input\ClickColumnState.cs" />
     <Compile Include="Tree\Input\ColumnState.cs" />
-    <Compile Include="Tree\TreeViewAdv.Draw.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Tree\TreeViewAdv.Editor.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Tree\TreeViewAdv.Input.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Tree\TreeViewAdv.Draw.cs" />
+    <Compile Include="Tree\TreeViewAdv.Editor.cs" />
+    <Compile Include="Tree\TreeViewAdv.Input.cs" />
     <Compile Include="Tree\IRowLayout.cs" />
     <Compile Include="Tree\FixedRowHeightLayout.cs" />
     <Compile Include="Tree\NodeControlInfo.cs" />
@@ -136,9 +74,7 @@
     </Compile>
     <Compile Include="Tree\IncrementalSearch.cs" />
     <Compile Include="TextHelper.cs" />
-    <Compile Include="Tree\TreeViewAdv.Properties.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Tree\TreeViewAdv.Properties.cs" />
     <Compile Include="Tree\TreeListAdapter.cs" />
     <Compile Include="Tree\TreeNodeAdvMouseEventArgs.cs" />
     <Compile Include="Tree\Node.cs" />
@@ -198,15 +134,11 @@
     <Compile Include="Tree\TreeModelEventArgs.cs" />
     <Compile Include="Tree\TreeNodeAdv.cs" />
     <Compile Include="Tree\TreePath.cs" />
-    <Compile Include="Tree\TreeViewAdv.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Tree\TreeViewAdv.cs" />
     <Compile Include="Tree\TreeViewAdv.Designer.cs">
       <DependentUpon>TreeViewAdv.cs</DependentUpon>
     </Compile>
     <Compile Include="Tree\TreeViewRowDrawEventArgs.cs" />
-    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
-    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\minus.bmp" />
@@ -237,29 +169,4 @@
   <ItemGroup>
     <Content Include="Resources\DVSplit.cur" />
   </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

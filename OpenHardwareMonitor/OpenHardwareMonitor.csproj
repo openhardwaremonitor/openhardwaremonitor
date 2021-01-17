@@ -1,0 +1,149 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    
+    <UseWindowsForms>true</UseWindowsForms>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    
+    <AssemblyName>OpenHardwareMonitor</AssemblyName>
+    <RootNamespace>OpenHardwareMonitor</RootNamespace>
+    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+    <ApplicationManifest>Resources\app.manifest</ApplicationManifest>
+    <MapFileExtensions>true</MapFileExtensions>
+  </PropertyGroup>
+  
+
+  <ItemGroup>
+    <Compile Include="..\AssemblyVersion.cs">
+      <Link>Properties\AssemblyVersion.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ati.png">
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\bigng.png" />
+    <EmbeddedResource Include="Resources\clock.png" />
+    <EmbeddedResource Include="Resources\computer.png" />
+    <EmbeddedResource Include="Resources\cpu.png" />
+    <EmbeddedResource Include="Resources\fan.png" />
+    <EmbeddedResource Include="Resources\temperature.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\chip.png" />
+    <EmbeddedResource Include="Resources\hdd.png" />
+    <EmbeddedResource Include="Resources\load.png" />
+    <EmbeddedResource Include="Resources\voltage.png" />
+    <EmbeddedResource Include="Resources\nvidia.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\app.manifest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Resources\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\smallicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\flow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\mainboard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\control.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\External\Aga.Controls\Aga.Controls.csproj">
+      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
+      <Name>Aga.Controls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\External\OxyPlot\OxyPlot.WindowsForms\OxyPlot.WindowsForms.csproj">
+      <Project>{d4554296-094e-4cac-8eae-44eb250666c6}</Project>
+      <Name>OxyPlot.WindowsForms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\External\OxyPlot\OxyPlot\OxyPlot.csproj">
+      <Project>{bcc43e58-e473-403e-a84d-63fedc723040}</Project>
+      <Name>OxyPlot</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\barback.png" />
+    <EmbeddedResource Include="Resources\barblue.png" />
+    <EmbeddedResource Include="Resources\gadget.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\level.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\power.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\data.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\factor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\js\jquery-ui-1.8.16.custom.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\jquery.tmpl.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\jquery.treeTable.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\ohm_web.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\images\toggle-collapse-dark.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-collapse-light.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-expand-dark.png" />
+    <EmbeddedResource Include="Resources\Web\images\toggle-expand-light.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_flat_0_aaaaaa_40x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_55_fbf9ee_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_65_ffffff_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_dadada_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_e6e6e6_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_glass_75_ffffff_1x400.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_highlight-soft_75_cccccc_1x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-bg_inset-soft_95_fef1ec_1x100.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_222222_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_2e83ff_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_454545_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_888888_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\images\ui-icons_cd0a0a_256x240.png" />
+    <EmbeddedResource Include="Resources\Web\css\custom-theme\jquery-ui-1.8.16.custom.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\css\jquery.treeTable.css" />
+    <EmbeddedResource Include="Resources\Web\css\ohm_web.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\images\transparent.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Web\js\jquery-1.7.2.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\knockout-2.1.0.min.js" />
+    <EmbeddedResource Include="Resources\Web\js\knockout.mapping-latest.min.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\ram.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\throughput.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="5.0.0" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)\Licenses\*.*" "$(TargetDir)"</PostBuildEvent>
+    <StartupObject>OpenHardwareMonitor.Program</StartupObject>
+  </PropertyGroup>
+</Project>
