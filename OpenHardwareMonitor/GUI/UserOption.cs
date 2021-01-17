@@ -17,12 +17,12 @@ namespace OpenHardwareMonitor.GUI {
   public class UserOption {
     private string name;
     private bool value;
-    private MenuItem menuItem;
+    private ToolStripMenuItem menuItem;
     private event EventHandler changed;
     private PersistentSettings settings;
 
     public UserOption(string name, bool value,
-      MenuItem menuItem, PersistentSettings settings) {
+      ToolStripMenuItem menuItem, PersistentSettings settings) {
 
       this.settings = settings;
       this.name = name;
