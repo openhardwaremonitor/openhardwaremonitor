@@ -17,7 +17,7 @@
         </AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <DefineConstants>TRACE;LINQBRIDGE_LIB</DefineConstants>
+      <DefineConstants>TRACE;DEBUG;LINQBRIDGE_LIB</DefineConstants>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
       <DefineConstants>TRACE;LINQBRIDGE_LIB</DefineConstants>
