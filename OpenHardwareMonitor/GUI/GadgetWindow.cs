@@ -27,7 +27,7 @@ namespace OpenHardwareMonitor.GUI {
     private byte opacity = 255;
     private Point location = new Point(100, 100);
     private Size size = new Size(130, 84);
-    private ContextMenu contextMenu = null;
+    private ContextMenuStrip contextMenu = null;
     private MethodInfo commandDispatch;
     private IntPtr handleBitmapDC;
     private Size bufferSize;
@@ -366,7 +366,7 @@ namespace OpenHardwareMonitor.GUI {
 
     public event EventHandler LocationChanged;
 
-    public ContextMenu ContextMenu {
+    public ContextMenuStrip ContextMenu {
       get {
         return contextMenu;
       }

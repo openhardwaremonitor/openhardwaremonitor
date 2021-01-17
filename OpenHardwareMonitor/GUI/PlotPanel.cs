@@ -46,7 +46,7 @@ namespace OpenHardwareMonitor.GUI {
       this.plot.Dock = DockStyle.Fill;
       this.plot.Model = model;
       this.plot.BackColor = Color.White;
-      this.plot.ContextMenu = CreateMenu();
+      this.plot.ContextMenuStrip = CreateMenu();
 
       UpdateAxesPosition();
 
@@ -65,49 +65,49 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private ContextMenu CreateMenu() {
-      ContextMenu menu = new ContextMenu();
+    private ContextMenuStrip CreateMenu() {
+      ContextMenuStrip menu = new ContextMenuStrip();
 
-      MenuItem stackedAxesMenuItem = new MenuItem("Stacked Axes");
+      ToolStripMenuItem stackedAxesMenuItem = new ToolStripMenuItem("Stacked Axes");
       stackedAxes = new UserOption("stackedAxes", true,
         stackedAxesMenuItem, settings);
       stackedAxes.Changed += (sender, e) => {
         UpdateAxesPosition();
         InvalidatePlot();
       };
-      menu.MenuItems.Add(stackedAxesMenuItem);
+      menu.Items.Add(stackedAxesMenuItem);
 
-      MenuItem timeWindow = new MenuItem("Time Window");
-      MenuItem[] timeWindowMenuItems =
-        { new MenuItem("Auto", 
+      ToolStripMenuItem timeWindow = new ToolStripMenuItem("Time Window");
+      ToolStripMenuItem[] timeWindowMenuItems =
+        { new ToolStripMenuItem("Auto", null,
             (s, e) => { timeAxis.Zoom(0, double.NaN); InvalidatePlot(); }),
-          new MenuItem("5 min", 
+          new ToolStripMenuItem("5 min",  null,
             (s, e) => { timeAxis.Zoom(0, 5 * 60); InvalidatePlot(); }),
-          new MenuItem("10 min", 
+          new ToolStripMenuItem("10 min",  null,
             (s, e) => { timeAxis.Zoom(0, 10 * 60); InvalidatePlot(); }),
-          new MenuItem("20 min", 
+          new ToolStripMenuItem("20 min",  null,
             (s, e) => { timeAxis.Zoom(0, 20 * 60); InvalidatePlot(); }),
-          new MenuItem("30 min", 
+          new ToolStripMenuItem("30 min",  null,
             (s, e) => { timeAxis.Zoom(0, 30 * 60); InvalidatePlot(); }),
-          new MenuItem("45 min", 
+          new ToolStripMenuItem("45 min",  null,
             (s, e) => { timeAxis.Zoom(0, 45 * 60); InvalidatePlot(); }),
-          new MenuItem("1 h", 
+          new ToolStripMenuItem("1 h",  null,
             (s, e) => { timeAxis.Zoom(0, 60 * 60); InvalidatePlot(); }),
-          new MenuItem("1.5 h", 
+          new ToolStripMenuItem("1.5 h",  null,
             (s, e) => { timeAxis.Zoom(0, 1.5 * 60 * 60); InvalidatePlot(); }),
-          new MenuItem("2 h", 
+          new ToolStripMenuItem("2 h",  null,
             (s, e) => { timeAxis.Zoom(0, 2 * 60 * 60); InvalidatePlot(); }),
-          new MenuItem("3 h", 
+          new ToolStripMenuItem("3 h",  null,
             (s, e) => { timeAxis.Zoom(0, 3 * 60 * 60); InvalidatePlot(); }),
-          new MenuItem("6 h", 
+          new ToolStripMenuItem("6 h",  null,
             (s, e) => { timeAxis.Zoom(0, 6 * 60 * 60); InvalidatePlot(); }),
-          new MenuItem("12 h", 
+          new ToolStripMenuItem("12 h",  null,
             (s, e) => { timeAxis.Zoom(0, 12 * 60 * 60); InvalidatePlot(); }),
-          new MenuItem("24 h", 
+          new ToolStripMenuItem("24 h",  null,
             (s, e) => { timeAxis.Zoom(0, 24 * 60 * 60); InvalidatePlot(); }) };
-      foreach (MenuItem mi in timeWindowMenuItems)
-        timeWindow.MenuItems.Add(mi);
-      menu.MenuItems.Add(timeWindow);
+      foreach (ToolStripMenuItem mi in timeWindowMenuItems)
+        timeWindow.DropDownItems.Add(mi);
+      menu.Items.Add(timeWindow);
 
       return menu;
     }
