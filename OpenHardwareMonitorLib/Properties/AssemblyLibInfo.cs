@@ -11,6 +11,7 @@
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 [assembly: AssemblyTitle("Open Hardware Monitor Library")]
 [assembly: AssemblyDescription("")]
@@ -20,6 +21,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2009-2020 Michael Möller")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: SupportedOSPlatform("windows")]
 
 [assembly: ComVisible(false)]
 [assembly: CLSCompliant(true)]
