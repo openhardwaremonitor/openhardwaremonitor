@@ -12,6 +12,7 @@ using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 [assembly: AssemblyTitle("Open Hardware Monitor")]
 [assembly: AssemblyDescription("A tool for monitoring hardware performance. Includes support for various temperature sensors, disk I/O ratings and power consumption.")]
@@ -21,6 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © 2009-2021 Michael Möller et al")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
+[assembly: SupportedOSPlatform("windows")]
 
 [assembly: ComVisible(false)]
 
