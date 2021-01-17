@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitor", "OpenHardwareMonitor.csproj", "{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B0397530-545A-471D-BB74-027AE456DF1A} = {B0397530-545A-471D-BB74-027AE456DF1A}
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8FB5D14-2337-4E78-9333-90BE9A8E8F47}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -23,16 +18,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OxyPlot.WindowsForms", "Ext
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitorLib", "OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj", "{B0397530-545A-471D-BB74-027AE456DF1A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitor", "OpenHardwareMonitor\OpenHardwareMonitor.csproj", "{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E73BB233-D88B-44A7-A98F-D71EE158381D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E73BB233-D88B-44A7-A98F-D71EE158381D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E73BB233-D88B-44A7-A98F-D71EE158381D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -49,6 +42,10 @@ Global
 		{B0397530-545A-471D-BB74-027AE456DF1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0397530-545A-471D-BB74-027AE456DF1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0397530-545A-471D-BB74-027AE456DF1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

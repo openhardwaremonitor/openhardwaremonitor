@@ -59,7 +59,7 @@
     <Reference Include="System.Management" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Properties\AssemblyVersion.cs">
+    <Compile Include="..\AssemblyVersion.cs">
       <Link>Properties\AssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Collections\Pair.cs" />
