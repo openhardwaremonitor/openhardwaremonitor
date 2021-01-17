@@ -1,19 +1,12 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <LangVersion>latest</LangVersion>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OpenHardwareMonitor</RootNamespace>
+    <AssemblyName>OpenHardwareMonitorLib</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-  <PropertyGroup>
-    <WarningLevel>0</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile></DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="Hardware\WinRing0.sys" />
-    <None Remove="Hardware\WinRing0x64.sys" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Properties\AssemblyVersion.cs" Link="Properties\AssemblyVersion.cs" />
   </ItemGroup>
@@ -22,9 +15,12 @@
     <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="5.0.0" />
+    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Threading.AccessControl" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Management" />
   </ItemGroup>
 </Project>
