@@ -156,10 +156,10 @@ namespace OpenHardwareMonitor.GUI {
         fontSizeMenu.DropDownItems.Add(item);
       }
       contextMenu.Items.Add(fontSizeMenu);
-      contextMenu.Items.Add(new ToolStripMenuItem("-"));
+      contextMenu.Items.Add(new ToolStripSeparator());
       ToolStripMenuItem lockItem = new ToolStripMenuItem("Lock Position and Size");
       contextMenu.Items.Add(lockItem);
-      contextMenu.Items.Add(new ToolStripMenuItem("-"));
+      contextMenu.Items.Add(new ToolStripSeparator());
       ToolStripMenuItem alwaysOnTopItem = new ToolStripMenuItem("Always on Top");
       contextMenu.Items.Add(alwaysOnTopItem);
       ToolStripMenuItem opacityMenu = new ToolStripMenuItem("Opacity");

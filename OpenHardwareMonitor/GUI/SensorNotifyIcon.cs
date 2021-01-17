@@ -60,7 +60,7 @@ namespace OpenHardwareMonitor.GUI {
         sensorSystemTray.SendHideShowCommand();
       };
       contextMenu.Items.Add(hideShowItem);
-      contextMenu.Items.Add(new ToolStripMenuItem("-"));
+      contextMenu.Items.Add(new ToolStripSeparator());
       ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove Sensor");
       removeItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.Remove(this.sensor);
@@ -77,7 +77,7 @@ namespace OpenHardwareMonitor.GUI {
         }
       };
       contextMenu.Items.Add(colorItem);
-      contextMenu.Items.Add(new ToolStripMenuItem("-"));
+      contextMenu.Items.Add(new ToolStripSeparator());
       ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
       exitItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendExitCommand();

@@ -751,7 +751,7 @@ namespace OpenHardwareMonitor.GUI {
             };
             treeContextMenu.Items.Add(item);
           }
-          treeContextMenu.Items.Add(new ToolStripMenuItem("-"));
+          treeContextMenu.Items.Add(new ToolStripSeparator());
           {
             ToolStripMenuItem item = new ToolStripMenuItem("Pen Color...");
             item.Click += delegate(object obj, EventArgs args) {
@@ -769,7 +769,7 @@ namespace OpenHardwareMonitor.GUI {
             };
             treeContextMenu.Items.Add(item);
           }
-          treeContextMenu.Items.Add(new ToolStripMenuItem("-"));
+          treeContextMenu.Items.Add(new ToolStripSeparator());
           {
             ToolStripMenuItem item = new ToolStripMenuItem("Show in Tray");
             item.Checked = systemTray.Contains(node.Sensor);
@@ -794,7 +794,7 @@ namespace OpenHardwareMonitor.GUI {
             treeContextMenu.Items.Add(item);
           }
           if (node.Sensor.Control != null) {
-            treeContextMenu.Items.Add(new ToolStripMenuItem("-"));
+            treeContextMenu.Items.Add(new ToolStripSeparator());
             IControl control = node.Sensor.Control;
             ToolStripMenuItem controlItem = new ToolStripMenuItem("Control");
             ToolStripMenuItem defaultItem = new ToolStripMenuItem("Default");

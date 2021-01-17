@@ -42,7 +42,7 @@ namespace OpenHardwareMonitor.GUI {
         SendHideShowCommand();
       };
       contextMenu.Items.Add(hideShowItem);
-      contextMenu.Items.Add(new ToolStripMenuItem("-"));      
+      contextMenu.Items.Add(new ToolStripSeparator());      
       ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
       exitItem.Click += delegate(object obj, EventArgs args) {
         SendExitCommand();
