@@ -49,7 +49,7 @@ namespace OpenHardwareMonitor.GUI {
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveReportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sumbitReportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.MenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.resetMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.mainboardMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,15 +58,15 @@ namespace OpenHardwareMonitor.GUI {
             this.gpuMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fanControllerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.menuItem6 = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetMinMaxMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.MenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuItem3 = new System.Windows.Forms.ToolStripSeparator();
             this.hiddenMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.plotMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gadgetMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.MenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.MenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.columnsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.valueMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -76,7 +76,7 @@ namespace OpenHardwareMonitor.GUI {
             this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minCloseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.separatorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.separatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.temperatureUnitsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.celsiusMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fahrenheitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.GUI {
             this.plotWindowMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.plotBottomMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.plotRightMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.logSeparatorMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.logSeparatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.logSensorsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loggingIntervalMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.log1sMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,7 +100,7 @@ namespace OpenHardwareMonitor.GUI {
             this.log1hMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.log2hMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.log6hMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.webMenuItemSeparator = new System.Windows.Forms.ToolStripMenuItem();
+            this.webMenuItemSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.webMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.runWebServerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.serverPortMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -235,8 +235,7 @@ namespace OpenHardwareMonitor.GUI {
             // MenuItem2
             // 
             this.MenuItem2.Name = "MenuItem2";
-            this.MenuItem2.Size = new System.Drawing.Size(159, 22);
-            this.MenuItem2.Text = "-";
+            this.MenuItem2.Size = new System.Drawing.Size(156, 6);
             // 
             // resetMenuItem
             // 
@@ -297,8 +296,7 @@ namespace OpenHardwareMonitor.GUI {
             // menuItem6
             // 
             this.menuItem6.Name = "menuItem6";
-            this.menuItem6.Size = new System.Drawing.Size(159, 22);
-            this.menuItem6.Text = "-";
+            this.menuItem6.Size = new System.Drawing.Size(156, 6);
             // 
             // exitMenuItem
             // 
@@ -331,8 +329,7 @@ namespace OpenHardwareMonitor.GUI {
             // MenuItem3
             // 
             this.MenuItem3.Name = "MenuItem3";
-            this.MenuItem3.Size = new System.Drawing.Size(188, 22);
-            this.MenuItem3.Text = "-";
+            this.MenuItem3.Size = new System.Drawing.Size(185, 6);
             // 
             // hiddenMenuItem
             // 
@@ -355,8 +352,7 @@ namespace OpenHardwareMonitor.GUI {
             // MenuItem1
             // 
             this.MenuItem1.Name = "MenuItem1";
-            this.MenuItem1.Size = new System.Drawing.Size(188, 22);
-            this.MenuItem1.Text = "-";
+            this.MenuItem1.Size = new System.Drawing.Size(185, 6);
             // 
             // columnsMenuItem
             // 
@@ -432,8 +428,7 @@ namespace OpenHardwareMonitor.GUI {
             // separatorMenuItem
             // 
             this.separatorMenuItem.Name = "separatorMenuItem";
-            this.separatorMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.separatorMenuItem.Text = "-";
+            this.separatorMenuItem.Size = new System.Drawing.Size(204, 6);
             // 
             // temperatureUnitsMenuItem
             // 
@@ -489,8 +484,7 @@ namespace OpenHardwareMonitor.GUI {
             // logSeparatorMenuItem
             // 
             this.logSeparatorMenuItem.Name = "logSeparatorMenuItem";
-            this.logSeparatorMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.logSeparatorMenuItem.Text = "-";
+            this.logSeparatorMenuItem.Size = new System.Drawing.Size(204, 6);
             // 
             // logSensorsMenuItem
             // 
@@ -599,8 +593,7 @@ namespace OpenHardwareMonitor.GUI {
             // webMenuItemSeparator
             // 
             this.webMenuItemSeparator.Name = "webMenuItemSeparator";
-            this.webMenuItemSeparator.Size = new System.Drawing.Size(207, 22);
-            this.webMenuItemSeparator.Text = "-";
+            this.webMenuItemSeparator.Size = new System.Drawing.Size(204, 6);
             // 
             // webMenuItem
             // 
@@ -767,30 +760,30 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem optionsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItem;
     private System.Windows.Forms.ToolStripMenuItem minTrayMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem separatorMenuItem;
+    private System.Windows.Forms.ToolStripSeparator separatorMenuItem;
     private System.Windows.Forms.ContextMenuStrip treeContextMenu;
     private System.Windows.Forms.ToolStripMenuItem startMinMenuItem;
     private System.Windows.Forms.ToolStripMenuItem startupMenuItem;
     private System.Windows.Forms.SaveFileDialog saveFileDialog;
     private System.Windows.Forms.Timer timer;
     private System.Windows.Forms.ToolStripMenuItem hiddenMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem MenuItem1;
+    private System.Windows.Forms.ToolStripSeparator MenuItem1;
     private System.Windows.Forms.ToolStripMenuItem columnsMenuItem;
     private System.Windows.Forms.ToolStripMenuItem valueMenuItem;
     private System.Windows.Forms.ToolStripMenuItem minMenuItem;
     private System.Windows.Forms.ToolStripMenuItem maxMenuItem;
     private System.Windows.Forms.ToolStripMenuItem temperatureUnitsMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem webMenuItemSeparator;
+    private System.Windows.Forms.ToolStripSeparator webMenuItemSeparator;
     private System.Windows.Forms.ToolStripMenuItem celsiusMenuItem;
     private System.Windows.Forms.ToolStripMenuItem fahrenheitMenuItem;
     private System.Windows.Forms.ToolStripMenuItem sumbitReportMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem MenuItem2;
+    private System.Windows.Forms.ToolStripSeparator MenuItem2;
     private System.Windows.Forms.ToolStripMenuItem resetMinMaxMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem MenuItem3;
+    private System.Windows.Forms.ToolStripSeparator MenuItem3;
     private System.Windows.Forms.ToolStripMenuItem gadgetMenuItem;
     private System.Windows.Forms.ToolStripMenuItem minCloseMenuItem;
     private System.Windows.Forms.ToolStripMenuItem resetMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem menuItem6;
+    private System.Windows.Forms.ToolStripSeparator menuItem6;
     private System.Windows.Forms.ToolStripMenuItem plotLocationMenuItem;
     private System.Windows.Forms.ToolStripMenuItem plotWindowMenuItem;
     private System.Windows.Forms.ToolStripMenuItem plotBottomMenuItem;
@@ -805,7 +798,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem fanControllerMenuItem;
     private System.Windows.Forms.ToolStripMenuItem ramMenuItem;
     private System.Windows.Forms.ToolStripMenuItem logSensorsMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem logSeparatorMenuItem;
+    private System.Windows.Forms.ToolStripSeparator logSeparatorMenuItem;
     private System.Windows.Forms.ToolStripMenuItem loggingIntervalMenuItem;
     private System.Windows.Forms.ToolStripMenuItem log1sMenuItem;
     private System.Windows.Forms.ToolStripMenuItem log2sMenuItem;
