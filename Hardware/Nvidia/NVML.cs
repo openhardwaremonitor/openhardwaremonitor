@@ -9,10 +9,16 @@
 */
 
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
   internal class NVML {
+
+   static string nvmldll;
+
+    [DllImport("kernel32", SetLastError = true)]
+    static extern IntPtr LoadLibrary(string lpFileName);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate NvmlReturn nvmlInitDelegate();
@@ -43,6 +49,9 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public static readonly nvmlDeviceGetPcieThroughputDelegate
       NvmlDeviceGetPcieThroughput;
 
+    static bool CheckLibrary(string fileName) {
+      return LoadLibrary(fileName) == IntPtr.Zero;
+    }
 
     public static NvmlReturn NvmlInit() {
       try {
@@ -54,17 +63,40 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
           var result = nvmlInit();
           initialized = result == NvmlReturn.Success;
           return result;
-        } catch {
+        } catch{
           return NvmlReturn.ErrorLibraryNotFound;
         }
       }
     }
 
     private static string GetDllName() {
-      if (OperatingSystem.IsUnix)
-        return "libnvidia-ml.so";
-      else
-        return "nvml.dll";
+
+      if (nvmldll == null) {
+
+        if (OperatingSystem.IsUnix)
+          return "libnvidia-ml.so";
+        else {
+          string windrive = Path.GetPathRoot(Environment.SystemDirectory);
+          string currentPath = Directory.GetCurrentDirectory();
+          nvmldll = "nvml.dll";
+
+          string[] pathNvmldll =
+            {
+            "nvml.dll",
+            windrive + @"\Program Files\NVIDIA Corporation\NVSMI\nvml.dll",
+            currentPath + @"\nvml.dll"
+
+            };
+
+          foreach (var lib in pathNvmldll) {
+
+            if (!CheckLibrary(lib)) { nvmldll = lib; break; }
+          }
+
+        }
+        
+      }
+      return nvmldll;
     }
 
     private static T CreateDelegate<T>(string entryPoint) where T : Delegate {
