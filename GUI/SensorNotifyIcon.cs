@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.GUI {
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
 
       ContextMenu contextMenu = new ContextMenu();
-      MenuItem hideShowItem = new MenuItem("Hide/Show");
+      MenuItem hideShowItem = new MenuItem("Hide/Show") { DefaultItem = true };
       hideShowItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendHideShowCommand();
       };

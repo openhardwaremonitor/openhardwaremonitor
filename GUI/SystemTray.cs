@@ -5,7 +5,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
   Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
-	
+    
 */
 
 using System;
@@ -37,7 +37,7 @@ namespace OpenHardwareMonitor.GUI {
       this.mainIcon = new NotifyIconAdv();
 
       ContextMenu contextMenu = new ContextMenu();
-      MenuItem hideShowItem = new MenuItem("Hide/Show");
+      MenuItem hideShowItem = new MenuItem("Hide/Show") {DefaultItem = true};
       hideShowItem.Click += delegate(object obj, EventArgs args) {
         SendHideShowCommand();
       };
