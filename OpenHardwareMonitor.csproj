@@ -63,12 +63,20 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GUI\AgentSettingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\AgentSettingForm.Designer.cs">
+      <DependentUpon>AgentSettingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="GUI\DpiHelper.cs" />
     <Compile Include="GUI\GadgetWindow.cs" />
     <Compile Include="GUI\Gadget.cs" />
@@ -118,8 +126,10 @@
     <Compile Include="GUI\UserOption.cs" />
     <Compile Include="GUI\UserRadioGroup.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
+    <Compile Include="Utilities\HttpAgent.cs" />
     <Compile Include="Utilities\HttpServer.cs" />
     <Compile Include="Utilities\HttpUtility.cs" />
+    <Compile Include="Utilities\JsonGenerator.cs" />
     <Compile Include="Utilities\Logger.cs" />
     <Compile Include="Utilities\PersistentSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -151,6 +161,9 @@
     <EmbeddedResource Include="GUI\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\AgentSettingForm.resx">
+      <DependentUpon>AgentSettingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GUI\PortForm.resx">
       <DependentUpon>PortForm.cs</DependentUpon>
