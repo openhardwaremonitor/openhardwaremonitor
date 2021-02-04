@@ -16,6 +16,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using OpenHardwareMonitor.GUI;
 using OpenHardwareMonitor.Hardware;
@@ -78,9 +79,11 @@ namespace OpenHardwareMonitor.Utilities {
         return false;
 
       try {
-        listenerThread.Abort();
-        listener.Stop();
-        listenerThread = null;
+        if (listenerThread != null) {
+          listenerThread.Abort();
+          listener.Stop();
+          listenerThread = null;
+        }
       } catch (HttpListenerException) {
       } catch (ThreadAbortException) {
       } catch (NullReferenceException) {
@@ -114,8 +117,34 @@ namespace OpenHardwareMonitor.Utilities {
       HttpListenerRequest request = context.Request;
 
       var requestedFile = request.RawUrl.Substring(1);
+      // default file to be served
+      if (string.IsNullOrEmpty(requestedFile))
+        requestedFile = "index.html";
+
       if (requestedFile == "data.json") {
+        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+        if (context.Request.HttpMethod == "OPTIONS") {
+          context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+          context.Response.AddHeader("Access-Control-Allow-Headers", "Content-Type, Accept");
+        }
         SendJSON(context.Response);
+        return;
+      }
+
+      if (File.Exists("html/" + requestedFile)) {
+        Match extension = Regex.Match(requestedFile, @"[.][a-z]+$", RegexOptions.Compiled);
+        context.Response.ContentType = GetcontentType(extension.Value);
+
+        try {
+          byte[] responseContent = File.ReadAllBytes("html/" + requestedFile);
+          context.Response.ContentLength64 = responseContent.Length;
+          Stream output = context.Response.OutputStream;
+          output.Write(responseContent, 0, responseContent.Length);
+          output.Close();
+        } catch (HttpListenerException) {
+        }
+
+        context.Response.Close();
         return;
       }
 
@@ -124,10 +153,6 @@ namespace OpenHardwareMonitor.Utilities {
           requestedFile.Replace("images_icon/", ""));
         return;
       }
-
-      // default file to be served
-      if (string.IsNullOrEmpty(requestedFile))
-        requestedFile = "index.html";
 
       string[] splits = requestedFile.Split('.');
       string ext = splits[splits.Length - 1];
