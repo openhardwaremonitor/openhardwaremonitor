@@ -274,6 +274,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
           return Model.X570_AORUS_MASTER;
         case "X58A-UD3R":
           return Model.X58A_UD3R;
+        case "X79-UD3":
+          return Model.X79_UD3;
         case "Z68A-D3H-B3":
           return Model.Z68A_D3H_B3;
         case "Z68AP-D3":
