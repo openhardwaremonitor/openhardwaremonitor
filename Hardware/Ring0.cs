@@ -1,10 +1,10 @@
-﻿/*
+/*
  
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2016 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -22,6 +22,7 @@ namespace OpenHardwareMonitor.Hardware {
     private static KernelDriver driver;
     private static string fileName;
     private static Mutex isaBusMutex;
+    private static Mutex pciBusMutex;
     private static readonly StringBuilder report = new StringBuilder();
 
     private const uint OLS_TYPE = 40000;
@@ -80,7 +81,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     private static bool ExtractDriver(string fileName) {
       string resourceName = "OpenHardwareMonitor.Hardware." +
-        (OperatingSystem.Is64BitOperatingSystem() ? "WinRing0x64.sys" : 
+        (OperatingSystem.Is64BitOperatingSystem ? "WinRing0x64.sys" : 
         "WinRing0.sys");
 
       string[] names = GetAssembly().GetManifestResourceNames();
@@ -129,8 +130,7 @@ namespace OpenHardwareMonitor.Hardware {
 
     public static void Open() {
       // no implementation for unix systems
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         return;  
       
       if (driver != null)
@@ -197,12 +197,21 @@ namespace OpenHardwareMonitor.Hardware {
       if (!driver.IsOpen) 
         driver = null;
 
-      string mutexName = "Global\\Access_ISABUS.HTP.Method";
+      string isaMutexName = "Global\\Access_ISABUS.HTP.Method";
       try {
-        isaBusMutex = new Mutex(false, mutexName);
+        isaBusMutex = new Mutex(false, isaMutexName);
       } catch (UnauthorizedAccessException) {
         try {
-          isaBusMutex = Mutex.OpenExisting(mutexName, MutexRights.Synchronize);
+          isaBusMutex = Mutex.OpenExisting(isaMutexName, MutexRights.Synchronize);
+        } catch { }
+      }
+
+      string pciMutexName = "Global\\Access_PCI";
+      try {
+        pciBusMutex = new Mutex(false, pciMutexName);
+      } catch (UnauthorizedAccessException) {
+        try {
+          pciBusMutex = Mutex.OpenExisting(pciMutexName, MutexRights.Synchronize);
         } catch { }
       }
     }
@@ -228,6 +237,11 @@ namespace OpenHardwareMonitor.Hardware {
       if (isaBusMutex != null) {
         isaBusMutex.Close();
         isaBusMutex = null;
+      }
+
+      if (pciBusMutex != null) {
+        pciBusMutex.Close();
+        pciBusMutex = null;
       }
 
       // try to delete temporary driver file again if failed during open
@@ -257,7 +271,7 @@ namespace OpenHardwareMonitor.Hardware {
         return true;
       try {
         return isaBusMutex.WaitOne(millisecondsTimeout, false);
-      } catch (AbandonedMutexException) { return false; } 
+      } catch (AbandonedMutexException) { return true; }
         catch (InvalidOperationException) { return false; }
     }
 
@@ -265,6 +279,21 @@ namespace OpenHardwareMonitor.Hardware {
       if (isaBusMutex == null)
         return;
       isaBusMutex.ReleaseMutex();
+    }
+
+    public static bool WaitPciBusMutex(int millisecondsTimeout) {
+      if (pciBusMutex == null)
+        return true;
+      try {
+        return pciBusMutex.WaitOne(millisecondsTimeout, false);
+      } catch (AbandonedMutexException) { return true; }
+        catch (InvalidOperationException) { return false; }
+    }
+
+    public static void ReleasePciBusMutex() {
+      if (pciBusMutex == null)
+        return;
+      pciBusMutex.ReleaseMutex();
     }
 
     public static bool Rdmsr(uint index, out uint eax, out uint edx) {
@@ -284,13 +313,13 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     public static bool RdmsrTx(uint index, out uint eax, out uint edx,
-      ulong threadAffinityMask) 
+      GroupAffinity affinity) 
     {
-      ulong mask = ThreadAffinity.Set(threadAffinityMask);
+      var previousAffinity = ThreadAffinity.Set(affinity);
 
       bool result = Rdmsr(index, out eax, out edx);
 
-      ThreadAffinity.Set(mask);
+      ThreadAffinity.Set(previousAffinity);
       return result;
     }
 

@@ -18,9 +18,7 @@ namespace OpenHardwareMonitor.Hardware {
     private static IntPtr codeBuffer;
     private static ulong size;
 
-    public static void Open() {  
-      int p = (int)Environment.OSVersion.Platform;
-            
+    public static void Open() {              
       byte[] rdtscCode;
       byte[] cpuidCode;
       if (IntPtr.Size == 4) {
@@ -29,7 +27,7 @@ namespace OpenHardwareMonitor.Hardware {
       } else {
         rdtscCode = RDTSC_64;
         
-        if ((p == 4) || (p == 128)) { // Unix
+        if (OperatingSystem.IsUnix) { // Unix
           cpuidCode = CPUID_64_LINUX;
         } else { // Windows
           cpuidCode = CPUID_64_WINDOWS;
@@ -38,7 +36,7 @@ namespace OpenHardwareMonitor.Hardware {
       
       size = (ulong)(rdtscCode.Length + cpuidCode.Length);
 
-      if ((p == 4) || (p == 128)) { // Unix   
+      if (OperatingSystem.IsUnix) { // Unix   
         Assembly assembly = 
           Assembly.Load("Mono.Posix, Version=2.0.0.0, Culture=neutral, " +
           "PublicKeyToken=0738eb9f132ed756");
@@ -81,8 +79,7 @@ namespace OpenHardwareMonitor.Hardware {
       Rdtsc = null;
       Cpuid = null;
       
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) { // Unix
+      if (OperatingSystem.IsUnix) { // Unix
         Assembly assembly =
           Assembly.Load("Mono.Posix, Version=2.0.0.0, Culture=neutral, " +
           "PublicKeyToken=0738eb9f132ed756");
@@ -201,18 +198,18 @@ namespace OpenHardwareMonitor.Hardware {
 
     public static bool CpuidTx(uint index, uint ecxValue, 
       out uint eax, out uint ebx, out uint ecx, out uint edx, 
-      ulong threadAffinityMask) {
-      
-      ulong mask = ThreadAffinity.Set(threadAffinityMask);
+      GroupAffinity affinity) 
+    {      
+      var previousAffinity = ThreadAffinity.Set(affinity);
 
-      if (mask == 0) {
+      if (previousAffinity == GroupAffinity.Undefined) {
         eax = ebx = ecx = edx = 0;
         return false;
       } 
 
       Cpuid(index, ecxValue, out eax, out ebx, out ecx, out edx);
 
-      ThreadAffinity.Set(mask);      
+      ThreadAffinity.Set(previousAffinity);      
       return true;
     }
     

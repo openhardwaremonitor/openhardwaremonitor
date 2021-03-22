@@ -84,9 +84,15 @@ namespace OpenHardwareMonitor.Hardware {
       Ring0.Open();
       Opcode.Open();
 
+      AddGroups();
+
+      open = true;
+    }
+
+    private void AddGroups() {
       if (mainboardEnabled)
         Add(new Mainboard.MainboardGroup(smbios, settings));
-      
+
       if (cpuEnabled)
         Add(new CPU.CPUGroup(settings));
 
@@ -105,8 +111,14 @@ namespace OpenHardwareMonitor.Hardware {
 
       if (hddEnabled)
         Add(new HDD.HarddriveGroup(settings));
+    }
 
-      open = true;
+    public void Reset() {
+      if (!open)
+        return;
+
+      RemoveGroups();
+      AddGroups();
     }
 
     public bool MainboardEnabled {
@@ -347,14 +359,11 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public void Close() {      
+    public void Close() {
       if (!open)
         return;
 
-      while (groups.Count > 0) {
-        IGroup group = groups[groups.Count - 1];
-        Remove(group);         
-      } 
+      RemoveGroups();
 
       Opcode.Close();
       Ring0.Close();
@@ -362,6 +371,13 @@ namespace OpenHardwareMonitor.Hardware {
       this.smbios = null;
 
       open = false;
+    }
+
+    private void RemoveGroups() {
+      while (groups.Count > 0) {
+        IGroup group = groups[groups.Count - 1];
+        Remove(group);
+      }
     }
 
     public event HardwareEventHandler HardwareAdded;

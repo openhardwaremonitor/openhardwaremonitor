@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -74,11 +74,15 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     P67A_UD4_B3,
     P8Z68_V_PRO,
     X38_DS5,
+    X570_AORUS_MASTER,
     X58A_UD3R,
     Z68A_D3H_B3,
     Z68AP_D3,
     Z68X_UD3H_B3,
     Z68X_UD7_B3,
+    Z390_M_GAMING,
+    Z390_AORUS_ULTRA,
+    Z390_UD,
 
     // Shuttle
     FH67,

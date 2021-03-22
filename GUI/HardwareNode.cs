@@ -4,21 +4,21 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using OpenHardwareMonitor.Hardware;
 
 namespace OpenHardwareMonitor.GUI {
   public class HardwareNode : Node {
 
-    private PersistentSettings settings;
-    private UnitManager unitManager;
-    private IHardware hardware;
+    private readonly PersistentSettings settings;
+    private readonly UnitManager unitManager;
+    private readonly IHardware hardware;
+    private readonly Identifier expandedIdentifier;
 
     private List<TypeNode> typeNodes = new List<TypeNode>();
 
@@ -31,13 +31,17 @@ namespace OpenHardwareMonitor.GUI {
       this.Image = HardwareTypeImage.Instance.GetImage(hardware.HardwareType);
 
       foreach (SensorType sensorType in Enum.GetValues(typeof(SensorType)))
-        typeNodes.Add(new TypeNode(sensorType));
+        typeNodes.Add(new TypeNode(sensorType, hardware, settings));
 
       foreach (ISensor sensor in hardware.Sensors)
         SensorAdded(sensor);
 
       hardware.SensorAdded +=new SensorEventHandler(SensorAdded);
       hardware.SensorRemoved += new SensorEventHandler(SensorRemoved);
+
+      this.expandedIdentifier = new Identifier(hardware.Identifier, "expanded");
+      base.IsExpanded = 
+        settings.GetValue(expandedIdentifier.ToString(), base.IsExpanded);
     }
 
     public override string Text {
@@ -47,6 +51,18 @@ namespace OpenHardwareMonitor.GUI {
 
     public IHardware Hardware {
       get { return hardware; }
+    }
+
+    public override bool IsExpanded {
+      get {
+        return base.IsExpanded;
+      }
+      set {
+        if (base.IsExpanded != value) {
+          base.IsExpanded = value;
+          settings.SetValue(expandedIdentifier.ToString(), value);
+        }
+      }
     }
 
     private void UpdateNode(TypeNode node) {  

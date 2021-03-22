@@ -41,7 +41,8 @@ namespace Aga.Controls.Tree
 		{
 			CreateLinePen();
 			CreateMarkPen();
-		}
+            CreateLightGrayPen();
+        }
 
 		private void CreateMarkPen()
 		{
@@ -59,7 +60,14 @@ namespace Aga.Controls.Tree
 		{
 			_linePen = new Pen(_lineColor);
 			_linePen.DashStyle = DashStyle.Dot;
-		}
+            _linePen.Width = GetScaledSize(1, false);
+        }
+
+        private void CreateLightGrayPen()
+        {
+            _lightGrayPen = new Pen(Color.FromArgb(247, 247, 247));
+            _lightGrayPen.Width = GetScaledSize(1, false);
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -136,7 +144,7 @@ namespace Aga.Controls.Tree
 			OnRowDraw(e, node, context, row, rowRect);
 
 			if ((GridLineStyle & GridLineStyle.Horizontal) == GridLineStyle.Horizontal) {
-				e.Graphics.DrawLine(LightGrayPen, 0, rowRect.Bottom, e.Graphics.ClipBounds.Right, rowRect.Bottom);
+				e.Graphics.DrawLine(_lightGrayPen, 0, rowRect.Bottom, e.Graphics.ClipBounds.Right, rowRect.Bottom);
       }
 
 			if (FullRowSelect)
@@ -164,8 +172,7 @@ namespace Aga.Controls.Tree
 			DrawNode(node, context);
 		}
 
-		private Brush GrayBrush = new SolidBrush(Color.FromArgb(240, 240, 240));
-		private Pen LightGrayPen = new Pen(Color.FromArgb(247, 247, 247));
+		private Brush GrayBrush = new SolidBrush(Color.FromArgb(240, 240, 240));		
 
 		private void DrawVerticalGridLines(Graphics gr, int y)
 		{
@@ -259,8 +266,10 @@ namespace Aga.Controls.Tree
 			while (curNode != _root && curNode != null)
 			{
 				int level = curNode.Level;
-				int x = (level - 1) * _indent + NodePlusMinus.ImageSize / 2 + LeftMargin;
-				int width = NodePlusMinus.Width - NodePlusMinus.ImageSize / 2;
+				int scaledIndent = node.Tree.GetScaledSize(_indent, false);
+				int x = (level - 1) * scaledIndent + 
+                    node.Tree.GetScaledSize(NodePlusMinus.ImageSize, false) / 2 + LeftMargin;
+				int width = node.Tree.GetScaledSize(NodePlusMinus.Width - NodePlusMinus.ImageSize / 2, false);
 				int y = rowRect.Y;
 				int y2 = y + rowRect.Height;
 

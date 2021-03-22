@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2014 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -23,10 +23,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private static CPUID[][] GetProcessorThreads() {
 
       List<CPUID> threads = new List<CPUID>();
-      for (int i = 0; i < 64; i++) {
-        try {
-          threads.Add(new CPUID(i));
-        } catch (ArgumentOutOfRangeException) { }
+      for (int i = 0; i < ThreadAffinity.ProcessorGroupCount; i++) {
+        for (int j = 0; j < 64; j++) {
+          try {
+            if (!ThreadAffinity.IsValid(GroupAffinity.Single((ushort)i, j)))
+              continue;
+            var cpuid = CPUID.Get(i, j);
+            if (cpuid != null)
+              threads.Add(cpuid);
+          } catch (ArgumentOutOfRangeException) { 
+          }
+        }
       }
 
       SortedDictionary<uint, List<CPUID>> processors =
@@ -104,6 +111,10 @@ namespace OpenHardwareMonitor.Hardware.CPU {
               case 0x16:
                 hardware.Add(new AMD10CPU(index, coreThreads, settings));
                 break;
+              case 0x17:
+              case 0x19:
+                hardware.Add(new AMD17CPU(index, coreThreads, settings));
+                break;
               default:
                 hardware.Add(new GenericCPU(index, coreThreads, settings));
                 break;
@@ -169,6 +180,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         r.AppendLine();
         for (int j = 0; j < threads[i].Length; j++)
           for (int k = 0; k < threads[i][j].Length; k++) {
+            r.AppendLine(" CPU Group: " + threads[i][j][k].Group);
             r.AppendLine(" CPU Thread: " + threads[i][j][k].Thread);
             r.AppendLine(" APIC ID: " + threads[i][j][k].ApicId);
             r.AppendLine(" Processor ID: " + threads[i][j][k].ProcessorId);

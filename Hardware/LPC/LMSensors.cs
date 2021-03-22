@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2013 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -46,7 +46,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             case "f71882fg":
               lmChips.Add(new LMChip(Chip.F71882, path)); break;            
             case "f71889a":
-              lmChips.Add(new LMChip(Chip.F71889AD, path)); break;
+              lmChips.Add(new LMChip(Chip.F71889AD, path)); break;            
+            case "f71878ad":
+              lmChips.Add(new LMChip(Chip.F71878AD, path)); break;
             case "f71889ed":
               lmChips.Add(new LMChip(Chip.F71889ED, path)); break;
             case "f71889fg":
@@ -73,6 +75,18 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               lmChips.Add(new LMChip(Chip.NCT6779D, path)); break;
             case "nct6791":
               lmChips.Add(new LMChip(Chip.NCT6791D, path)); break;
+            case "nct6792":
+              lmChips.Add(new LMChip(Chip.NCT6792D, path)); break;
+            case "nct6793":
+              lmChips.Add(new LMChip(Chip.NCT6793D, path)); break;
+            case "nct6795":
+              lmChips.Add(new LMChip(Chip.NCT6795D, path)); break;
+            case "nct6796":
+              lmChips.Add(new LMChip(Chip.NCT6796D, path)); break;
+            case "nct6797":
+              lmChips.Add(new LMChip(Chip.NCT6797D, path)); break;
+            case "nct6798":
+              lmChips.Add(new LMChip(Chip.NCT6798D, path)); break;
 
             case "w83627ehf":
               lmChips.Add(new LMChip(Chip.W83627EHF, path)); break;

@@ -119,29 +119,26 @@ namespace OpenHardwareMonitor.GUI {
       // 
       this.sensor.Header = "Sensor";
       this.sensor.SortOrder = System.Windows.Forms.SortOrder.None;
-      this.sensor.TooltipText = null;
-      this.sensor.Width = 250;
+      this.sensor.TooltipText = null;      
       // 
       // value
       // 
       this.value.Header = "Value";
       this.value.SortOrder = System.Windows.Forms.SortOrder.None;
-      this.value.TooltipText = null;
-      this.value.Width = 100;
+      this.value.TooltipText = null;      
       // 
       // min
       // 
       this.min.Header = "Min";
       this.min.SortOrder = System.Windows.Forms.SortOrder.None;
-      this.min.TooltipText = null;
-      this.min.Width = 100;
+      this.min.TooltipText = null;      
       // 
       // max
       // 
       this.max.Header = "Max";
       this.max.SortOrder = System.Windows.Forms.SortOrder.None;
       this.max.TooltipText = null;
-      this.max.Width = 100;
+      
       // 
       // nodeImage
       // 

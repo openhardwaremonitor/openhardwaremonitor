@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2009-2010 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2009-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -39,8 +39,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public StartupManager() {
-      int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
+      if (Hardware.OperatingSystem.IsUnix) {
         scheduler = null;        
         isAvailable = false;
         return;
@@ -56,8 +55,10 @@ namespace OpenHardwareMonitor.GUI {
 
         if (scheduler != null) {
           try {
-            // check if the taskscheduler is running
-            IRunningTaskCollection collection = scheduler.GetRunningTasks(0);            
+            try {
+              // check if the taskscheduler is running
+              IRunningTaskCollection collection = scheduler.GetRunningTasks(0);
+            } catch (ArgumentException) { }            
 
             ITaskFolder folder = scheduler.GetFolder("\\Open Hardware Monitor");
             IRegisteredTask task = folder.GetTask("Startup");
@@ -77,6 +78,8 @@ namespace OpenHardwareMonitor.GUI {
           } catch (UnauthorizedAccessException) {
             scheduler = null;
           } catch (COMException) {
+            scheduler = null;
+          } catch (NotImplementedException) {
             scheduler = null;
           }
         } 

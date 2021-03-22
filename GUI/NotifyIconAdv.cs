@@ -23,8 +23,7 @@ namespace OpenHardwareMonitor.GUI {
     private NotifyIconWindowsImplementation windowsNotifyIcon;
 
     public NotifyIconAdv() {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) { // Unix
+      if (Hardware.OperatingSystem.IsUnix) { // Unix
         genericNotifyIcon = new NotifyIcon();
       } else { // Windows
         windowsNotifyIcon = new NotifyIconWindowsImplementation();
@@ -461,8 +460,7 @@ namespace OpenHardwareMonitor.GUI {
           data.Info = tipText;
           data.InfoFlags = (int)tipIcon;
 
-          NativeMethods.Shell_NotifyIcon(
-            NativeMethods.NotifyIconMessage.Modify, data);
+          NativeMethods.Shell_NotifyIcon(NotifyIconMessage.Modify, data);
         }
       }
 
@@ -525,26 +523,28 @@ namespace OpenHardwareMonitor.GUI {
 
           if (showNotifyIcon && icon != null) {
             if (!created) {
-              int i = 0;
-              do {
-                created = NativeMethods.Shell_NotifyIcon(
-                  NativeMethods.NotifyIconMessage.Add, data);
-                if (!created) {
-                  System.Threading.Thread.Sleep(200);
-                  i++;
-                }
-              } while (!created && i < 40);
-            } else {
-              NativeMethods.Shell_NotifyIcon(
-                NativeMethods.NotifyIconMessage.Modify, data);
+              // try to modify the icon in case it still exists (after WM_TASKBARCREATED)
+              if (NativeMethods.Shell_NotifyIcon(NotifyIconMessage.Modify, data)) {
+                created = true;
+              } else { // modification failed, try to add a new icon
+                int i = 0;
+                do {
+                  created = NativeMethods.Shell_NotifyIcon(NotifyIconMessage.Add, data);
+                  if (!created) {
+                    System.Threading.Thread.Sleep(200);
+                    i++;
+                  }
+                } while (!created && i < 40);
+              }
+            } else { // the icon is created already, just modify it
+              NativeMethods.Shell_NotifyIcon(NotifyIconMessage.Modify, data);
             }
           } else {
             if (created) {
               int i = 0;
-              bool deleted = false;
+              bool deleted;
               do {
-                deleted = NativeMethods.Shell_NotifyIcon(
-                  NativeMethods.NotifyIconMessage.Delete, data);
+                deleted = NativeMethods.Shell_NotifyIcon(NotifyIconMessage.Delete, data);
                 if (!deleted) {
                   System.Threading.Thread.Sleep(200);
                   i++;
@@ -668,7 +668,7 @@ namespace OpenHardwareMonitor.GUI {
             }
         }
 
-        if (message.Msg == NotifyIconWindowsImplementation.WM_TASKBARCREATED) {
+        if (message.Msg == WM_TASKBARCREATED) {
           lock (syncObj) {
             created = false;
           }
@@ -738,6 +738,12 @@ namespace OpenHardwareMonitor.GUI {
       private static int WM_TASKBARCREATED =
         NativeMethods.RegisterWindowMessage("TaskbarCreated");
 
+      private enum NotifyIconMessage : int {
+        Add = 0x0,
+        Modify = 0x1,
+        Delete = 0x2
+      }
+
       private static class NativeMethods {
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr PostMessage(HandleRef hwnd, int msg,
@@ -773,12 +779,6 @@ namespace OpenHardwareMonitor.GUI {
           [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
           public string InfoTitle;
           public int InfoFlags;
-        }
-
-        public enum NotifyIconMessage : int {
-          Add = 0x0,
-          Modify = 0x1,
-          Delete = 0x2
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]

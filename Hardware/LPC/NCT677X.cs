@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2010-2015 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2010-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	Copyright (C) 2015 Dawid Gan <deveee@gmail.com>
 
 */
@@ -63,12 +63,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly ushort[] FAN_PWM_COMMAND_REG;
     private readonly ushort[] FAN_CONTROL_MODE_REG;
 
-    private readonly ushort fanRpmBaseRegister;
+    private readonly ushort[] fanRpmBaseRegister;
     private readonly int minFanRPM;
 
-    private bool[] restoreDefaultFanControlRequired = new bool[6];       
-    private byte[] initialFanControlMode = new byte[6];
-    private byte[] initialFanPwmCommand = new byte[6];
+    private readonly ushort[] fanCountRegister;
+    private readonly int maxFanCount;
+    private readonly int minFanCount;
+
+    private bool[] restoreDefaultFanControlRequired = new bool[7];
+    private byte[] initialFanControlMode = new byte[7];
+    private byte[] initialFanPwmCommand = new byte[7];
 
     private readonly ushort[] voltageRegisters;
     private readonly ushort voltageVBatRegister;
@@ -205,11 +209,11 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         VENDOR_ID_LOW_REGISTER = 0x004F;  
 
         FAN_PWM_OUT_REG = new ushort[] { 
-          0x001, 0x003, 0x011, 0x013, 0x015, 0x017 };
+          0x001, 0x003, 0x011, 0x013, 0x015, 0x017, 0x029 };
         FAN_PWM_COMMAND_REG = new ushort[] { 
-          0x109, 0x209, 0x309, 0x809, 0x909, 0xA09 };
+          0x109, 0x209, 0x309, 0x809, 0x909, 0xA09, 0xB09 };
         FAN_CONTROL_MODE_REG = new ushort[] { 
-          0x102, 0x202, 0x302, 0x802, 0x902, 0xA02 };
+          0x102, 0x202, 0x302, 0x802, 0x902, 0xA02, 0xB02 };
 
         vBatMonitorControlRegister = 0x005D;
       }
@@ -225,7 +229,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           if (chip == Chip.NCT6771F) {
             fans = new float?[4];
 
-            // min value RPM value with 16-bit fan counter
+            // min RPM value with 16-bit fan counter
             minFanRPM = (int)(1.35e6 / 0xFFFF);
 
             temperaturesSource = new byte[] {
@@ -237,7 +241,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           } else {
             fans = new float?[5];
 
-            // min value RPM value with 13-bit fan counter
+            // min RPM value with 13-bit fan counter
             minFanRPM = (int)(1.35e6 / 0x1FFF);
 
             temperaturesSource = new byte[] {
@@ -247,7 +251,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               (byte)SourceNCT6776F.SYSTIN 
             };
           }
-          fanRpmBaseRegister = 0x656;
+          fanRpmBaseRegister = new ushort[]
+            { 0x656, 0x658, 0x65A, 0x65C, 0x65E };
 
           controls = new float?[3];
 
@@ -272,18 +277,44 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         case Chip.NCT6779D:
         case Chip.NCT6791D:
-          if (chip == Chip.NCT6779D) {
-            fans = new float?[5];
-            controls = new float?[5];
-          } else {
-            fans = new float?[6];
-            controls = new float?[6];
+        case Chip.NCT6792D:
+        case Chip.NCT6792DA:
+        case Chip.NCT6793D:
+        case Chip.NCT6795D:
+        case Chip.NCT6796D:
+        case Chip.NCT6796DR:
+        case Chip.NCT6797D:
+        case Chip.NCT6798D:
+          switch (chip) {
+            case Chip.NCT6791D:
+            case Chip.NCT6792D:
+            case Chip.NCT6792DA:
+            case Chip.NCT6793D:
+            case Chip.NCT6795D:
+              fans = new float?[6];
+              controls = new float?[6];
+              break;
+            case Chip.NCT6796D:
+            case Chip.NCT6796DR:
+            case Chip.NCT6797D:
+            case Chip.NCT6798D:
+              fans = new float?[7];
+              controls = new float?[7];
+              break;
+            default:
+              fans = new float?[5];
+              controls = new float?[5];
+              break;
           }
 
-          fanRpmBaseRegister = 0x4C0;
+          fanCountRegister = new ushort[]
+            { 0x4B0, 0x4B2, 0x4B4, 0x4B6, 0x4B8, 0x4BA, 0x4CC };
 
-          // min value RPM value with 13-bit fan counter
-          minFanRPM = (int)(1.35e6 / 0x1FFF);
+          // max value for 13-bit fan counter
+          maxFanCount = 0x1FFF;
+
+          // min value that could be transfered to 16-bit RPM registers
+          minFanCount = 0x15;
 
           voltages = new float?[15];
           voltageRegisters = new ushort[] 
@@ -320,7 +351,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fans = new float?[3];
           controls = new float?[3];
 
-          fanRpmBaseRegister = 0x030;
+          fanRpmBaseRegister = new ushort[] { 0x030, 0x032, 0x034 };
 
           // min value RPM value with 13-bit fan counter
           minFanRPM = (int)(1.35e6 / 0x1FFF);
@@ -414,7 +445,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public float?[] Controls { get { return controls; } }
 
     private void DisableIOSpaceLock() {
-      if (chip != Chip.NCT6791D)
+      if (chip != Chip.NCT6791D && 
+          chip != Chip.NCT6792D && 
+          chip != Chip.NCT6792DA &&
+          chip != Chip.NCT6793D &&
+          chip != Chip.NCT6795D &&
+          chip != Chip.NCT6796D &&
+          chip != Chip.NCT6796DR &&
+          chip != Chip.NCT6797D &&
+          chip != Chip.NCT6798D)
         return;
 
       // the lock is disabled already if the vendor ID can be read
@@ -482,11 +521,26 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       for (int i = 0; i < fans.Length; i++) {
-        byte high = ReadByte((ushort)(fanRpmBaseRegister + (i << 1)));
-        byte low = ReadByte((ushort)(fanRpmBaseRegister + (i << 1) + 1));
-        int value = (high << 8) | low;
+        if (fanCountRegister != null) {
+          byte high = ReadByte(fanCountRegister[i]);
+          byte low = ReadByte((ushort)(fanCountRegister[i] + 1));
+          int count = (high << 5) | (low & 0x1F); 
+          if (count < maxFanCount) {            
+            if (count >= minFanCount) {
+              fans[i] = 1.35e6f / count;
+            } else {
+              fans[i] = null;
+            }
+          } else {
+            fans[i] = 0;
+          }
+        } else {
+          byte high = ReadByte(fanRpmBaseRegister[i]);
+          byte low = ReadByte((ushort)(fanRpmBaseRegister[i] + 1));
+          int value = (high << 8) | low;
 
-        fans[i] = value > minFanRPM ? value : 0;
+          fans[i] = value > minFanRPM ? value : 0;
+        }
       }
 
       for (int i = 0; i < controls.Length; i++) {
