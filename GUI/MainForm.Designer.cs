@@ -111,6 +111,15 @@ namespace OpenHardwareMonitor.GUI {
       this.log1hMenuItem = new System.Windows.Forms.MenuItem();
       this.log2hMenuItem = new System.Windows.Forms.MenuItem();
       this.log6hMenuItem = new System.Windows.Forms.MenuItem();
+      this.updateIntervalMenuItemSeparator = new System.Windows.Forms.MenuItem();
+      this.updateIntervalMenuItem = new System.Windows.Forms.MenuItem();
+      this.update100msMenuItem = new System.Windows.Forms.MenuItem();
+      this.update500msMenuItem = new System.Windows.Forms.MenuItem();
+      this.update1sMenuItem = new System.Windows.Forms.MenuItem();
+      this.update2sMenuItem = new System.Windows.Forms.MenuItem();
+      this.update5sMenuItem = new System.Windows.Forms.MenuItem();
+      this.update10sMenuItem = new System.Windows.Forms.MenuItem();
+      this.update30sMenuItem = new System.Windows.Forms.MenuItem();
       this.splitContainer.Panel1.SuspendLayout();
       this.splitContainer.SuspendLayout();
       this.SuspendLayout();
@@ -370,6 +379,8 @@ namespace OpenHardwareMonitor.GUI {
             this.logSeparatorMenuItem,
             this.logSensorsMenuItem,
             this.loggingIntervalMenuItem,
+            this.updateIntervalMenuItemSeparator,
+            this.updateIntervalMenuItem,
             this.webMenuItemSeparator,
             this.webMenuItem});
       this.optionsMenuItem.Text = "Options";
@@ -450,12 +461,12 @@ namespace OpenHardwareMonitor.GUI {
       // 
       // webMenuItemSeparator
       // 
-      this.webMenuItemSeparator.Index = 10;
+      this.webMenuItemSeparator.Index = 12;
       this.webMenuItemSeparator.Text = "-";
       // 
       // webMenuItem
       // 
-      this.webMenuItem.Index = 11;
+      this.webMenuItem.Index = 13;
       this.webMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
             this.runWebServerMenuItem,
             this.serverPortMenuItem});
@@ -660,6 +671,66 @@ namespace OpenHardwareMonitor.GUI {
       this.log6hMenuItem.RadioCheck = true;
       this.log6hMenuItem.Text = "6h";
       // 
+      // updateIntervalMenuItemSeparator
+      // 
+      this.updateIntervalMenuItemSeparator.Index = 10;
+      this.updateIntervalMenuItemSeparator.Text = "-";
+      // 
+      // updateIntervalMenuItem
+      // 
+      this.updateIntervalMenuItem.Index = 11;
+      this.updateIntervalMenuItem.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+             this.update100msMenuItem,
+             this.update500msMenuItem,
+             this.update1sMenuItem,
+             this.update2sMenuItem,
+             this.update5sMenuItem,
+             this.update10sMenuItem,
+             this.update30sMenuItem});
+      this.updateIntervalMenuItem.Text = "Update Interval";
+      // 
+      // update100msMenuItem
+      // 
+      this.update100msMenuItem.Index = 0;
+      this.update100msMenuItem.RadioCheck = true;
+      this.update100msMenuItem.Text = "100ms";
+      // 
+      // update500msMenuItem
+      // 
+      this.update500msMenuItem.Index = 1;
+      this.update500msMenuItem.RadioCheck = true;
+      this.update500msMenuItem.Text = "500ms";
+      // 
+      // update1sMenuItem
+      // 
+      this.update1sMenuItem.Index = 2;
+      this.update1sMenuItem.RadioCheck = true;
+      this.update1sMenuItem.Text = "1s";
+      // 
+      // update2sMenuItem
+      // 
+      this.update2sMenuItem.Index = 3;
+      this.update2sMenuItem.RadioCheck = true;
+      this.update2sMenuItem.Text = "2s";
+      // 
+      // update5sMenuItem
+      // 
+      this.update5sMenuItem.Index = 4;
+      this.update5sMenuItem.RadioCheck = true;
+      this.update5sMenuItem.Text = "5s";
+      // 
+      // update10sMenuItem
+      // 
+      this.update10sMenuItem.Index = 5;
+      this.update10sMenuItem.RadioCheck = true;
+      this.update10sMenuItem.Text = "10s";
+      // 
+      // update30sMenuItem
+      // 
+      this.update30sMenuItem.Index = 6;
+      this.update30sMenuItem.RadioCheck = true;
+      this.update30sMenuItem.Text = "30s";
+      // 
       // MainForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -759,6 +830,15 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem log1hMenuItem;
     private System.Windows.Forms.MenuItem log2hMenuItem;
     private System.Windows.Forms.MenuItem log6hMenuItem;
+    private System.Windows.Forms.MenuItem updateIntervalMenuItemSeparator;
+    private System.Windows.Forms.MenuItem updateIntervalMenuItem;
+    private System.Windows.Forms.MenuItem update100msMenuItem;
+    private System.Windows.Forms.MenuItem update500msMenuItem;
+    private System.Windows.Forms.MenuItem update1sMenuItem;
+    private System.Windows.Forms.MenuItem update2sMenuItem;
+    private System.Windows.Forms.MenuItem update5sMenuItem;
+    private System.Windows.Forms.MenuItem update10sMenuItem;
+    private System.Windows.Forms.MenuItem update30sMenuItem;
   }
 }
 

@@ -68,6 +68,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private UserOption logSensors;
     private UserRadioGroup loggingInterval;
+    private UserRadioGroup updateInterval;
     private Logger logger;
 
     private bool selectionDragging = false;
@@ -317,6 +318,22 @@ namespace OpenHardwareMonitor.GUI {
           case 10: logger.LoggingInterval = new TimeSpan(1, 0, 0); break;
           case 11: logger.LoggingInterval = new TimeSpan(2, 0, 0); break;
           case 12: logger.LoggingInterval = new TimeSpan(6, 0, 0); break;
+        }
+      };
+
+      updateInterval = new UserRadioGroup("updateInterval", 2,
+        new[] { update100msMenuItem, update500msMenuItem, update1sMenuItem,
+        update2sMenuItem, update5sMenuItem, update10sMenuItem,update30sMenuItem},
+        settings);
+      updateInterval.Changed += (sender, e) => {
+        switch (updateInterval.Value) {
+          case 0: timer.Interval = 100; break;
+          case 1: timer.Interval = 500; break;
+          case 2: timer.Interval = 1000; break;
+          case 3: timer.Interval = 2000; break;
+          case 4: timer.Interval = 5000; break;
+          case 5: timer.Interval = 10000; break;
+          case 6: timer.Interval = 30000; break;
         }
       };
 
@@ -572,8 +589,13 @@ namespace OpenHardwareMonitor.GUI {
       Close();
     }
 
-    private int delayCount = 0;
+    private DateTime? firstTick = null;
+    private TimeSpan warmup = new TimeSpan(0, 0, 5);
     private void timer_Tick(object sender, EventArgs e) {
+      // Stop the timer. Needed when an update is slower than the interval itself.
+      timer.Enabled = false;
+      if(firstTick == null)
+          firstTick = DateTime.Now;
       computer.Accept(updateVisitor);
       treeView.Invalidate();
       plotPanel.InvalidatePlot();
@@ -584,12 +606,10 @@ namespace OpenHardwareMonitor.GUI {
       if (wmiProvider != null)
         wmiProvider.Update();
 
-
-      if (logSensors != null && logSensors.Value && delayCount >= 4)
+      if (logSensors != null && logSensors.Value && DateTime.Now - firstTick >= warmup)
         logger.Log();
 
-      if (delayCount < 4)
-        delayCount++;
+      timer.Enabled = true;
     }
 
     private void SaveConfiguration() {
