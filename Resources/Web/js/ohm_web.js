@@ -60,21 +60,32 @@ $(function(){
         return result;
       });
 
-      viewModel.update = function() {
-        $.getJSON('data.json', function(data) {
-          ko.mapping.fromJS(data, {}, viewModel);
-        });
+      viewModel.update = function () {
+        return new Promise((resolve, reject) => {
+          requestTimer = viewModel.timer;
+          $.getJSON('data.json', function (data) {
+            ko.mapping.fromJS(data, {}, viewModel);
+          });
+          // Autorefresh stopped or new autorefresh has been set.
+          if (viewModel.timer == 0 || requestTimer != viewModel.timer)
+            reject();
+          else
+            resolve();
+        })
       }
 
       viewModel.rate = 3000; //milliseconds
-      viewModel.timer = {};
+      viewModel.timer = {};  // unique ID during page lifetime
 
       viewModel.startAuto = function (){
-        viewModel.timer = setInterval(viewModel.update, viewModel.rate);
+        viewModel.timer = setTimeout(function updateRequest() {
+          viewModel.update().then(() => viewModel.timer = setTimeout(updateRequest, viewModel.rate));
+        }, viewModel.rate);
       }
 
-      viewModel.stopAuto = function (){
-        clearInterval(viewModel.timer);
+      viewModel.stopAuto = function () {
+        clearTimeout(viewModel.timer);
+        viewModel.timer = 0;
       }
 
       viewModel.auto_refresh = ko.observable(false);
@@ -96,20 +107,21 @@ $(function(){
   $( "#refresh" ).button();
   $( "#auto_refresh" ).button();
   $( "#slider" ).slider({
-    value:3,
-    min: 1,
-    max: 10,
+    value:3000,
+    min: 100,
+    max: 10000,
+    step: 100,
     slide: function( event, ui ) {
-      viewModel.rate = ui.value * 1000;
+      viewModel.rate = ui.value;
       if (viewModel.auto_refresh()) {
         //reset the timer
         viewModel.stopAuto();
         viewModel.startAuto();
       }
-      $( "#lbl" ).text( ui.value + "s");
+      $( "#lbl" ).text( ui.value + "ms");
     }
   });
-  $( "#lbl" ).text( $( "#slider" ).slider( "value" ) + "s");
+  $( "#lbl" ).text( $( "#slider" ).slider( "value" ) + "ms");
 
 });
 
