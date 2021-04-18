@@ -51,16 +51,19 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private static string GetTempFileName() {
-      
+
       // try to create one in the application folder
-      string location = GetAssembly().Location;
-      if (!string.IsNullOrEmpty(location)) {        
-        try {
-          string fileName = Path.ChangeExtension(location, ".sys");
-          using (FileStream stream = File.Create(fileName)) {
-            return fileName;
-          }
-        } catch (Exception) { }
+      // fix for non-managed app
+      if (GetAssembly() != null) {
+        string location = GetAssembly().Location;
+        if (!string.IsNullOrEmpty(location)) {
+          try {
+            string fileName = Path.ChangeExtension(location, ".sys");
+            using (FileStream stream = File.Create(fileName)) {
+              return fileName;
+            }
+          } catch (Exception) { }
+        }
       }
 
       // if this failed, try to get a file in the temporary folder
