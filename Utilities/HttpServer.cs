@@ -78,6 +78,9 @@ namespace OpenHardwareMonitor.Utilities {
         return false;
 
       try {
+        if (listenerThread == null)
+          return true;
+
         listenerThread.Abort();
         listener.Stop();
         listenerThread = null;
