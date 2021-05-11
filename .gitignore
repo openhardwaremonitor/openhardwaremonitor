@@ -1,6 +1,8 @@
 *.user
 *.suo
-/Bin
-/Obj
 /.vs
 /packages
+Bin
+bin
+obj
+Obj
