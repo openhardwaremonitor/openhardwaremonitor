@@ -34,7 +34,10 @@ namespace OpenHardwareMonitor.GUI {
             if (value < 1)
               return string.Format("{0:F1} KB/s", value * 0x400);
             else
-              return string.Format("{0:F1} MB/s", value);  
+              return string.Format("{0:F1} MB/s", value);
+          case SensorType.TimeSpan:
+            TimeSpan s = TimeSpan.FromSeconds(value.Value);
+            return s.ToString();
           default:
             return string.Format(fixedFormat, value);
         }              
@@ -59,6 +62,8 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Data: fixedFormat = "{0:F1} GB"; break;
         case SensorType.SmallData: fixedFormat = "{0:F1} MB"; break;
         case SensorType.Factor: fixedFormat = "{0:F3}"; break;
+        case SensorType.RawValue: fixedFormat = "{0:F0}";
+          break;
         default: fixedFormat = ""; break;
       }
 

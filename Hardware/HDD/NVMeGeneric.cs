@@ -79,8 +79,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         if (log.TemperatureSensors[i] > short.MinValue) {
           int idx = 0;
           AddSensor("Temperature", i + 1, true, SensorType.Temperature, (health) => health.TemperatureSensors[idx]);
-        }          
+        }
       }
+
+      int idx1 = 0;
+      AddSensor("Power on Hours", idx1++, true, SensorType.RawValue, (health) => health.PowerOnHours);
+      AddSensor("Media Errors", idx1++, true, SensorType.RawValue, (health) => health.MediaErrors);
+      // What is this?
+      // AddSensor("Controller busy time", 0, true, SensorType.TimeSpan, (health) => health.ControllerBusyTime);
 
       base.CreateSensors();
     }

@@ -30,6 +30,10 @@ namespace OpenHardwareMonitor.GUI {
           this.Image = Utilities.EmbeddedResources.GetImage("voltage.png");
           this.Text = "Voltages";
           break;
+        case SensorType.TimeSpan:
+          this.Image = Utilities.EmbeddedResources.GetImage("clock.png");
+          this.Text = "Duration";
+          break;
         case SensorType.Clock:
           this.Image = Utilities.EmbeddedResources.GetImage("clock.png");
           this.Text = "Clocks";
@@ -65,6 +69,10 @@ namespace OpenHardwareMonitor.GUI {
         case SensorType.Data:
           this.Image = Utilities.EmbeddedResources.GetImage("data.png");
           this.Text = "Data";
+          break;
+        case SensorType.RawValue:
+          this.Image = Utilities.EmbeddedResources.GetImage("data.png");
+          this.Text = "Other values";
           break;
         case SensorType.SmallData :
           this.Image = Utilities.EmbeddedResources.GetImage("data.png");
