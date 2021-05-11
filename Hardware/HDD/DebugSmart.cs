@@ -17,6 +17,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 #if DEBUG
 
   internal class DebugSmart : ISmart {
+    private int driveNumber;
 
     private Drive[] drives = {
       new Drive("KINGSTON SNV425S264GB", null, 16,
@@ -358,48 +359,45 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             F9 FD0400000000 100 100 0 
             FC 090000000000 100 100 0")};
 
-    public IntPtr OpenDrive(int driveNumber) {
-      if (driveNumber < drives.Length)
-        return (IntPtr)driveNumber;
-      else
-        return InvalidHandle;
+    public DebugSmart(int driveNumber) {
+      this.driveNumber = driveNumber;
     }
 
-    public bool EnableSmart(IntPtr handle, int driveNumber) {
-      if (handle != (IntPtr)driveNumber)
-        throw new ArgumentOutOfRangeException();
+    public bool IsValid {
+      get { return true; }
+    }
+    public void Close() {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
 
+    public bool EnableSmart() {
+      if (driveNumber < 0)
+        throw new ObjectDisposedException("DebugSmart");
       return true;
     }
 
-    public DriveAttributeValue[] ReadSmartData(IntPtr handle, int driveNumber) {
-      if (handle != (IntPtr)driveNumber)
-        throw new ArgumentOutOfRangeException();
-
+    public DriveAttributeValue[] ReadSmartData() {
+      if (driveNumber < 0)
+        throw new ObjectDisposedException("DebugSmart");
       return drives[driveNumber].DriveAttributeValues;
     }
 
-    public DriveThresholdValue[] ReadSmartThresholds(IntPtr handle, 
-      int driveNumber) 
+    public DriveThresholdValue[] ReadSmartThresholds()
     {
-      if (handle != (IntPtr)driveNumber)
-        throw new ArgumentOutOfRangeException();
-
+      if (driveNumber < 0)
+        throw new ObjectDisposedException("DebugSmart");
       return drives[driveNumber].DriveThresholdValues;
     }
 
-    public bool ReadNameAndFirmwareRevision(IntPtr handle, int driveNumber, 
-      out string name, out string firmwareRevision) {
-      if (handle != (IntPtr)driveNumber)
-        throw new ArgumentOutOfRangeException();
+    public bool ReadNameAndFirmwareRevision(out string name, out string firmwareRevision) {
+      if (driveNumber < 0)
+        throw new ObjectDisposedException("DebugSmart");
 
       name = drives[driveNumber].Name;
       firmwareRevision = drives[driveNumber].FirmwareVersion;
       return true;
     }
-
-    public void CloseHandle(IntPtr handle) { }
-
 
     private class Drive {
 
@@ -454,10 +452,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       public string FirmwareVersion { get; private set; }
     }
 
-    public IntPtr InvalidHandle { get { return (IntPtr)(-1); } }
+    public void Dispose() {
+      Close();
+    }
 
-    public string[] GetLogicalDrives(int driveIndex) {
-      return new string[0];
+    protected void Dispose(bool disposing) {
+      if (disposing)
+        driveNumber = -1;
     }
   }
 
