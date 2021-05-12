@@ -71,6 +71,7 @@
     <Compile Include="Hardware\HDD\AbstractStorage.cs" />
     <Compile Include="Hardware\HDD\DebugSmart.cs" />
     <Compile Include="Hardware\HDD\DriveAttributeValue.cs" />
+    <Compile Include="Hardware\HDD\DrivePerformanceValues.cs" />
     <Compile Include="Hardware\HDD\DriveThresholdValue.cs" />
     <Compile Include="Hardware\HDD\HDDGeneric.cs" />
     <Compile Include="Hardware\HDD\ISmart.cs" />

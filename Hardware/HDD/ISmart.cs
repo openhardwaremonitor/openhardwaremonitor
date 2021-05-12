@@ -23,6 +23,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     DriveThresholdValue[] ReadSmartThresholds();
 
+    DrivePerformanceValues ReadThroughputValues();
+
     bool ReadNameAndFirmwareRevision(out string name, out string firmwareRevision);
   }
 }

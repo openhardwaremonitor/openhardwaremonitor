@@ -22,7 +22,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     protected enum DriveCommand : uint {
       GetVersion = 0x00074080,
       SendDriveCommand = 0x0007c084,
-      ReceiveDriveData = 0x0007c088
+      ReceiveDriveData = 0x0007c088,
+      DiskPerformance = 0x00070020, // IOCTL_DISK_PERFORMANCE
     }
 
     protected enum RegisterCommand : byte {
@@ -145,6 +146,25 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    internal struct DISK_PERFORMANCE {
+      public long BytesRead;
+      public long BytesWritten;
+      public long ReadTime;
+      public long WriteTime;
+      public long IdleTime;
+      public uint ReadCount;
+      public uint WriteCount;
+      public uint QueueDepth;
+      public uint SplitCount;
+      public long QueryTime;
+      public uint StorageDeviceNumber;
+      [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
+      public byte[] StorageManagerName;
+
+      public uint pad;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     protected struct DriveSmartReadThresholdsResult {
       public uint BufferSize;
       public DriverStatus DriverStatus;
@@ -256,6 +276,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return (isValid) ? result.Attributes : new DriveAttributeValue[0];
     }
 
+    public DrivePerformanceValues ReadThroughputValues() {
+      if (handle.IsClosed)
+        throw new ObjectDisposedException("WindowsATASmart");
+      DISK_PERFORMANCE dpf = new DISK_PERFORMANCE();
+      int size = Marshal.SizeOf<DISK_PERFORMANCE>();
+      int sizeUsed = 0;
+      if (NativeMethods.DeviceIoControl(handle, DriveCommand.DiskPerformance, IntPtr.Zero, 0, ref dpf, size, out sizeUsed, IntPtr.Zero) && sizeUsed >= size) {
+        return new DrivePerformanceValues(dpf);
+      }
+
+      return null;
+    }
+
     public DriveThresholdValue[] ReadSmartThresholds() 
     {
       if (handle.IsClosed)
@@ -348,6 +381,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         DriveCommand command, ref DriveCommandParameter parameter,
         int parameterSize, out DriveSmartReadDataResult result, int resultSize,
         out uint bytesReturned, IntPtr overlapped);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi,
+        CharSet = CharSet.Auto, SetLastError = true)]
+      [return: MarshalAsAttribute(UnmanagedType.Bool)]
+      public static extern bool DeviceIoControl(SafeHandle handle,
+        DriveCommand command, IntPtr inBuffer, int inputSize, ref DISK_PERFORMANCE performance,
+        int resultSize,
+        out int bytesReturned, IntPtr overlapped);
 
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi,
         CharSet = CharSet.Auto, SetLastError = true)]

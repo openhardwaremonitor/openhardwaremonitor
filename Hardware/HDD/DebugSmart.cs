@@ -390,6 +390,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return drives[driveNumber].DriveThresholdValues;
     }
 
+    public DrivePerformanceValues ReadThroughputValues() => null;
+
     public bool ReadNameAndFirmwareRevision(out string name, out string firmwareRevision) {
       if (driveNumber < 0)
         throw new ObjectDisposedException("DebugSmart");
