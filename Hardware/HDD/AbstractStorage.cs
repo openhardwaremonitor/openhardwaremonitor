@@ -14,12 +14,15 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class AbstractStorage : Hardware {
 
-    private const int UPDATE_DIVIDER = 30; // update only every 30s
+    private const int UPDATE_DIVIDER = 5; // update only every 30s
+    private const double BYTES_TO_GIGABYTES = 1.0 / (1024 * 1024 * 1024);
+    private const double BYTES_TO_MEGABYTES = 1.0 / (1024 * 1024);
 
     protected string firmwareRevision;
 
@@ -28,6 +31,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private DriveInfo[] driveInfos;
     private Sensor usageSensor;
+    private List<(Sensor Sensor, double? Value)> performanceSensors;
+    private DrivePerformanceValues lastPerformanceValues;
+    private ISmart smart;
 
     protected AbstractStorage(string name, string firmwareRevision,
       string id, int index, ISettings settings)
@@ -37,6 +43,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       this.index = index;
       this.count = 0;
+
+      performanceSensors = new List<(Sensor, double? value)>();
+      lastPerformanceValues = null;
 
       string[] logicalDrives = WindowsStorage.GetLogicalDrives(index);
       List<DriveInfo> driveInfoList = new List<DriveInfo>(logicalDrives.Length);
@@ -51,6 +60,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         }
       }
       driveInfos = driveInfoList.ToArray();
+
+      smart = new WindowsSmart(index);
     }
 
     public static AbstractStorage CreateInstance(int driveNumber, ISettings settings) {
@@ -70,13 +81,96 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           new Sensor("Used Space", 0, SensorType.Load, this, settings);
         ActivateSensor(usageSensor);
       }
+
+      var performanceValues = smart.ReadThroughputValues();
+
+      // Our sensor indices just need to be different from any existing sensors
+      if (performanceValues != null) {
+        var sensors = CreatePerformanceSensors(performanceValues);
+        foreach (var elem in sensors) {
+          ActivateSensor(elem.Item1);
+        }
+
+        performanceSensors = sensors;
+      }
+    }
+
+    /// <summary>
+    /// This method is used both for construction as well as updating the sensors. This avoids big if's on names
+    /// </summary>
+    private List<(Sensor, double? value)> CreatePerformanceSensors(DrivePerformanceValues throughputValues) {
+      int idx = Sensors.Length + 1;
+      List<(Sensor, double?)> newPerformanceSensors = new List<(Sensor, double?)>();
+
+      TimeSpan deltaTime = default;
+      if (lastPerformanceValues != null) {
+        deltaTime = throughputValues.QueryTime - lastPerformanceValues.QueryTime;
+      }
+
+      Sensor s = new Sensor("Bytes read total", idx++, SensorType.Data, this, settings);
+      double? v = throughputValues.BytesRead * BYTES_TO_GIGABYTES;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Bytes written total", idx++, SensorType.Data, this, settings);
+      v = throughputValues.BytesWritten * BYTES_TO_GIGABYTES;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Read time total", idx++, SensorType.TimeSpan, this, settings);
+      v = throughputValues.ReadTime.TotalSeconds;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Write time total", idx++, SensorType.TimeSpan, this, settings);
+      v = throughputValues.WriteTime.TotalSeconds;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Job queue length", idx++, SensorType.RawValue, this, settings);
+      v = throughputValues.QueueDepth;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Read throughput", idx++, SensorType.Throughput, this, settings);
+      if (lastPerformanceValues != null) {
+        double valueDelta = throughputValues.BytesRead - lastPerformanceValues.BytesRead;
+        v = (valueDelta * BYTES_TO_MEGABYTES) / deltaTime.TotalSeconds;
+      } else {
+        v = null;
+      }
+
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Write throughput", idx++, SensorType.Throughput, this, settings);
+      if (lastPerformanceValues != null) {
+        double valueDelta = throughputValues.BytesWritten - lastPerformanceValues.BytesWritten;
+        v = (valueDelta * BYTES_TO_MEGABYTES) / deltaTime.TotalSeconds;
+      } else {
+        v = null;
+      }
+      newPerformanceSensors.Add((s, v));
+
+      lastPerformanceValues = throughputValues;
+
+      return newPerformanceSensors;
     }
 
     public override HardwareType HardwareType {
       get { return HardwareType.HDD; }
     }
 
-    protected abstract void UpdateSensors();
+    protected virtual void UpdateSensors() {
+      if (performanceSensors.Count > 0) {
+        var newValues = smart.ReadThroughputValues();
+        if (newValues != null) {
+          var update = CreatePerformanceSensors(newValues);
+          foreach (var s in performanceSensors) {
+            var found = update.Single(x => x.Item1.Name == s.Sensor.Name);
+            if (found.value.HasValue) {
+              s.Sensor.Value = (float)found.value;
+            } else {
+              s.Sensor.Value = null;
+            }
+          }
+        }
+      }
+    }
 
     public override void Update() {
       if (count == 0) {

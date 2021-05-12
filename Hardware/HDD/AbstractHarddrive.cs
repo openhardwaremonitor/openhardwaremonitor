@@ -35,7 +35,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private IList<SmartAttribute> smartAttributes;
     private IDictionary<SmartAttribute, Sensor> sensors;
-    private List<Sensor> performanceSensors;
 
     protected ATAStorage(ISmart smart, string name, 
       string firmwareRevision, string id, int index, 
@@ -45,8 +44,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       this.smart = smart;
 
       this.smartAttributes = new List<SmartAttribute>(smartAttributes);
-
-      performanceSensors = new List<Sensor>();
      
       CreateSensors();
     }
@@ -184,44 +181,29 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         }
       }
 
-      var performanceValues = smart.ReadThroughputValues();
-
-      // Our sensor indices just need to be different from any existing sensors
-      int idx = sensors.Count + 1;
-      if (performanceValues != null) {
-        Sensor s = new Sensor(nameof(DrivePerformanceValues.BytesRead), idx, SensorType.RawValue, this, settings);
-        ActivateSensor(s);
-        performanceSensors.Add(s);
-      }
-
       base.CreateSensors();
     }
 
     public virtual void UpdateAdditionalSensors(DriveAttributeValue[] values) {}
 
     protected override void UpdateSensors() {
-      if (performanceSensors.Count > 0) {
-        var newValues = smart.ReadThroughputValues();
-        foreach (var s in performanceSensors) {
-          s.Value = newValues.BytesRead;
-        }
-      }
       if (smart.IsValid) {
-          DriveAttributeValue[] values = smart.ReadSmartData();
+        DriveAttributeValue[] values = smart.ReadSmartData();
 
-          foreach (KeyValuePair<SmartAttribute, Sensor> keyValuePair in sensors) 
-          {
-            SmartAttribute attribute = keyValuePair.Key;
-            foreach (DriveAttributeValue value in values) {
-              if (value.Identifier == attribute.Identifier) {
-                Sensor sensor = keyValuePair.Value;
-                sensor.Value = attribute.ConvertValue(value, sensor.Parameters);
-              }
+        foreach (KeyValuePair<SmartAttribute, Sensor> keyValuePair in sensors) {
+          SmartAttribute attribute = keyValuePair.Key;
+          foreach (DriveAttributeValue value in values) {
+            if (value.Identifier == attribute.Identifier) {
+              Sensor sensor = keyValuePair.Value;
+              sensor.Value = attribute.ConvertValue(value, sensor.Parameters);
             }
           }
-
-          UpdateAdditionalSensors(values);
         }
+
+        UpdateAdditionalSensors(values);
+      }
+
+      base.UpdateSensors();
     }
 
     protected override void GetReport(StringBuilder r) {

@@ -37,7 +37,7 @@ namespace OpenHardwareMonitor.GUI {
               return string.Format("{0:F1} MB/s", value);
           case SensorType.TimeSpan:
             TimeSpan s = TimeSpan.FromSeconds(value.Value);
-            return s.ToString();
+            return s.ToString("g");
           default:
             return string.Format(fixedFormat, value);
         }              

@@ -24,9 +24,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return new StorageGeneric(name, firmwareRevision, info.Index, settings);
     }
 
-    protected override void UpdateSensors() {
-    }
-
     protected override void GetReport(StringBuilder r) {
     }
   }

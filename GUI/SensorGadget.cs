@@ -605,7 +605,7 @@ namespace OpenHardwareMonitor.GUI {
                   break;
                 case SensorType.TimeSpan:
                   TimeSpan s = TimeSpan.FromSeconds(sensor.Value.Value);
-                  formatted = s.ToString();
+                  formatted = s.ToString("g");
                   break;
                 default:
                   formatted = string.Format(format, sensor.Value);

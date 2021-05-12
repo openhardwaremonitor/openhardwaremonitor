@@ -110,6 +110,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       NVMeHealthInfo health = smart.GetHealthInfo();
       foreach (NVMeSensor sensor in sensors)
         sensor.Update(health);
+      base.UpdateSensors();
     }
 
     protected override void GetReport(StringBuilder r) {
