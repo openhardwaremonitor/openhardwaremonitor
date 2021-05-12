@@ -84,6 +84,7 @@
     <Compile Include="Hardware\HDD\SSDIntel.cs" />
     <Compile Include="Hardware\HDD\SSDMicron.cs" />
     <Compile Include="Hardware\HDD\SSDPlextor.cs" />
+    <Compile Include="Hardware\HDD\HDDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSandforce.cs" />
     <Compile Include="Hardware\HDD\StorageGeneric.cs" />

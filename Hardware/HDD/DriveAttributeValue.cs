@@ -23,6 +23,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)]
     public byte[] RawValue;
     public byte Reserved;
+
+    public override string ToString() {
+      return $"ID: 0x{Identifier:x2}";
+    }
   }  
 
 }

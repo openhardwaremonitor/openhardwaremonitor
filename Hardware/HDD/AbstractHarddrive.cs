@@ -28,6 +28,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       typeof(SSDIndilinx),
       typeof(SSDSamsung),
       typeof(SSDMicron),
+      typeof(HDDSamsung),
       typeof(GenericHarddisk)
     };
     
