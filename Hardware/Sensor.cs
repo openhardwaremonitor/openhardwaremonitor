@@ -96,26 +96,29 @@ namespace OpenHardwareMonitor.Hardware {
       string name = new Identifier(Identifier, "values").ToString();
       string s = settings.GetValue(name, null);
 
-      try {
-        byte[] array = Convert.FromBase64String(s);
-        s = null;
-        DateTime now = DateTime.UtcNow;
-        using (MemoryStream m = new MemoryStream(array))
-        using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
-        using (BinaryReader reader = new BinaryReader(c)) {
-          try {
-            long t = 0;
-            while (true) {
-              t += reader.ReadInt64();
-              DateTime time = DateTime.FromBinary(t);
-              if (time > now)
-                break;
-              float value = reader.ReadSingle();
-              AppendValue(value, time);
-            }
-          } catch (EndOfStreamException) { }
+      if (s == null) {
+        settings.Remove(name);
+        return;
+      }
+
+      byte[] array = Convert.FromBase64String(s);
+      DateTime now = DateTime.UtcNow;
+      using (MemoryStream m = new MemoryStream(array))
+      using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
+      using (BinaryReader reader = new BinaryReader(c)) {
+
+        long t = 0;
+        while (reader.PeekChar() != -1) {
+          t += reader.ReadInt64();
+          DateTime time = DateTime.FromBinary(t);
+          if (time > now)
+            break;
+          float value = reader.ReadSingle();
+          AppendValue(value, time);
         }
-      } catch { }
+
+      }
+
       if (values.Count > 0)
         AppendValue(float.NaN, DateTime.UtcNow);
 
