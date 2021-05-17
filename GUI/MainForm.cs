@@ -489,15 +489,17 @@ namespace OpenHardwareMonitor.GUI {
       PlotSelectionChanged(this, null);
     }
 
-    private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {       
+    private void nodeTextBoxText_DrawText(object sender, DrawTextEventArgs e) {       
       Node node = e.Node.Tag as Node;
       if (node != null) {
         Color color;
         if (node.IsVisible) {
           SensorNode sensorNode = node as SensorNode;
           if (plotMenuItem.Checked && sensorNode != null &&
-            sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
+              sensorPlotColors.TryGetValue(sensorNode.Sensor, out color)) {
             e.TextColor = color;
+          }
+            
         } else {
           e.TextColor = Color.DarkGray;
         }

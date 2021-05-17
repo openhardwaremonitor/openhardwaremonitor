@@ -61,6 +61,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Aga.Controls, Version=1.7.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\AdamsLair.TreeViewAdv.1.7.7\lib\net20\Aga.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot, Version=2.0.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.Core.2.0.0\lib\net45\OxyPlot.dll</HintPath>
+    </Reference>
+    <Reference Include="OxyPlot.WindowsForms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=245eacd6b5d2d338, processorArchitecture=MSIL">
+      <HintPath>packages\OxyPlot.WindowsForms.2.0.0\lib\net45\OxyPlot.WindowsForms.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Drawing" />
@@ -173,6 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Resources\app.manifest">
       <SubType>Designer</SubType>
     </None>
@@ -204,18 +214,6 @@
     <EmbeddedResource Include="Resources\control.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="External\Aga.Controls\Aga.Controls.csproj">
-      <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
-      <Name>Aga.Controls</Name>
-    </ProjectReference>
-    <ProjectReference Include="External\OxyPlot\OxyPlot.WindowsForms\OxyPlot.WindowsForms.csproj">
-      <Project>{d4554296-094e-4cac-8eae-44eb250666c6}</Project>
-      <Name>OxyPlot.WindowsForms</Name>
-    </ProjectReference>
-    <ProjectReference Include="External\OxyPlot\OxyPlot\OxyPlot.csproj">
-      <Project>{bcc43e58-e473-403e-a84d-63fedc723040}</Project>
-      <Name>OxyPlot</Name>
-    </ProjectReference>
     <ProjectReference Include="OpenHardwareMonitorLib.csproj">
       <Project>{B0397530-545A-471D-BB74-027AE456DF1A}</Project>
       <Name>OpenHardwareMonitorLib</Name>
