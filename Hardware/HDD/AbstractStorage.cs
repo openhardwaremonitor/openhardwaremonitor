@@ -123,6 +123,30 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       v = throughputValues.WriteTime.TotalSeconds;
       newPerformanceSensors.Add((s, v));
 
+      s = new Sensor("Idle time total", idx++, SensorType.TimeSpan, this, settings);
+      v = throughputValues.IdleTime.TotalSeconds;
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Read active time", idx++, SensorType.Load, this, settings);
+      if (lastPerformanceValues != null) {
+        TimeSpan valueDelta = throughputValues.ReadTime - lastPerformanceValues.ReadTime;
+        v = valueDelta.TotalSeconds / deltaTime.TotalSeconds;
+      } else {
+        v = null;
+      }
+
+      newPerformanceSensors.Add((s, v));
+
+      s = new Sensor("Write active time", idx++, SensorType.Load, this, settings);
+      if (lastPerformanceValues != null) {
+        TimeSpan valueDelta = throughputValues.WriteTime - lastPerformanceValues.WriteTime;
+        v = valueDelta.TotalSeconds / deltaTime.TotalSeconds;
+      } else {
+        v = null;
+      }
+
+      newPerformanceSensors.Add((s, v));
+
       s = new Sensor("Job queue length", idx++, SensorType.RawValue, this, settings);
       v = throughputValues.QueueDepth;
       newPerformanceSensors.Add((s, v));

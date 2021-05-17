@@ -74,6 +74,9 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private void SetSensorValuesToSettings() {
+      if (values.Count == 0) {
+        return;
+      }
       using (MemoryStream m = new MemoryStream()) {
         using (GZipStream c = new GZipStream(m, CompressionMode.Compress))
         using (BufferedStream b = new BufferedStream(c, 65536))
