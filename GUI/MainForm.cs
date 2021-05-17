@@ -343,6 +343,8 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+
+      treeView.ExpandAll();
     }
 
     private void PowerModeChanged(object sender,
