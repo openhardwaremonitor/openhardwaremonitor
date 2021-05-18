@@ -22,36 +22,51 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public TBalancerGroup(ISettings settings) {
 
-      uint numDevices;
+      uint numDevices = 0;
       try {
         if (FTD2XX.FT_CreateDeviceInfoList(out numDevices) != FT_STATUS.FT_OK) {
           report.AppendLine("Status: FT_CreateDeviceInfoList failed");
           return;
         }
       } catch (DllNotFoundException) { return; } 
-        catch (ArgumentNullException) { return; }
         catch (EntryPointNotFoundException) { return; }
         catch (BadImageFormatException) { return; }
    
-      FT_DEVICE_INFO_NODE[] info = new FT_DEVICE_INFO_NODE[numDevices];
-      if (FTD2XX.FT_GetDeviceInfoList(info, ref numDevices) != FT_STATUS.FT_OK) 
-      {
-        report.AppendLine("Status: FT_GetDeviceInfoList failed");        
-        return;
-      }
- 
-      // make sure numDevices is not larger than the info array
-      if (numDevices > info.Length)
-        numDevices = (uint)info.Length;
-
       for (int i = 0; i < numDevices; i++) {
+        byte[] serialNumberBuf = new byte[255];
+        byte[] descriptionBuf = new byte[255];
+        FT_HANDLE ftHandle = default;
+        uint flags = 0;
+        uint type = 0;
+        uint id = 0;
+        uint locId = 0;
+        if (FTD2XX.FT_GetDeviceInfoDetail(i, ref flags, ref type, ref id, ref locId, serialNumberBuf, descriptionBuf,
+          out ftHandle) != FT_STATUS.FT_OK) {
+          continue;
+        }
+
+        // For whatever reason, the returned strings contain lots of garbage past the first binary 0
+        string serialNumber = Encoding.UTF8.GetString(serialNumberBuf);
+        string description = Encoding.UTF8.GetString(descriptionBuf);
+
+        TrimToSize(ref serialNumber);
+        TrimToSize(ref description);
+
+        FT_DEVICE deviceType = (FT_DEVICE)type;
         report.Append("Device Index: ");
         report.AppendLine(i.ToString(CultureInfo.InvariantCulture));
         report.Append("Device Type: ");
-        report.AppendLine(info[i].Type.ToString());
+        report.AppendLine(deviceType.ToString());
+        report.Append("Description: ");
+        report.AppendLine(description);
+        report.Append("Serial number: ");
+        report.AppendLine(serialNumber);
 
+        FTD2XX.FT_Close(ftHandle);
+
+        ftHandle = default;
         // the T-Balancer always uses an FT232BM
-        if (info[i].Type != FT_DEVICE.FT_DEVICE_232BM) {
+        if (deviceType != FT_DEVICE.FT_DEVICE_232BM) {
           report.AppendLine("Status: Wrong device type");
           continue;
         }
@@ -126,6 +141,13 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
         if (i < numDevices - 1)
           report.AppendLine();
+      }
+    }
+
+    private void TrimToSize(ref string description) {
+      int idx = description.IndexOf('\0');
+      if (idx >= 0) {
+        description = description.Substring(0, idx);
       }
     }
 
