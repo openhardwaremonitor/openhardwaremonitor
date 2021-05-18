@@ -77,11 +77,11 @@ namespace LibreHardwareMonitor.Hardware.Network
                 long dBytesUploaded = interfaceStats.BytesSent - _bytesUploaded;
                 long dBytesDownloaded = interfaceStats.BytesReceived - _bytesDownloaded;
 
-                // Upload and download speeds are reported as the number of bytes transfered over the
+                // Upload and download speeds are reported as the number of mbytes transfered over the
                 // time difference since the last report. In this way, the values represent the average
                 // number of bytes up/downloaded in a second.
-                _uploadSpeed.Value = (float)(dBytesUploaded / dt);
-                _downloadSpeed.Value = (float)(dBytesDownloaded / dt);
+                _uploadSpeed.Value = (float)(dBytesUploaded / dt / (1024 * 1024));
+                _downloadSpeed.Value = (float)(dBytesDownloaded / dt / (1024 * 1024));
 
                 // Network speed is in bits per second, so when calculating the load on the NIC we first
                 // grab the total number of bits up/downloaded
