@@ -36,7 +36,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public IHardware[] Hardware {
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware.ToArray();
       }

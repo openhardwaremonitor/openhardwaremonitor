@@ -49,6 +49,7 @@ namespace OpenHardwareMonitorReport
             computer.HDDEnabled = !options.IgnoreMonitorHDD;
             computer.MainboardEnabled = !options.IgnoreMonitorMainboard;
             computer.RAMEnabled = !options.IgnoreMonitorRAM;
+            computer.NetworkEnabled = !options.IgnoreMonitorNetwork;
 
             computer.HardwareAdded += new HardwareEventHandler(HardwareAdded);
             computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);

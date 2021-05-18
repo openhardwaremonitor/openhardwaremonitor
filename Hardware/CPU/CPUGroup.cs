@@ -127,8 +127,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         index++;
       }
     }
-    
-    public IHardware[] Hardware {
+
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware.ToArray();
       }

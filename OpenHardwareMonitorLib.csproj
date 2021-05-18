@@ -105,6 +105,8 @@
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Mainboard\Identification.cs" />
+    <Compile Include="Hardware\Network\Network.cs" />
+    <Compile Include="Hardware\Network\NetworkGroup.cs" />
     <Compile Include="Hardware\Nvidia\NVML.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\OperatingSystem.cs" />
@@ -179,6 +181,7 @@
     <EmbeddedResource Include="Hardware\WinRing0.sys" />
     <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

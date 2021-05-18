@@ -9,6 +9,7 @@
 */
 
 using System;
+using System.Collections.Generic;
 
 namespace OpenHardwareMonitor.Hardware.RAM {
   internal class RAMGroup : IGroup {
@@ -30,7 +31,7 @@ namespace OpenHardwareMonitor.Hardware.RAM {
       return null;
     }
 
-    public IHardware[] Hardware {
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware;
       }

@@ -49,6 +49,9 @@ namespace OpenHardwareMonitorReport
 
             [Option("IgnoreMonitorRAM", HelpText = "Disable monitoring of RAM")]
             public bool IgnoreMonitorRAM { get; set; }
+
+            [Option("IgnoreMonitorNetwork", HelpText = "Disable network monitoring")]
+            public bool IgnoreMonitorNetwork { get; set; }
         }
 
         [Verb("RunWebserver", HelpText = "Run a webserver")]

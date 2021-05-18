@@ -302,6 +302,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\throughput.png" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\network.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio AllowExistingFolder="true" />

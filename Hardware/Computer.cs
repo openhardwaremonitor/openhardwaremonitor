@@ -14,6 +14,7 @@ using System.Globalization;
 using System.IO;
 using System.Security.Permissions;
 using System.Reflection;
+using LibreHardwareMonitor.Hardware.Network;
 
 namespace OpenHardwareMonitor.Hardware {
 
@@ -31,7 +32,8 @@ namespace OpenHardwareMonitor.Hardware {
     private bool ramEnabled;
     private bool gpuEnabled;
     private bool fanControllerEnabled;
-    private bool hddEnabled;    
+    private bool hddEnabled;
+    private bool _networkEnabled;
 
     public Computer() {
       this.settings = new Settings();
@@ -107,6 +109,10 @@ namespace OpenHardwareMonitor.Hardware {
       if (fanControllerEnabled) {
         Add(new TBalancer.TBalancerGroup(settings));
         Add(new Heatmaster.HeatmasterGroup(settings));
+      }
+
+      if (_networkEnabled) {
+        Add(new NetworkGroup(settings));
       }
 
       if (hddEnabled)
@@ -214,6 +220,20 @@ namespace OpenHardwareMonitor.Hardware {
             RemoveType<HDD.HarddriveGroup>();
         }
         hddEnabled = value;
+      }
+    }
+
+    public bool NetworkEnabled {
+      get { return _networkEnabled; }
+      set {
+        if (open && value != _networkEnabled) {
+          if (value)
+            Add(new NetworkGroup(settings));
+          else
+            RemoveType<NetworkGroup>();
+        }
+
+        _networkEnabled = value;
       }
     }
 
@@ -350,7 +370,7 @@ namespace OpenHardwareMonitor.Hardware {
             w.Write(report);
           }
 
-          IHardware[] hardwareArray = group.Hardware;
+          var hardwareArray = group.Hardware;
           foreach (IHardware hardware in hardwareArray)
             ReportHardware(hardware, w);
 

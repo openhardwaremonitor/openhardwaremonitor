@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption readGpuSensors;
     private UserOption readFanControllersSensors;
     private UserOption readHddSensors;
+    private UserOption readNetworkSensors;
 
     private UserOption showGadget;
     private UserRadioGroup plotLocation;
@@ -265,6 +266,12 @@ namespace OpenHardwareMonitor.GUI {
         settings);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
+      };
+
+      readNetworkSensors = new UserOption("networkMenuItem", true, networkMenuItem,
+        settings);
+      readNetworkSensors.Changed += delegate (object sender, EventArgs e) {
+        computer.NetworkEnabled = readNetworkSensors.Value;
       };
 
       showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem,

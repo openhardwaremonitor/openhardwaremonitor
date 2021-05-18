@@ -151,7 +151,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       }
     }
 
-    public IHardware[] Hardware {
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware.ToArray();
       }

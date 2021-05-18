@@ -134,7 +134,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         }
     }
 
-    public IHardware[] Hardware {
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware.ToArray();
       }
