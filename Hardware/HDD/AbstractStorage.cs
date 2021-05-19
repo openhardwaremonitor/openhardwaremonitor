@@ -64,14 +64,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       smart = new WindowsSmart(index);
     }
 
-    public static AbstractStorage CreateInstance(int driveNumber, ISettings settings) {
+    public static AbstractStorage CreateInstance(int driveNumber, NVMeGeneric previousNvMe, ISettings settings) {
       StorageInfo info = WindowsStorage.GetStorageInfo(driveNumber);
       if (info == null || info.Removable)
         return null;
       if (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata)
         return ATAStorage.CreateInstance(info, settings);
       if (info.BusType == StorageBusType.BusTypeNvme)
-        return NVMeGeneric.CreateInstance(info, settings);
+        return NVMeGeneric.CreateInstance(info, previousNvMe, settings);
       return StorageGeneric.CreateInstance(info, settings);
     }
 

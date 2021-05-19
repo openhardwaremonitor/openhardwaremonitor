@@ -27,11 +27,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       if (OperatingSystem.IsUnix) 
         return;
 
+      // A bit of a hack to make sure we get a 1:1 relationship between physical drives and SCSI Disks (as which NVME drives are recognized, see
+      // NVMeGeneric.GetDeviceInfo for further details
+      NVMeGeneric previousNvmeDisk = null;
       for (int drive = 0; drive < MAX_DRIVES; drive++) {
         AbstractStorage instance =
-          AbstractStorage.CreateInstance(drive, settings);
+          AbstractStorage.CreateInstance(drive, previousNvmeDisk, settings);
         if (instance != null) {
           this.hardware.Add(instance);
+        }
+
+        if (instance is NVMeGeneric nvme) {
+          previousNvmeDisk = nvme;
         }
       }
     }

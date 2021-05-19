@@ -661,6 +661,9 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       this.Bounds = newBounds;
+
+      // Register for receiving hardware change information (trough WndProc)
+      DeviceNotification.RegisterDeviceNotification(Handle);
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -831,6 +834,16 @@ namespace OpenHardwareMonitor.GUI {
       const int SC_MINIMIZE = 0xF020;
       const int SC_CLOSE = 0xF060;
 
+      if (m.Msg == DeviceNotification.WmDevicechange) {
+        switch ((int)m.WParam) {
+          case DeviceNotification.DbtDeviceArrival:
+            BeginInvoke(new Action<bool>(DeviceChanged), true); // this is where you do your magic
+            break;
+          case DeviceNotification.DbtDeviceRemoveComplete:
+            BeginInvoke(new Action<bool>(DeviceChanged), false); // this is where you do your magic
+            break;
+        }
+      }
       if (minimizeToTray.Value && 
         m.Msg == WM_SYSCOMMAND && m.WParam.ToInt64() == SC_MINIMIZE) {
         SysTrayHideShow();
@@ -850,6 +863,21 @@ namespace OpenHardwareMonitor.GUI {
           WindowState = FormWindowState.Minimized;
       } else {      
         base.WndProc(ref m);
+      }
+    }
+
+    private void DeviceChanged(bool added) {
+      // Swapping these will re-query the list of devices
+      if (computer != null) {
+        if (computer.NetworkEnabled) {
+          computer.NetworkEnabled = false;
+          computer.NetworkEnabled = true;
+        }
+
+        if (computer.HDDEnabled) {
+          computer.HDDEnabled = false;
+          computer.HDDEnabled = true;
+        }
       }
     }
 

@@ -32,8 +32,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     private const int MAX_DRIVES = 32;
-
-    private static int nextDrive = 0;
+    
     private readonly WindowsNVMeSmart smart;
     private readonly NVMeInfo info;
     private List<NVMeSensor> sensors = new List<NVMeSensor>();
@@ -46,22 +45,23 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     // \\.\ScsiY: is different from \\.\PhysicalDriveX
-    private static NVMeInfo GetDeviceInfo() {
-        while (nextDrive < MAX_DRIVES) {
-          using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
-            nextDrive++;
-            if (!smart.IsValid)
-              continue;
-            NVMeInfo info = smart.GetInfo();
-            if (info != null)
-              return info;
-          }
+    // We need to find the NvmeInfo that matches the drive we search.
+    private static NVMeInfo GetDeviceInfo(StorageInfo infoToMatch, int previousDrive) {
+      for (int nextDrive = previousDrive + 1; nextDrive <= MAX_DRIVES; nextDrive++) {
+        using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
+          if (!smart.IsValid)
+            continue;
+          NVMeInfo info = smart.GetInfo(nextDrive);
+          if (info != null)
+            return info;
         }
-        return null;
+      }
+
+      return null;
     }
 
-    public static AbstractStorage CreateInstance(StorageInfo storageInfo, ISettings settings) {
-      NVMeInfo nvmeInfo = GetDeviceInfo();
+    public static AbstractStorage CreateInstance(StorageInfo storageInfo, NVMeGeneric previousNvme, ISettings settings) {
+      NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo, previousNvme != null ? previousNvme.info.LogicalDeviceNumber : -1);
       if (nvmeInfo == null)
         return null;
       return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);

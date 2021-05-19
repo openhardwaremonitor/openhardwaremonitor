@@ -40,6 +40,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     public uint NumberNamespaces { get; protected set; }
     public NVMeNamespaceInfo Namespace1 { get; protected set; }
     public byte[] RawData { get; protected set; }
+
+    public int LogicalDeviceNumber { get; protected set; }
   }
 
   [Flags]
@@ -285,7 +287,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     private class NVMeInfoImpl : NVMeInfo {
-      public NVMeInfoImpl(int index, NVMeIdentifyControllerData data, byte[] rawData) {
+      public NVMeInfoImpl(int index, int logicalDeviceNumber, NVMeIdentifyControllerData data, byte[] rawData) {
         Index = index;
         VID = data.vid;
         SSVID = data.ssvid;
@@ -298,11 +300,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         ControllerId = data.cntlid;
         NumberNamespaces = data.nn;
         RawData = rawData;
+        LogicalDeviceNumber = logicalDeviceNumber;
       }
 
-      public NVMeInfoImpl(int index, NVMeIdentifyControllerData data, byte[] rawData,
+      public NVMeInfoImpl(int index, int logicalDeviceNumber, NVMeIdentifyControllerData data, byte[] rawData,
         NVMeIdentifyNamespaceData namespaceData, byte[] namespaceRawData)
-        : this(index, data, rawData) {
+        : this(index, logicalDeviceNumber, data, rawData) {
         Namespace1 = new NVMeNamespaceInfoImpl(namespaceData, namespaceRawData);
       }
     }
@@ -417,18 +420,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       GC.SuppressFinalize(this);
     }
 
-    public NVMeInfo GetInfo() {
+    public NVMeInfo GetInfo(int logicalDriveNumber) {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsNVMeSmart");
       try {
         byte[] rawData;
+        // This doesn't work with SCSI devices. Otherwise, that would be unique
+        // var deviceNumber = WindowsStorage.QueryDeviceNumber(handle);
         NVMeIdentifyControllerData data = ReadPassThrough<NVMeIdentifyControllerData>(NVMePassThroughOpcode.AdminIdentify, 0x00000000, 0x000000001, out rawData);
         if (data.nn == 1) {
           byte[] rawDataNamespace;
           NVMeIdentifyNamespaceData nspace = ReadPassThrough<NVMeIdentifyNamespaceData>(NVMePassThroughOpcode.AdminIdentify, 0x000000001, 0x00000000, out rawDataNamespace);
-          return new NVMeInfoImpl(driveNumber, data, rawData, nspace, rawDataNamespace);
+          return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData, nspace, rawDataNamespace);
         }
-        return new NVMeInfoImpl(driveNumber, data, rawData);
+        return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData);
       } catch (Win32Exception) {
       }
       return null;

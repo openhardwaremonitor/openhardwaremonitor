@@ -60,6 +60,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   internal static class WindowsStorage {
     private enum StorageCommand : uint {
       QueryProperty = 0x002d1400,
+      IOCTL_STORAGE_GET_DEVICE_NUMBER = 0x002d1080,
     }
 
     private enum StorageQueryType {
@@ -134,8 +135,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       //public byte[] RawDeviceProperties;
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    private struct STORAGE_DEVICE_NUMBER {
+      public UInt32 DeviceType;
+      public UInt32 DeviceNumber;
+      public UInt32 PartitionNumber;
+    }
+
     private class StorageInfoImpl : StorageInfo {
-      public StorageInfoImpl(int index, IntPtr descriptorPtr) {
+      public StorageInfoImpl(int index, IntPtr descriptorPtr, UInt32 deviceType, UInt32 physicalDeviceNumber) {
         StorageDeviceDescriptor descriptor = (StorageDeviceDescriptor)Marshal.PtrToStructure(descriptorPtr, typeof(StorageDeviceDescriptor));
         Index = index;
         Vendor = GetString(descriptorPtr, descriptor.VendorIdOffset);
@@ -153,16 +161,29 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
+    public static (uint DeviceType, uint DeviceNumber) QueryDeviceNumber(SafeHandle handle) {
+      STORAGE_DEVICE_NUMBER deviceNumber = default;
+      uint bytesReturned = 0;
+
+      if (NativeMethods.DeviceIoControl(handle, StorageCommand.IOCTL_STORAGE_GET_DEVICE_NUMBER, IntPtr.Zero, 0, ref deviceNumber,
+        Marshal.SizeOf<STORAGE_DEVICE_NUMBER>(), out bytesReturned, IntPtr.Zero)) {
+        return (deviceNumber.DeviceType, deviceNumber.DeviceNumber);
+      }
+
+      return (UInt32.MaxValue, UInt32.MaxValue);
+    }
+
     public static StorageInfo GetStorageInfo(int driveNumber) {
       using (SafeHandle handle = NativeMethods.CreateFile(@"\\.\PhysicalDrive" + driveNumber,
         0, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, FileAttributes.Normal, IntPtr.Zero)) {
         if (handle.IsInvalid)
           return null;
 
+        var deviceNumber = QueryDeviceNumber(handle);
+        uint bytesReturned = 0;
         StoragePropertyQuery query = new StoragePropertyQuery();
         StorageDescriptorHeader header;
-        uint bytesReturned = 0;
-
+        
         query.PropertyId = StoragePropertyId.StorageDeviceProperty;
         query.QueryType = StorageQueryType.PropertyStandardQuery;
 
@@ -178,7 +199,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
               out bytesReturned, IntPtr.Zero))
             return null;
 
-          return new StorageInfoImpl(driveNumber, descriptorPtr);
+          return new StorageInfoImpl(driveNumber, descriptorPtr, deviceNumber.DeviceType, deviceNumber.DeviceType);
         } finally {
           Marshal.FreeHGlobal(descriptorPtr);
         }
@@ -238,6 +259,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           ref StoragePropertyQuery query, int querySize,
           IntPtr descriptor, uint descriptorSize,
           out uint bytesReturned, IntPtr overlapped);
+
+      [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi,
+        CharSet = CharSet.Auto, SetLastError = true)]
+      [return: MarshalAs(UnmanagedType.Bool)]
+      public static extern bool DeviceIoControl(
+        SafeHandle handle, StorageCommand command,
+        IntPtr inData, int querySize,
+        ref STORAGE_DEVICE_NUMBER outData, int outDataSize,
+        out uint bytesReturned, IntPtr overlapped);
     }
   }
 }

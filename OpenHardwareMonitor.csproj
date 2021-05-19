@@ -127,6 +127,7 @@
     <Compile Include="GUI\UserOption.cs" />
     <Compile Include="GUI\UserRadioGroup.cs" />
     <Compile Include="Properties\AssemblyVersion.cs" />
+    <Compile Include="Utilities\DeviceNotification.cs" />
     <Compile Include="Utilities\HttpServer.cs" />
     <Compile Include="Utilities\HttpUtility.cs" />
     <Compile Include="Utilities\Logger.cs" />
