@@ -625,7 +625,7 @@ namespace OpenHardwareMonitor.GUI {
           } else {
             DrawProgress(g, w - progressWidth - rightMargin,
               y + 0.35f * sensorLineHeight, progressWidth,
-              0.6f * sensorLineHeight, 0.01f * sensor.Value.Value);
+              0.6f * sensorLineHeight, 0.01f * (float)sensor.Value.Value);
 
             remainingWidth = w - progressWidth - rightMargin;
           }

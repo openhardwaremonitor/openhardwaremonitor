@@ -62,8 +62,8 @@ namespace LibreHardwareMonitor.Hardware.Network
 
                 // Report out the number of GB (2^30 Bytes) that this interface has up/downloaded. Note
                 // that these values can reset back at zero (eg: after waking from sleep).
-                _dataUploaded.Value = (float)(interfaceStats.BytesSent / (double)0x40000000);
-                _dataDownloaded.Value = (float)(interfaceStats.BytesReceived / (double)0x40000000);
+                _dataUploaded.Value = (interfaceStats.BytesSent / (double)0x40000000);
+                _dataDownloaded.Value = (interfaceStats.BytesReceived / (double)0x40000000);
 
                 // Detect a reset in interface stats if the new total is less than what was previously
                 // seen. While setting the previous values to zero doesn't encapsulate the value the
@@ -80,8 +80,8 @@ namespace LibreHardwareMonitor.Hardware.Network
                 // Upload and download speeds are reported as the number of mbytes transfered over the
                 // time difference since the last report. In this way, the values represent the average
                 // number of bytes up/downloaded in a second.
-                _uploadSpeed.Value = (float)(dBytesUploaded / dt / (1024 * 1024));
-                _downloadSpeed.Value = (float)(dBytesDownloaded / dt / (1024 * 1024));
+                _uploadSpeed.Value = (dBytesUploaded / dt / (1024 * 1024));
+                _downloadSpeed.Value = (dBytesDownloaded / dt / (1024 * 1024));
 
                 // Network speed is in bits per second, so when calculating the load on the NIC we first
                 // grab the total number of bits up/downloaded

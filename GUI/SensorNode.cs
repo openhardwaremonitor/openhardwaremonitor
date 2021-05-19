@@ -22,7 +22,7 @@ namespace OpenHardwareMonitor.GUI {
     private bool plot = false;
     private Color? penColor = null;
 
-    public string ValueToString(float? value) {
+    public string ValueToString(double? value) {
       if (value.HasValue) {
         switch (sensor.SensorType) {
           case SensorType.Temperature:

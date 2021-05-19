@@ -25,10 +25,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly ushort addressReg;
     private readonly ushort dataReg;
 
-    private readonly float?[] voltages = new float?[0];
-    private readonly float?[] temperatures = new float?[0];
-    private readonly float?[] fans = new float?[0];
-    private readonly float?[] controls = new float?[0];
+    private readonly double?[] voltages = new double?[0];
+    private readonly double?[] temperatures = new double?[0];
+    private readonly double?[] fans = new double?[0];
+    private readonly double?[] controls = new double?[0];
 
     private readonly float voltageGain;
     private readonly bool has16bitFanCounter;
@@ -205,33 +205,33 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.IT8665E:
         case Chip.IT8686E:
         case Chip.IT8688E:        
-          voltages = new float?[9];
-          temperatures = new float?[6];
-          fans = new float?[5];
-          controls = new float?[5];
+          voltages = new double?[9];
+          temperatures = new double?[6];
+          fans = new double?[5];
+          controls = new double?[5];
           break;
         case Chip.IT8655E:
-          voltages = new float?[9];
-          temperatures = new float?[6];
-          fans = new float?[3];
+          voltages = new double?[9];
+          temperatures = new double?[6];
+          fans = new double?[3];
           break;
         case Chip.IT879XE:
-          voltages = new float?[9];
-          temperatures = new float?[3];
-          fans = new float?[3];
-          controls = new float?[3];
+          voltages = new double?[9];
+          temperatures = new double?[3];
+          fans = new double?[3];
+          controls = new double?[3];
           break;
         case Chip.IT8705F:
-          voltages = new float?[9];
-          temperatures = new float?[3];
-          fans = new float?[3];
-          controls = new float?[3];
+          voltages = new double?[9];
+          temperatures = new double?[3];
+          fans = new double?[3];
+          controls = new double?[3];
           break;
         default:
-          voltages = new float?[9];
-          temperatures = new float?[3];
-          fans = new float?[5];
-          controls = new float?[3];
+          voltages = new double?[9];
+          temperatures = new double?[3];
+          fans = new double?[5];
+          controls = new double?[3];
           break;
       }
 
@@ -285,10 +285,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public Chip Chip { get { return chip; } }
-    public float?[] Voltages { get { return voltages; } }
-    public float?[] Temperatures { get { return temperatures; } }
-    public float?[] Fans { get { return fans; } }
-    public float?[] Controls { get { return controls; } }
+    public double?[] Voltages { get { return voltages; } }
+    public double?[] Temperatures { get { return temperatures; } }
+    public double?[] Fans { get { return fans; } }
+    public double?[] Controls { get { return controls; } }
 
     public string GetReport() {
       StringBuilder r = new StringBuilder();
@@ -430,9 +430,9 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           {
             value = ReadByte(FAN_PWM_CTRL_EXT_REG[i], out valid);
             if (valid)
-              controls[i] = (float)Math.Round(value * 100.0f / 0xFF);
+              controls[i] = Math.Round(value * 100.0f / 0xFF);
           } else {
-            controls[i] = (float)Math.Round((value & 0x7F) * 100.0f / 0x7F);
+            controls[i] = Math.Round((value & 0x7F) * 100.0f / 0x7F);
           }
         }
       }

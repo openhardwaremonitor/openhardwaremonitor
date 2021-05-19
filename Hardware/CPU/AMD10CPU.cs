@@ -381,17 +381,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
             multiplier = GetCoreMultiplier(curEax);
 
             coreClocks[i].Value = 
-              (float)(multiplier * TimeStampCounterFrequency / 
+              (multiplier * TimeStampCounterFrequency / 
               timeStampCounterMultiplier);
             newBusClock = 
-              (float)(TimeStampCounterFrequency / timeStampCounterMultiplier);
+              (TimeStampCounterFrequency / timeStampCounterMultiplier);
           } else {
-            coreClocks[i].Value = (float)TimeStampCounterFrequency;
+            coreClocks[i].Value = TimeStampCounterFrequency;
           }
         }
 
         if (newBusClock > 0) {
-          this.busClock.Value = (float)newBusClock;
+          this.busClock.Value = newBusClock;
           ActivateSensor(this.busClock);
         }
       }

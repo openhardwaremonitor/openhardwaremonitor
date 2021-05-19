@@ -26,15 +26,15 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly SensorType sensorType;
     private readonly Hardware hardware;
     private readonly ReadOnlyArray<IParameter> parameters;
-    private float? currentValue;
-    private float? minValue;
-    private float? maxValue;
+    private double? currentValue;
+    private double? minValue;
+    private double? maxValue;
     private readonly RingCollection<SensorValue> 
       values = new RingCollection<SensorValue>();
     private readonly ISettings settings;
     private IControl control;
     
-    private float sum;
+    private double sum;
     private int count;
    
     public Sensor(string name, int index, SensorType sensorType,
@@ -129,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware {
       settings.Remove(name);
     }
 
-    private void AppendValue(float value, DateTime time) {
+    private void AppendValue(double value, DateTime time) {
       if (values.Count >= 2 && values.Last.Value == value && 
         values[values.Count - 2].Value == value) {
         values.Last = new SensorValue(value, time);
@@ -180,7 +180,7 @@ namespace OpenHardwareMonitor.Hardware {
       get { return parameters; }
     }
 
-    public float? Value {
+    public double? Value {
       get { 
         return currentValue; 
       }
@@ -207,8 +207,8 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public float? Min { get { return minValue; } }
-    public float? Max { get { return maxValue; } }
+    public double? Min { get { return minValue; } }
+    public double? Max { get { return maxValue; } }
 
     public void ResetMin() {
       minValue = null;

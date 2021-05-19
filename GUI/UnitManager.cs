@@ -37,8 +37,8 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    public static float? CelsiusToFahrenheit(float? valueInCelsius) {
-      return valueInCelsius * 1.8f + 32;
+    public static double? CelsiusToFahrenheit(double? valueInCelsius) {
+      return valueInCelsius * 1.8 + 32;
     }
   }
 }

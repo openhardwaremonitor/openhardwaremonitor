@@ -187,7 +187,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           foreach (var s in performanceSensors) {
             var found = update.Single(x => x.Item1.Name == s.Sensor.Name);
             if (found.value.HasValue) {
-              s.Sensor.Value = (float)found.value;
+              s.Sensor.Value = found.value;
             } else {
               s.Sensor.Value = null;
             }

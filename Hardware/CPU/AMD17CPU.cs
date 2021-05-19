@@ -126,7 +126,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       busClock = new Sensor("Bus Speed", 0, SensorType.Clock, this, settings);
       timeStampCounterMultiplier = GetTimeStampCounterMultiplier();
       if (timeStampCounterMultiplier > 0) {
-        busClock.Value = (float)(TimeStampCounterFrequency / 
+        busClock.Value = (TimeStampCounterFrequency / 
           timeStampCounterMultiplier);
         ActivateSensor(busClock);
       }
@@ -257,7 +257,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         Ring0.Rdmsr(MSR_PKG_ENERGY_STAT, out uint energyConsumed, out _)) 
       {
         DateTime time = DateTime.UtcNow;
-        float deltaTime = (float)(time - lastEnergyTime).TotalSeconds;
+        double deltaTime = (time - lastEnergyTime).TotalSeconds;
         if (deltaTime > 0.01) {
 
           packagePowerSensor.Value = energyUnitMultiplier * unchecked(
@@ -267,7 +267,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      float? coresPower = 0f;
+      double? coresPower = 0f;
       for (int i = 0; i < cores.Length; i++) {
         cores[i].Update();
         coresPower += cores[i].Power;
@@ -289,7 +289,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
       private DateTime lastEnergyTime;
       private uint lastEnergyConsumed;
-      private float? power = null;
+      private double? power = null;
 
       public Core(int index, CPUID[] threads, AMD17CPU cpu, ISettings settings) 
       {
@@ -323,7 +323,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         }
       }
 
-      public float? Power { get { return power; } }
+      public double? Power { get { return power; } }
 
       public void Update() {
         DateTime energyTime = DateTime.MinValue;
@@ -338,7 +338,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         ThreadAffinity.Set(previousAffinity);
 
         if (cpu.energyUnitMultiplier != 0) {
-          float deltaTime = (float)(energyTime - lastEnergyTime).TotalSeconds;
+          double deltaTime = (energyTime - lastEnergyTime).TotalSeconds;
           if (deltaTime > 0.01) {
             power = cpu.energyUnitMultiplier *
               unchecked(energyConsumed - lastEnergyConsumed) / deltaTime;

@@ -50,10 +50,10 @@ namespace OpenHardwareMonitor.Hardware.RAM {
         (100.0f * status.AvailablePhysicalMemory) /
         status.TotalPhysicalMemory;
 
-      usedMemory.Value = (float)(status.TotalPhysicalMemory 
+      usedMemory.Value = (status.TotalPhysicalMemory 
         - status.AvailablePhysicalMemory) / (1024 * 1024 * 1024);
 
-      availableMemory.Value = (float)status.AvailablePhysicalMemory /
+      availableMemory.Value = status.AvailablePhysicalMemory /
         (1024 * 1024 * 1024);
     }
 

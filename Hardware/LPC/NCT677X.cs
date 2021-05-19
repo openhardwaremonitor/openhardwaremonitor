@@ -24,10 +24,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly bool isNuvotonVendor;
 
-    private readonly float?[] voltages = new float?[0];
-    private readonly float?[] temperatures = new float?[0];
-    private readonly float?[] fans = new float?[0];
-    private readonly float?[] controls = new float?[0];
+    private readonly double?[] voltages = new double?[0];
+    private readonly double?[] temperatures = new double?[0];
+    private readonly double?[] fans = new double?[0];
+    private readonly double?[] controls = new double?[0];
 
     // Hardware Monitor
     private const uint ADDRESS_REGISTER_OFFSET = 0x05;
@@ -227,7 +227,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         case Chip.NCT6771F:
         case Chip.NCT6776F:          
           if (chip == Chip.NCT6771F) {
-            fans = new float?[4];
+            fans = new double?[4];
 
             // min RPM value with 16-bit fan counter
             minFanRPM = (int)(1.35e6 / 0xFFFF);
@@ -239,7 +239,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               (byte)SourceNCT6771F.SYSTIN
             };            
           } else {
-            fans = new float?[5];
+            fans = new double?[5];
 
             // min RPM value with 13-bit fan counter
             minFanRPM = (int)(1.35e6 / 0x1FFF);
@@ -254,14 +254,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           fanRpmBaseRegister = new ushort[]
             { 0x656, 0x658, 0x65A, 0x65C, 0x65E };
 
-          controls = new float?[3];
+          controls = new double?[3];
 
-          voltages = new float?[9];
+          voltages = new double?[9];
           voltageRegisters = new ushort[] 
             { 0x020, 0x021, 0x022, 0x023, 0x024, 0x025, 0x026, 0x550, 0x551 };
           voltageVBatRegister = 0x551;
 
-          temperatures = new float?[4];
+          temperatures = new double?[4];
           temperatureRegister = new ushort[]
             { 0x027, 0x073, 0x075, 0x077, 0x150, 0x250, 0x62B, 0x62C, 0x62D };
           temperatureHalfRegister = new ushort[]
@@ -291,19 +291,19 @@ namespace OpenHardwareMonitor.Hardware.LPC {
             case Chip.NCT6792DA:
             case Chip.NCT6793D:
             case Chip.NCT6795D:
-              fans = new float?[6];
-              controls = new float?[6];
+              fans = new double?[6];
+              controls = new double?[6];
               break;
             case Chip.NCT6796D:
             case Chip.NCT6796DR:
             case Chip.NCT6797D:
             case Chip.NCT6798D:
-              fans = new float?[7];
-              controls = new float?[7];
+              fans = new double?[7];
+              controls = new double?[7];
               break;
             default:
-              fans = new float?[5];
-              controls = new float?[5];
+              fans = new double?[5];
+              controls = new double?[5];
               break;
           }
 
@@ -316,13 +316,13 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           // min value that could be transfered to 16-bit RPM registers
           minFanCount = 0x15;
 
-          voltages = new float?[15];
+          voltages = new double?[15];
           voltageRegisters = new ushort[] 
             { 0x480, 0x481, 0x482, 0x483, 0x484, 0x485, 0x486, 0x487, 0x488, 
               0x489, 0x48A, 0x48B, 0x48C, 0x48D, 0x48E };
           voltageVBatRegister = 0x488;
 
-          temperatures = new float?[7];
+          temperatures = new double?[7];
           temperaturesSource = new byte[] {
             (byte)SourceNCT67XXD.PECI_0,
             (byte)SourceNCT67XXD.CPUTIN,
@@ -348,20 +348,20 @@ namespace OpenHardwareMonitor.Hardware.LPC {
           break;
         case Chip.NCT610X:
 
-          fans = new float?[3];
-          controls = new float?[3];
+          fans = new double?[3];
+          controls = new double?[3];
 
           fanRpmBaseRegister = new ushort[] { 0x030, 0x032, 0x034 };
 
           // min value RPM value with 13-bit fan counter
           minFanRPM = (int)(1.35e6 / 0x1FFF);
 
-          voltages = new float?[9];
+          voltages = new double?[9];
           voltageRegisters = new ushort[] 
             { 0x300, 0x301, 0x302, 0x303, 0x304, 0x305, 0x307, 0x308, 0x309 };
           voltageVBatRegister = 0x308;
 
-          temperatures = new float?[4];
+          temperatures = new double?[4];
           temperaturesSource = new byte[] {
             (byte)SourceNCT610X.PECI_0,
             (byte)SourceNCT610X.SYSTIN,
@@ -439,10 +439,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }   
 
     public Chip Chip { get { return chip; } }
-    public float?[] Voltages { get { return voltages; } }
-    public float?[] Temperatures { get { return temperatures; } }
-    public float?[] Fans { get { return fans; } }
-    public float?[] Controls { get { return controls; } }
+    public double?[] Voltages { get { return voltages; } }
+    public double?[] Temperatures { get { return temperatures; } }
+    public double?[] Fans { get { return fans; } }
+    public double?[] Controls { get { return controls; } }
 
     private void DisableIOSpaceLock() {
       if (chip != Chip.NCT6791D && 
@@ -475,14 +475,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       DisableIOSpaceLock();
 
       for (int i = 0; i < voltages.Length; i++) {
-        float value = 0.008f * ReadByte(voltageRegisters[i]);
+        double value = 0.008f * ReadByte(voltageRegisters[i]);
         bool valid = value > 0;
 
         // check if battery voltage monitor is enabled
         if (valid && voltageRegisters[i] == voltageVBatRegister) 
           valid = (ReadByte(vBatMonitorControlRegister) & 0x01) > 0;
 
-        voltages[i] = valid ? value : (float?)null;
+        voltages[i] = valid ? value : (double?)null;
       }
 
       int temperatureSourceMask = 0;
@@ -511,7 +511,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
         if ((temperatureSourceMask & (1 << temperaturesSource[i])) > 0)
           continue;
 
-        float? temperature = (sbyte)
+        double? temperature = (sbyte)
           ReadByte(alternateTemperatureRegister[i].Value);
 
         if (temperature > 125 || temperature < -55)

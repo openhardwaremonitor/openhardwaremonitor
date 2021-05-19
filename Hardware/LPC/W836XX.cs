@@ -20,15 +20,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
     private readonly Chip chip;
 
-    private readonly float?[] voltages = new float?[0];
-    private readonly float?[] temperatures = new float?[0];    
-    private readonly float?[] fans = new float?[0];
-    private readonly float?[] controls = new float?[0];
+    private readonly double?[] voltages = new double?[0];
+    private readonly double?[] temperatures = new double?[0];    
+    private readonly double?[] fans = new double?[0];
+    private readonly double?[] controls = new double?[0];
 
     private readonly bool[] peciTemperature = new bool[0];
     private readonly byte[] voltageRegister = new byte[0];
     private readonly byte[] voltageBank = new byte[0];
-    private readonly float voltageGain = 0.008f;
+    private readonly double voltageGain = 0.008;
 
     // Consts 
     private const ushort WINBOND_VENDOR_ID = 0x5CA3;
@@ -95,7 +95,7 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       if (!IsWinbondVendor())
         return;
       
-      temperatures = new float?[3];
+      temperatures = new double?[3];
       peciTemperature = new bool[3];
       switch (chip) {
         case Chip.W83667HG:
@@ -124,33 +124,33 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
       switch (chip) {
         case Chip.W83627EHF:
-          voltages = new float?[10];
+          voltages = new double?[10];
           voltageRegister = new byte[] { 
             0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x50, 0x51, 0x52 };
           voltageBank = new byte[] { 0, 0, 0, 0, 0, 0, 0, 5, 5, 5 };
-          voltageGain = 0.008f;
-          fans = new float?[5];
+          voltageGain = 0.008;
+          fans = new double?[5];
           break;
         case Chip.W83627DHG:
         case Chip.W83627DHGP:        
         case Chip.W83667HG:
         case Chip.W83667HGB:
-          voltages = new float?[9];
+          voltages = new double?[9];
           voltageRegister = new byte[] { 
             0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x50, 0x51 };
           voltageBank = new byte[] { 0, 0, 0, 0, 0, 0, 0, 5, 5 };
-          voltageGain = 0.008f;
-          fans = new float?[5];
+          voltageGain = 0.008;
+          fans = new double?[5];
           break;
         case Chip.W83627HF:
         case Chip.W83627THF:
         case Chip.W83687THF:
-          voltages = new float?[7];
+          voltages = new double?[7];
           voltageRegister = new byte[] { 
             0x20, 0x21, 0x22, 0x23, 0x24, 0x50, 0x51 };
           voltageBank = new byte[] { 0, 0, 0, 0, 0, 5, 5 };
-          voltageGain = 0.016f;
-          fans = new float?[3];         
+          voltageGain = 0.016;
+          fans = new double?[3];         
           break;
       }
     }    
@@ -174,10 +174,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     }
 
     public Chip Chip { get { return chip; } }
-    public float?[] Voltages { get { return voltages; } }
-    public float?[] Temperatures { get { return temperatures; } }
-    public float?[] Fans { get { return fans; } }
-    public float?[] Controls { get { return controls; } }
+    public double?[] Voltages { get { return voltages; } }
+    public double?[] Temperatures { get { return temperatures; } }
+    public double?[] Fans { get { return fans; } }
+    public double?[] Controls { get { return controls; } }
 
     public void Update() {
       if (!Ring0.WaitIsaBusMutex(10))
@@ -186,16 +186,16 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       for (int i = 0; i < voltages.Length; i++) {
         if (voltageRegister[i] != VOLTAGE_VBAT_REG) {
           // two special VCore measurement modes for W83627THF
-          float fvalue;
+          double fvalue;
           if ((chip == Chip.W83627HF || chip == Chip.W83627THF || 
             chip == Chip.W83687THF) && i == 0) 
           {
             byte vrmConfiguration = ReadByte(0, 0x18);
             int value = ReadByte(voltageBank[i], voltageRegister[i]);
             if ((vrmConfiguration & 0x01) == 0)
-              fvalue = 0.016f * value; // VRM8 formula
+              fvalue = 0.016 * value; // VRM8 formula
             else
-              fvalue = 0.00488f * value + 0.69f; // VRM9 formula
+              fvalue = 0.00488 * value + 0.69; // VRM9 formula
           } else {
             int value = ReadByte(voltageBank[i], voltageRegister[i]);
             fvalue = voltageGain * value;

@@ -40,6 +40,8 @@ namespace OpenHardwareMonitor.GUI {
       this.settings = settings;
       this.unitManager = unitManager;
 
+      this.Text = "Time Plot";
+
       this.model = CreatePlotModel();
 
       this.plot = new PlotView();
