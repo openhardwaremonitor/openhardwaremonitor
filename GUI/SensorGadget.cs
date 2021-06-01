@@ -576,6 +576,11 @@ namespace OpenHardwareMonitor.GUI {
                 case SensorType.SmallData:
                   format = "{0:F1} MB";
                   break;
+                case SensorType.RawValue:
+                  format = "{0:F0}";
+                  break;
+                  
+
               }
 
               switch (sensor.SensorType) {
@@ -596,6 +601,11 @@ namespace OpenHardwareMonitor.GUI {
                     formatted =
                       string.Format("{0:F1} MB/s", sensor.Value);
                   }
+
+                  break;
+                case SensorType.TimeSpan:
+                  TimeSpan s = TimeSpan.FromSeconds(sensor.Value.Value);
+                  formatted = s.ToString("g");
                   break;
                 default:
                   formatted = string.Format(format, sensor.Value);
@@ -615,7 +625,7 @@ namespace OpenHardwareMonitor.GUI {
           } else {
             DrawProgress(g, w - progressWidth - rightMargin,
               y + 0.35f * sensorLineHeight, progressWidth,
-              0.6f * sensorLineHeight, 0.01f * sensor.Value.Value);
+              0.6f * sensorLineHeight, 0.01f * (float)sensor.Value.Value);
 
             remainingWidth = w - progressWidth - rightMargin;
           }

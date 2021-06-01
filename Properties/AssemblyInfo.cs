@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Open Hardware Monitor")]
-[assembly: AssemblyCopyright("Copyright © 2009-2020 Michael Möller")]
+[assembly: AssemblyCopyright("Copyright © 2009-2021 Michael Möller et al")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

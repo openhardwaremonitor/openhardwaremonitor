@@ -38,8 +38,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     private long[] idleTimes;
     private long[] totalTimes;
 
-    private float totalLoad;
-    private readonly float[] coreLoads;
+    private double totalLoad;
+    private readonly double[] coreLoads;
 
     private readonly bool available;
 
@@ -71,7 +71,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public CPULoad(CPUID[][] cpuid) {
       this.cpuid = cpuid;
-      this.coreLoads = new float[cpuid.Length];         
+      this.coreLoads = new Double[cpuid.Length];         
       this.totalLoad = 0;
       try {
         GetTimes(out idleTimes, out totalTimes);
@@ -87,11 +87,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       get { return available; }
     }
 
-    public float GetTotalLoad() {
+    public double GetTotalLoad() {
       return totalLoad;
     }
 
-    public float GetCoreLoad(int core) {
+    public double GetCoreLoad(int core) {
       return coreLoads[core];
     }
 
@@ -112,16 +112,17 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (newIdleTimes == null || newTotalTimes == null)
         return;
 
-      float total = 0;
+      double total = 0;
       int count = 0;
       for (int i = 0; i < cpuid.Length; i++) {
-        float value = 0;
+        double value = 0;
         for (int j = 0; j < cpuid[i].Length; j++) {
           long index = cpuid[i][j].Thread;
           if (index < newIdleTimes.Length && index < totalTimes.Length) {
-            float idle = 
-              (float)(newIdleTimes[index] - this.idleTimes[index]) /
-              (float)(newTotalTimes[index] - this.totalTimes[index]);
+            // Casts are required here, otherwise we get an integer division
+            double idle = 
+              (double)(newIdleTimes[index] - this.idleTimes[index]) /
+              (double)(newTotalTimes[index] - this.totalTimes[index]);
             value += idle;
             total += idle;
             count++;

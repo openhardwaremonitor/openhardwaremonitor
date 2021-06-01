@@ -24,7 +24,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     private readonly List<Sensor> fans = new List<Sensor>();
     private readonly List<Sensor> controls = new List<Sensor>();
 
-    private delegate float? ReadValueDelegate(int index);
+    private delegate double? ReadValueDelegate(int index);
     private delegate void UpdateDelegate();
 
     // delegates for mainboard specific sensor reading code
@@ -1511,7 +1511,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       superIO.Update();
 
       foreach (Sensor sensor in voltages) {
-        float? value = readVoltage(sensor.Index);
+        double? value = readVoltage(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value + (value - sensor.Parameters[2].Value) *
             sensor.Parameters[0].Value / sensor.Parameters[1].Value;
@@ -1520,7 +1520,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       foreach (Sensor sensor in temperatures) {
-        float? value = readTemperature(sensor.Index);
+        double? value = readTemperature(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value + sensor.Parameters[0].Value;
           ActivateSensor(sensor);
@@ -1528,7 +1528,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       foreach (Sensor sensor in fans) {
-        float? value = readFan(sensor.Index);
+        double? value = readFan(sensor.Index);
         if (value.HasValue) {
           sensor.Value = value;
           if (value.Value > 0)
@@ -1537,7 +1537,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       }
 
       foreach (Sensor sensor in controls) {
-        float? value = readControl(sensor.Index);
+        double? value = readControl(sensor.Index);
         sensor.Value = value;                
       }
 

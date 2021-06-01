@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption readGpuSensors;
     private UserOption readFanControllersSensors;
     private UserOption readHddSensors;
+    private UserOption readNetworkSensors;
 
     private UserOption showGadget;
     private UserRadioGroup plotLocation;
@@ -267,6 +268,12 @@ namespace OpenHardwareMonitor.GUI {
         computer.HDDEnabled = readHddSensors.Value;
       };
 
+      readNetworkSensors = new UserOption("networkMenuItem", true, networkMenuItem,
+        settings);
+      readNetworkSensors.Changed += delegate (object sender, EventArgs e) {
+        computer.NetworkEnabled = readNetworkSensors.Value;
+      };
+
       showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem,
         settings);
       showGadget.Changed += delegate(object sender, EventArgs e) {
@@ -343,6 +350,8 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+
+      treeView.ExpandAll();
     }
 
     private void PowerModeChanged(object sender,
@@ -489,15 +498,17 @@ namespace OpenHardwareMonitor.GUI {
       PlotSelectionChanged(this, null);
     }
 
-    private void nodeTextBoxText_DrawText(object sender, DrawEventArgs e) {       
+    private void nodeTextBoxText_DrawText(object sender, DrawTextEventArgs e) {       
       Node node = e.Node.Tag as Node;
       if (node != null) {
         Color color;
         if (node.IsVisible) {
           SensorNode sensorNode = node as SensorNode;
           if (plotMenuItem.Checked && sensorNode != null &&
-            sensorPlotColors.TryGetValue(sensorNode.Sensor, out color))
+              sensorPlotColors.TryGetValue(sensorNode.Sensor, out color)) {
             e.TextColor = color;
+          }
+            
         } else {
           e.TextColor = Color.DarkGray;
         }
@@ -650,6 +661,9 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       this.Bounds = newBounds;
+
+      // Register for receiving hardware change information (trough WndProc)
+      DeviceNotification.RegisterDeviceNotification(Handle);
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
@@ -820,6 +834,16 @@ namespace OpenHardwareMonitor.GUI {
       const int SC_MINIMIZE = 0xF020;
       const int SC_CLOSE = 0xF060;
 
+      if (m.Msg == DeviceNotification.WmDevicechange) {
+        switch ((int)m.WParam) {
+          case DeviceNotification.DbtDeviceArrival:
+            BeginInvoke(new Action<bool>(DeviceChanged), true); // this is where you do your magic
+            break;
+          case DeviceNotification.DbtDeviceRemoveComplete:
+            BeginInvoke(new Action<bool>(DeviceChanged), false); // this is where you do your magic
+            break;
+        }
+      }
       if (minimizeToTray.Value && 
         m.Msg == WM_SYSCOMMAND && m.WParam.ToInt64() == SC_MINIMIZE) {
         SysTrayHideShow();
@@ -839,6 +863,21 @@ namespace OpenHardwareMonitor.GUI {
           WindowState = FormWindowState.Minimized;
       } else {      
         base.WndProc(ref m);
+      }
+    }
+
+    private void DeviceChanged(bool added) {
+      // Swapping these will re-query the list of devices
+      if (computer != null) {
+        if (computer.NetworkEnabled) {
+          computer.NetworkEnabled = false;
+          computer.NetworkEnabled = true;
+        }
+
+        if (computer.HDDEnabled) {
+          computer.HDDEnabled = false;
+          computer.HDDEnabled = true;
+        }
       }
     }
 

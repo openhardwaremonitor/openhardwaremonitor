@@ -26,15 +26,15 @@ namespace OpenHardwareMonitor.Hardware {
     private readonly SensorType sensorType;
     private readonly Hardware hardware;
     private readonly ReadOnlyArray<IParameter> parameters;
-    private float? currentValue;
-    private float? minValue;
-    private float? maxValue;
+    private double? currentValue;
+    private double? minValue;
+    private double? maxValue;
     private readonly RingCollection<SensorValue> 
       values = new RingCollection<SensorValue>();
     private readonly ISettings settings;
     private IControl control;
     
-    private float sum;
+    private double sum;
     private int count;
    
     public Sensor(string name, int index, SensorType sensorType,
@@ -74,6 +74,9 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private void SetSensorValuesToSettings() {
+      if (values.Count == 0) {
+        return;
+      }
       using (MemoryStream m = new MemoryStream()) {
         using (GZipStream c = new GZipStream(m, CompressionMode.Compress))
         using (BufferedStream b = new BufferedStream(c, 65536))
@@ -96,26 +99,29 @@ namespace OpenHardwareMonitor.Hardware {
       string name = new Identifier(Identifier, "values").ToString();
       string s = settings.GetValue(name, null);
 
-      try {
-        byte[] array = Convert.FromBase64String(s);
-        s = null;
-        DateTime now = DateTime.UtcNow;
-        using (MemoryStream m = new MemoryStream(array))
-        using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
-        using (BinaryReader reader = new BinaryReader(c)) {
-          try {
-            long t = 0;
-            while (true) {
-              t += reader.ReadInt64();
-              DateTime time = DateTime.FromBinary(t);
-              if (time > now)
-                break;
-              float value = reader.ReadSingle();
-              AppendValue(value, time);
-            }
-          } catch (EndOfStreamException) { }
+      if (s == null) {
+        settings.Remove(name);
+        return;
+      }
+
+      byte[] array = Convert.FromBase64String(s);
+      DateTime now = DateTime.UtcNow;
+      using (MemoryStream m = new MemoryStream(array))
+      using (GZipStream c = new GZipStream(m, CompressionMode.Decompress))
+      using (BinaryReader reader = new BinaryReader(c)) {
+
+        long t = 0;
+        while (reader.PeekChar() != -1) {
+          t += reader.ReadInt64();
+          DateTime time = DateTime.FromBinary(t);
+          if (time > now)
+            break;
+          float value = reader.ReadSingle();
+          AppendValue(value, time);
         }
-      } catch { }
+
+      }
+
       if (values.Count > 0)
         AppendValue(float.NaN, DateTime.UtcNow);
 
@@ -123,7 +129,7 @@ namespace OpenHardwareMonitor.Hardware {
       settings.Remove(name);
     }
 
-    private void AppendValue(float value, DateTime time) {
+    private void AppendValue(double value, DateTime time) {
       if (values.Count >= 2 && values.Last.Value == value && 
         values[values.Count - 2].Value == value) {
         values.Last = new SensorValue(value, time);
@@ -174,7 +180,7 @@ namespace OpenHardwareMonitor.Hardware {
       get { return parameters; }
     }
 
-    public float? Value {
+    public double? Value {
       get { 
         return currentValue; 
       }
@@ -201,8 +207,8 @@ namespace OpenHardwareMonitor.Hardware {
       }
     }
 
-    public float? Min { get { return minValue; } }
-    public float? Max { get { return maxValue; } }
+    public double? Min { get { return minValue; } }
+    public double? Max { get { return maxValue; } }
 
     public void ResetMin() {
       minValue = null;

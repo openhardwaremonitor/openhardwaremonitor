@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OpenHardwareMonitor</RootNamespace>
     <AssemblyName>OpenHardwareMonitorLib</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -68,11 +68,14 @@
     <Compile Include="Hardware\CPU\AMD17CPU.cs" />
     <Compile Include="Hardware\FirmwareTable.cs" />
     <Compile Include="Hardware\GroupAffinity.cs" />
+    <Compile Include="Hardware\HDD\AbstractStorage.cs" />
     <Compile Include="Hardware\HDD\DebugSmart.cs" />
     <Compile Include="Hardware\HDD\DriveAttributeValue.cs" />
+    <Compile Include="Hardware\HDD\DrivePerformanceValues.cs" />
     <Compile Include="Hardware\HDD\DriveThresholdValue.cs" />
     <Compile Include="Hardware\HDD\HDDGeneric.cs" />
     <Compile Include="Hardware\HDD\ISmart.cs" />
+    <Compile Include="Hardware\HDD\NVMeGeneric.cs" />
     <Compile Include="Hardware\HDD\SmartAttribute.cs" />
     <Compile Include="Hardware\HDD\SmartNames.cs" />
     <Compile Include="Hardware\HDD\RequireSmartAttribute.cs" />
@@ -81,8 +84,12 @@
     <Compile Include="Hardware\HDD\SSDIntel.cs" />
     <Compile Include="Hardware\HDD\SSDMicron.cs" />
     <Compile Include="Hardware\HDD\SSDPlextor.cs" />
+    <Compile Include="Hardware\HDD\HDDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSamsung.cs" />
     <Compile Include="Hardware\HDD\SSDSandforce.cs" />
+    <Compile Include="Hardware\HDD\StorageGeneric.cs" />
+    <Compile Include="Hardware\HDD\WindowsNVMeSmart.cs" />
+    <Compile Include="Hardware\HDD\WindowsStorage.cs" />
     <Compile Include="Hardware\IControl.cs" />
     <Compile Include="Hardware\IOControlCode.cs" />
     <Compile Include="Hardware\Computer.cs" />
@@ -98,6 +105,8 @@
     <Compile Include="Hardware\LPC\NCT677X.cs" />
     <Compile Include="Hardware\Mainboard\GigabyteTAMG.cs" />
     <Compile Include="Hardware\Mainboard\Identification.cs" />
+    <Compile Include="Hardware\Network\Network.cs" />
+    <Compile Include="Hardware\Network\NetworkGroup.cs" />
     <Compile Include="Hardware\Nvidia\NVML.cs" />
     <Compile Include="Hardware\Opcode.cs" />
     <Compile Include="Hardware\OperatingSystem.cs" />
@@ -172,6 +181,7 @@
     <EmbeddedResource Include="Hardware\WinRing0.sys" />
     <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

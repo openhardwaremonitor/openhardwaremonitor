@@ -167,7 +167,7 @@ namespace OpenHardwareMonitor.Utilities {
           writer.Write(",");
           for (int i = 0; i < sensors.Length; i++) {
             if (sensors[i] != null) {
-              float? value = sensors[i].Value;
+              double? value = sensors[i].Value;
               if (value.HasValue)
                 writer.Write(
                   value.Value.ToString("R", CultureInfo.InvariantCulture));

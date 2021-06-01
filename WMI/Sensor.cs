@@ -22,9 +22,9 @@ namespace OpenHardwareMonitor.WMI {
     public string Identifier { get; private set; }
     public string Parent { get; private set; }
     public string Name { get; private set; }
-    public float Value { get; private set; }
-    public float Min { get; private set; }
-    public float Max { get; private set; }
+    public double Value { get; private set; }
+    public double Min { get; private set; }
+    public double Max { get; private set; }
     public int Index { get; private set; }
 
     #endregion
@@ -41,13 +41,13 @@ namespace OpenHardwareMonitor.WMI {
     }
     
     public void Update() {
-      Value = (sensor.Value != null) ? (float)sensor.Value : 0;
+      Value = sensor.Value ?? 0;
 
-      if (sensor.Min != null)
-        Min = (float)sensor.Min;
+      if (sensor.Min.HasValue)
+        Min = sensor.Min.Value;
 
-      if (sensor.Max != null)
-        Max = (float)sensor.Max;
+      if (sensor.Max.HasValue)
+        Max = sensor.Max.Value;
     }
   }
 }

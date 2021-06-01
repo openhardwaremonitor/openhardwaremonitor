@@ -49,6 +49,8 @@ namespace OpenHardwareMonitor.Utilities {
       }
     }
 
+    public Exception StartHttpListenerException;
+
     public Boolean StartHTTPListener() {
       if (PlatformNotSupported)
         return false;
@@ -66,7 +68,8 @@ namespace OpenHardwareMonitor.Utilities {
           listenerThread = new Thread(HandleRequests);
           listenerThread.Start();
         }
-      } catch (Exception) {
+      } catch (Exception ex) {
+        this.StartHttpListenerException = ex;
         return false;
       }
 
@@ -78,12 +81,11 @@ namespace OpenHardwareMonitor.Utilities {
         return false;
 
       try {
-        listenerThread.Abort();
-        listener.Stop();
+        listenerThread?.Abort();
+        listener?.Stop();
         listenerThread = null;
       } catch (HttpListenerException) {
       } catch (ThreadAbortException) {
-      } catch (NullReferenceException) {
       } catch (Exception) {
       }
       return true;

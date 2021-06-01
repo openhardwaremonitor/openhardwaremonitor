@@ -15,16 +15,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   [NamePrefix(""), RequireSmart(0xB1), RequireSmart(0xB3), RequireSmart(0xB5),
     RequireSmart(0xB6), RequireSmart(0xB7), RequireSmart(0xBB), 
     RequireSmart(0xC3), RequireSmart(0xC7)]
-  internal class SSDSamsung : AbstractHarddrive {
+  internal class SSDSamsung : ATAStorage {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
       new SmartAttribute(0x05, SmartNames.ReallocatedSectorsCount),
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, (raw, v, p) => {
+        int result = (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
+        return result;
+      }, SensorType.RawValue, 0, SmartNames.PowerOnHours, false),
       new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
       new SmartAttribute(0xAF, SmartNames.ProgramFailCountChip, RawToInt),
       new SmartAttribute(0xB0, SmartNames.EraseFailCountChip, RawToInt),
-      new SmartAttribute(0xB1, SmartNames.WearLevelingCount, RawToInt),
+      new SmartAttribute(0xB1, SmartNames.WearLevelingCount, RawToInt, SensorType.RawValue, 1, SmartNames.WearLevelingCount, true),
       new SmartAttribute(0xB2, SmartNames.UsedReservedBlockCountChip, RawToInt),
       new SmartAttribute(0xB3, SmartNames.UsedReservedBlockCountTotal, RawToInt),
 
@@ -35,7 +38,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       new SmartAttribute(0xB5, SmartNames.ProgramFailCountTotal, RawToInt),
       new SmartAttribute(0xB6, SmartNames.EraseFailCountTotal, RawToInt),
       new SmartAttribute(0xB7, SmartNames.RuntimeBadBlockTotal, RawToInt),
-      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt, SensorType.RawValue, 2, SmartNames.UncorrectableErrorCount, true),
       new SmartAttribute(0xBE, SmartNames.Temperature, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
           => { return r[0] + (p == null ? 0 : p[0].Value); }, 
@@ -44,9 +47,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xC2, SmartNames.AirflowTemperature),
-      new SmartAttribute(0xC3, SmartNames.ECCRate),
+      new SmartAttribute(0xC3, SmartNames.ECCRate, RawToInt, SensorType.RawValue, 3, SmartNames.ECCRate, true),
       new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt),
+      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt, SensorType.RawValue, 4, SmartNames.CRCErrorCount, true),
       new SmartAttribute(0xC9, SmartNames.SupercapStatus),
       new SmartAttribute(0xCA, SmartNames.ExceptionModeStatus),
       new SmartAttribute(0xEB, SmartNames.PowerRecoveryCount),
@@ -60,6 +63,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public SSDSamsung(ISmart smart, string name, string firmwareRevision,
       int index, ISettings settings)
-      : base(smart, name, firmwareRevision, index, smartAttributes, settings) { }
+      : base(smart, name, firmwareRevision, "ssd", index, smartAttributes, settings) { }
   }
 }

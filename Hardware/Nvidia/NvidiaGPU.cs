@@ -267,8 +267,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         uint totalMemory = memoryInfo.Values[0];
         uint freeMemory = memoryInfo.Values[4];
         float usedMemory = Math.Max(totalMemory - freeMemory, 0);
-        memoryFree.Value = (float)freeMemory/ 1024;
-        memoryAvail.Value = (float)totalMemory/ 1024;
+        memoryFree.Value = freeMemory/ 1024;
+        memoryAvail.Value = totalMemory/ 1024;
         memoryUsed.Value = usedMemory/ 1024;
         memoryLoad.Value = 100f * usedMemory / totalMemory;
         ActivateSensor(memoryAvail);

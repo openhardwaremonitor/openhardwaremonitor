@@ -20,25 +20,30 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private const int MAX_DRIVES = 32;
 
-    private readonly List<AbstractHarddrive> hardware = 
-      new List<AbstractHarddrive>();
+    private readonly List<AbstractStorage> hardware = 
+      new List<AbstractStorage>();
 
     public HarddriveGroup(ISettings settings) {
       if (OperatingSystem.IsUnix) 
         return;
 
-      ISmart smart = new WindowsSmart();
-
+      // A bit of a hack to make sure we get a 1:1 relationship between physical drives and SCSI Disks (as which NVME drives are recognized, see
+      // NVMeGeneric.GetDeviceInfo for further details
+      NVMeGeneric previousNvmeDisk = null;
       for (int drive = 0; drive < MAX_DRIVES; drive++) {
-        AbstractHarddrive instance =
-          AbstractHarddrive.CreateInstance(smart, drive, settings);
+        AbstractStorage instance =
+          AbstractStorage.CreateInstance(drive, previousNvmeDisk, settings);
         if (instance != null) {
           this.hardware.Add(instance);
+        }
+
+        if (instance is NVMeGeneric nvme) {
+          previousNvmeDisk = nvme;
         }
       }
     }
 
-    public IHardware[] Hardware {
+    public IReadOnlyList<IHardware> Hardware {
       get {
         return hardware.ToArray();
       }
@@ -49,7 +54,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public void Close() {
-      foreach (AbstractHarddrive hdd in hardware) 
+      foreach (AbstractStorage hdd in hardware) 
         hdd.Close();
     }
   }

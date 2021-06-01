@@ -14,10 +14,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     Chip Chip { get; }
 
     // get voltage, temperature, fan and control channel values
-    float?[] Voltages { get; }
-    float?[] Temperatures { get; }
-    float?[] Fans { get; }
-    float?[] Controls { get; }
+    double?[] Voltages { get; }
+    double?[] Temperatures { get; }
+    double?[] Fans { get; }
+    double?[] Controls { get; }
 
     // set control value, null = auto    
     void SetControl(int index, byte? value);         

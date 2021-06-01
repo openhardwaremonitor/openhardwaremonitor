@@ -28,18 +28,20 @@ namespace OpenHardwareMonitor.Hardware {
     Data, // GB = 2^30 Bytes    
     SmallData, // MB = 2^20 Bytes
     Throughput, // MB/s = 2^20 Bytes/s
+    RawValue, // i.e. Number of something
+    TimeSpan, // s
   }
 
   public struct SensorValue {
-    private readonly float value;
+    private readonly double value;
     private readonly DateTime time;
 
-    public SensorValue(float value, DateTime time) {
+    public SensorValue(double value, DateTime time) {
       this.value = value;
       this.time = time;
     }
 
-    public float Value { get { return value; } }
+    public double Value { get { return value; } }
     public DateTime Time { get { return time; } }
   }
 
@@ -57,9 +59,9 @@ namespace OpenHardwareMonitor.Hardware {
 
     IReadOnlyArray<IParameter> Parameters { get; }
 
-    float? Value { get; }
-    float? Min { get; }
-    float? Max { get; }
+    double? Value { get; }
+    double? Min { get; }
+    double? Max { get; }
 
     void ResetMin();
     void ResetMax();
