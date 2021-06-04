@@ -33,6 +33,7 @@ namespace OpenHardwareMonitor.GUI {
       new SortedDictionary<SensorType, LinearAxis>();
 
     private UserOption stackedAxes;
+    private UserOption axisLabels;
 
     private DateTime now;
 
@@ -78,6 +79,14 @@ namespace OpenHardwareMonitor.GUI {
         InvalidatePlot();
       };
       menu.MenuItems.Add(stackedAxesMenuItem);
+
+      MenuItem axisLabelsMenuItem = new MenuItem("Axis Labels");
+      axisLabels = new UserOption("axisLabels", true,
+        axisLabelsMenuItem, settings);
+      axisLabels.Changed += (sender, e) => {
+        model.PlotMargins = ((UserOption)sender).Value ? new OxyThickness(double.NaN) : new OxyThickness(0);
+      };
+      menu.MenuItems.Add(axisLabelsMenuItem);
 
       MenuItem timeWindow = new MenuItem("Time Window");
       MenuItem[] timeWindowMenuItems =
