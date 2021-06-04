@@ -205,7 +205,7 @@
     <EmbeddedResource Include="Resources\control.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="OpenHardwareMonitorLib.csproj">
+    <ProjectReference Include="..\OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj">
       <Project>{B0397530-545A-471D-BB74-027AE456DF1A}</Project>
       <Name>OpenHardwareMonitorLib</Name>
     </ProjectReference>
