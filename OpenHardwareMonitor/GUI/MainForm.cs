@@ -331,7 +331,7 @@ namespace OpenHardwareMonitor.GUI {
 
       startupMenuItem.Visible = startupManager.IsAvailable;
       
-      if (startMinMenuItem.Checked) {
+      if (startMinMenuItem.Checked || Program.Arguments.Contains(StartupParams.Types.STARTMINIMIZED)) {
         if (!minTrayMenuItem.Checked) {
           WindowState = FormWindowState.Minimized;
           Show();

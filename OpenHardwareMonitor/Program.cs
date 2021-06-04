@@ -15,12 +15,13 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using OpenHardwareMonitor.GUI;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor {
   public static class Program {
-
+    public static StartupParams Arguments;
     [STAThread]
-    public static void Main() {
+    public static void Main(string[] args) {
       #if !DEBUG
         Application.ThreadException += 
           new ThreadExceptionEventHandler(Application_ThreadException);
@@ -34,6 +35,7 @@ namespace OpenHardwareMonitor {
       if (!AllRequiredFilesAvailable() || !IsNetFramework45Installed())
         Environment.Exit(0);
 
+      Arguments = new StartupParams(args);
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
       using (GUI.MainForm form = new GUI.MainForm()) {
