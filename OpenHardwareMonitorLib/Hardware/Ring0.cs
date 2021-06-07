@@ -80,7 +80,7 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     private static bool ExtractDriver(string fileName) {
-      string resourceName = "OpenHardwareMonitor.Hardware." +
+      string resourceName = "OpenHardwareMonitorLib.Hardware." +
         (OperatingSystem.Is64BitOperatingSystem ? "WinRing0x64.sys" : 
         "WinRing0.sys");
 
