@@ -73,7 +73,7 @@ namespace OpenHardwareMonitor.GUI {
 
     private bool selectionDragging = false;
 
-    public MainForm() {      
+    public MainForm() {
       InitializeComponent();
 
       // check if the OpenHardwareMonitorLib assembly has the correct version
@@ -85,9 +85,11 @@ namespace OpenHardwareMonitor.GUI {
         Environment.Exit(0);
       }
 
-      this.settings = new PersistentSettings();      
-      this.settings.Load(Path.ChangeExtension(
-        Application.ExecutablePath, ".config"));
+      this.settings = new PersistentSettings();
+      if (!Program.Arguments.DoNotLoadConfiguration) {
+        this.settings.Load(Path.ChangeExtension(
+          Application.ExecutablePath, ".config"));
+      }
 
       this.unitManager = new UnitManager(settings);
 
@@ -209,10 +211,14 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       startMinimized = new UserOption("startMinMenuItem", false,
-        startMinMenuItem, settings);
+        startMinMenuItem, settings, () => Program.Arguments.StartMinimized ? true : null);
 
       minimizeToTray = new UserOption("minTrayMenuItem", true,
-        minTrayMenuItem, settings);
+        minTrayMenuItem, settings, () => Program.Arguments.MinimizeToTray ? true : null);
+
+      // Force a refresh of the icon state
+      systemTray.IsMainIconEnabled = minimizeToTray.Value;
+
       minimizeToTray.Changed += delegate(object sender, EventArgs e) {
         systemTray.IsMainIconEnabled = minimizeToTray.Value;
       };
@@ -239,37 +245,37 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       readCpuSensors = new UserOption("cpuMenuItem", true,
-        cpuMenuItem, settings);
+        cpuMenuItem, settings, () => Program.Arguments.IgnoreMonitorCPU ? false : null);
       readCpuSensors.Changed += delegate(object sender, EventArgs e) {
         computer.CPUEnabled = readCpuSensors.Value;
       };
 
       readRamSensors = new UserOption("ramMenuItem", true,
-        ramMenuItem, settings);
+        ramMenuItem, settings, () => Program.Arguments.IgnoreMonitorRAM ? false : null);
       readRamSensors.Changed += delegate(object sender, EventArgs e) {
         computer.RAMEnabled = readRamSensors.Value;
       };
 
       readGpuSensors = new UserOption("gpuMenuItem", true,
-        gpuMenuItem, settings);
+        gpuMenuItem, settings, () => Program.Arguments.IgnoreMonitorGPU ? false : null);
       readGpuSensors.Changed += delegate(object sender, EventArgs e) {
         computer.GPUEnabled = readGpuSensors.Value;
       };
 
       readFanControllersSensors = new UserOption("fanControllerMenuItem", true,
-        fanControllerMenuItem, settings);
+        fanControllerMenuItem, settings, () => Program.Arguments.IgnoreMonitorFanController ? false : null);
       readFanControllersSensors.Changed += delegate(object sender, EventArgs e) {
         computer.FanControllerEnabled = readFanControllersSensors.Value;
       };
 
       readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem,
-        settings);
+        settings, () => Program.Arguments.IgnoreMonitorHDD ? false : null);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
         computer.HDDEnabled = readHddSensors.Value;
       };
 
       readNetworkSensors = new UserOption("networkMenuItem", true, networkMenuItem,
-        settings);
+        settings, () => Program.Arguments.IgnoreMonitorNetwork ? false : null);
       readNetworkSensors.Changed += delegate (object sender, EventArgs e) {
         computer.NetworkEnabled = readNetworkSensors.Value;
       };
@@ -285,14 +291,18 @@ namespace OpenHardwareMonitor.GUI {
         unitManager.TemperatureUnit == TemperatureUnit.Celsius;
       fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
-      server = new HttpServer(root, this.settings.GetValue("listenerPort", 8085));
+      int networkPort = this.settings.GetValue("listenerPort", 8085);
+      if (Program.Arguments.WebServerPort.HasValue) {
+        networkPort = Program.Arguments.WebServerPort.Value;
+      }
+      server = new HttpServer(root, networkPort);
       if (server.PlatformNotSupported) {
         webMenuItemSeparator.Visible = false;
         webMenuItem.Visible = false;
       }
 
       runWebServer = new UserOption("runWebServerMenuItem", false,
-        runWebServerMenuItem, settings);
+        runWebServerMenuItem, settings, () => Program.Arguments.RunWebServer ? true : null);
       runWebServer.Changed += delegate(object sender, EventArgs e) {
         if (runWebServer.Value)
           server.StartHTTPListener();
@@ -330,8 +340,8 @@ namespace OpenHardwareMonitor.GUI {
       InitializePlotForm();
 
       startupMenuItem.Visible = startupManager.IsAvailable;
-      
-      if (startMinMenuItem.Checked || Program.Arguments.Contains(StartupParams.Types.STARTMINIMIZED)) {
+
+      if (startMinMenuItem.Checked) {
         if (!minTrayMenuItem.Checked) {
           WindowState = FormWindowState.Minimized;
           Show();

@@ -35,6 +35,25 @@ namespace OpenHardwareMonitor.GUI {
       this.menuItem.Click += new EventHandler(menuItem_Click);
     }
 
+    public UserOption(string name, bool value,
+      MenuItem menuItem, PersistentSettings settings, Func<bool?> overridenValue) {
+
+      this.settings = settings;
+      this.name = name;
+      if (name != null)
+        this.value = settings.GetValue(name, value);
+      else
+        this.value = value;
+      if (overridenValue != null) {
+        var v1 = overridenValue();
+        if (v1.HasValue) {
+          this.value = v1.Value;
+        }
+      }
+      this.menuItem = menuItem;
+      this.menuItem.Checked = this.value;
+      this.menuItem.Click += new EventHandler(menuItem_Click);
+    }
     private void menuItem_Click(object sender, EventArgs e) {
       this.Value = !this.Value;
     }    
