@@ -2,7 +2,6 @@
 *.suo
 /.vs
 /packages
-Bin
 bin
 obj
-Obj
+launchSettings.json
