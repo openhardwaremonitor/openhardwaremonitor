@@ -68,6 +68,9 @@
     <EmbeddedResource Include="Resources\Web\**\*.*" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Properties\AssemblyVersion.cs" Link="Properties\AssemblyVersion.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AdamsLair.TreeViewAdv" Version="1.7.7" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />

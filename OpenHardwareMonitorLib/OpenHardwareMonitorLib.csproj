@@ -15,6 +15,9 @@
     <None Remove="Hardware\WinRing0x64.sys" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Properties\AssemblyVersion.cs" Link="Properties\AssemblyVersion.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Hardware\WinRing0.sys" />
     <EmbeddedResource Include="Hardware\WinRing0x64.sys" />
   </ItemGroup>
