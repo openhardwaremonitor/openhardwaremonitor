@@ -12,15 +12,18 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using CommandLine;
 using OpenHardwareMonitor.GUI;
+using OpenHardwareMonitor.Utilities;
 
 namespace OpenHardwareMonitor {
   public static class Program {
-
+    internal static CommandLineOptions Arguments;
     [STAThread]
-    public static void Main() {
+    public static void Main(string[] args) {
       #if !DEBUG
         Application.ThreadException += 
           new ThreadExceptionEventHandler(Application_ThreadException);
@@ -34,6 +37,7 @@ namespace OpenHardwareMonitor {
       if (!AllRequiredFilesAvailable() || !IsNetFramework45Installed())
         Environment.Exit(0);
 
+      ParseCommandLine(args);
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
       using (GUI.MainForm form = new GUI.MainForm()) {
@@ -42,6 +46,32 @@ namespace OpenHardwareMonitor {
         };        
         Application.Run();
       }
+    }
+
+    private static void ParseCommandLine(string[] args) {
+      StringBuilder helpText = new StringBuilder();
+      TextWriter helpWriter = new StringWriter(helpText);
+      CommandLine.Parser caseInsensitiveParser = new CommandLine.Parser(settings =>
+      {
+        settings.CaseSensitive = false;
+        settings.HelpWriter = helpWriter;
+        settings.EnableDashDash = CommandLine.Parser.Default.Settings.EnableDashDash;
+        settings.CaseInsensitiveEnumValues = CommandLine.Parser.Default.Settings.CaseInsensitiveEnumValues;
+        settings.IgnoreUnknownArguments = CommandLine.Parser.Default.Settings.IgnoreUnknownArguments;
+        settings.MaximumDisplayWidth = CommandLine.Parser.Default.Settings.MaximumDisplayWidth;
+        settings.ParsingCulture = CommandLine.Parser.Default.Settings.ParsingCulture;
+      });
+
+      var result = caseInsensitiveParser.ParseArguments<CommandLineOptions>(args);
+      Arguments = new CommandLineOptions(); // ensure it is not null, even if the command line parsing fails
+      result.WithParsed(x => Arguments = x);
+
+      // This writer is not empty if the (implicit) --help option was specified.
+      if (helpText.Length > 0) {
+        helpWriter.WriteLine("Unknown options are silently ignored");
+        MessageBox.Show(helpWriter.ToString(), "Command line options", MessageBoxButtons.OK);
+      }
+
     }
 
     private static bool IsFileAvailable(string fileName) {
