@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>OpenHardwareMonitor</id>
+    <version>0.9.7-alpha03</version>
+    <title>OpenHardwareMonitor</title>
+    <authors>Leica Geosystems AG</authors>
+    <owners>Michael Möller et al</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="file">LICENSE.txt</license>
+    <projectUrl>https://openhardwaremonitor.org/</projectUrl>
+    <description>Unofficial package for OpenHardwareMonitor, a tool to display various performance values.</description>
+    <summary>Unofficial package for OpenHardwareMonitor, a tool to display various performance values.</summary>
+    <copyright>Copyright © 2010-2021 Michael Möller at al, See license</copyright>
+    <repository type="git" url="https://github.com/hexagon-oss/openhardwaremonitor/" />
+  </metadata>
+  <files>
+    <file src="OpenHardwareMonitorReport\bin\Release\Aga.Controls.dll" target="tools\Aga.Controls.dll" />
+    <file src="OpenHardwareMonitorReport\bin\Release\CommandLine.dll" target="tools\CommandLine.dll" />
+    <file src="Licenses\License.html" target="tools\License.html" />
+    <file src="LICENSE.txt" target="LICENSE.txt" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OpenHardwareMonitor.exe" target="tools\OpenHardwareMonitor.exe" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OpenHardwareMonitor.exe.config" target="tools\OpenHardwareMonitor.exe.config" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OpenHardwareMonitorLib.dll" target="tools\OpenHardwareMonitorLib.dll" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OxyPlot.dll" target="tools\OxyPlot.dll" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OxyPlot.WindowsForms.dll" target="tools\OxyPlot.WindowsForms.dll" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OpenHardwareMonitorReport.exe" target="tools\OpenHardwareMonitorReport.exe" />
+    <file src="OpenHardwareMonitorReport\bin\Release\OpenHardwareMonitorReport.exe.config" target="tools\OpenHardwareMonitorReport.exe.config" />
+  </files>
+</package>

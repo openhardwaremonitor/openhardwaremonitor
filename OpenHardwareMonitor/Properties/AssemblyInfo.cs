@@ -14,7 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Open Hardware Monitor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A tool for monitoring hardware performance. Includes support for various temperature sensors, disk I/O ratings and power consumption.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Open Hardware Monitor")]
