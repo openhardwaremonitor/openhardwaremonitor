@@ -16,6 +16,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class AbstractStorage : Hardware {
@@ -54,9 +55,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           DriveInfo di = new DriveInfo(logicalDrive);
           if (di.TotalSize > 0)
             driveInfoList.Add(new DriveInfo(logicalDrive));
-        } catch (ArgumentException) {
-        } catch (IOException) {
-        } catch (UnauthorizedAccessException) {
+        } catch (Exception x) when (x is ArgumentException || x is IOException || x is UnauthorizedAccessException) {
+          Logger.LogError(x, $"Unable to obtain drive info for {logicalDrive}");
         }
       }
       driveInfos = driveInfoList.ToArray();
@@ -210,7 +210,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             try {
               totalSize += driveInfos[i].TotalSize;
               totalFreeSpace += driveInfos[i].TotalFreeSpace;
-            } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            } catch (Exception x) when (x is IOException || x is UnauthorizedAccessException) {
+              Logger.LogError($"Unable to read drive info for volume {driveInfos[i].Name}");
+            }
           }
           if (totalSize > 0) {
             usageSensor.Value = 100.0f - (100.0f * totalFreeSpace) / totalSize;

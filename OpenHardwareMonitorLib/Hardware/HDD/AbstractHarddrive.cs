@@ -14,8 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OpenHardwareMonitor.Collections;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class ATAStorage : AbstractStorage {
@@ -83,13 +85,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
               hasNonZeroSizeDrive = true;
               break;
             }
-          } catch (ArgumentException) { 
-          } catch (IOException) { 
-          } catch (UnauthorizedAccessException) {
+          } catch (Exception x) when (x is ArgumentException || x is IOException || x is UnauthorizedAccessException) {
+            Logging.LogError(x, $"Unable to get drive info on {info.Name} for logical drive {logicalDrive}");
           }
         }
 
         if (!hasNonZeroSizeDrive) {
+          Logging.LogInfo($"Excluding {info.Name} because it has no valid partitions and is not SMART capable.");
           smart.Close();
           return null;
         }
@@ -132,12 +134,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
         // check if there is a matching name prefix for this type
         foreach (NamePrefixAttribute prefix in namePrefixes) {
-          if (name.StartsWith(prefix.Prefix, StringComparison.InvariantCulture)) 
+          if (name.StartsWith(prefix.Prefix, StringComparison.InvariantCulture)) {
+            Logging.LogInfo($"Drive appears to be an instance of {type}");
             return Activator.CreateInstance(type, smart, name, firmwareRevision,
               info.Index, settings) as ATAStorage;
+          }
         }
       }
 
+      Logging.LogInfo($"Could not find a matching sensor type for this device");
       // no matching type has been found
       smart.Close();
       return null;

@@ -9,7 +9,9 @@
 */
 
 using System;
+using Microsoft.Extensions.Logging;
 using OpenHardwareMonitor.Collections;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware {
   internal abstract class Hardware : IHardware {
@@ -24,6 +26,7 @@ namespace OpenHardwareMonitor.Hardware {
       this.settings = settings;
       this.identifier = identifier;
       this.name = name;
+      Logger = this.GetCurrentClassLogger();
       this.customName = settings.GetValue(
         new Identifier(Identifier, "name").ToString(), name);
     }
@@ -38,6 +41,10 @@ namespace OpenHardwareMonitor.Hardware {
 
     public virtual ISensor[] Sensors {
       get { return active.ToArray(); }
+    }
+
+    protected ILogger Logger {
+      get;
     }
 
     protected virtual void ActivateSensor(ISensor sensor) {
