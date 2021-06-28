@@ -87,6 +87,8 @@
   <ItemGroup>
     <PackageReference Include="AdamsLair.TreeViewAdv" Version="1.7.7" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="NLog" Version="4.7.10" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
@@ -95,5 +97,10 @@
   <ItemGroup>
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Management" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="NLog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

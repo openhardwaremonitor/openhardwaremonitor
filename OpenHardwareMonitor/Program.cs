@@ -16,8 +16,10 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using CommandLine;
+using Microsoft.Extensions.Logging;
 using OpenHardwareMonitor.GUI;
 using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor {
   public static class Program {
@@ -37,6 +39,8 @@ namespace OpenHardwareMonitor {
       if (!AllRequiredFilesAvailable() || !IsNetFramework45Installed())
         Environment.Exit(0);
 
+      InstallAndConfigureNlog();
+
       ParseCommandLine(args);
       Application.EnableVisualStyles();
       Application.SetCompatibleTextRenderingDefault(false);
@@ -46,6 +50,11 @@ namespace OpenHardwareMonitor {
         };        
         Application.Run();
       }
+    }
+
+    private static void InstallAndConfigureNlog() {
+      Logging.LoggerFactory = new ToNLogLoggerFactory();
+      Logging.LogInfo("Starting new session");
     }
 
     private static void ParseCommandLine(string[] args) {
@@ -148,6 +157,17 @@ namespace OpenHardwareMonitor {
       } finally {
         Environment.Exit(0);
       }
-    }   
+    }
+
+    private sealed class ToNLogLoggerFactory : ILoggerFactory {
+      public void Dispose() {
+      }
+
+      public ILogger CreateLogger(string categoryName) {
+        return new NLog.Extensions.Logging.NLogLoggerFactory().CreateLogger(categoryName);
+      }
+
+      public void AddProvider(ILoggerProvider provider) => throw new NotImplementedException();
+    }
   }
 }

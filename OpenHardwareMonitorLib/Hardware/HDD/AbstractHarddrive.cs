@@ -103,12 +103,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       if (string.IsNullOrEmpty(firmwareRevision))
         firmwareRevision = string.IsNullOrEmpty(info.Revision) ? "Unknown" : info.Revision;
 
-      Logging.LogInfo($"Attempting to initialize sensor instance for {info.Name}");
-
       if (logicalDrives.Any()) {
         logicalDrives = logicalDrives.Select(x => $"{x}:");
         name += " (" + string.Join(", ", logicalDrives) + ")";
       }
+
+      Logging.LogInfo($"Attempting to initialize sensor instance for {name}");
 
       foreach (Type type in hddTypes) {
         // get the array of name prefixes for the current type
@@ -137,7 +137,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
         // if an attribute is missing, then try the next type
         if (!allRequiredAttributesFound)
-          continue;        
+          continue;
 
         // check if there is a matching name prefix for this type
         foreach (NamePrefixAttribute prefix in namePrefixes) {
