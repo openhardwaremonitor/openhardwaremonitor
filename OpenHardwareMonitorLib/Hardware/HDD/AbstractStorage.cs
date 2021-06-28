@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class AbstractStorage : Hardware {
@@ -66,8 +67,11 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public static AbstractStorage CreateInstance(int driveNumber, NVMeGeneric previousNvMe, ISettings settings) {
       StorageInfo info = WindowsStorage.GetStorageInfo(driveNumber);
-      if (info == null || info.Removable)
+      if (info == null) {
+        Logging.LogInfo($"Could not retrieve storage information for drive number {driveNumber}");
         return null;
+      }
+
       if (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata)
         return ATAStorage.CreateInstance(info, settings);
       if (info.BusType == StorageBusType.BusTypeNvme)
