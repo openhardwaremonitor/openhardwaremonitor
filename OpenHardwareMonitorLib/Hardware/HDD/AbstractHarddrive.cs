@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       string name = null;
       string firmwareRevision = null;
       DriveAttributeValue[] values = { };
+      IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(info.Index);
 
       if (smart.IsValid) {
         bool nameValid = smart.ReadNameAndFirmwareRevision(out name, out firmwareRevision);
@@ -71,8 +72,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           firmwareRevision = null;
         }
       } else {
-        string[] logicalDrives = WindowsStorage.GetLogicalDrives(info.Index);
-        if (logicalDrives == null || logicalDrives.Length == 0) {
+        if (logicalDrives == null || !logicalDrives.Any()) {
           smart.Close();
           return null;
         }
@@ -102,6 +102,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       if (string.IsNullOrEmpty(firmwareRevision))
         firmwareRevision = string.IsNullOrEmpty(info.Revision) ? "Unknown" : info.Revision;
+
+      Logging.LogInfo($"Attempting to initialize sensor instance for {info.Name}");
+
+      if (logicalDrives.Any()) {
+        logicalDrives = logicalDrives.Select(x => $"{x}:");
+        name += " (" + string.Join(", ", logicalDrives) + ")";
+      }
 
       foreach (Type type in hddTypes) {
         // get the array of name prefixes for the current type
