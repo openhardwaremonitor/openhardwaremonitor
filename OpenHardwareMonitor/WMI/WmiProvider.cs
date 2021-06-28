@@ -12,7 +12,9 @@
 using System;
 using System.Collections.Generic;
 using System.Management.Instrumentation;
+using Microsoft.Extensions.Logging;
 using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitorLib;
 
 [assembly: Instrumented("root/OpenHardwareMonitor")]
 
@@ -26,10 +28,11 @@ namespace OpenHardwareMonitor.WMI {
   /// </summary>
   public class WmiProvider : IDisposable {
     private List<IWmiObject> activeInstances;
+    private ILogger Logger;
 
     public WmiProvider(IComputer computer) {
       activeInstances = new List<IWmiObject>();
-
+      Logger = this.GetCurrentClassLogger();
       foreach (IHardware hardware in computer.Hardware)
         ComputerHardwareAdded(hardware);
 
@@ -54,10 +57,8 @@ namespace OpenHardwareMonitor.WMI {
 
         Hardware hw = new Hardware(hardware);
         activeInstances.Add(hw);
-
-        try {
-          Instrumentation.Publish(hw);
-        } catch (Exception) { }
+        Instrumentation.Publish(hw);
+        Logger.LogInformation($"Registered {hw.Name} in WMI provider");
       }
 
       foreach (IHardware subHardware in hardware.SubHardware)
@@ -67,10 +68,9 @@ namespace OpenHardwareMonitor.WMI {
     private void HardwareSensorAdded(ISensor data) {
       Sensor sensor = new Sensor(data);
       activeInstances.Add(sensor);
-
-      try {
-        Instrumentation.Publish(sensor);
-      } catch (Exception) { }
+      
+      Instrumentation.Publish(sensor);
+      Logger.LogInformation($"Registered Sensor {sensor.Name} in WMI provider");
     }
 
     private void ComputerHardwareRemoved(IHardware hardware) {
@@ -106,9 +106,8 @@ namespace OpenHardwareMonitor.WMI {
       if (instanceIndex == -1)
         return;
 
-      try {
-        Instrumentation.Revoke(activeInstances[instanceIndex]);
-      } catch (Exception) { }
+      Instrumentation.Revoke(activeInstances[instanceIndex]);
+      Logger.LogInformation($"Deregistered {activeInstances[instanceIndex].Name} from WMI provider");
 
       activeInstances.RemoveAt(instanceIndex);
     }
@@ -117,10 +116,9 @@ namespace OpenHardwareMonitor.WMI {
 
     public void Dispose() {
       foreach (IWmiObject instance in activeInstances) {
-        try {
           Instrumentation.Revoke(instance);
-        } catch (Exception) { }
       }
+      Logger.LogInformation("Deregistered all instances from WMI provider");
       activeInstances = null;
     }
   }
