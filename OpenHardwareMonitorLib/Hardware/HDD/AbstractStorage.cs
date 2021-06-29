@@ -72,11 +72,22 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         return null;
       }
 
-      if (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata)
-        return ATAStorage.CreateInstance(info, settings);
-      if (info.BusType == StorageBusType.BusTypeNvme)
-        return NVMeGeneric.CreateInstance(info, previousNvMe, settings);
-      return StorageGeneric.CreateInstance(info, settings);
+      AbstractStorage ret = null;
+      if (info.BusType == StorageBusType.BusTypeNvme) {
+        ret = NVMeGeneric.CreateInstance(info, previousNvMe, settings);
+      }
+
+      // If the disk uses Nvme, but does not support the required interfaces, we try Sata instead.
+      if (ret == null && (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata ||
+                          info.BusType == StorageBusType.BusTypeNvme)) {
+        ret = ATAStorage.CreateInstance(info, settings);
+      }
+
+      if (ret == null) {
+        ret = StorageGeneric.CreateInstance(info, settings);
+      }
+
+      return ret;
     }
 
     protected virtual void CreateSensors() {

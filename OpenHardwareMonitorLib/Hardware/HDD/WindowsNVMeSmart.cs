@@ -14,7 +14,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
 
@@ -434,7 +436,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData, nspace, rawDataNamespace);
         }
         return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData);
-      } catch (Win32Exception) {
+      } catch (Win32Exception x) {
+        Logging.LogError(x, "Unable to query NVMe controller info");
       }
       return null;
     }

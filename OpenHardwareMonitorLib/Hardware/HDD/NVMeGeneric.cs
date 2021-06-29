@@ -11,6 +11,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal sealed class NVMeGeneric : AbstractStorage {
@@ -57,13 +58,18 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         }
       }
 
+      // This is a bit tricky. If this fails for one drive, it will fail for all, because we start with 0 each time.
+      // Could be irrelevant, though, because maybe the error depends on the main board or driver, not even the disk?
       return null;
     }
 
     public static AbstractStorage CreateInstance(StorageInfo storageInfo, NVMeGeneric previousNvme, ISettings settings) {
       NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo, previousNvme != null ? previousNvme.info.LogicalDeviceNumber : -1);
-      if (nvmeInfo == null)
+      if (nvmeInfo == null) {
+        Logging.LogInfo($"Device {storageInfo.Index} ({storageInfo.Name}) identifies as NVMe device, but does not support all requires features.");
         return null;
+      }
+
       return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);
     }
 
