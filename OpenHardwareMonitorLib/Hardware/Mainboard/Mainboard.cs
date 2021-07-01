@@ -116,7 +116,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       if (lmSensors != null)
         lmSensors.Close();
       foreach (Hardware hardware in superIOHardware)
-        hardware.Close();
+        hardware.Dispose();
     }
 
     protected virtual void Dispose(bool disposing) {

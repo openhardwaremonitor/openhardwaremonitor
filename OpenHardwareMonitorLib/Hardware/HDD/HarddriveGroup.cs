@@ -55,7 +55,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public void Close() {
       foreach (AbstractStorage hdd in hardware) 
-        hdd.Close();
+        hdd.Dispose();
     }
   }
 }

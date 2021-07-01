@@ -198,7 +198,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
 
     public void Close() {
       foreach (GenericCPU cpu in hardware) {
-        cpu.Close();
+        cpu.Dispose();
       }
     }
   }

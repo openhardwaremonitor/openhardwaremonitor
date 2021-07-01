@@ -427,11 +427,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return !handle.IsInvalid; }
     }
 
-    public void Close() {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
     public NVMeInfo GetInfo(StorageInfo infoToMatch, int logicalDriveNumber, bool force) {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsNVMeSmart");
@@ -567,14 +562,16 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     #region IDisposable implementation
     public void Dispose() {
-      Close();
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
     #endregion
 
     protected void Dispose(bool disposing) {
       if (disposing) {
-        if (!handle.IsClosed)
           handle.Close();
+        handle.Dispose();
+        handle.SetHandleAsInvalid();
       }
     }
 

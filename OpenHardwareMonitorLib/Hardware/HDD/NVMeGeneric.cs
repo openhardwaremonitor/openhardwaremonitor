@@ -190,10 +190,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public override void Close() {
-      smart.Close();
+    protected override void Dispose(bool disposing) {
+      smart.Dispose();
 
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }

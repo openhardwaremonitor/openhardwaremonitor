@@ -95,11 +95,6 @@ namespace OpenHardwareMonitor.Hardware {
 
     public event HardwareEventHandler Closing;
 
-    public virtual void Close() {
-      if (Closing != null)
-        Closing(this);
-    }
-
     public void Accept(IVisitor visitor) {
       if (visitor == null)
         throw new ArgumentNullException("visitor");
@@ -112,6 +107,10 @@ namespace OpenHardwareMonitor.Hardware {
     }
 
     protected virtual void Dispose(bool disposing) {
+      if (disposing) {
+        if (Closing != null)
+          Closing(this);
+      }
     }
 
     public void Dispose() {

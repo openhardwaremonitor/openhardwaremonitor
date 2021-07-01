@@ -166,7 +166,7 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     public void Close() {
       foreach (Heatmaster heatmaster in hardware)
-        heatmaster.Close();
+        heatmaster.Dispose();
     }
   }
 }

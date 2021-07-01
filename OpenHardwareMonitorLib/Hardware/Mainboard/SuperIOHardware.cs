@@ -1544,12 +1544,12 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
       postUpdate();
     }
 
-    public override void Close() {
+    protected override void Dispose(bool disposing) {
       foreach (Sensor sensor in controls) {
         // restore all controls back to default
         superIO.SetControl(sensor.Index, null);
       }
-      base.Close();
+      base.Dispose(disposing);
     }
 
     private class Voltage {

@@ -284,9 +284,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
     }
 
-    public override void Close() {
+    protected override void Dispose(bool disposing) {
       smart.Close();
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }
