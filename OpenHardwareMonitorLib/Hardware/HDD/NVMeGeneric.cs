@@ -10,6 +10,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using OpenHardwareMonitorLib;
 
@@ -38,8 +39,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private readonly NVMeInfo info;
     private List<NVMeSensor> sensors = new List<NVMeSensor>();
 
-    private NVMeGeneric(NVMeInfo info, int index, ISettings settings)
-      : base(info.Model, info.Revision, "nvme", index, settings) {
+    private NVMeGeneric(string name, NVMeInfo info, int index, ISettings settings)
+      : base(name, info.Revision, "nvme", index, settings) {
       this.smart = new WindowsNVMeSmart(info.Index);
       this.info = info;
       CreateSensors();
@@ -52,7 +53,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
           if (!smart.IsValid)
             continue;
-          NVMeInfo info = smart.GetInfo(nextDrive);
+          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive);
           if (info != null)
             return info;
         }
@@ -70,7 +71,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         return null;
       }
 
-      return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);
+      IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(storageInfo.Index);
+      string name = nvmeInfo.Model;
+
+      if (logicalDrives.Any()) {
+        logicalDrives = logicalDrives.Select(x => $"{x}:");
+        name += " (" + string.Join(", ", logicalDrives) + ")";
+      }
+
+      return new NVMeGeneric(name, nvmeInfo, storageInfo.Index, settings);
     }
 
     protected override void CreateSensors() {
