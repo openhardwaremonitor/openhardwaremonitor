@@ -59,7 +59,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
   internal static class WindowsStorage {
     private enum StorageCommand : uint {
-      QueryProperty = 0x002d1400,
+      IOCTL_STORAGE_QUERY_PROPERTY = 0x002d1400,
       IOCTL_STORAGE_GET_DEVICE_NUMBER = 0x002d1080,
     }
 
@@ -187,14 +187,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         query.PropertyId = StoragePropertyId.StorageDeviceProperty;
         query.QueryType = StorageQueryType.PropertyStandardQuery;
 
-        if (!NativeMethods.DeviceIoControl(handle, StorageCommand.QueryProperty, ref query,
+        if (!NativeMethods.DeviceIoControl(handle, StorageCommand.IOCTL_STORAGE_QUERY_PROPERTY, ref query,
             Marshal.SizeOf(query), out header, Marshal.SizeOf(typeof(StorageDescriptorHeader)),
             out bytesReturned, IntPtr.Zero))
           return null;
 
         IntPtr descriptorPtr = Marshal.AllocHGlobal((int)header.Size);
         try {
-          if (!NativeMethods.DeviceIoControl(handle, StorageCommand.QueryProperty, ref query,
+          if (!NativeMethods.DeviceIoControl(handle, StorageCommand.IOCTL_STORAGE_QUERY_PROPERTY, ref query,
               Marshal.SizeOf(query), descriptorPtr, header.Size,
               out bytesReturned, IntPtr.Zero))
             return null;
