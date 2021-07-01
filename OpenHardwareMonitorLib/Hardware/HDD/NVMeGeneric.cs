@@ -53,14 +53,25 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
           if (!smart.IsValid)
             continue;
-          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive);
+          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive, false);
           if (info != null)
             return info;
         }
       }
 
       // This is a bit tricky. If this fails for one drive, it will fail for all, because we start with 0 each time.
-      // Could be irrelevant, though, because maybe the error depends on the main board or driver, not even the disk?
+      // if we failed to obtain any useful information for any drive letter, we force creation - this will later try to use the alternate approach
+      // when reading NVMe data. As we know it's an NVME drive
+      for (int nextDrive = previousDrive + 1; nextDrive <= MAX_DRIVES; nextDrive++) {
+        using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
+          if (!smart.IsValid)
+            continue;
+          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive, true);
+          if (info != null)
+            return info;
+        }
+      }
+
       return null;
     }
 
@@ -68,7 +79,6 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo, previousNvme != null ? previousNvme.info.LogicalDeviceNumber : -1);
       if (nvmeInfo == null) {
         Logging.LogInfo($"Device {storageInfo.Index} ({storageInfo.Name}) identifies as NVMe device, but does not support all requires features.");
-        return null;
       }
 
       IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(storageInfo.Index);
