@@ -8,6 +8,8 @@
 	
 */
 
+using System;
+
 namespace OpenHardwareMonitor.Hardware {
 
   public delegate void SensorEventHandler(ISensor sensor);
@@ -25,7 +27,7 @@ namespace OpenHardwareMonitor.Hardware {
     Network
   }
 
-  public interface IHardware : IElement {
+  public interface IHardware : IElement, IDisposable {
 
     string Name { get; set; }
     Identifier Identifier { get; }

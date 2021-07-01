@@ -119,6 +119,17 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         hardware.Close();
     }
 
+    protected virtual void Dispose(bool disposing) {
+      if (disposing) {
+        Close();
+      }
+    }
+
+    public void Dispose() {
+      Dispose(true);
+      GC.SuppressFinalize(this);
+    }
+
     public IHardware[] SubHardware {
       get { return superIOHardware; }
     }

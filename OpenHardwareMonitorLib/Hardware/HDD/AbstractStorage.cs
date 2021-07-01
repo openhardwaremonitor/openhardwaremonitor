@@ -65,6 +65,16 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       smart = new WindowsSmart(index);
     }
 
+    protected override void Dispose(bool disposing) {
+      if (disposing) {
+        if (smart != null) {
+          smart.Dispose();
+          smart = null;
+        }
+      }
+      base.Dispose(disposing);
+    }
+
     public static AbstractStorage CreateInstance(int driveNumber, NVMeGeneric previousNvMe, ISettings settings) {
       StorageInfo info = WindowsStorage.GetStorageInfo(driveNumber);
       if (info == null) {

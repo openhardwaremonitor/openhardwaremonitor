@@ -14,7 +14,7 @@ using OpenHardwareMonitor.Collections;
 using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware {
-  internal abstract class Hardware : IHardware {
+  internal abstract class Hardware : IHardware, IDisposable {
 
     private readonly Identifier identifier;
     protected readonly string name;
@@ -109,6 +109,14 @@ namespace OpenHardwareMonitor.Hardware {
     public virtual void Traverse(IVisitor visitor) {
       foreach (ISensor sensor in active)
         sensor.Accept(visitor);
+    }
+
+    protected virtual void Dispose(bool disposing) {
+    }
+
+    public void Dispose() {
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
   }
 }
