@@ -21,45 +21,45 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
       
-      new SmartAttribute(0x01, SmartNames.ReadErrorRate, RawToInt),
-      new SmartAttribute(0x05, SmartNames.ReallocatedNANDBlockCount, RawToInt),
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
-      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
-      new SmartAttribute(0xAA, SmartNames.NewFailingBlockCount, RawToInt),
-      new SmartAttribute(0xAB, SmartNames.ProgramFailCount, RawToInt),
-      new SmartAttribute(0xAC, SmartNames.EraseFailCount, RawToInt),
-      new SmartAttribute(0xAD, SmartNames.WearLevelingCount, RawToInt),
-      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
-      new SmartAttribute(0xB4, SmartNames.UnusedReserveNANDBlocks, RawToInt),
+      new SmartAttribute(0x01, SmartNames.ReadErrorRate, RawToValue),
+      new SmartAttribute(0x05, SmartNames.ReallocatedNANDBlockCount, RawToValue),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToValue),
+      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToValue),
+      new SmartAttribute(0xAA, SmartNames.NewFailingBlockCount, RawToValue),
+      new SmartAttribute(0xAB, SmartNames.ProgramFailCount, RawToValue),
+      new SmartAttribute(0xAC, SmartNames.EraseFailCount, RawToValue),
+      new SmartAttribute(0xAD, SmartNames.WearLevelingCount, RawToValue),
+      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToValue),
+      new SmartAttribute(0xB4, SmartNames.UnusedReserveNANDBlocks, RawToValue),
       new SmartAttribute(0xB5, SmartNames.Non4kAlignedAccess, 
         (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
           => { return 6e4f * ((raw[5] << 8) | raw[4]); }),      
-      new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToInt),
-      new SmartAttribute(0xB8, SmartNames.ErrorCorrectionCount, RawToInt),
-      new SmartAttribute(0xBB, SmartNames.ReportedUncorrectableErrors, RawToInt),
-      new SmartAttribute(0xBC, SmartNames.CommandTimeout, RawToInt),
-      new SmartAttribute(0xBD, SmartNames.FactoryBadBlockCount, RawToInt),
-      new SmartAttribute(0xC2, SmartNames.Temperature, RawToInt),       
-      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
+      new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToValue),
+      new SmartAttribute(0xB8, SmartNames.ErrorCorrectionCount, RawToValue),
+      new SmartAttribute(0xBB, SmartNames.ReportedUncorrectableErrors, RawToValue),
+      new SmartAttribute(0xBC, SmartNames.CommandTimeout, RawToValue),
+      new SmartAttribute(0xBD, SmartNames.FactoryBadBlockCount, RawToValue),
+      new SmartAttribute(0xC2, SmartNames.Temperature, (raw, value, p) => SignedRawToValue(raw, 1)),
+      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToValue),
       new SmartAttribute(0xC5, SmartNames.CurrentPendingSectorCount),
-      new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xC7, SmartNames.UltraDmaCrcErrorCount, RawToInt),
+      new SmartAttribute(0xC6, SmartNames.OffLineUncorrectableErrorCount, RawToValue),
+      new SmartAttribute(0xC7, SmartNames.UltraDmaCrcErrorCount, RawToValue),
       new SmartAttribute(0xCA, SmartNames.RemainingLife, 
         (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
-          => { return 100 - RawToInt(raw, value, p); }, 
+          => { return 100 - RawToValue(raw, value, p); }, 
         SensorType.Level, 0, SmartNames.RemainingLife),
       new SmartAttribute(0xCE, SmartNames.WriteErrorRate,
          (byte[] raw, byte value, IReadOnlyArray<IParameter> p)
            => { return 6e4f * ((raw[1] << 8) | raw[0]); }),
-      new SmartAttribute(0xD2, SmartNames.SuccessfulRAINRecoveryCount, RawToInt),
+      new SmartAttribute(0xD2, SmartNames.SuccessfulRAINRecoveryCount, RawToValue),
       new SmartAttribute(0xF6, SmartNames.TotalLbasWritten,
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) => {
           return (((long)r[5] << 40) | ((long)r[4] << 32) | ((long)r[3] << 24) |
             ((long)r[2] << 16) | ((long)r[1] << 8) | r[0]) *
             (512.0f / 1024 / 1024 / 1024);
         }, SensorType.Data, 0, "Total Bytes Written"),
-      new SmartAttribute(0xF7, SmartNames.HostProgramNANDPagesCount, RawToInt),
-      new SmartAttribute(0xF8, SmartNames.FTLProgramNANDPagesCount, RawToInt)
+      new SmartAttribute(0xF7, SmartNames.HostProgramNANDPagesCount, RawToValue),
+      new SmartAttribute(0xF8, SmartNames.FTLProgramNANDPagesCount, RawToValue)
     };
 
     private Sensor temperature;
@@ -79,14 +79,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public override void UpdateAdditionalSensors(DriveAttributeValue[] values) {
-      float? hostProgramPagesCount = null;
-      float? ftlProgramPagesCount = null;
+      double? hostProgramPagesCount = null;
+      double? ftlProgramPagesCount = null;
       foreach (DriveAttributeValue value in values) {
         if (value.Identifier == 0xF7)
-          hostProgramPagesCount = RawToInt(value.RawValue, value.AttrValue, null);
+          hostProgramPagesCount = RawToValue(value.RawValue, value.AttrValue, null);
 
         if (value.Identifier == 0xF8)
-          ftlProgramPagesCount = RawToInt(value.RawValue, value.AttrValue, null);
+          ftlProgramPagesCount = RawToValue(value.RawValue, value.AttrValue, null);
 
         if (value.Identifier == 0xC2) {
           temperature.Value = 

@@ -20,34 +20,41 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
       new SmartAttribute(0x01, SmartNames.RawReadErrorRate),
-      new SmartAttribute(0x05, SmartNames.RetiredBlockCount, RawToInt),
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
-      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
-      new SmartAttribute(0xAB, SmartNames.ProgramFailCount, RawToInt),
-      new SmartAttribute(0xAC, SmartNames.EraseFailCount, RawToInt),
-      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
-      new SmartAttribute(0xB1, SmartNames.WearRangeDelta, RawToInt),
-      new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount, RawToInt),
-      new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToInt),
-      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
-      new SmartAttribute(0xC2, SmartNames.Temperature, 
-        (byte[] raw, byte value, IReadOnlyArray<IParameter> p) 
-          => { return value + (p == null ? 0 : p[0].Value); }, 
+      new SmartAttribute(0x05, SmartNames.RetiredBlockCount, RawToValue),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToValue),
+      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToValue),
+      new SmartAttribute(0xAB, SmartNames.ProgramFailCount, RawToValue),
+      new SmartAttribute(0xAC, SmartNames.EraseFailCount, RawToValue),
+      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToValue),
+      new SmartAttribute(0xB1, SmartNames.WearRangeDelta, RawToValue),
+      new SmartAttribute(0xB5, SmartNames.AlternativeProgramFailCount, RawToValue),
+      new SmartAttribute(0xB6, SmartNames.AlternativeEraseFailCount, RawToValue),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToValue),
+      new SmartAttribute(0xC2, SmartNames.Temperature,
+        (byte[] raw, byte value, IReadOnlyArray<IParameter> p)
+          => {
+          int v = value;
+          // Manually sign-extend
+          if (v > 0x7F) {
+            v = (int)(0xFFFFFF00 | v);
+          }
+          return v + (p == null ? 0 : p[0].Value);
+        }, 
         SensorType.Temperature, 0, SmartNames.Temperature, true, 
         new[] { new ParameterDescription("Offset [°C]", 
                   "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }), 
       new SmartAttribute(0xC3, SmartNames.UnrecoverableEcc), 
-      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToInt),
+      new SmartAttribute(0xC4, SmartNames.ReallocationEventCount, RawToValue),
       new SmartAttribute(0xE7, SmartNames.RemainingLife, null, 
         SensorType.Level, 0, SmartNames.RemainingLife),
-      new SmartAttribute(0xE9, SmartNames.ControllerWritesToNAND, RawToInt,
+      new SmartAttribute(0xE9, SmartNames.ControllerWritesToNAND, RawToValue,
         SensorType.Data, 0, SmartNames.ControllerWritesToNAND),
-      new SmartAttribute(0xEA, SmartNames.HostWritesToController, RawToInt, 
+      new SmartAttribute(0xEA, SmartNames.HostWritesToController, RawToValue, 
         SensorType.Data, 1, SmartNames.HostWritesToController),
-      new SmartAttribute(0xF1, SmartNames.HostWrites, RawToInt, 
+      new SmartAttribute(0xF1, SmartNames.HostWrites, RawToValue, 
         SensorType.Data, 1, SmartNames.HostWrites),
-      new SmartAttribute(0xF2, SmartNames.HostReads, RawToInt, 
+      new SmartAttribute(0xF2, SmartNames.HostReads, RawToValue, 
         SensorType.Data, 2, SmartNames.HostReads)
     };
 
@@ -62,14 +69,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     public override void UpdateAdditionalSensors(DriveAttributeValue[] values) {
-      float? controllerWritesToNAND = null;
-      float? hostWritesToController = null;
+      double? controllerWritesToNAND = null;
+      double? hostWritesToController = null;
       foreach (DriveAttributeValue value in values) {
         if (value.Identifier == 0xE9)
-          controllerWritesToNAND = RawToInt(value.RawValue, value.AttrValue, null);
+          controllerWritesToNAND = RawToValue(value.RawValue, value.AttrValue, null);
 
         if (value.Identifier == 0xEA)
-          hostWritesToController = RawToInt(value.RawValue, value.AttrValue, null);
+          hostWritesToController = RawToValue(value.RawValue, value.AttrValue, null);
       }
       if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
         if (hostWritesToController.Value > 0)
