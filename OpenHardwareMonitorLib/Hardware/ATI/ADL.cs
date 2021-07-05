@@ -11,6 +11,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.ATI {
   
@@ -493,12 +494,14 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         try {
           return _ADL_Main_Control_Create(Main_Memory_Alloc,
             enumConnectedAdapters);
-        } catch {
+        } catch (Exception x){
+          Logging.LogError(x, "Unable to open ADL_Main_Control using atiadlxx");
           CreateDelegates("atiadlxy");
           return _ADL_Main_Control_Create(Main_Memory_Alloc,
             enumConnectedAdapters);
         }
-      } catch {
+      } catch (Exception x) {
+        Logging.LogError(x, "Unable to open ADL_Main_Control using atiadlxy");
         return ADLStatus.ERR;
       }
     }
@@ -512,11 +515,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         if (result != ADLStatus.OK)
           context = IntPtr.Zero;
         return result;
-      } catch {
+      } catch(Exception x) {
+        Logging.LogError(x, "Unable to open ADL2_Main_Control");
         context = IntPtr.Zero;
         return ADLStatus.ERR;
       }
-     }
+    }
 
     public static ADLStatus ADL_Adapter_AdapterInfo_Get(ADLAdapterInfo[] info) {
       int elementSize = Marshal.SizeOf(typeof(ADLAdapterInfo));
@@ -552,10 +556,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       out int adapterID) {
       try {
         return _ADL_Adapter_ID_Get(adapterIndex, out adapterID);
-      } catch (EntryPointNotFoundException) {
+      } catch (EntryPointNotFoundException e1) {
+        Logging.LogError(e1, "Unable to get entry point for ADL_Adapter_ID_Get");
         try {
           return _ADL_Display_AdapterID_Get(adapterIndex, out adapterID);
-        } catch (EntryPointNotFoundException) {
+        } catch (EntryPointNotFoundException e2) {
+          Logging.LogError(e2, "Unable to get entry point for ADL_Display_AdapterID_Get");
           adapterID = 1;
           return ADLStatus.OK;
         }

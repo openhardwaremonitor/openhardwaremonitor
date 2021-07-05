@@ -61,8 +61,10 @@ namespace OpenHardwareMonitor.Hardware {
       groups.Remove(group);
 
       if (HardwareRemoved != null)
-        foreach (IHardware hardware in group.Hardware)
+        foreach (IHardware hardware in group.Hardware) {
           HardwareRemoved(hardware);
+          hardware.Dispose();
+        }
 
       group.Close();
     }

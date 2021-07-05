@@ -147,7 +147,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public void Close() {
       try {
         foreach (ATIGPU gpu in hardware)
-          gpu.Close();
+          gpu.Dispose();
 
         if (context != IntPtr.Zero) {
           ADL.ADL2_Main_Control_Destroy(context);

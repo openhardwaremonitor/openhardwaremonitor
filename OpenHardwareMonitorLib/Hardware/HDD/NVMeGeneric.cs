@@ -10,7 +10,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal sealed class NVMeGeneric : AbstractStorage {
@@ -37,8 +39,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private readonly NVMeInfo info;
     private List<NVMeSensor> sensors = new List<NVMeSensor>();
 
-    private NVMeGeneric(NVMeInfo info, int index, ISettings settings)
-      : base(info.Model, info.Revision, "nvme", index, settings) {
+    private NVMeGeneric(string name, NVMeInfo info, int index, ISettings settings)
+      : base(name, info.Revision, "nvme", index, settings) {
       this.smart = new WindowsNVMeSmart(info.Index);
       this.info = info;
       CreateSensors();
@@ -51,7 +53,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
           if (!smart.IsValid)
             continue;
-          NVMeInfo info = smart.GetInfo(nextDrive);
+          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive, false);
+          if (info != null)
+            return info;
+        }
+      }
+
+      // This is a bit tricky. If this fails for one drive, it will fail for all, because we start with 0 each time.
+      // if we failed to obtain any useful information for any drive letter, we force creation - this will later try to use the alternate approach
+      // when reading NVMe data. As we know it's an NVME drive
+      for (int nextDrive = previousDrive + 1; nextDrive <= MAX_DRIVES; nextDrive++) {
+        using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
+          if (!smart.IsValid)
+            continue;
+          NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive, true);
           if (info != null)
             return info;
         }
@@ -62,9 +77,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public static AbstractStorage CreateInstance(StorageInfo storageInfo, NVMeGeneric previousNvme, ISettings settings) {
       NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo, previousNvme != null ? previousNvme.info.LogicalDeviceNumber : -1);
-      if (nvmeInfo == null)
-        return null;
-      return new NVMeGeneric(nvmeInfo, storageInfo.Index, settings);
+      if (nvmeInfo == null) {
+        Logging.LogInfo($"Device {storageInfo.Index} ({storageInfo.Name}) identifies as NVMe device, but does not support all requires features.");
+      }
+
+      IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(storageInfo.Index);
+      string name = nvmeInfo.Model;
+
+      if (logicalDrives.Any()) {
+        logicalDrives = logicalDrives.Select(x => $"{x}:");
+        name += " (" + string.Join(", ", logicalDrives) + ")";
+      }
+
+      return new NVMeGeneric(name, nvmeInfo, storageInfo.Index, settings);
     }
 
     protected override void CreateSensors() {
@@ -165,10 +190,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public override void Close() {
-      smart.Close();
+    protected override void Dispose(bool disposing) {
+      smart.Dispose();
 
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }

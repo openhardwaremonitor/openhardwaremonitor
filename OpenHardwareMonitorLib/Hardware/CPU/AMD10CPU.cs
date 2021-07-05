@@ -397,11 +397,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
     }
 
-    public override void Close() {      
+    protected override void Dispose(bool disposing) {
       if (temperatureStream != null) {
         temperatureStream.Close();
       }
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }

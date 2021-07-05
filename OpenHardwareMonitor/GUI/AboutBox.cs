@@ -14,6 +14,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
+using Microsoft.Extensions.Logging;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class AboutBox : Form {
@@ -36,7 +38,9 @@ namespace OpenHardwareMonitor.GUI {
       LinkLabelLinkClickedEventArgs e) {
       try {
         Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()));
-      } catch { }
+      } catch (Exception x) {
+        this.GetCurrentClassLogger().LogError(x, "Unable to launch browser");
+      }
     }
 
   }

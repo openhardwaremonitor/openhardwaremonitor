@@ -16,6 +16,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class AbstractStorage : Hardware {
@@ -54,9 +56,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           DriveInfo di = new DriveInfo(logicalDrive);
           if (di.TotalSize > 0)
             driveInfoList.Add(new DriveInfo(logicalDrive));
-        } catch (ArgumentException) {
-        } catch (IOException) {
-        } catch (UnauthorizedAccessException) {
+        } catch (Exception x) when (x is ArgumentException || x is IOException || x is UnauthorizedAccessException) {
+          Logger.LogError(x, $"Unable to obtain drive info for {logicalDrive}");
         }
       }
       driveInfos = driveInfoList.ToArray();
@@ -64,15 +65,39 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       smart = new WindowsSmart(index);
     }
 
+    protected override void Dispose(bool disposing) {
+      if (disposing) {
+        if (smart != null) {
+          smart.Dispose();
+          smart = null;
+        }
+      }
+      base.Dispose(disposing);
+    }
+
     public static AbstractStorage CreateInstance(int driveNumber, NVMeGeneric previousNvMe, ISettings settings) {
       StorageInfo info = WindowsStorage.GetStorageInfo(driveNumber);
-      if (info == null || info.Removable)
+      if (info == null) {
+        Logging.LogInfo($"Could not retrieve storage information for drive number {driveNumber}");
         return null;
-      if (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata)
-        return ATAStorage.CreateInstance(info, settings);
-      if (info.BusType == StorageBusType.BusTypeNvme)
-        return NVMeGeneric.CreateInstance(info, previousNvMe, settings);
-      return StorageGeneric.CreateInstance(info, settings);
+      }
+
+      AbstractStorage ret = null;
+      if (info.BusType == StorageBusType.BusTypeNvme) {
+        ret = NVMeGeneric.CreateInstance(info, previousNvMe, settings);
+      }
+
+      // If the disk uses Nvme, but does not support the required interfaces, we try Sata instead.
+      if (ret == null && (info.BusType == StorageBusType.BusTypeAta || info.BusType == StorageBusType.BusTypeSata ||
+                          info.BusType == StorageBusType.BusTypeNvme)) {
+        ret = ATAStorage.CreateInstance(info, settings);
+      }
+
+      if (ret == null) {
+        ret = StorageGeneric.CreateInstance(info, settings);
+      }
+
+      return ret;
     }
 
     protected virtual void CreateSensors() {
@@ -210,7 +235,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             try {
               totalSize += driveInfos[i].TotalSize;
               totalFreeSpace += driveInfos[i].TotalFreeSpace;
-            } catch (IOException) { } catch (UnauthorizedAccessException) { }
+            } catch (Exception x) when (x is IOException || x is UnauthorizedAccessException) {
+              Logger.LogError($"Unable to read drive info for volume {driveInfos[i].Name}");
+            }
           }
           if (totalSize > 0) {
             usageSensor.Value = 100.0f - (100.0f * totalFreeSpace) / totalSize;

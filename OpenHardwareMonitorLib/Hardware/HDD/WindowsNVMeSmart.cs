@@ -14,7 +14,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
 
@@ -79,6 +81,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
   internal class WindowsNVMeSmart : IDisposable {
     private enum Command : uint {
       IoctlScsiMiniPort = 0x04d008,
+      IOCTL_STORAGE_QUERY_PROPERTY = 0x002d1400,
     }
 
     private const string NVMeMiniPortSignature = "NvmeMini";
@@ -287,6 +290,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     }
 
     private class NVMeInfoImpl : NVMeInfo {
+      // Used if the NVMeIdentifyControllerData is not available
+      public NVMeInfoImpl(int index, int logicalDeviceNumber, StorageInfo smart) {
+        Index = index;
+        LogicalDeviceNumber = logicalDeviceNumber;
+        Serial = smart.Serial;
+        Model = smart.Name;
+      }
       public NVMeInfoImpl(int index, int logicalDeviceNumber, NVMeIdentifyControllerData data, byte[] rawData) {
         Index = index;
         VID = data.vid;
@@ -395,6 +405,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private readonly SafeHandle handle;
     private int driveNumber;
+    private bool _requiresAlternateHealthInfo;
 
 #if DEBUG
     static WindowsNVMeSmart() {
@@ -407,6 +418,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public WindowsNVMeSmart(int driveNumber) {
       this.driveNumber = driveNumber;
+      _requiresAlternateHealthInfo = false;
       handle = NativeMethods.CreateFile(string.Format(@"\\.\Scsi{0}:", driveNumber), FileAccess.ReadWrite,
         FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, FileAttributes.Normal, IntPtr.Zero);
     }
@@ -415,42 +427,96 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       get { return !handle.IsInvalid; }
     }
 
-    public void Close() {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    public NVMeInfo GetInfo(int logicalDriveNumber) {
+    public NVMeInfo GetInfo(StorageInfo infoToMatch, int logicalDriveNumber, bool force) {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsNVMeSmart");
       try {
         byte[] rawData;
         // This doesn't work with SCSI devices. Otherwise, that would be unique
         // var deviceNumber = WindowsStorage.QueryDeviceNumber(handle);
-        NVMeIdentifyControllerData data = ReadPassThrough<NVMeIdentifyControllerData>(NVMePassThroughOpcode.AdminIdentify, 0x00000000, 0x000000001, out rawData);
+        NVMeIdentifyControllerData data = ReadPassThrough<NVMeIdentifyControllerData>(NVMePassThroughOpcode.AdminIdentify, 0x0, 0x000000001, out rawData);
         if (data.nn == 1) {
           byte[] rawDataNamespace;
           NVMeIdentifyNamespaceData nspace = ReadPassThrough<NVMeIdentifyNamespaceData>(NVMePassThroughOpcode.AdminIdentify, 0x000000001, 0x00000000, out rawDataNamespace);
           return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData, nspace, rawDataNamespace);
         }
         return new NVMeInfoImpl(driveNumber, logicalDriveNumber, data, rawData);
-      } catch (Win32Exception) {
+      } catch (Win32Exception x) {
+        Logging.LogError(x, "Unable to query NVMe controller info");
       }
+
+      // Construct the object anyway (or the counting will probably be off)
+      // Also, the device will probably support some NVMe commands anyway
+      if (force) {
+        return new NVMeInfoImpl(driveNumber, logicalDriveNumber, infoToMatch);
+      }
+
       return null;
     }
 
     public NVMeHealthInfo GetHealthInfo() {
       if (handle.IsClosed)
         throw new ObjectDisposedException("WindowsNVMeSmart");
-      try {
-        uint size = (uint)Marshal.SizeOf(typeof(NVMeHealthInfoLog));
-        uint cdw10 = 0x000000002 | (((size / 4) - 1) << 16);
-        byte[] rawData;
-        NVMeHealthInfoLog data = ReadPassThrough<NVMeHealthInfoLog>(NVMePassThroughOpcode.AdminGetLogPage, 0xffffffff, cdw10, out rawData);
-        return new NVMeHealthInfoImpl(data, rawData);
-      } catch (Win32Exception) {
+      if (!_requiresAlternateHealthInfo) {
+        try {
+          uint size = (uint)Marshal.SizeOf(typeof(NVMeHealthInfoLog));
+          uint cdw10 = 0x000000002 | (((size / 4) - 1) << 16);
+          byte[] rawData;
+          NVMeHealthInfoLog data = ReadPassThrough<NVMeHealthInfoLog>(NVMePassThroughOpcode.AdminGetLogPage, 0xffffffff,
+            cdw10, out rawData);
+          return new NVMeHealthInfoImpl(data, rawData);
+        } catch (Win32Exception x) {
+          Logging.LogError(x, "Unable to query NVMe Health Information, trying alternate API");
+        }
       }
+
+      try {
+        NVMeHealthInfoLog data2;
+        if (GetHealthInfoAlternate(out data2)) {
+          // If this succeeds (and the above fails), always go directly here
+          _requiresAlternateHealthInfo = true;
+          return new NVMeHealthInfoImpl(data2, null);
+        }
+      } catch (Win32Exception x) {
+        Logging.LogError(x, "Alternate API doesn't work, either.");
+      }
+
+
       return null;
+    }
+
+    private bool GetHealthInfoAlternate(out NVMeHealthInfoLog data) {
+      data = NativeMethods.CreateStruct<NVMeHealthInfoLog>();
+      if (handle == null || handle.IsInvalid)
+        return false;
+
+      bool result = false;
+      NativeMethods.STORAGE_QUERY_BUFFER nptwb = NativeMethods.CreateStruct<NativeMethods.STORAGE_QUERY_BUFFER>();
+      nptwb.ProtocolSpecific.ProtocolType = NativeMethods.STORAGE_PROTOCOL_TYPE.ProtocolTypeNvme;
+      nptwb.ProtocolSpecific.DataType = (uint)NativeMethods.STORAGE_PROTOCOL_NVME_DATA_TYPE.NVMeDataTypeLogPage;
+      nptwb.ProtocolSpecific.ProtocolDataRequestValue = (uint)NativeMethods.NVME_LOG_PAGES.NVME_LOG_PAGE_HEALTH_INFO;
+      nptwb.ProtocolSpecific.ProtocolDataOffset = (uint)Marshal.SizeOf<NativeMethods.STORAGE_PROTOCOL_SPECIFIC_DATA>();
+      nptwb.ProtocolSpecific.ProtocolDataLength = (uint)nptwb.Buffer.Length;
+      nptwb.PropertyId = NativeMethods.STORAGE_PROPERTY_ID.StorageAdapterProtocolSpecificProperty;
+      nptwb.QueryType = NativeMethods.STORAGE_QUERY_TYPE.PropertyStandardQuery;
+
+      int length = Marshal.SizeOf<NativeMethods.STORAGE_QUERY_BUFFER>();
+      IntPtr buffer = Marshal.AllocHGlobal(length);
+      Marshal.StructureToPtr(nptwb, buffer, false);
+      bool validTransfer = NativeMethods.DeviceIoControl(handle, Command.IOCTL_STORAGE_QUERY_PROPERTY, buffer, length, buffer, length, out _, IntPtr.Zero);
+      if (validTransfer) {
+        //map NVME_HEALTH_INFO_LOG to nptwb.Buffer
+        IntPtr offset = Marshal.OffsetOf<NativeMethods.STORAGE_QUERY_BUFFER>(nameof(NativeMethods.STORAGE_QUERY_BUFFER.Buffer));
+        var newPtr = IntPtr.Add(buffer, offset.ToInt32());
+        NVMeHealthInfoLog item = Marshal.PtrToStructure<NVMeHealthInfoLog>(newPtr);
+        data = item;
+        Marshal.FreeHGlobal(buffer);
+        result = true;
+      } else {
+        Marshal.FreeHGlobal(buffer);
+      }
+
+      return result;
     }
 
     private T ReadPassThrough<T>(NVMePassThroughOpcode opcode, uint nsid, uint cdw10, out byte[] rawData) {
@@ -496,14 +562,16 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     #region IDisposable implementation
     public void Dispose() {
-      Close();
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
     #endregion
 
     protected void Dispose(bool disposing) {
       if (disposing) {
-        if (!handle.IsClosed)
           handle.Close();
+        handle.Dispose();
+        handle.SetHandleAsInvalid();
       }
     }
 
@@ -528,6 +596,117 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         Command command, IntPtr dataIn, int dataInSize,
         IntPtr dataOut, int dataOutSize, out uint bytesReturned,
         IntPtr overlapped);
+
+      internal enum STORAGE_PROTOCOL_TYPE {
+        ProtocolTypeUnknown = 0x00,
+        ProtocolTypeScsi,
+        ProtocolTypeAta,
+        ProtocolTypeNvme,
+        ProtocolTypeSd,
+        ProtocolTypeProprietary = 0x7E,
+        ProtocolTypeMaxReserved = 0x7F
+      }
+
+      internal enum STORAGE_PROPERTY_ID {
+        StorageDeviceProperty = 0,
+        StorageAdapterProperty,
+        StorageDeviceIdProperty,
+        StorageDeviceUniqueIdProperty,
+        StorageDeviceWriteCacheProperty,
+        StorageMiniportProperty,
+        StorageAccessAlignmentProperty,
+        StorageDeviceSeekPenaltyProperty,
+        StorageDeviceTrimProperty,
+        StorageDeviceWriteAggregationProperty,
+        StorageDeviceDeviceTelemetryProperty,
+        StorageDeviceLBProvisioningProperty,
+        StorageDevicePowerProperty,
+        StorageDeviceCopyOffloadProperty,
+        StorageDeviceResiliencyProperty,
+        StorageDeviceMediumProductType,
+        StorageAdapterRpmbProperty,
+        StorageDeviceIoCapabilityProperty = 48,
+        StorageAdapterProtocolSpecificProperty,
+        StorageDeviceProtocolSpecificProperty,
+        StorageAdapterTemperatureProperty,
+        StorageDeviceTemperatureProperty,
+        StorageAdapterPhysicalTopologyProperty,
+        StorageDevicePhysicalTopologyProperty,
+        StorageDeviceAttributesProperty,
+        StorageDeviceManagementStatus,
+        StorageAdapterSerialNumberProperty,
+        StorageDeviceLocationProperty
+      }
+
+      internal enum STORAGE_QUERY_TYPE {
+        PropertyStandardQuery = 0,
+        PropertyExistsQuery,
+        PropertyMaskQuery,
+        PropertyQueryMaxDefined
+      }
+
+      internal enum STORAGE_PROTOCOL_NVME_DATA_TYPE {
+        NVMeDataTypeUnknown = 0,
+        NVMeDataTypeIdentify,
+        NVMeDataTypeLogPage,
+        NVMeDataTypeFeature
+      }
+
+      internal enum NVME_LOG_PAGES {
+        NVME_LOG_PAGE_ERROR_INFO = 0x01,
+        NVME_LOG_PAGE_HEALTH_INFO = 0x02,
+        NVME_LOG_PAGE_FIRMWARE_SLOT_INFO = 0x03,
+        NVME_LOG_PAGE_CHANGED_NAMESPACE_LIST = 0x04,
+        NVME_LOG_PAGE_COMMAND_EFFECTS = 0x05,
+        NVME_LOG_PAGE_DEVICE_SELF_TEST = 0x06,
+        NVME_LOG_PAGE_TELEMETRY_HOST_INITIATED = 0x07,
+        NVME_LOG_PAGE_TELEMETRY_CTLR_INITIATED = 0x08,
+        NVME_LOG_PAGE_RESERVATION_NOTIFICATION = 0x80,
+        NVME_LOG_PAGE_SANITIZE_STATUS = 0x81
+      }
+
+      [StructLayout(LayoutKind.Sequential)]
+      internal struct STORAGE_PROTOCOL_SPECIFIC_DATA {
+        public STORAGE_PROTOCOL_TYPE ProtocolType;
+        public uint DataType;
+        public uint ProtocolDataRequestValue;
+        public uint ProtocolDataRequestSubValue;
+        public uint ProtocolDataOffset;
+        public uint ProtocolDataLength;
+        public uint FixedProtocolReturnData;
+        public uint ProtocolDataRequestSubValue2;
+        public uint ProtocolDataRequestSubValue3;
+        public uint Reserved;
+      }
+
+      [StructLayout(LayoutKind.Sequential)]
+      internal struct STORAGE_QUERY_BUFFER {
+
+        public STORAGE_PROPERTY_ID PropertyId;
+        public STORAGE_QUERY_TYPE QueryType;
+        public STORAGE_PROTOCOL_SPECIFIC_DATA ProtocolSpecific;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
+        internal byte[] Buffer;
+      }
+
+      [DllImport("kernel32.dll", SetLastError = true)]
+      internal static extern void RtlZeroMemory(IntPtr destination, int length);
+
+      /// <summary>
+      /// Create a instance from a struct with zero initialized memory arrays
+      /// no need to init every inner array with the correct sizes
+      /// </summary>
+      /// <typeparam name="T">type of struct that is needed</typeparam>
+      /// <returns></returns>
+      internal static T CreateStruct<T>() {
+        int size = Marshal.SizeOf<T>();
+        IntPtr ptr = Marshal.AllocHGlobal(size);
+        RtlZeroMemory(ptr, size);
+        T result = Marshal.PtrToStructure<T>(ptr);
+        Marshal.FreeHGlobal(ptr);
+        return result;
+      }
     }
   }
 }

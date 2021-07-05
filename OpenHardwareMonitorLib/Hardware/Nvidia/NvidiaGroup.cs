@@ -108,7 +108,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     public void Close() {
       foreach (Hardware gpu in hardware)
-        gpu.Close();
+        gpu.Dispose();
 
       if (NVML.IsInitialized) {
         NVML.NvmlShutdown();

@@ -9,6 +9,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
@@ -20,6 +22,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public static AbstractStorage CreateInstance(StorageInfo info, ISettings settings) {
       string name = string.IsNullOrEmpty(info.Name) ? "Generic Hard Disk" : info.Name;
+      IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(info.Index);
+      if (logicalDrives.Any()) {
+        logicalDrives = logicalDrives.Select(x => $"{x}:");
+        name += " (" + string.Join(", ", logicalDrives) + ")";
+      }
+
       string firmwareRevision = string.IsNullOrEmpty(info.Revision) ? "Unknown" : info.Revision;
       return new StorageGeneric(name, firmwareRevision, info.Index, settings);
     }

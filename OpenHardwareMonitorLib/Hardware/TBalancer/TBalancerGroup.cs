@@ -171,7 +171,7 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
 
     public void Close() {
       foreach (TBalancer tbalancer in hardware)
-        tbalancer.Close();
+        tbalancer.Dispose();
     }
   }
 }

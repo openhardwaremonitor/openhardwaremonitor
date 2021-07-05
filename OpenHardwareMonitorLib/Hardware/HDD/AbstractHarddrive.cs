@@ -14,8 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 using OpenHardwareMonitor.Collections;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
   internal abstract class ATAStorage : AbstractStorage {
@@ -56,6 +58,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       string name = null;
       string firmwareRevision = null;
       DriveAttributeValue[] values = { };
+      IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(info.Index);
 
       if (smart.IsValid) {
         bool nameValid = smart.ReadNameAndFirmwareRevision(out name, out firmwareRevision);
@@ -69,8 +72,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           firmwareRevision = null;
         }
       } else {
-        string[] logicalDrives = WindowsStorage.GetLogicalDrives(info.Index);
-        if (logicalDrives == null || logicalDrives.Length == 0) {
+        if (logicalDrives == null || !logicalDrives.Any()) {
           smart.Close();
           return null;
         }
@@ -83,13 +85,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
               hasNonZeroSizeDrive = true;
               break;
             }
-          } catch (ArgumentException) { 
-          } catch (IOException) { 
-          } catch (UnauthorizedAccessException) {
+          } catch (Exception x) when (x is ArgumentException || x is IOException || x is UnauthorizedAccessException) {
+            Logging.LogError(x, $"Unable to get drive info on {info.Name} for logical drive {logicalDrive}");
           }
         }
 
         if (!hasNonZeroSizeDrive) {
+          Logging.LogInfo($"Excluding {info.Name} because it has no valid partitions and is not SMART capable.");
           smart.Close();
           return null;
         }
@@ -100,6 +102,13 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       if (string.IsNullOrEmpty(firmwareRevision))
         firmwareRevision = string.IsNullOrEmpty(info.Revision) ? "Unknown" : info.Revision;
+
+      if (logicalDrives.Any()) {
+        logicalDrives = logicalDrives.Select(x => $"{x}:");
+        name += " (" + string.Join(", ", logicalDrives) + ")";
+      }
+
+      Logging.LogInfo($"Attempting to initialize sensor instance for {name}");
 
       foreach (Type type in hddTypes) {
         // get the array of name prefixes for the current type
@@ -128,16 +137,19 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
         // if an attribute is missing, then try the next type
         if (!allRequiredAttributesFound)
-          continue;        
+          continue;
 
         // check if there is a matching name prefix for this type
         foreach (NamePrefixAttribute prefix in namePrefixes) {
-          if (name.StartsWith(prefix.Prefix, StringComparison.InvariantCulture)) 
+          if (name.StartsWith(prefix.Prefix, StringComparison.InvariantCulture)) {
+            Logging.LogInfo($"Drive appears to be an instance of {type}");
             return Activator.CreateInstance(type, smart, name, firmwareRevision,
               info.Index, settings) as ATAStorage;
+          }
         }
       }
 
+      Logging.LogInfo($"Could not find a matching sensor type for this device");
       // no matching type has been found
       smart.Close();
       return null;
@@ -272,9 +284,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
     }
 
-    public override void Close() {
+    protected override void Dispose(bool disposing) {
       smart.Close();
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }

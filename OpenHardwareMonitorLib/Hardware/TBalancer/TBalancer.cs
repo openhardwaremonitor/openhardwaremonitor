@@ -316,9 +316,9 @@ namespace OpenHardwareMonitor.Hardware.TBalancer {
       alternativeRequest.BeginInvoke(null, null);
     }
 
-    public override void Close() {
+    protected override void Dispose(bool disposing) {
       FTD2XX.FT_Close(handle);
-      base.Close();
+      base.Dispose(disposing);
     }
 
   }

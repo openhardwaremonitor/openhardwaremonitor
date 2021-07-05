@@ -578,14 +578,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       }
     }
 
-    public override void Close() {
-      this.fanControl.ControlModeChanged -= ControlModeChanged;
-      this.fanControl.SoftwareControlValueChanged -=
-        SoftwareControlValueChanged;
+    protected override void Dispose(bool disposing) {
+      if (disposing) {
+        this.fanControl.ControlModeChanged -= ControlModeChanged;
+        this.fanControl.SoftwareControlValueChanged -=
+          SoftwareControlValueChanged;
 
-      if (this.fanControl.ControlMode != ControlMode.Undefined)
-        SetDefaultFanSpeed();
-      base.Close();
+        if (this.fanControl.ControlMode != ControlMode.Undefined)
+          SetDefaultFanSpeed();
+      }
+
+      base.Dispose(disposing);
     }
   }
 }

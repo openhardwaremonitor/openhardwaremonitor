@@ -258,18 +258,15 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
       return r.ToString();
     }
 
-    public override void Close() {
-      serialPort.Close();
-      serialPort.Dispose();
-      serialPort = null;
-      base.Close();
-    }
-
-    public void Dispose() {
-      if (serialPort != null) {
+    protected override void Dispose(bool disposing) {
+      if (disposing) {
+        serialPort.Close();
         serialPort.Dispose();
         serialPort = null;
       }
+
+      base.Dispose(disposing);
     }
+    
   }
 }

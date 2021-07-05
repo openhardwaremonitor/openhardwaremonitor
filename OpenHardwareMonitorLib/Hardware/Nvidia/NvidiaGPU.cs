@@ -590,7 +590,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NVAPI.NvAPI_GPU_SetCoolerLevels(handle, 0, ref coolerLevels);
     }
 
-    public override void Close() {
+    protected override void Dispose(bool disposing) {
       if (this.fanControl != null) {
         this.fanControl.ControlModeChanged -= ControlModeChanged;
         this.fanControl.SoftwareControlValueChanged -=
@@ -599,7 +599,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         if (this.fanControl.ControlMode != ControlMode.Undefined)
           SetDefaultFanSpeed();
       }
-      base.Close();
+      base.Dispose(disposing);
     }
   }
 }

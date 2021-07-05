@@ -9,10 +9,12 @@
 */
 
 using System;
+using Microsoft.Extensions.Logging;
 using OpenHardwareMonitor.Collections;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware {
-  internal abstract class Hardware : IHardware {
+  internal abstract class Hardware : IHardware, IDisposable {
 
     private readonly Identifier identifier;
     protected readonly string name;
@@ -24,6 +26,7 @@ namespace OpenHardwareMonitor.Hardware {
       this.settings = settings;
       this.identifier = identifier;
       this.name = name;
+      Logger = this.GetCurrentClassLogger();
       this.customName = settings.GetValue(
         new Identifier(Identifier, "name").ToString(), name);
     }
@@ -38,6 +41,10 @@ namespace OpenHardwareMonitor.Hardware {
 
     public virtual ISensor[] Sensors {
       get { return active.ToArray(); }
+    }
+
+    protected ILogger Logger {
+      get;
     }
 
     protected virtual void ActivateSensor(ISensor sensor) {
@@ -88,11 +95,6 @@ namespace OpenHardwareMonitor.Hardware {
 
     public event HardwareEventHandler Closing;
 
-    public virtual void Close() {
-      if (Closing != null)
-        Closing(this);
-    }
-
     public void Accept(IVisitor visitor) {
       if (visitor == null)
         throw new ArgumentNullException("visitor");
@@ -102,6 +104,18 @@ namespace OpenHardwareMonitor.Hardware {
     public virtual void Traverse(IVisitor visitor) {
       foreach (ISensor sensor in active)
         sensor.Accept(visitor);
+    }
+
+    protected virtual void Dispose(bool disposing) {
+      if (disposing) {
+        if (Closing != null)
+          Closing(this);
+      }
+    }
+
+    public void Dispose() {
+      Dispose(true);
+      GC.SuppressFinalize(this);
     }
   }
 }

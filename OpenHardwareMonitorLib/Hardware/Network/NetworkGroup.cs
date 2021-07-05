@@ -60,7 +60,7 @@ namespace LibreHardwareMonitor.Hardware.Network
             NetworkChange.NetworkAvailabilityChanged -= NetworkChange_NetworkAddressChanged;
 
             foreach (Network network in _hardware)
-                network.Close();
+                network.Dispose();
         }
 
         private void UpdateNetworkInterfaces(ISettings settings)
@@ -90,7 +90,7 @@ namespace LibreHardwareMonitor.Hardware.Network
                 foreach (string key in removeKeys)
                 {
                     var network = _networks[key];
-                    network.Close();
+                    network.Dispose();
                     _networks.Remove(key);
 
                     _hardware.Remove(network);
