@@ -17,8 +17,8 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
-      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToValue),
+      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToValue),
       new SmartAttribute(0xF1, SmartNames.HostWrites, RawToGb, SensorType.Data, 
         0, SmartNames.HostWrites),
       new SmartAttribute(0xF2, SmartNames.HostReads, RawToGb, SensorType.Data, 
@@ -29,10 +29,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       int index, ISettings settings)
       : base(smart, name, firmwareRevision, "ssd", index, smartAttributes, settings) {}
 
-    private static float RawToGb(byte[] rawvalue, byte value,
+    private static double RawToGb(byte[] rawvalue, byte value,
       IReadOnlyArray<IParameter> parameters) 
     {
-      return RawToInt(rawvalue, value, parameters) / 32;
+      return RawToValue(rawvalue, value, parameters) / 32;
     }
   }
 }

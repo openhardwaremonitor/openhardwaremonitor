@@ -248,7 +248,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
             }
 
             string description = "Unknown";
-            float? physical = null;
+            double? physical = null;
             foreach (SmartAttribute a in smartAttributes) {
               if (a.Identifier == value.Identifier) {
                 description = a.Name;
@@ -278,10 +278,43 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    protected static float RawToInt(byte[] raw, byte value,
+    protected static double RawToValue(byte[] raw, byte value,
       IReadOnlyArray<IParameter> parameters) 
     {
       return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
+    }
+
+    protected static double SignedRawToValue(byte[] raw, int numberOfBytesToUse) {
+      int ret;
+      switch (numberOfBytesToUse) {
+        case 1:
+          ret = raw[0];
+          break;
+        case 2:
+          ret = (raw[1] << 8) | raw[0];
+          break;
+        case 3:
+          ret = (raw[2] << 16) | (raw[1] << 8) | raw[0];
+          break;
+        case 4:
+        default:
+        return (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
+      }
+
+      // Perform a manual sign-extension
+      if (numberOfBytesToUse == 1 && ret > 0x7F) {
+        ret = (int)(ret | 0xFFFFFF00);
+      }
+
+      if (numberOfBytesToUse == 2 && ret > 0x7FFF) {
+        ret = (int)(ret | 0xFFFF0000);
+      }
+
+      if (numberOfBytesToUse == 3 && ret > 0x7FFFFF) {
+        ret = (int)(ret | 0xFF000000);
+      }
+
+      return ret;
     }
 
     protected override void Dispose(bool disposing) {

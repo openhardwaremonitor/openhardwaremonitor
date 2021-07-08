@@ -24,40 +24,40 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
       new SmartAttribute(0x01, SmartNames.ReadErrorRate),
       new SmartAttribute(0x03, SmartNames.SpinUpTime),
-      new SmartAttribute(0x04, SmartNames.StartStopCount, RawToInt),
+      new SmartAttribute(0x04, SmartNames.StartStopCount, RawToValue),
       new SmartAttribute(0x05, SmartNames.ReallocatedSectorsCount),
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
-      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToValue),
+      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToValue),
       new SmartAttribute(0xAA, SmartNames.AvailableReservedSpace),
       new SmartAttribute(0xAB, SmartNames.ProgramFailCount),
       new SmartAttribute(0xAC, SmartNames.EraseFailCount),
-      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToInt),
-      new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToInt),
-      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToInt),
+      new SmartAttribute(0xAE, SmartNames.UnexpectedPowerLossCount, RawToValue),
+      new SmartAttribute(0xB7, SmartNames.SataDownshiftErrorCount, RawToValue),
+      new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToValue),
       new SmartAttribute(0xB8, SmartNames.EndToEndError),
       new SmartAttribute(0xBE, SmartNames.Temperature,
         (byte[] r, byte v, IReadOnlyArray<IParameter> p)
-          => { return r[0] + (p == null ? 0 : p[0].Value); },
+          => { return SignedRawToValue(r, 1) + (p == null ? 0 : p[0].Value); }, // Only 1 byte seem to contain the temperature, the upper bytes contain something else
           SensorType.Temperature, 0, SmartNames.Temperature, false,
         new[] { new ParameterDescription("Offset [°C]",
                   "Temperature offset of the thermal sensor.\n" +
                   "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xC0, SmartNames.UnsafeShutdownCount), 
-      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToInt),
+      new SmartAttribute(0xC7, SmartNames.CRCErrorCount, RawToValue),
       new SmartAttribute(0xE1, SmartNames.HostWrites, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
-          => { return RawToInt(r, v, p) / 0x20; }, 
+          => { return RawToValue(r, v, p) / 0x20; }, 
         SensorType.Data, 0, SmartNames.HostWrites),
       new SmartAttribute(0xE8, SmartNames.RemainingLife, 
         null, SensorType.Level, 0, SmartNames.RemainingLife),
       new SmartAttribute(0xE9, SmartNames.MediaWearOutIndicator),
       new SmartAttribute(0xF1, SmartNames.HostWrites,
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
-          => { return RawToInt(r, v, p) / 0x20; }, 
+          => { return RawToValue(r, v, p) / 0x20; }, 
         SensorType.Data, 0, SmartNames.HostWrites),
       new SmartAttribute(0xF2, SmartNames.HostReads, 
         (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
-          => { return RawToInt(r, v, p) / 0x20; }, 
+          => { return RawToValue(r, v, p) / 0x20; }, 
         SensorType.Data, 1, SmartNames.HostReads),      
     };
 

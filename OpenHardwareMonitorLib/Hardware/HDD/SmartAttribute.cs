@@ -92,7 +92,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public float ConvertValue(DriveAttributeValue value, 
+    public double ConvertValue(DriveAttributeValue value, 
       IReadOnlyArray<IParameter> parameters) 
     {
       if (rawValueConversion == null) {
@@ -102,7 +102,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
     }
 
-    public delegate float RawValueConversion(byte[] rawValue, byte value,
+    public delegate double RawValueConversion(byte[] rawValue, byte value,
       IReadOnlyArray<IParameter> parameters);
   }
 }
