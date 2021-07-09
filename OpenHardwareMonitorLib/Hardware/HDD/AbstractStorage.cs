@@ -82,6 +82,14 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         return null;
       }
 
+      bool alsoShowRemovables;
+      if (!bool.TryParse(settings.GetValue("hddMenuItemRemovable", "true"), out alsoShowRemovables)) {
+        alsoShowRemovables = true;
+      }
+
+      if (info.Removable && alsoShowRemovables) {
+        return null;
+      }
       AbstractStorage ret = null;
       if (info.BusType == StorageBusType.BusTypeNvme) {
         ret = NVMeGeneric.CreateInstance(info, previousNvMe, settings);

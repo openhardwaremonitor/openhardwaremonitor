@@ -19,6 +19,9 @@ namespace OpenHardwareMonitor {
     [Option("IgnoreMonitorHDD", HelpText = "Disable monitoring of HDDs/SSDs")]
     public bool IgnoreMonitorHDD { get; set; }
 
+    [Option("IgnoreMonitorRemovableDisks", HelpText = "Ignore monitoring of removable disks")]
+    public bool IgnoreRemovableDrives { get; set; }
+
     [Option("IgnoreMonitorMainboard", HelpText = "Disable monitoring of mainboard")]
     public bool IgnoreMonitorMainboard { get; set; }
 
@@ -43,8 +46,5 @@ namespace OpenHardwareMonitor {
     [Option("ignoreconfiguration", HelpText = "Do not load configuration file at startup. If this is not specified, the other settings still supersede the " +
                                               "settings from configuration, but default to the previous setting instead of the default")]
     public bool DoNotLoadConfiguration { get; set; }
-
-    //[Option('h', "help", HelpText = "Show command line options")]
-    //public bool ShowHelp { get; set; }
   }
 }

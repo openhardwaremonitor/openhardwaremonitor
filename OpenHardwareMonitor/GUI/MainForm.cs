@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption readGpuSensors;
     private UserOption readFanControllersSensors;
     private UserOption readHddSensors;
+    private UserOption readHddSensorsRemovable;
     private UserOption readNetworkSensors;
 
     private UserOption showGadget;
@@ -239,7 +240,7 @@ namespace OpenHardwareMonitor.GUI {
       };
 
       readMainboardSensors = new UserOption("mainboardMenuItem", true, 
-        mainboardMenuItem, settings);
+        mainboardMenuItem, settings, () => Program.Arguments.IgnoreMonitorMainboard ? false : null);
       readMainboardSensors.Changed += delegate(object sender, EventArgs e) {
         computer.MainboardEnabled = readMainboardSensors.Value;
       };
@@ -268,9 +269,16 @@ namespace OpenHardwareMonitor.GUI {
         computer.FanControllerEnabled = readFanControllersSensors.Value;
       };
 
+      readHddSensorsRemovable = new UserOption("hddMenuItemRemovable", true, hddMenuItemRemovable, settings,
+        () => Program.Arguments.IgnoreRemovableDrives ? false : null);
       readHddSensors = new UserOption("hddMenuItem", true, hddMenuItem,
         settings, () => Program.Arguments.IgnoreMonitorHDD ? false : null);
       readHddSensors.Changed += delegate(object sender, EventArgs e) {
+        computer.HDDEnabled = readHddSensors.Value;
+      };
+      readHddSensorsRemovable.Changed += delegate (object sender, EventArgs e) {
+        // Refresh the Hdd settings
+        computer.HDDEnabled = false;
         computer.HDDEnabled = readHddSensors.Value;
       };
 
