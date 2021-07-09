@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
             this.gpuMenuItem = new System.Windows.Forms.MenuItem();
             this.fanControllerMenuItem = new System.Windows.Forms.MenuItem();
             this.hddMenuItem = new System.Windows.Forms.MenuItem();
+            this.networkMenuItem = new System.Windows.Forms.MenuItem();
             this.menuItem6 = new System.Windows.Forms.MenuItem();
             this.exitMenuItem = new System.Windows.Forms.MenuItem();
             this.viewMenuItem = new System.Windows.Forms.MenuItem();
@@ -111,7 +112,7 @@ namespace OpenHardwareMonitor.GUI {
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.networkMenuItem = new System.Windows.Forms.MenuItem();
+            this.hddMenuItemRemovable = new System.Windows.Forms.MenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -246,6 +247,7 @@ namespace OpenHardwareMonitor.GUI {
             this.gpuMenuItem,
             this.fanControllerMenuItem,
             this.hddMenuItem,
+            this.hddMenuItemRemovable,
             this.networkMenuItem});
             this.menuItem5.Text = "Hardware";
             // 
@@ -278,6 +280,11 @@ namespace OpenHardwareMonitor.GUI {
             // 
             this.hddMenuItem.Index = 5;
             this.hddMenuItem.Text = "Hard Disk Drives";
+            // 
+            // networkMenuItem
+            // 
+            this.networkMenuItem.Index = 7;
+            this.networkMenuItem.Text = "Network";
             // 
             // menuItem6
             // 
@@ -665,10 +672,10 @@ namespace OpenHardwareMonitor.GUI {
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
             // 
-            // networkMenuItem
+            // hddMenuItemRemovable
             // 
-            this.networkMenuItem.Index = 6;
-            this.networkMenuItem.Text = "Network";
+            this.hddMenuItemRemovable.Index = 6;
+            this.hddMenuItemRemovable.Text = "Removable Disk Drives";
             // 
             // MainForm
             // 
@@ -771,6 +778,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.MenuItem log2hMenuItem;
     private System.Windows.Forms.MenuItem log6hMenuItem;
     private System.Windows.Forms.MenuItem networkMenuItem;
+    private System.Windows.Forms.MenuItem hddMenuItemRemovable;
   }
 }
 
