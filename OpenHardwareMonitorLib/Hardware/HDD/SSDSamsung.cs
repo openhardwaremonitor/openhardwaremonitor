@@ -20,25 +20,29 @@ namespace OpenHardwareMonitor.Hardware.HDD {
     private static readonly IEnumerable<SmartAttribute> smartAttributes =
       new List<SmartAttribute> {
       new SmartAttribute(0x05, SmartNames.ReallocatedSectorsCount),
-      new SmartAttribute(0x09, SmartNames.PowerOnHours, RawToInt),
-      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToInt),
-      new SmartAttribute(0xAF, SmartNames.ProgramFailCountChip, RawToInt),
-      new SmartAttribute(0xB0, SmartNames.EraseFailCountChip, RawToInt),
+      new SmartAttribute(0x09, SmartNames.PowerOnHours, (raw, v, p) => {
+        int result = (raw[3] << 24) | (raw[2] << 16) | (raw[1] << 8) | raw[0];
+        return result;
+      }, SensorType.RawValue, 0, SmartNames.PowerOnHours),
+      new SmartAttribute(0x0C, SmartNames.PowerCycleCount, RawToValue),
+      new SmartAttribute(0xAF, SmartNames.ProgramFailCountChip, RawToValue),
+      new SmartAttribute(0xB0, SmartNames.EraseFailCountChip, RawToValue),
       // Using 0xB1 because that is Wear Leveling Count attribute according to datasheet
       new SmartAttribute(0xB1, SmartNames.WearLevelingCount, null, SensorType.Level, 0, SmartNames.RemainingLife),
-      new SmartAttribute(0xB2, SmartNames.UsedReservedBlockCountChip, RawToInt),
-      new SmartAttribute(0xB3, SmartNames.UsedReservedBlockCountTotal, RawToInt),
+      new SmartAttribute(0xB2, SmartNames.UsedReservedBlockCountChip, RawToValue),
+      new SmartAttribute(0xB3, SmartNames.UsedReservedBlockCountTotal, RawToValue),
+      // Unused Reserved Block Count (Total)
       new SmartAttribute(0xB4, SmartNames.RemainingLife),
       new SmartAttribute(0xB5, SmartNames.ProgramFailCountTotal, RawToValue),
       new SmartAttribute(0xB6, SmartNames.EraseFailCountTotal, RawToValue),
       new SmartAttribute(0xB7, SmartNames.RuntimeBadBlockTotal, RawToValue),
       new SmartAttribute(0xBB, SmartNames.UncorrectableErrorCount, RawToValue, SensorType.RawValue, 2, SmartNames.UncorrectableErrorCount, true),
-      new SmartAttribute(0xBE, SmartNames.Temperature,
-        (byte[] r, byte v, IReadOnlyArray<IParameter> p)
-          => { return r[0] + (p == null ? 0 : p[0].Value); },
-          SensorType.Temperature, 0, SmartNames.Temperature, false,
-        new[] { new ParameterDescription("Offset [°C]",
-                  "Temperature offset of the thermal sensor.\n" +
+      new SmartAttribute(0xBE, SmartNames.Temperature, 
+        (byte[] r, byte v, IReadOnlyArray<IParameter> p) 
+          => { return SignedRawToValue(r, 1) + (p == null ? 0 : p[0].Value); }, 
+          SensorType.Temperature, 0, SmartNames.Temperature, false, 
+        new[] { new ParameterDescription("Offset [°C]", 
+                  "Temperature offset of the thermal sensor.\n" + 
                   "Temperature = Value + Offset.", 0) }),
       new SmartAttribute(0xC2, SmartNames.AirflowTemperature),
       new SmartAttribute(0xC3, SmartNames.ECCRate, RawToValue, SensorType.RawValue, 3, SmartNames.ECCRate, true),
@@ -73,20 +77,20 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     public SSDSamsung(ISmart smart, string name, string firmwareRevision,
       int index, ISettings settings)
-      : base(smart, name, firmwareRevision, index, smartAttributes, settings) {
+      : base(smart, name, firmwareRevision, "ssd", index, smartAttributes, settings) {
       this.writeAmplification = new Sensor("Write Amplification", 1,
           SensorType.Factor, this, settings);
   }
 
     public override void UpdateAdditionalSensors(DriveAttributeValue[] values) {
-      float? controllerWritesToNAND = null;
-      float? hostWritesToController = null;
+      double? controllerWritesToNAND = null;
+      double? hostWritesToController = null;
       foreach (DriveAttributeValue value in values) {
         if (value.Identifier == 0xFB)
-          controllerWritesToNAND = RawToInt(value.RawValue, value.AttrValue, null);
+          controllerWritesToNAND = RawToValue(value.RawValue, value.AttrValue, null);
 
         if (value.Identifier == 0xF1)
-          hostWritesToController = RawToInt(value.RawValue, value.AttrValue, null);
+          hostWritesToController = RawToValue(value.RawValue, value.AttrValue, null);
       }
       if (controllerWritesToNAND.HasValue && hostWritesToController.HasValue) {
         if (hostWritesToController.Value > 0)
