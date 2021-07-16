@@ -108,7 +108,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       }
 
       int idx1 = 0;
-      AddSensor("Power on Hours", idx1++, true, SensorType.RawValue, (health) => health.PowerOnHours);
+      AddSensor("Power-On Hours (POH)", idx1++, false, SensorType.RawValue, (health) => health.PowerOnHours);
       AddSensor("Media Errors", idx1++, true, SensorType.RawValue, (health) => health.MediaErrors);
       // What is this?
       // AddSensor("Controller busy time", 0, true, SensorType.TimeSpan, (health) => health.ControllerBusyTime);
