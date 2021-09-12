@@ -478,10 +478,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
           return new NVMeHealthInfoImpl(data2, null);
         }
       } catch (Win32Exception x) {
-        Logging.LogError(x, "Alternate API doesn't work, either.");
+        Logging.LogError(x, "Alternate API threw an exception.");
       }
 
-
+      Logging.LogInfo("Alternate API is unavailable, too. Trying to fallback to generic drive APIs.");
       return null;
     }
 

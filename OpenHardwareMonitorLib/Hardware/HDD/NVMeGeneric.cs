@@ -66,6 +66,10 @@ namespace OpenHardwareMonitor.Hardware.HDD {
         using (WindowsNVMeSmart smart = new WindowsNVMeSmart(nextDrive)) {
           if (!smart.IsValid)
             continue;
+          // this one is completely unusable. The device seems to require yet another api.
+          if (smart.GetHealthInfo() == null) {
+            continue;
+          }
           NVMeInfo info = smart.GetInfo(infoToMatch, nextDrive, true);
           if (info != null)
             return info;
@@ -79,6 +83,7 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       NVMeInfo nvmeInfo = GetDeviceInfo(storageInfo, previousNvme != null ? previousNvme.info.LogicalDeviceNumber : -1);
       if (nvmeInfo == null) {
         Logging.LogInfo($"Device {storageInfo.Index} ({storageInfo.Name}) identifies as NVMe device, but does not support all requires features.");
+        return null;
       }
 
       IEnumerable<string> logicalDrives = WindowsStorage.GetLogicalDrives(storageInfo.Index);
