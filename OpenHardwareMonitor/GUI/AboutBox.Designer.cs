@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(273, 13);
       this.label2.TabIndex = 3;
-      this.label2.Text = "Copyright © 2009-2020 Michael Möller and contributors. ";
+      this.label2.Text = "Copyright © 2009-2021 Michael Möller and contributors. ";
       // 
       // label3
       // 
@@ -94,7 +94,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label3.Name = "label3";
       this.label3.Size = new System.Drawing.Size(127, 13);
       this.label3.TabIndex = 4;
-      this.label3.Text = "Version 9.0.30729.1 Beta";
+      this.label3.Text = "(unknown)";
       // 
       // projectLinkLabel
       // 

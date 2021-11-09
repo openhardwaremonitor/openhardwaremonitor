@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>OpenHardwareMonitor</id>
-    <version>0.9.7-alpha06</version>
+    <version>0.9.7-alpha10</version>
     <title>OpenHardwareMonitor</title>
     <authors>Leica Geosystems AG</authors>
     <owners>Michael Möller et al</owners>
