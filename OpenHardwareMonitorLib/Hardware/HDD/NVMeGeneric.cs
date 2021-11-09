@@ -138,8 +138,12 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     protected override void UpdateSensors() {
       NVMeHealthInfo health = smart.GetHealthInfo();
-      foreach (NVMeSensor sensor in sensors)
-        sensor.Update(health);
+      // This may sometimes be null after recovering from sleep/hybernate
+      if (health != null) {
+        foreach (NVMeSensor sensor in sensors)
+          sensor.Update(health);
+      }
+
       base.UpdateSensors();
     }
 
