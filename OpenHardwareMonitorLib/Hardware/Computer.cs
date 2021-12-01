@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Security.Permissions;
 using System.Reflection;
 using LibreHardwareMonitor.Hardware.Network;
@@ -60,22 +61,27 @@ namespace OpenHardwareMonitor.Hardware {
 
       groups.Remove(group);
 
-      if (HardwareRemoved != null)
-        foreach (IHardware hardware in group.Hardware) {
+      if (HardwareRemoved != null) {
+        var listCopy = group.Hardware.ToList(); // Make below enumeration thread safe
+        foreach (IHardware hardware in listCopy) {
           HardwareRemoved(hardware);
           hardware.Dispose();
         }
+      }
 
       group.Close();
     }
 
     private void RemoveType<T>() where T : IGroup {
       List<IGroup> list = new List<IGroup>();
-      foreach (IGroup group in groups)
+      foreach (IGroup group in groups) {
         if (group is T)
           list.Add(group);
-      foreach (IGroup group in list)
+      }
+
+      foreach (IGroup group in list) {
         Remove(group);
+      }
     }
 
     [SecurityPermission(SecurityAction.LinkDemand, UnmanagedCode = true)]
