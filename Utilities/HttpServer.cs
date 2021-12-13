@@ -77,6 +77,9 @@ namespace OpenHardwareMonitor.Utilities {
       if (PlatformNotSupported)
         return false;
 
+      if (listenerThread == null)
+        return false;
+
       try {
         listenerThread.Abort();
         listener.Stop();
