@@ -25,7 +25,7 @@ namespace OpenHardwareMonitorReport
                 System.Diagnostics.ProcessStartInfo proc = new System.Diagnostics.ProcessStartInfo();
                 proc.UseShellExecute = true;
                 proc.WorkingDirectory = Environment.CurrentDirectory;
-                proc.FileName = System.Reflection.Assembly.GetEntryAssembly().CodeBase;
+                proc.FileName = System.Reflection.Assembly.GetEntryAssembly().Location;
 
                 System.Collections.Generic.List<string> args = new System.Collections.Generic.List<string>(System.Environment.GetCommandLineArgs());
                 args.RemoveAt(0);

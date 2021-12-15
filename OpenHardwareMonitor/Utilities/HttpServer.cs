@@ -27,11 +27,12 @@ namespace OpenHardwareMonitor.Utilities {
     private int listenerPort, nodeCount;
     private Thread listenerThread;
     private Node root;
+    private CancellationTokenSource cancellation;
 
     public HttpServer(Node node, int port) {
       root = node;
       listenerPort = port;
-
+      cancellation = new CancellationTokenSource();
       //JSON node count. 
       nodeCount = 0;
 
@@ -59,6 +60,7 @@ namespace OpenHardwareMonitor.Utilities {
         if (listener.IsListening)
           return true;
 
+        cancellation = new CancellationTokenSource();
         string prefix = "http://+:" + listenerPort + "/";
         listener.Prefixes.Clear();
         listener.Prefixes.Add(prefix);
@@ -70,6 +72,7 @@ namespace OpenHardwareMonitor.Utilities {
         }
       } catch (Exception ex) {
         this.StartHttpListenerException = ex;
+        cancellation.Cancel();
         return false;
       }
 
@@ -84,7 +87,7 @@ namespace OpenHardwareMonitor.Utilities {
         return false;
 
       try {
-        listenerThread?.Abort();
+        cancellation.Cancel();
         listener?.Stop();
         listenerThread = null;
       } catch (HttpListenerException) {
@@ -96,7 +99,7 @@ namespace OpenHardwareMonitor.Utilities {
 
     private void HandleRequests() {
 
-      while (listener.IsListening) {
+      while (listener.IsListening && !cancellation.IsCancellationRequested) {
         var context = listener.BeginGetContext(
           new AsyncCallback(ListenerCallback), listener);
         context.AsyncWaitHandle.WaitOne();

@@ -36,7 +36,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public UserOption(string name, bool value,
-      MenuItem menuItem, PersistentSettings settings, Func<bool?> overridenValue) {
+      ToolStripMenuItem menuItem, PersistentSettings settings, Func<bool?> overridenValue) {
 
       this.settings = settings;
       this.name = name;

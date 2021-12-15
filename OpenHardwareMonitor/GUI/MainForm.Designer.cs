@@ -114,18 +114,18 @@ namespace OpenHardwareMonitor.GUI {
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
-            this.webMenuItemSeparator = new System.Windows.Forms.MenuItem();
-            this.webMenuItem = new System.Windows.Forms.MenuItem();
-            this.runWebServerMenuItem = new System.Windows.Forms.MenuItem();
-            this.serverPortMenuItem = new System.Windows.Forms.MenuItem();
-            this.helpMenuItem = new System.Windows.Forms.MenuItem();
-            this.aboutMenuItem = new System.Windows.Forms.MenuItem();
-            this.treeContextMenu = new System.Windows.Forms.ContextMenu();
+            this.webMenuItemSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.webMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runWebServerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverPortMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.treeContextMenu = new System.Windows.Forms.ContextMenuStrip();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.hddMenuItemRemovable = new System.Windows.Forms.MenuItem();
+            this.hddMenuItemRemovable = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -311,7 +311,7 @@ namespace OpenHardwareMonitor.GUI {
             // 
             // networkMenuItem
             // 
-            this.networkMenuItem.Index = 7;
+            this.networkMenuItem.Name = "networkMenuItem";
             this.networkMenuItem.Text = "Network";
             // 
             // menuItem6
@@ -734,7 +734,7 @@ namespace OpenHardwareMonitor.GUI {
             // 
             // hddMenuItemRemovable
             // 
-            this.hddMenuItemRemovable.Index = 6;
+            this.hddMenuItemRemovable.Name = "hddItemRemovable";
             this.hddMenuItemRemovable.Text = "Removable Disk Drives";
             // 
             // MainForm
@@ -842,8 +842,8 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem log1hMenuItem;
     private System.Windows.Forms.ToolStripMenuItem log2hMenuItem;
     private System.Windows.Forms.ToolStripMenuItem log6hMenuItem;
-    private System.Windows.Forms.MenuItem networkMenuItem;
-    private System.Windows.Forms.MenuItem hddMenuItemRemovable;
+    private System.Windows.Forms.ToolStripMenuItem networkMenuItem;
+    private System.Windows.Forms.ToolStripMenuItem hddMenuItemRemovable;
   }
 }
 

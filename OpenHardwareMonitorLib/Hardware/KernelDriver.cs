@@ -282,9 +282,9 @@ namespace OpenHardwareMonitor.Hardware {
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi)]
       public static extern bool DeviceIoControl(SafeFileHandle device,
         IOControlCode ioControlCode, 
-        [MarshalAs(UnmanagedType.AsAny)] [In] object inBuffer, 
+        [MarshalAs(UnmanagedType.Struct)] [In] object inBuffer, 
         uint inBufferSize,
-        [MarshalAs(UnmanagedType.AsAny)] [Out] object outBuffer,
+        [MarshalAs(UnmanagedType.Struct)] [Out] object outBuffer,
         uint nOutBufferSize, out uint bytesReturned, IntPtr overlapped);
 
       [DllImport(KERNEL, CallingConvention = CallingConvention.Winapi, 

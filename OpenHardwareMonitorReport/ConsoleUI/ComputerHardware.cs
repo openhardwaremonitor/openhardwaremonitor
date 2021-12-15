@@ -35,7 +35,6 @@ namespace OpenHardwareMonitorReport
         private UnitManager unitManager;
         private UpdateVisitor updateVisitor = new OpenHardwareMonitor.GUI.UpdateVisitor();
         private Computer computer;
-        private OpenHardwareMonitor.WMI.WmiProvider wmiProvider;
 
         public Computer ComputerDiagnostics(CommandLineOptions.OptionsBase options)
         {
@@ -55,16 +54,12 @@ namespace OpenHardwareMonitorReport
             computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);
 
             // add platform dependent code
-            int p = (int)Environment.OSVersion.Platform;
-            if ((p == 4) || (p == 128))
-            {
-                // Unix                        
-            }
-            else
+            var platForm = Environment.OSVersion.Platform;
+            if (platForm == PlatformID.Win32NT)
             {
                 // Windows
                 // not sure if really required: gadget = new OpenHardwareMonitor.GUI.SensorGadget(computer, settings, unitManager);
-                wmiProvider = new OpenHardwareMonitor.WMI.WmiProvider(computer);
+                // wmiProvider = new OpenHardwareMonitor.WMI.WmiProvider(computer);
             }
 
             computer.Open();
@@ -126,9 +121,6 @@ namespace OpenHardwareMonitorReport
             // not sure if really required - see also constructor!
             // if (gadget != null)
             //     gadget.Redraw();
-
-            if (wmiProvider != null)
-                wmiProvider.Update();
         }
 
         #region IDisposable Support

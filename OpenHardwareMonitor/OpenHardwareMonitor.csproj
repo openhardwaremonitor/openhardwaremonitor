@@ -96,10 +96,6 @@
     <ProjectReference Include="..\OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Management" />
-  </ItemGroup>
-  <ItemGroup>
     <None Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -80,20 +80,18 @@ namespace OpenHardwareMonitor.GUI {
       };
       menu.Items.Add(stackedAxesMenuItem);
 
-      ToolStripMenuItem timeWindow = new ToolStripMenuItem("Time Window");
-      ToolStripMenuItem[] timeWindowMenuItems =
-        { new ToolStripMenuItem("Auto", null,
-      MenuItem axisLabelsMenuItem = new MenuItem("Axis Labels");
+      ToolStripMenuItem axisLabelsMenuItem = new ToolStripMenuItem("Axis Labels");
       axisLabels = new UserOption("axisLabels", true,
         axisLabelsMenuItem, settings);
       axisLabels.Changed += (sender, e) => {
         model.PlotMargins = ((UserOption)sender).Value ? new OxyThickness(double.NaN) : new OxyThickness(0);
       };
-      menu.MenuItems.Add(axisLabelsMenuItem);
+      menu.Items.Add(axisLabelsMenuItem);
 
-      MenuItem timeWindow = new MenuItem("Time Window");
-      MenuItem[] timeWindowMenuItems =
-        { new MenuItem("Auto", 
+      ToolStripMenuItem timeWindow = new ToolStripMenuItem("Time Window");
+      ToolStripMenuItem[] timeWindowMenuItems =
+        {
+          new ToolStripMenuItem("Auto", null,
             (s, e) => { timeAxis.Zoom(0, double.NaN); InvalidatePlot(); }),
           new ToolStripMenuItem("5 min",  null,
             (s, e) => { timeAxis.Zoom(0, 5 * 60); InvalidatePlot(); }),
