@@ -88,6 +88,7 @@
   <ItemGroup>
     <PackageReference Include="AdamsLair.TreeViewAdv" Version="1.7.7" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Grapevine" Version="5.0.0-rc.8" />
     <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
@@ -100,4 +101,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /E /I /Y &quot;$(ProjectDir)\resources\web&quot; &quot;$(OutDir)\web&quot;&#xD;&#xA;xcopy /I /Y &quot;$(ProjectDir)\resources\*.png&quot; &quot;$(OutDir)\web\images_icon&quot;&#xD;&#xA;" />
+  </Target>
 </Project>

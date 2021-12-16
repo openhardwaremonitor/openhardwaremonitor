@@ -242,14 +242,14 @@ namespace OpenHardwareMonitorReport
                 //currently running with administrative privileges
                 Computer computer = computerHardware.ComputerDiagnostics(options);
 
-                OpenHardwareMonitor.Utilities.HttpServer server = new OpenHardwareMonitor.Utilities.HttpServer(computerHardware.root, options.Port);
+                OpenHardwareMonitor.Utilities.GrapevineServer server = new OpenHardwareMonitor.Utilities.GrapevineServer(computerHardware.root, options.Port);
                 if (server.PlatformNotSupported)
                 {
                     Utility.WriteLogMessage("ERROR: Platform not supported", options, true);
                     return 11;
                 }
 
-                if (server.StartHTTPListener())
+                if (server.Start())
                 {
                     // enable refresh timer
                     RunConsoleHttpServerTimer = new System.Timers.Timer(options.Interval);
@@ -272,14 +272,14 @@ namespace OpenHardwareMonitorReport
                     // shutdown the webserver
                     RunConsoleHttpServerTimer.Stop();
                     RunConsoleHttpServerTimer.Dispose();
-                    server.StopHTTPListener();
+                    server.Stop();
 
                     return 0;
                 }
                 else
                 {
                     Utility.WriteLogMessage("ERROR: Failed to start HTTP webserver", options, true);
-                    Utility.WriteLogMessage(server.StartHttpListenerException.ToString(), options, true);
+                    // Utility.WriteLogMessage(server.StartHttpListenerException.ToString(), options, true);
                     return 12;
                 }
             }

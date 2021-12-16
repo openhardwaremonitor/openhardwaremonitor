@@ -64,7 +64,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserRadioGroup plotLocation;
 
     private UserOption runWebServer;
-    private HttpServer server;
+    private GrapevineServer server;
 
     private UserOption logSensors;
     private UserRadioGroup loggingInterval;
@@ -296,23 +296,25 @@ namespace OpenHardwareMonitor.GUI {
         unitManager.TemperatureUnit == TemperatureUnit.Celsius;
       fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
-      int networkPort = this.settings.GetValue("listenerPort", 8085);
+      HttpServerPort = this.settings.GetValue("listenerPort", 8085);
       if (Program.Arguments.WebServerPort.HasValue) {
-        networkPort = Program.Arguments.WebServerPort.Value;
-      }
-      server = new HttpServer(root, networkPort);
-      if (server.PlatformNotSupported) {
-        webMenuItemSeparator.Visible = false;
-        webMenuItem.Visible = false;
+          HttpServerPort = Program.Arguments.WebServerPort.Value;
       }
 
+      server = new GrapevineServer(root, HttpServerPort);
       runWebServer = new UserOption("runWebServerMenuItem", false,
         runWebServerMenuItem, settings, () => Program.Arguments.RunWebServer ? true : null);
-      runWebServer.Changed += delegate(object sender, EventArgs e) {
-        if (runWebServer.Value)
-          server.StartHTTPListener();
-        else
-          server.StopHTTPListener();
+      runWebServer.Changed += delegate(object sender, EventArgs e)
+      {
+          if (runWebServer.Value)
+          {
+              server.Stop();
+              server.Dispose();
+              server = new GrapevineServer(root, HttpServerPort);
+              server.Start();
+          }
+          else
+              server.Stop();
       };
 
       logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,
@@ -363,13 +365,19 @@ namespace OpenHardwareMonitor.GUI {
         computer.Close();
         SaveConfiguration();
         if (runWebServer.Value) 
-          server.Quit();
+          server.Stop();
       };
 
       treeView.ExpandAll();
     }
 
-    private void PowerModeChanged(object sender,
+    public int HttpServerPort
+    {
+        get;
+        set;
+    } = 8085;
+
+        private void PowerModeChanged(object sender,
       Microsoft.Win32.PowerModeChangedEventArgs e) {
 
       if (e.Mode == Microsoft.Win32.PowerModes.Resume) {
@@ -702,7 +710,7 @@ namespace OpenHardwareMonitor.GUI {
       computer.Close();
       SaveConfiguration();
       if (runWebServer.Value)
-          server.Quit();
+          server.Stop();
       systemTray.Dispose();
     }
 
@@ -991,10 +999,6 @@ namespace OpenHardwareMonitor.GUI {
 
     private void serverPortMenuItem_Click(object sender, EventArgs e) {
       new PortForm(this).ShowDialog();
-    }
-
-    public HttpServer Server {
-      get { return server; }
     }
 
   }
