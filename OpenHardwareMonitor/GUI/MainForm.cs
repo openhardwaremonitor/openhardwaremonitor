@@ -296,7 +296,7 @@ namespace OpenHardwareMonitor.GUI {
         unitManager.TemperatureUnit == TemperatureUnit.Celsius;
       fahrenheitMenuItem.Checked = !celsiusMenuItem.Checked;
 
-      HttpServerPort = this.settings.GetValue("listenerPort", 8085);
+      HttpServerPort = this.settings.GetValue("listenerPort", 8086);
       if (Program.Arguments.WebServerPort.HasValue) {
           HttpServerPort = Program.Arguments.WebServerPort.Value;
       }
@@ -375,7 +375,7 @@ namespace OpenHardwareMonitor.GUI {
     {
         get;
         set;
-    } = 8085;
+    } = 8086;
 
         private void PowerModeChanged(object sender,
       Microsoft.Win32.PowerModeChangedEventArgs e) {

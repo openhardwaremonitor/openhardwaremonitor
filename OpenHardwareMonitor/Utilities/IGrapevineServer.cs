@@ -12,5 +12,8 @@ namespace OpenHardwareMonitor.Utilities
     public interface IGrapevineServer
     {
         String GetJson();
+        string GetNode(IHttpContext context);
+        string RootNode(IHttpContext context);
+        string GetVersion();
     }
 }

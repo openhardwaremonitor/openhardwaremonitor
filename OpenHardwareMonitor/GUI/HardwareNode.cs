@@ -53,6 +53,8 @@ namespace OpenHardwareMonitor.GUI {
       get { return hardware; }
     }
 
+    public override string NodeId => Hardware.Identifier.ToString();
+
     public override bool IsExpanded {
       get {
         return base.IsExpanded;

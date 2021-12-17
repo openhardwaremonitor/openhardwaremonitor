@@ -116,6 +116,8 @@ namespace OpenHardwareMonitor.GUI {
       this.IsVisible = false;
     }
 
+    public override string NodeId => Text;
+
     public SensorType SensorType {
       get { return sensorType; }
     }

@@ -37,7 +37,7 @@ namespace OpenHardwareMonitor {
     [Option("minimizetotray", HelpText = "Force minimize to tray")]
     public bool MinimizeToTray { get; set; }
 
-    [Option('p', "port", HelpText = "Network port to use for remote web access (default: 8085)")]
+    [Option('p', "port", HelpText = "Network port to use for remote web access (default: 8086)")]
     public int? WebServerPort { get; set; }
 
     [Option('r', "run", HelpText = "Run webserver at startup")]

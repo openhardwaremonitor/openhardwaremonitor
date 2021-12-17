@@ -10,6 +10,7 @@
 
 using OpenHardwareMonitor.Hardware;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace OpenHardwareMonitor.GUI {
@@ -43,6 +44,26 @@ namespace OpenHardwareMonitor.GUI {
         }              
       } else
         return "-";
+    }
+
+    public string Unit()
+    {
+        switch (sensor.SensorType)
+        {
+            case SensorType.Voltage: return "V";
+            case SensorType.Clock: return "MHz";
+            case SensorType.Load: return "%";
+            case SensorType.Fan: return "RPM";
+            case SensorType.Flow: return "L/h";
+            case SensorType.Control: return "%";
+            case SensorType.Level: return "%";
+            case SensorType.Power: return "W";
+            case SensorType.Data: return "GB";
+            case SensorType.SmallData: return "MB";
+            case SensorType.Throughput: return "MB/s";
+            case SensorType.Temperature: return "C";
+            default: return string.Empty;
+        }
     }
 
     public SensorNode(ISensor sensor, PersistentSettings settings, 
@@ -83,6 +104,8 @@ namespace OpenHardwareMonitor.GUI {
       get { return sensor.Name; }
       set { sensor.Name = value; }
     }
+
+    public override string NodeId => sensor.Identifier.ToString();
 
     public override bool IsVisible {
       get { return base.IsVisible; }
