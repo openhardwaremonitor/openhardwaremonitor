@@ -41,6 +41,7 @@ namespace OpenHardwareMonitor.Utilities
             await context.Response.SendResponseAsync(server.GetJson());
         }
 
+        // These functions are all equivalent, but there seems to be no way of specifying a route that contains a "rest of the path" match
         [RestRoute("Get", "/api/nodes/{hardware}/{id}")]
         public async Task HardwareNode(IHttpContext context)
         {
@@ -49,8 +50,16 @@ namespace OpenHardwareMonitor.Utilities
             await context.Response.SendResponseAsync(server.GetNode(context));
         }
 
+        [RestRoute("Get", "/api/nodes/{hardware}/{subcomponent}/{sensorId}")]
+        public async Task SensorNode1(IHttpContext context)
+        {
+            context.Response.AddHeader("Cache-Control", "no-cache");
+            context.Response.ContentType = "application/json";
+            await context.Response.SendResponseAsync(server.GetNode(context));
+        }
+
         [RestRoute("Get", "/api/nodes/{hardware}/{id}/{sensor}/{sensorId}")]
-        public async Task SensorNode(IHttpContext context)
+        public async Task SensorNode2(IHttpContext context)
         {
             context.Response.AddHeader("Cache-Control", "no-cache");
             context.Response.ContentType = "application/json";

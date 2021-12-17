@@ -149,7 +149,7 @@ namespace OpenHardwareMonitor.Utilities
 
         public string GetVersion()
         {
-            return Application.ProductVersion;
+            return "OpenHardwareMonitor " + Application.ProductVersion;
         }
 
         public string RootNode(IHttpContext context)
@@ -158,7 +158,7 @@ namespace OpenHardwareMonitor.Utilities
 
             json.Append("{");
             json.AppendLine("\"ComputerName\": \"" + root.Text + "\",");
-            json.AppendLine("\"LogicalProcessorCount\": \"" + Environment.ProcessorCount + "\",");
+            json.AppendLine("\"LogicalProcessorCount\": " + Environment.ProcessorCount + ",");
             json.AppendLine("\"Units\": [");
             var units = UnitDefinition.CommonUnits;
             for (int i = 0; i < units.Count; i++)
@@ -199,6 +199,8 @@ namespace OpenHardwareMonitor.Utilities
         {
             json.AppendLine("\"NodeId\": \"" + hardwareNode.Hardware.Identifier + "\", ");
             json.AppendLine("\"Name\": \"" + hardwareNode.Text + "\", ");
+            json.AppendLine("\"Parent\": \"" + hardwareNode.Parent.NodeId + "\", ");
+            json.AppendLine("\"HardwareType\": \"" + hardwareNode.Hardware.HardwareType.ToString() + "\", ");
             json.AppendLine("\"Sensors\": [");
             if (hardwareNode.Nodes.All(x => x is HardwareNode))
             {
@@ -228,6 +230,7 @@ namespace OpenHardwareMonitor.Utilities
         {
             json.AppendLine("\"NodeId\": \"" + sensorNode.NodeId + "\", ");
             json.AppendLine("\"Name\": \"" + sensorNode.Text + "\", ");
+            json.AppendLine("\"Parent\": \"" + sensorNode.Parent.NodeId + "\", ");
             json.AppendLine("\"Type\": \"" + sensorNode.Sensor.SensorType.ToString() + "\", ");
             json.AppendLine("\"Unit\": \"" + sensorNode.Unit() + "\", ");
             var value = sensorNode.Sensor.Value;
