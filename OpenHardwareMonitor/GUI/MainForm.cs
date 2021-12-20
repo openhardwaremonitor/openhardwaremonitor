@@ -682,6 +682,23 @@ namespace OpenHardwareMonitor.GUI {
 
       // Register for receiving hardware change information (trough WndProc)
       DeviceNotification.RegisterDeviceNotification(Handle);
+
+      // This setting needs to be applied after the form load since it otherwise triggers
+      // a relayout.
+      if (this.settings.Contains("splitContainer.SplitterDistance")) {
+        this.splitContainer.SplitterDistance = this.settings.GetValue("splitContainer.SplitterDistance", 0);
+      }
+
+      // This event needs to be attached after the form load since it otherwise
+      // triggers a relayout.
+      this.splitContainer.SplitterMoved += delegate (object splitterSender,
+		      SplitterEventArgs splitterEvent) {
+        if (this.settings.GetValue("plotLocation", 0) == 1) {
+          this.settings.SetValue("splitContainer.SplitterDistance", splitterEvent.SplitY);
+        } else if (this.settings.GetValue("plotLocation", 0) == 2) {
+          this.settings.SetValue("splitContainer.SplitterDistance", splitterEvent.SplitX);
+        }
+      };
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
