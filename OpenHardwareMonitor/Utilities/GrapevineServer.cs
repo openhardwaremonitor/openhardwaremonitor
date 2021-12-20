@@ -230,7 +230,13 @@ namespace OpenHardwareMonitor.Utilities
         {
             json.AppendLine("\"NodeId\": \"" + sensorNode.NodeId + "\", ");
             json.AppendLine("\"Name\": \"" + sensorNode.Text + "\", ");
-            json.AppendLine("\"Parent\": \"" + sensorNode.Parent.NodeId + "\", ");
+            // We need the hardware node that is the parent, not the type node ("Voltage")
+            string parenNodeId = sensorNode.Parent.NodeId;
+            if (sensorNode.Parent is TypeNode && sensorNode.Parent.Parent != null)
+            {
+                parenNodeId = sensorNode.Parent.Parent.NodeId;
+            }
+            json.AppendLine("\"Parent\": \"" + parenNodeId + "\", ");
             json.AppendLine("\"Type\": \"" + sensorNode.Sensor.SensorType.ToString() + "\", ");
             json.AppendLine("\"Unit\": \"" + sensorNode.Unit() + "\", ");
             var value = sensorNode.Sensor.Value;
