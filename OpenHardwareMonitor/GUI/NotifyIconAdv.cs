@@ -465,35 +465,14 @@ namespace OpenHardwareMonitor.GUI {
       }
 
       private void ShowContextMenu() {
-        if (ContextMenu == null && ContextMenuStrip == null)
-          return;
-
-        NativeMethods.Point p = new NativeMethods.Point();
+          NativeMethods.Point p = new NativeMethods.Point();
         NativeMethods.GetCursorPos(ref p);
         NativeMethods.SetForegroundWindow(
           new HandleRef(window, window.Handle));
 
         if (ContextMenu != null) {
-          ContextMenu.GetType().InvokeMember("OnPopup",
-            BindingFlags.NonPublic | BindingFlags.InvokeMethod |
-            BindingFlags.Instance, null, ContextMenu,
-            new Object[] { System.EventArgs.Empty });
-
-          NativeMethods.TrackPopupMenuEx(
-            new HandleRef(ContextMenu, ContextMenu.Handle), 72,
-            p.x, p.y, new HandleRef(window, window.Handle),
-            IntPtr.Zero);
-
-          NativeMethods.PostMessage(
-            new HandleRef(window, window.Handle), WM_NULL, 0, 0);
-          return;
+          ContextMenu.Show(new Point(p.x, p.y), ToolStripDropDownDirection.AboveLeft);
         }
-
-        if (ContextMenuStrip != null)
-          ContextMenuStrip.GetType().InvokeMember("ShowInTaskbar",
-            BindingFlags.NonPublic | BindingFlags.InvokeMethod |
-            BindingFlags.Instance, null, ContextMenuStrip,
-            new Object[] { p.x, p.y });
       }
 
       private void UpdateNotifyIcon(bool showNotifyIcon) {
