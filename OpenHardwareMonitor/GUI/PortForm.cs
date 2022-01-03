@@ -53,7 +53,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void portOKButton_Click(object sender, EventArgs e) {
-      parent.Server.ListenerPort = (int)portNumericUpDn.Value;
+      parent.HttpServerPort = (int)portNumericUpDn.Value;
       this.Close();
     }
 
@@ -62,7 +62,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void PortForm_Load(object sender, EventArgs e) {
-      portNumericUpDn.Value = parent.Server.ListenerPort;
+      portNumericUpDn.Value = parent.HttpServerPort;
       portNumericUpDn_ValueChanged(null, null);
     }
 

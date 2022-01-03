@@ -46,13 +46,14 @@
 
     <div class="main">
       <table data-bind="treeTable: flattened, treeOptions: { initialState: 'expanded', clickableNodeNames: true } ">
-        <thead><td>Sensor</td><td>Min</td><td>Value</td><td>Max</td>
+          <thead><td>Sensor</td><td>Min</td><td>Value</td><td>Max</td><!-- <td>NodeId</td> -->
           <tbody data-bind="foreach: flattened">
             <tr data-bind="attr: { 'id': 'node-' + id(), 'class': parent.id()?'child-of-node-' + parent.id():'' }">
               <td data-bind="html: '<img src=' + ImageURL() + ' />&nbsp; ' + Text()"></td>
               <td data-bind="text: Min"></td>
               <td data-bind="text: Value"></td>
-              <td data-bind="text: Max"></td>
+                <td data-bind="text: Max"></td>
+                <!-- Only for testing <td data-bind="text: NodeId"></td> -->
             </tr>
           </tbody>
         </table>

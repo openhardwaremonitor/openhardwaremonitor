@@ -63,6 +63,27 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
+    public Node FindNode(string nodeId)
+    {
+        if (NodeId == nodeId)
+        {
+            return this;
+        }
+
+        foreach (var n in Nodes)
+        {
+            var ret = n.FindNode(nodeId);
+            if (ret != null)
+            {
+                return ret;
+            }
+        }
+
+        return null;
+    }
+
+    public virtual string NodeId => Text;
+
     public Collection<Node> Nodes {
       get { return nodes; }
     }

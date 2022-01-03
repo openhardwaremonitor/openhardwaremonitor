@@ -5,3 +5,4 @@
 bin
 obj
 launchSettings.json
+/*.nupkg

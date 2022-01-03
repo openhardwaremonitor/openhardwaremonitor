@@ -54,19 +54,19 @@ namespace OpenHardwareMonitor.GUI {
       
       this.pen = new Pen(Color.FromArgb(96, Color.Black));
 
-      ContextMenu contextMenu = new ContextMenu();
-      MenuItem hideShowItem = new MenuItem("Hide/Show");
+      ContextMenuStrip contextMenu = new ContextMenuStrip();
+      ToolStripMenuItem hideShowItem = new ToolStripMenuItem("Hide/Show");
       hideShowItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendHideShowCommand();
       };
-      contextMenu.MenuItems.Add(hideShowItem);
-      contextMenu.MenuItems.Add(new MenuItem("-"));
-      MenuItem removeItem = new MenuItem("Remove Sensor");
+      contextMenu.Items.Add(hideShowItem);
+      contextMenu.Items.Add(new ToolStripSeparator());
+      ToolStripMenuItem removeItem = new ToolStripMenuItem("Remove Sensor");
       removeItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.Remove(this.sensor);
       };
-      contextMenu.MenuItems.Add(removeItem);
-      MenuItem colorItem = new MenuItem("Change Color...");
+      contextMenu.Items.Add(removeItem);
+      ToolStripMenuItem colorItem = new ToolStripMenuItem("Change Color...");
       colorItem.Click += delegate(object obj, EventArgs args) {
         ColorDialog dialog = new ColorDialog();
         dialog.Color = Color;
@@ -76,13 +76,13 @@ namespace OpenHardwareMonitor.GUI {
             "traycolor").ToString(), Color);
         }
       };
-      contextMenu.MenuItems.Add(colorItem);
-      contextMenu.MenuItems.Add(new MenuItem("-"));
-      MenuItem exitItem = new MenuItem("Exit");
+      contextMenu.Items.Add(colorItem);
+      contextMenu.Items.Add(new ToolStripSeparator());
+      ToolStripMenuItem exitItem = new ToolStripMenuItem("Exit");
       exitItem.Click += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendExitCommand();
       };
-      contextMenu.MenuItems.Add(exitItem);
+      contextMenu.Items.Add(exitItem);
       this.notifyIcon.ContextMenu = contextMenu;
       this.notifyIcon.DoubleClick += delegate(object obj, EventArgs args) {
         sensorSystemTray.SendHideShowCommand();

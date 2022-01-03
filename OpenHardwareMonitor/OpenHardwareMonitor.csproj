@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>winexe</OutputType>
-    <TargetFramework>net48</TargetFramework>
-    <UseWindowsForms>True</UseWindowsForms>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    
+    <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latest</LangVersion>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -87,6 +88,7 @@
   <ItemGroup>
     <PackageReference Include="AdamsLair.TreeViewAdv" Version="1.7.7" />
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="Grapevine" Version="5.0.0-rc.8" />
     <PackageReference Include="NLog" Version="4.7.10" />
     <PackageReference Include="NLog.Extensions.Logging" Version="1.7.3" />
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
@@ -95,12 +97,24 @@
     <ProjectReference Include="..\OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.Configuration.Install" />
-    <Reference Include="System.Management" />
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Update="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy /E /I /Y &quot;$(ProjectDir)\resources\web&quot; &quot;$(OutDir)\web&quot;&#xD;&#xA;xcopy /I /Y &quot;$(ProjectDir)\resources\*.png&quot; &quot;$(OutDir)\web\images_icon&quot;&#xD;&#xA;" />
+  </Target>
 </Project>

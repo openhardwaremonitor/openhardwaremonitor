@@ -17,12 +17,12 @@ namespace OpenHardwareMonitor.GUI {
   public class UserRadioGroup {
     private string name;
     private int value;
-    private MenuItem[] menuItems;
+    private ToolStripMenuItem[] menuItems;
     private event EventHandler changed;
     private PersistentSettings settings;
 
     public UserRadioGroup(string name, int value,
-      MenuItem[] menuItems, PersistentSettings settings) {
+      ToolStripMenuItem[] menuItems, PersistentSettings settings) {
       this.settings = settings;
       this.name = name;
       if (name != null)
