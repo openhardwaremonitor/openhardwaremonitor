@@ -38,7 +38,8 @@ namespace OpenHardwareMonitor.GUI {
     private StartupManager startupManager = new StartupManager();
     private UpdateVisitor updateVisitor = new UpdateVisitor();
     private SensorGadget gadget;
-    private Form plotForm;
+        private readonly UserOption showGadgetTopmost;
+        private Form plotForm;
     private PlotPanel plotPanel;
 
     private UserOption showHiddenSensors;
@@ -286,11 +287,24 @@ namespace OpenHardwareMonitor.GUI {
         computer.NetworkEnabled = readNetworkSensors.Value;
       };
 
+      showGadgetTopmost = new UserOption("showGadgetTopmost", false, showGadgetWindowTopmostMenuItem,
+          settings);
+      showGadgetTopmost.Changed += (sender, e) =>
+      {
+          if (gadget != null)
+          {
+              gadget.AlwaysOnTop = showGadgetTopmost.Value;
+          }
+      };
+
       showGadget = new UserOption("gadgetMenuItem", false, gadgetMenuItem,
         settings);
       showGadget.Changed += delegate(object sender, EventArgs e) {
-        if (gadget != null) 
-          gadget.Visible = showGadget.Value;
+          if (gadget != null)
+          {
+              gadget.Visible = showGadget.Value;
+              gadget.AlwaysOnTop = showGadgetTopmost.Value;
+          }
       };
 
       celsiusMenuItem.Checked = 
@@ -619,6 +633,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private int delayCount = 0;
+
     private void timer_Tick(object sender, EventArgs e) {
       computer.Accept(updateVisitor);
       treeView.Invalidate();
