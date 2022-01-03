@@ -43,6 +43,9 @@ namespace OpenHardwareMonitor {
     [Option('r', "run", HelpText = "Run webserver at startup")]
     public bool RunWebServer { get; set; }
 
+    [Option("remote", HelpText = "Allow remote access to web server (if disabled, only localhost is allowed)", Default = false)]
+    public bool AllowRemoteAccess { get; set; }
+
     [Option("ignoreconfiguration", HelpText = "Do not load configuration file at startup. If this is not specified, the other settings still supersede the " +
                                               "settings from configuration, but default to the previous setting instead of the default")]
     public bool DoNotLoadConfiguration { get; set; }

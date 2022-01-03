@@ -19,13 +19,17 @@ namespace OpenHardwareMonitor.Utilities
         private IRestServer server;
         private Node root;
 
-        public GrapevineServer(Node node, int port)
+        public GrapevineServer(Node node, int port, bool allowRemoteAccess)
         {
             this.port = port;
             root = node;
+            AllowRemoteAccess = allowRemoteAccess;
         }
 
         public int ListenerPort => port;
+
+        public bool AllowRemoteAccess { get; set; }
+
         public bool PlatformNotSupported
         {
             get
@@ -38,7 +42,6 @@ namespace OpenHardwareMonitor.Utilities
         {
             try
             {
-                ServerConfig.ServerPort = ListenerPort;
                 ServerConfig.ActiveServer = this;
                 var builder = RestServerBuilder.From<ServerConfig>();
                 server = builder.Build();

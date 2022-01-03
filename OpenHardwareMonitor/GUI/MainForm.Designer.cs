@@ -58,6 +58,7 @@ namespace OpenHardwareMonitor.GUI {
             this.gpuMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fanControllerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hddMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.hddMenuItemRemovable = new System.Windows.Forms.ToolStripMenuItem();
             this.networkMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem6 = new System.Windows.Forms.ToolStripSeparator();
             this.exitMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -112,20 +113,8 @@ namespace OpenHardwareMonitor.GUI {
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
+            this.allowRemoteAccessToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
-            this.webMenuItemSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.webMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.runWebServerMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.serverPortMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.treeContextMenu = new System.Windows.Forms.ContextMenuStrip();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
-            this.timer = new System.Windows.Forms.Timer(this.components);
-            this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
-            this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.hddMenuItemRemovable = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.SuspendLayout();
@@ -276,42 +265,49 @@ namespace OpenHardwareMonitor.GUI {
             // mainboardMenuItem
             // 
             this.mainboardMenuItem.Name = "mainboardMenuItem";
-            this.mainboardMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.mainboardMenuItem.Size = new System.Drawing.Size(193, 22);
             this.mainboardMenuItem.Text = "Mainboard";
             // 
             // cpuMenuItem
             // 
             this.cpuMenuItem.Name = "cpuMenuItem";
-            this.cpuMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.cpuMenuItem.Size = new System.Drawing.Size(193, 22);
             this.cpuMenuItem.Text = "CPU";
             // 
             // ramMenuItem
             // 
             this.ramMenuItem.Name = "ramMenuItem";
-            this.ramMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.ramMenuItem.Size = new System.Drawing.Size(193, 22);
             this.ramMenuItem.Text = "RAM";
             // 
             // gpuMenuItem
             // 
             this.gpuMenuItem.Name = "gpuMenuItem";
-            this.gpuMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.gpuMenuItem.Size = new System.Drawing.Size(193, 22);
             this.gpuMenuItem.Text = "GPU";
             // 
             // fanControllerMenuItem
             // 
             this.fanControllerMenuItem.Name = "fanControllerMenuItem";
-            this.fanControllerMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.fanControllerMenuItem.Size = new System.Drawing.Size(193, 22);
             this.fanControllerMenuItem.Text = "Fan Controllers";
             // 
             // hddMenuItem
             // 
             this.hddMenuItem.Name = "hddMenuItem";
-            this.hddMenuItem.Size = new System.Drawing.Size(160, 22);
+            this.hddMenuItem.Size = new System.Drawing.Size(193, 22);
             this.hddMenuItem.Text = "Hard Disk Drives";
+            // 
+            // hddMenuItemRemovable
+            // 
+            this.hddMenuItemRemovable.Name = "hddMenuItemRemovable";
+            this.hddMenuItemRemovable.Size = new System.Drawing.Size(193, 22);
+            this.hddMenuItemRemovable.Text = "Removable Disk Drives";
             // 
             // networkMenuItem
             // 
             this.networkMenuItem.Name = "networkMenuItem";
+            this.networkMenuItem.Size = new System.Drawing.Size(193, 22);
             this.networkMenuItem.Text = "Network";
             // 
             // menuItem6
@@ -620,21 +616,22 @@ namespace OpenHardwareMonitor.GUI {
             // 
             this.webMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.runWebServerMenuItem,
+            this.allowRemoteAccessToolStripMenuItem,
             this.serverPortMenuItem});
             this.webMenuItem.Name = "webMenuItem";
             this.webMenuItem.Size = new System.Drawing.Size(207, 22);
-            this.webMenuItem.Text = "Remote Web Server";
+            this.webMenuItem.Text = "Web Server";
             // 
             // runWebServerMenuItem
             // 
             this.runWebServerMenuItem.Name = "runWebServerMenuItem";
-            this.runWebServerMenuItem.Size = new System.Drawing.Size(96, 22);
+            this.runWebServerMenuItem.Size = new System.Drawing.Size(187, 22);
             this.runWebServerMenuItem.Text = "Run";
             // 
             // serverPortMenuItem
             // 
             this.serverPortMenuItem.Name = "serverPortMenuItem";
-            this.serverPortMenuItem.Size = new System.Drawing.Size(96, 22);
+            this.serverPortMenuItem.Size = new System.Drawing.Size(187, 22);
             this.serverPortMenuItem.Text = "Port";
             this.serverPortMenuItem.Click += new System.EventHandler(this.serverPortMenuItem_Click);
             // 
@@ -732,10 +729,11 @@ namespace OpenHardwareMonitor.GUI {
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
             // 
-            // hddMenuItemRemovable
+            // allowRemoteAccessToolStripMenuItem
             // 
-            this.hddMenuItemRemovable.Name = "hddItemRemovable";
-            this.hddMenuItemRemovable.Text = "Removable Disk Drives";
+            this.allowRemoteAccessToolStripMenuItem.Name = "allowRemoteAccessToolStripMenuItem";
+            this.allowRemoteAccessToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.allowRemoteAccessToolStripMenuItem.Text = "Allow Remote Access";
             // 
             // MainForm
             // 
@@ -844,6 +842,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem log6hMenuItem;
     private System.Windows.Forms.ToolStripMenuItem networkMenuItem;
     private System.Windows.Forms.ToolStripMenuItem hddMenuItemRemovable;
-  }
+        private System.Windows.Forms.ToolStripMenuItem allowRemoteAccessToolStripMenuItem;
+    }
 }
 

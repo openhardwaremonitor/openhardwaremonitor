@@ -64,6 +64,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserRadioGroup plotLocation;
 
     private UserOption runWebServer;
+    private UserOption allowWebServerRemoteAccess;
     private GrapevineServer server;
 
     private UserOption logSensors;
@@ -301,7 +302,18 @@ namespace OpenHardwareMonitor.GUI {
           HttpServerPort = Program.Arguments.WebServerPort.Value;
       }
 
-      server = new GrapevineServer(root, HttpServerPort);
+      allowWebServerRemoteAccess = new UserOption("allowRemoteAccessMenuItem", false, allowRemoteAccessToolStripMenuItem,
+          settings, () => Program.Arguments.AllowRemoteAccess ? true : null);
+
+      allowWebServerRemoteAccess.Changed += (sender, e) =>
+      {
+          if (server != null)
+          {
+              server.AllowRemoteAccess = allowWebServerRemoteAccess.Value;
+          }
+      };
+
+      server = new GrapevineServer(root, HttpServerPort, allowWebServerRemoteAccess.Value);
       runWebServer = new UserOption("runWebServerMenuItem", false,
         runWebServerMenuItem, settings, () => Program.Arguments.RunWebServer ? true : null);
       runWebServer.Changed += delegate(object sender, EventArgs e)
@@ -310,7 +322,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               server.Stop();
               server.Dispose();
-              server = new GrapevineServer(root, HttpServerPort);
+              server = new GrapevineServer(root, HttpServerPort, allowWebServerRemoteAccess.Value);
               server.Start();
           }
           else

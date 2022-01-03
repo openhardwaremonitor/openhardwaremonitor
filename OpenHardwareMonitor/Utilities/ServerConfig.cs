@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Extensions.Logging;
 using OpenHardwareMonitorLib;
+using OxyPlot;
+using HttpStatusCode = Grapevine.HttpStatusCode;
 
 namespace OpenHardwareMonitor.Utilities
 {
@@ -18,15 +21,6 @@ namespace OpenHardwareMonitor.Utilities
     {
         private readonly ILogger logger;
         public IConfiguration Configuration { get; private set; }
-
-        /// <summary>
-        /// Sets the server port. Must be static to be available from outside
-        /// </summary>
-        public static int ServerPort
-        {
-            get;
-            set;
-        }
 
         public static GrapevineServer ActiveServer { get; set; }
 
@@ -102,10 +96,27 @@ namespace OpenHardwareMonitor.Utilities
             server.ContentFolders.Add(folderPath);
             server.UseContentFolders();
 
-            server.Prefixes.Add($"http://+:{ServerPort}/");
+            server.OnRequestAsync += ServerOnRequestAsync;
+
+            server.Prefixes.Add($"http://+:{ActiveServer.ListenerPort}/");
 
             /* Configure Router Options (if supported by your router implementation) */
             server.Router.Options.SendExceptionMessages = true;
+        }
+
+        private Task ServerOnRequestAsync(IHttpContext context, IRestServer server)
+        {
+            if (context.WasRespondedTo)
+            {
+                return null;
+            }
+
+            if (ActiveServer.AllowRemoteAccess == false && !(context.Request.RemoteEndPoint.Address.Equals(IPAddress.IPv6Loopback) || context.Request.RemoteEndPoint.Address.Equals(IPAddress.Loopback)))
+            {
+                return context.Response.SendResponseAsync(HttpStatusCode.Forbidden);
+            }
+
+            return null;
         }
     }
 }
