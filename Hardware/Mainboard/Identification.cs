@@ -166,6 +166,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
 
     public static Model GetModel(string name) {
       switch (name) {
+        case "B360 AORUS GAMING 3 WIFI-CF":
+          return Model.B360_AORUS_GAMING_3_WIFI_CF;
         case "880GMH/USB3":
           return Model._880GMH_USB3;
         case "ASRock AOD790GX/128M":

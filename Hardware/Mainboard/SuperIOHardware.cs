@@ -822,6 +822,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               break;
             case Model.Z390_M_GAMING: // IT8688E
             case Model.Z390_AORUS_ULTRA:
+            case Model.B360_AORUS_GAMING_3_WIFI_CF:
             case Model.Z390_UD:
               v.Add(new Voltage("CPU VCore", 0));
               v.Add(new Voltage("+3.3V", 1, 6.49f, 10));
