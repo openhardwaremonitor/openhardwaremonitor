@@ -26,6 +26,7 @@ namespace OpenHardwareMonitor.GUI
         private TaskSchedulerClass scheduler;
         private bool startup;
         private bool isAvailable;
+        private bool startupAsService;
 
         private const string REGISTRY_RUN =
             @"Software\Microsoft\Windows\CurrentVersion\Run";
@@ -46,6 +47,7 @@ namespace OpenHardwareMonitor.GUI
 
         public StartupManager()
         {
+            startupAsService = false;
             if (Hardware.OperatingSystem.IsUnix)
             {
                 scheduler = null;
@@ -88,6 +90,9 @@ namespace OpenHardwareMonitor.GUI
                                   (task.Definition.Actions[1] as IExecAction != null) &&
                                   ((task.Definition.Actions[1] as IExecAction).Path ==
                                    Application.ExecutablePath);
+                        startupAsService = startup && (task.Definition.Triggers.Count > 0) &&
+                                           (task.Definition.Triggers[1].Type ==
+                                            TASK_TRIGGER_TYPE2.TASK_TRIGGER_BOOT);
 
                     }
                     catch (IOException)
@@ -250,34 +255,46 @@ namespace OpenHardwareMonitor.GUI
             get { return startup; }
         }
 
+        public bool IsStartupAsService
+        {
+            get
+            {
+                return startupAsService;
+            }
+        }
+
+        /// <summary>
+        /// Enable auto startup
+        /// </summary>
+        /// <param name="enable">True to enable, false to disable</param>
+        /// <param name="atBootup">True to start at bootup, false to start at logon (if enable == false, this parameter is ignored)</param>
+        /// <exception cref="InvalidOperationException"></exception>
         public void ConfigureAutoStartup(bool enable, bool atBootup)
         {
             bool enabled = false;
-            if (startup != enable)
+            if (isAvailable)
             {
-                if (isAvailable)
+                if (scheduler != null)
                 {
-                    if (scheduler != null)
-                    {
-                        if (enable)
-                            enabled = CreateSchedulerTask(atBootup);
-                        else
-                            DeleteSchedulerTask();
-                        startup = enabled;
-                    }
-                    else
-                    {
-                       if (enable)
-                           CreateRegistryRun();
-                       else
-                           DeleteRegistryRun();
-                       startup = enable;
-                    }
+                    DeleteSchedulerTask();
+                    if (enable)
+                        enabled = CreateSchedulerTask(atBootup);
+                    startup = enabled;
+                    startupAsService = enabled && atBootup;
                 }
                 else
                 {
-                    throw new InvalidOperationException();
+                    DeleteRegistryRun();
+
+                    if (enable)
+                        CreateRegistryRun();
+                    startup = enable;
+                    startupAsService = false;
                 }
+            }
+            else
+            {
+                throw new InvalidOperationException();
             }
         }
     }

@@ -227,33 +227,46 @@ namespace OpenHardwareMonitor.GUI {
       minimizeOnClose = new UserOption("minCloseMenuItem", false,
         minCloseMenuItem, settings);
 
-      autoStart = new UserOption("AutoStart", startupManager.IsAutoStartupEnabled,
+      autoStart = new UserOption(null, startupManager.IsAutoStartupEnabled && !startupManager.IsStartupAsService,
         startupMenuItem, settings);
 
-      autoStartAsService = new UserOption("AutoStartAsService", false, runAsServiceMenuItem, settings);
-      autoStart.Changed += delegate(object sender, EventArgs e) {
-        try {
-            if (autoStartAsService.Value)
-            {
-                autoStartAsService.Value = false;
-            }
-            startupManager.ConfigureAutoStartup(autoStart.Value, false);
-        } catch (InvalidOperationException) {
-          MessageBox.Show("Updating the auto-startup option failed.", "Error", 
-            MessageBoxButtons.OK, MessageBoxIcon.Error);
-          autoStart.Value = startupManager.IsAutoStartupEnabled;
-        }
+      autoStartAsService = new UserOption(null, startupManager.IsStartupAsService, runAsServiceMenuItem, settings);
+
+      autoStart.Changed += delegate(object sender, EventArgs e)
+      {
+          try
+          {
+              if (autoStartAsService.Value == false)
+              {
+                  startupManager.ConfigureAutoStartup(autoStart.Value, false);
+              }
+              else if (autoStart.Value)
+              {
+                  // Only either of them can be enabled
+                  autoStart.Value = false;
+              }
+          }
+          catch (InvalidOperationException)
+          {
+              MessageBox.Show("Updating the auto-startup option failed.", "Error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+              autoStart.Value = startupManager.IsAutoStartupEnabled;
+          }
       };
 
       autoStartAsService.Changed += (sender, e) =>
       {
           try
           {
-              if (autoStart.Value)
+              if (autoStart.Value == false)
               {
-                  autoStart.Value = false;
+                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true);
               }
-              startupManager.ConfigureAutoStartup(autoStartAsService.Value, true);
+              else if (autoStartAsService.Value)
+              {
+                  autoStartAsService.Value = false;
+              }
+              
           }
           catch (Exception x) when (x is InvalidOperationException || x is UnauthorizedAccessException || x is IOException)
           {
