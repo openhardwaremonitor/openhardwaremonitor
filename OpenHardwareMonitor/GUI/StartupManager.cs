@@ -82,8 +82,6 @@ namespace OpenHardwareMonitor.GUI
                         IRegisteredTask task = folder.GetTask("Startup");
                         startup = (task != null) &&
                                   (task.Definition.Triggers.Count > 0) &&
-                                  (task.Definition.Triggers[1].Type ==
-                                   TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON) &&
                                   (task.Definition.Actions.Count > 0) &&
                                   (task.Definition.Actions[1].Type ==
                                    TASK_ACTION_TYPE.TASK_ACTION_EXEC) &&
@@ -144,19 +142,39 @@ namespace OpenHardwareMonitor.GUI
             }
         }
 
-        private void CreateSchedulerTask()
+        /// <summary>
+        /// Enables starting OHM via the task scheduler (in contrast to the registry, this has the advantage of not popping up any UAC prompts)
+        /// </summary>
+        /// <param name="atBootup">True to configure for bootup (service) start, false to configure for logon start</param>
+        private bool CreateSchedulerTask(bool atBootup)
         {
             ITaskDefinition definition = scheduler.NewTask(0);
             definition.RegistrationInfo.Description =
                 "This task starts the Open Hardware Monitor on Windows startup.";
             definition.Principal.RunLevel =
                 TASK_RUNLEVEL.TASK_RUNLEVEL_HIGHEST;
+            if (atBootup)
+            {
+                definition.Principal.UserId = "S-1-5-18"; // SYSTEM
+            }
+
             definition.Settings.DisallowStartIfOnBatteries = false;
             definition.Settings.StopIfGoingOnBatteries = false;
             definition.Settings.ExecutionTimeLimit = "PT0S";
 
-            ILogonTrigger trigger = (ILogonTrigger)definition.Triggers.Create(
-                TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+            // While it's possible to set the trigger to BOOT (when also configuring the user as system) it doesn't seem to
+            // be possible to interact with the program in that case. So this is only a good option if no one should normally log on to that system.
+            ITrigger trigger = null;
+            if (atBootup)
+            {
+                trigger = (IBootTrigger)definition.Triggers.Create(
+                    TASK_TRIGGER_TYPE2.TASK_TRIGGER_BOOT);
+            }
+            else
+            {
+                trigger = (ILogonTrigger)definition.Triggers.Create(
+                    TASK_TRIGGER_TYPE2.TASK_TRIGGER_LOGON);
+            }
 
             IExecAction action = (IExecAction)definition.Actions.Create(
                 TASK_ACTION_TYPE.TASK_ACTION_EXEC);
@@ -175,9 +193,18 @@ namespace OpenHardwareMonitor.GUI
                 folder = root.CreateFolder("Open Hardware Monitor", "");
             }
 
-            folder.RegisterTaskDefinition("Startup", definition,
-                (int)TASK_CREATION.TASK_CREATE_OR_UPDATE, null, null,
-                TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "");
+            if (atBootup)
+            {
+                return folder.RegisterTaskDefinition("Startup", definition,
+                    (int)TASK_CREATION.TASK_CREATE_OR_UPDATE, null, null,
+                    TASK_LOGON_TYPE.TASK_LOGON_NONE, "") != null;
+            }
+            else
+            {
+                return folder.RegisterTaskDefinition("Startup", definition,
+                    (int)TASK_CREATION.TASK_CREATE_OR_UPDATE, null, null,
+                    TASK_LOGON_TYPE.TASK_LOGON_INTERACTIVE_TOKEN, "") != null;
+            }
         }
 
         private void DeleteSchedulerTask()
@@ -218,46 +245,40 @@ namespace OpenHardwareMonitor.GUI
             get { return isAvailable; }
         }
 
-        public bool Startup
+        public bool IsAutoStartupEnabled
         {
             get { return startup; }
-            set
+        }
+
+        public void ConfigureAutoStartup(bool enable, bool atBootup)
+        {
+            bool enabled = false;
+            if (startup != enable)
             {
-                if (startup != value)
+                if (isAvailable)
                 {
-                    if (isAvailable)
+                    if (scheduler != null)
                     {
-                        if (scheduler != null)
-                        {
-                            if (value)
-                                CreateSchedulerTask();
-                            else
-                                DeleteSchedulerTask();
-                            startup = value;
-                        }
+                        if (enable)
+                            enabled = CreateSchedulerTask(atBootup);
                         else
-                        {
-                            try
-                            {
-                                if (value)
-                                    CreateRegistryRun();
-                                else
-                                    DeleteRegistryRun();
-                                startup = value;
-                            }
-                            catch (UnauthorizedAccessException)
-                            {
-                                throw new InvalidOperationException();
-                            }
-                        }
+                            DeleteSchedulerTask();
+                        startup = enabled;
                     }
                     else
                     {
-                        throw new InvalidOperationException();
+                       if (enable)
+                           CreateRegistryRun();
+                       else
+                           DeleteRegistryRun();
+                       startup = enable;
                     }
+                }
+                else
+                {
+                    throw new InvalidOperationException();
                 }
             }
         }
     }
-
 }

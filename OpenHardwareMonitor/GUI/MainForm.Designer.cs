@@ -78,6 +78,7 @@ namespace OpenHardwareMonitor.GUI {
             this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minCloseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.showGadgetWindowTopmostMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.separatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.temperatureUnitsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.celsiusMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -114,7 +115,7 @@ namespace OpenHardwareMonitor.GUI {
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.showGadgetWindowTopmostMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runAsServiceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -407,6 +408,7 @@ namespace OpenHardwareMonitor.GUI {
             this.minTrayMenuItem,
             this.minCloseMenuItem,
             this.startupMenuItem,
+            this.runAsServiceMenuItem,
             this.showGadgetWindowTopmostMenuItem,
             this.separatorMenuItem,
             this.temperatureUnitsMenuItem,
@@ -423,31 +425,37 @@ namespace OpenHardwareMonitor.GUI {
             // startMinMenuItem
             // 
             this.startMinMenuItem.Name = "startMinMenuItem";
-            this.startMinMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.startMinMenuItem.Size = new System.Drawing.Size(322, 22);
             this.startMinMenuItem.Text = "Start Minimized";
             // 
             // minTrayMenuItem
             // 
             this.minTrayMenuItem.Name = "minTrayMenuItem";
-            this.minTrayMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.minTrayMenuItem.Size = new System.Drawing.Size(322, 22);
             this.minTrayMenuItem.Text = "Minimize To Tray";
             // 
             // minCloseMenuItem
             // 
             this.minCloseMenuItem.Name = "minCloseMenuItem";
-            this.minCloseMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.minCloseMenuItem.Size = new System.Drawing.Size(322, 22);
             this.minCloseMenuItem.Text = "Minimize On Close";
             // 
             // startupMenuItem
             // 
             this.startupMenuItem.Name = "startupMenuItem";
-            this.startupMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.startupMenuItem.Size = new System.Drawing.Size(322, 22);
             this.startupMenuItem.Text = "Run On Windows Startup";
+            // 
+            // showGadgetWindowTopmostMenuItem
+            // 
+            this.showGadgetWindowTopmostMenuItem.Name = "showGadgetWindowTopmostMenuItem";
+            this.showGadgetWindowTopmostMenuItem.Size = new System.Drawing.Size(322, 22);
+            this.showGadgetWindowTopmostMenuItem.Text = "Show Gadget Window Topmost";
             // 
             // separatorMenuItem
             // 
             this.separatorMenuItem.Name = "separatorMenuItem";
-            this.separatorMenuItem.Size = new System.Drawing.Size(237, 6);
+            this.separatorMenuItem.Size = new System.Drawing.Size(319, 6);
             // 
             // temperatureUnitsMenuItem
             // 
@@ -455,7 +463,7 @@ namespace OpenHardwareMonitor.GUI {
             this.celsiusMenuItem,
             this.fahrenheitMenuItem});
             this.temperatureUnitsMenuItem.Name = "temperatureUnitsMenuItem";
-            this.temperatureUnitsMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.temperatureUnitsMenuItem.Size = new System.Drawing.Size(322, 22);
             this.temperatureUnitsMenuItem.Text = "Temperature Unit";
             // 
             // celsiusMenuItem
@@ -479,7 +487,7 @@ namespace OpenHardwareMonitor.GUI {
             this.plotBottomMenuItem,
             this.plotRightMenuItem});
             this.plotLocationMenuItem.Name = "plotLocationMenuItem";
-            this.plotLocationMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.plotLocationMenuItem.Size = new System.Drawing.Size(322, 22);
             this.plotLocationMenuItem.Text = "Plot Location";
             // 
             // plotWindowMenuItem
@@ -503,12 +511,12 @@ namespace OpenHardwareMonitor.GUI {
             // logSeparatorMenuItem
             // 
             this.logSeparatorMenuItem.Name = "logSeparatorMenuItem";
-            this.logSeparatorMenuItem.Size = new System.Drawing.Size(237, 6);
+            this.logSeparatorMenuItem.Size = new System.Drawing.Size(319, 6);
             // 
             // logSensorsMenuItem
             // 
             this.logSensorsMenuItem.Name = "logSensorsMenuItem";
-            this.logSensorsMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.logSensorsMenuItem.Size = new System.Drawing.Size(322, 22);
             this.logSensorsMenuItem.Text = "Log Sensors";
             // 
             // loggingIntervalMenuItem
@@ -528,7 +536,7 @@ namespace OpenHardwareMonitor.GUI {
             this.log2hMenuItem,
             this.log6hMenuItem});
             this.loggingIntervalMenuItem.Name = "loggingIntervalMenuItem";
-            this.loggingIntervalMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.loggingIntervalMenuItem.Size = new System.Drawing.Size(322, 22);
             this.loggingIntervalMenuItem.Text = "Logging Interval";
             // 
             // log1sMenuItem
@@ -612,7 +620,7 @@ namespace OpenHardwareMonitor.GUI {
             // webMenuItemSeparator
             // 
             this.webMenuItemSeparator.Name = "webMenuItemSeparator";
-            this.webMenuItemSeparator.Size = new System.Drawing.Size(237, 6);
+            this.webMenuItemSeparator.Size = new System.Drawing.Size(319, 6);
             // 
             // webMenuItem
             // 
@@ -621,7 +629,7 @@ namespace OpenHardwareMonitor.GUI {
             this.allowRemoteAccessToolStripMenuItem,
             this.serverPortMenuItem});
             this.webMenuItem.Name = "webMenuItem";
-            this.webMenuItem.Size = new System.Drawing.Size(240, 22);
+            this.webMenuItem.Size = new System.Drawing.Size(322, 22);
             this.webMenuItem.Text = "Web Server";
             // 
             // runWebServerMenuItem
@@ -737,11 +745,11 @@ namespace OpenHardwareMonitor.GUI {
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
             // 
-            // showGadgetWindowTopmostMenuItem
+            // runAsServiceMenuItem
             // 
-            this.showGadgetWindowTopmostMenuItem.Name = "showGadgetWindowTopmostMenuItem";
-            this.showGadgetWindowTopmostMenuItem.Size = new System.Drawing.Size(240, 22);
-            this.showGadgetWindowTopmostMenuItem.Text = "Show Gadget Window Topmost";
+            this.runAsServiceMenuItem.Name = "runAsServiceMenuItem";
+            this.runAsServiceMenuItem.Size = new System.Drawing.Size(322, 22);
+            this.runAsServiceMenuItem.Text = "Run as Service (no GUI, but starts before logon)";
             // 
             // MainForm
             // 
@@ -852,6 +860,7 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripMenuItem hddMenuItemRemovable;
         private System.Windows.Forms.ToolStripMenuItem allowRemoteAccessToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem showGadgetWindowTopmostMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem runAsServiceMenuItem;
     }
 }
 

@@ -51,6 +51,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption minimizeToTray;
     private UserOption minimizeOnClose;
     private UserOption autoStart;
+    private UserOption autoStartAsService;
 
     private UserOption readMainboardSensors;
     private UserOption readCpuSensors;
@@ -226,16 +227,40 @@ namespace OpenHardwareMonitor.GUI {
       minimizeOnClose = new UserOption("minCloseMenuItem", false,
         minCloseMenuItem, settings);
 
-      autoStart = new UserOption(null, startupManager.Startup,
+      autoStart = new UserOption("AutoStart", startupManager.IsAutoStartupEnabled,
         startupMenuItem, settings);
+
+      autoStartAsService = new UserOption("AutoStartAsService", false, runAsServiceMenuItem, settings);
       autoStart.Changed += delegate(object sender, EventArgs e) {
         try {
-          startupManager.Startup = autoStart.Value;
+            if (autoStartAsService.Value)
+            {
+                autoStartAsService.Value = false;
+            }
+            startupManager.ConfigureAutoStartup(autoStart.Value, false);
         } catch (InvalidOperationException) {
           MessageBox.Show("Updating the auto-startup option failed.", "Error", 
             MessageBoxButtons.OK, MessageBoxIcon.Error);
-          autoStart.Value = startupManager.Startup;
+          autoStart.Value = startupManager.IsAutoStartupEnabled;
         }
+      };
+
+      autoStartAsService.Changed += (sender, e) =>
+      {
+          try
+          {
+              if (autoStart.Value)
+              {
+                  autoStart.Value = false;
+              }
+              startupManager.ConfigureAutoStartup(autoStartAsService.Value, true);
+          }
+          catch (Exception x) when (x is InvalidOperationException || x is UnauthorizedAccessException || x is IOException)
+          {
+              MessageBox.Show("Updating the auto-startup option failed: " + x.Message, "Error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+              autoStart.Value = startupManager.IsAutoStartupEnabled;
+          }
       };
 
       readMainboardSensors = new UserOption("mainboardMenuItem", true, 

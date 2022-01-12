@@ -18,6 +18,12 @@ namespace OpenHardwareMonitor.Hardware.CPU {
   internal class CPUGroup : IGroup {
     private readonly List<GenericCPU> hardware = new List<GenericCPU>();
 
+    /// <summary>
+    /// CPU information per thread.
+    /// First index: Physical CPU number
+    /// Second index: CPU core number
+    /// Third index: Thread number (for hyperthreading-capable CPUs)
+    /// </summary>
     private readonly CPUID[][][] threads;
 
     private static CPUID[][] GetProcessorThreads() {
