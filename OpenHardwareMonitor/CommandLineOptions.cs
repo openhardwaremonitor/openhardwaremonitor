@@ -54,6 +54,9 @@ namespace OpenHardwareMonitor {
                                               "settings from configuration, but default to the previous setting instead of the default")]
     public bool DoNotLoadConfiguration { get; set; }
 
+    [Option("CloseAll", HelpText = "Close or kill all instances and exit. This can be used to ensure the application no longer runs or to configure default settings without launching.")]
+    public bool CloseAll { get; set; }
+
     public AutoStartupMode AutoStartupMode
     {
         get

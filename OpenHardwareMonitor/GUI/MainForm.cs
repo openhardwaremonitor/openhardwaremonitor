@@ -14,8 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
@@ -264,7 +266,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               if (autoStartAsService.Value == false)
               {
-                  startupManager.ConfigureAutoStartup(autoStart.Value, false);
+                  startupManager.ConfigureAutoStartup(autoStart.Value, false, startMinimized.Value);
               }
               else if (autoStart.Value)
               {
@@ -286,7 +288,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               if (autoStart.Value == false)
               {
-                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true);
+                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true, startMinimized.Value);
               }
               else if (autoStartAsService.Value)
               {
@@ -792,6 +794,46 @@ namespace OpenHardwareMonitor.GUI {
           this.settings.SetValue("splitContainer.SplitterDistance", splitterEvent.SplitX);
         }
       };
+
+      if (Program.Arguments.CloseAll)
+      {
+          CloseAllProcesses();
+          BeginInvoke(ForceClose);
+      }
+    }
+
+    private void ForceClose()
+    {
+        minimizeToTray.Value = false;
+        if (!Visible)
+        {
+            Activate();
+        }
+        Close();
+    }
+
+    private void CloseAllProcesses()
+    {
+        var currentProcess = Process.GetCurrentProcess();
+        int currentPid = currentProcess.Id;
+        var processes = Process.GetProcesses().Where(x => x.ProcessName == currentProcess.ProcessName && x.Id != currentPid);
+        foreach (var process in processes)
+        {
+            try
+            {
+                process.CloseMainWindow();
+                // Wait until main window closure took effect
+                if (!process.WaitForExit(5000))
+                {
+                    process.Kill();
+                    process.WaitForExit(5000);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Not much we can do here (but normally, our process would run as admin, so this shouldn't happen)
+            }
+        }
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {
