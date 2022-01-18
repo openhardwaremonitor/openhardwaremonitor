@@ -228,9 +228,35 @@ namespace OpenHardwareMonitor.GUI {
         minCloseMenuItem, settings);
 
       autoStart = new UserOption(null, startupManager.IsAutoStartupEnabled && !startupManager.IsStartupAsService,
-        startupMenuItem, settings);
+        startupMenuItem, settings, () =>
+        {
+            if (Program.Arguments.AutoStartupMode == AutoStartupMode.NoChange)
+            {
+                return null;
+            }
 
-      autoStartAsService = new UserOption(null, startupManager.IsStartupAsService, runAsServiceMenuItem, settings);
+            if (Program.Arguments.AutoStartupMode == AutoStartupMode.Logon)
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+      autoStartAsService = new UserOption(null, startupManager.IsStartupAsService, runAsServiceMenuItem, settings, () =>
+      {
+          if (Program.Arguments.AutoStartupMode == AutoStartupMode.NoChange)
+          {
+              return null;
+          }
+
+          if (Program.Arguments.AutoStartupMode == AutoStartupMode.Bootup)
+          {
+              return true;
+          }
+
+          return false;
+      });
 
       autoStart.Changed += delegate(object sender, EventArgs e)
       {

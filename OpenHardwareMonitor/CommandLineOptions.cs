@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using CommandLine;
 
 namespace OpenHardwareMonitor {
@@ -46,8 +47,24 @@ namespace OpenHardwareMonitor {
     [Option("remote", HelpText = "Allow remote access to web server (if disabled, only localhost is allowed)", Default = false)]
     public bool AllowRemoteAccess { get; set; }
 
+    [Option("autostartupmode", HelpText = "Set the auto startup mode. Valid values are 'Disabled', 'Logon', and 'Bootup'")]
+    public string AutoStartupModeInternal { get; set; }
+
     [Option("ignoreconfiguration", HelpText = "Do not load configuration file at startup. If this is not specified, the other settings still supersede the " +
                                               "settings from configuration, but default to the previous setting instead of the default")]
     public bool DoNotLoadConfiguration { get; set; }
+
+    public AutoStartupMode AutoStartupMode
+    {
+        get
+        {
+            if (Enum.TryParse<AutoStartupMode>(AutoStartupModeInternal, true, out var result))
+            {
+                return result;
+            }
+
+            return AutoStartupMode.NoChange;
+        }
+    }
   }
 }
