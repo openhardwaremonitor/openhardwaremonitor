@@ -6,3 +6,4 @@ bin
 obj
 launchSettings.json
 /*.nupkg
+/artifacts

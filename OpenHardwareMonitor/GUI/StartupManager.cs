@@ -151,8 +151,7 @@ namespace OpenHardwareMonitor.GUI
         /// Enables starting OHM via the task scheduler (in contrast to the registry, this has the advantage of not popping up any UAC prompts)
         /// </summary>
         /// <param name="atBootup">True to configure for bootup (service) start, false to configure for logon start</param>
-        /// <param name="minimized">Start the process minimized</param>
-        private bool CreateSchedulerTask(bool atBootup, bool minimized)
+        private bool CreateSchedulerTask(bool atBootup)
         {
             ITaskDefinition definition = scheduler.NewTask(0);
             definition.RegistrationInfo.Description =
@@ -187,11 +186,10 @@ namespace OpenHardwareMonitor.GUI
             action.Path = Application.ExecutablePath;
             action.WorkingDirectory =
                 Path.GetDirectoryName(Application.ExecutablePath);
-            if (minimized)
-            {
-                action.Arguments = "--startminimized";
-            }
 
+            // Always start the process minimized when starting via autostart/task scheduler
+            action.Arguments = "--startminimized";
+            
             ITaskFolder root = scheduler.GetFolder("\\");
             ITaskFolder folder;
             try
@@ -273,9 +271,8 @@ namespace OpenHardwareMonitor.GUI
         /// </summary>
         /// <param name="enable">True to enable, false to disable</param>
         /// <param name="atBootup">True to start at bootup, false to start at logon (if enable == false, this parameter is ignored)</param>
-        /// <param name="minimized">Force a minimized startup when starting automatically</param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void ConfigureAutoStartup(bool enable, bool atBootup, bool minimized)
+        public void ConfigureAutoStartup(bool enable, bool atBootup)
         {
             bool enabled = false;
             if (isAvailable)
@@ -284,7 +281,7 @@ namespace OpenHardwareMonitor.GUI
                 {
                     DeleteSchedulerTask();
                     if (enable)
-                        enabled = CreateSchedulerTask(atBootup, minimized);
+                        enabled = CreateSchedulerTask(atBootup);
                     startup = enabled;
                     startupAsService = enabled && atBootup;
                 }

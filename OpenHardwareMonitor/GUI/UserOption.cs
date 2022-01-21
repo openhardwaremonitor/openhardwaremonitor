@@ -54,6 +54,11 @@ namespace OpenHardwareMonitor.GUI
                 if (v1.HasValue)
                 {
                     _value = v1.Value;
+                    if (name != null)
+                    {
+                        // Ensure the initial value is persisted
+                        settings.SetValue(name, _value);
+                    }
                 }
             }
 
