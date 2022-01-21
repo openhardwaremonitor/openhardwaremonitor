@@ -13,74 +13,86 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using OpenHardwareMonitor.Utilities;
 
-namespace OpenHardwareMonitor.GUI {
-  public class UserOption {
-    private string name;
-    private bool value;
-    private ToolStripMenuItem menuItem;
-    private event EventHandler changed;
-    private PersistentSettings settings;
+namespace OpenHardwareMonitor.GUI
+{
+    public class UserOption
+    {
+        private readonly string _name;
+        private bool _value;
+        private ToolStripMenuItem _menuItem;
+        private event EventHandler _changed;
+        private PersistentSettings _settings;
 
-    public UserOption(string name, bool value,
-      ToolStripMenuItem menuItem, PersistentSettings settings) {
+        public UserOption(string name, bool value,
+            ToolStripMenuItem menuItem, PersistentSettings settings)
+        {
 
-      this.settings = settings;
-      this.name = name;
-      if (name != null)
-        this.value = settings.GetValue(name, value);
-      else
-        this.value = value;
-      this.menuItem = menuItem;
-      this.menuItem.Checked = this.value;
-      this.menuItem.Click += new EventHandler(menuItem_Click);
-    }
-
-    public UserOption(string name, bool value,
-      ToolStripMenuItem menuItem, PersistentSettings settings, Func<bool?> overridenValue) {
-
-      this.settings = settings;
-      this.name = name;
-      if (name != null)
-        this.value = settings.GetValue(name, value);
-      else
-        this.value = value;
-      if (overridenValue != null) {
-        var v1 = overridenValue();
-        if (v1.HasValue) {
-          this.value = v1.Value;
+            _settings = settings;
+            _name = name;
+            if (name != null)
+                _value = settings.GetValue(name, value);
+            else
+                _value = value;
+            _menuItem = menuItem;
+            _menuItem.Checked = _value;
+            _menuItem.Click += new EventHandler(menuItem_Click);
         }
-      }
-      this.menuItem = menuItem;
-      this.menuItem.Checked = this.value;
-      this.menuItem.Click += new EventHandler(menuItem_Click);
-    }
-    private void menuItem_Click(object sender, EventArgs e) {
-      this.Value = !this.Value;
-    }    
 
-    public bool Value {
-      get { return value; }
-      set {
-        if (this.value != value) {
-          this.value = value;
-          if (this.name != null)
-            settings.SetValue(name, value);
-          this.menuItem.Checked = value;
-          if (changed != null)
-            changed(this, null);
+        public UserOption(string name, bool value,
+            ToolStripMenuItem menuItem, PersistentSettings settings, Func<bool?> overridenValue)
+        {
+
+            _settings = settings;
+            _name = name;
+            if (name != null)
+                _value = settings.GetValue(name, value);
+            else
+                _value = value;
+            if (overridenValue != null)
+            {
+                var v1 = overridenValue();
+                if (v1.HasValue)
+                {
+                    _value = v1.Value;
+                }
+            }
+
+            _menuItem = menuItem;
+            _menuItem.Checked = _value;
+            _menuItem.Click += new EventHandler(menuItem_Click);
         }
-      }
-    }
 
-    public event EventHandler Changed {
-      add {
-        changed += value;
-        if (changed != null)
-          changed(this, null);
-      }
-      remove {
-        changed -= value;
-      }
+        private void menuItem_Click(object sender, EventArgs e)
+        {
+            Value = !Value;
+        }
+
+        public bool Value
+        {
+            get { return _value; }
+            set
+            {
+                if (_value != value)
+                {
+                    _value = value;
+                    if (_name != null)
+                        _settings.SetValue(_name, value);
+                    _menuItem.Checked = value;
+                    if (_changed != null)
+                        _changed(this, null);
+                }
+            }
+        }
+
+        public event EventHandler Changed
+        {
+            add
+            {
+                _changed += value;
+                if (_changed != null)
+                    _changed(this, null);
+            }
+            remove { _changed -= value; }
+        }
     }
-  }
 }
