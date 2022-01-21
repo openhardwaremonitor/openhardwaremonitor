@@ -35,6 +35,9 @@ namespace OpenHardwareMonitor {
     [Option('m', "startminimized", HelpText = "Force minimized start")]
     public bool StartMinimized { get; set; }
 
+    [Option("startnormal", HelpText = "Starts in normal mode (not minimized). This option is not persistent and is used to temporarily override the current configuration setting")]
+    public bool StartNormal { get; set; }
+
     [Option("minimizetotray", HelpText = "Force minimize to tray")]
     public bool MinimizeToTray { get; set; }
 

@@ -440,7 +440,7 @@ namespace OpenHardwareMonitor.GUI {
 
       startupMenuItem.Visible = startupManager.IsAvailable;
 
-      if (startMinMenuItem.Checked) {
+      if (startMinMenuItem.Checked && !Program.Arguments.StartNormal) {
         if (!minTrayMenuItem.Checked) {
           WindowState = FormWindowState.Minimized;
           Show();

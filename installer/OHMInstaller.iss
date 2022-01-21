@@ -116,7 +116,7 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode logon --closeall --startminimized --minimizetotray --run"; Flags: waituntilterminated; Description: "Performing post-install tasks"; Tasks: autostart
-Filename: "{app}\{#MyAppExeName}"; Flags: nowait postinstall skipifsilent runascurrentuser; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--startnormal"; Flags: nowait postinstall skipifsilent runascurrentuser; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
 
 [UninstallRun]
 Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --closeall"; Flags: waituntilterminated runascurrentuser; RunOnceId: "RemoveService"
