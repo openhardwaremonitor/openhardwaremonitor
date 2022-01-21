@@ -92,7 +92,6 @@ Source: "OpenHardwareMonitor\bin\Release\Microsoft.Extensions.Primitives.dll"; D
 Source: "OpenHardwareMonitor\bin\Release\NLog.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\NLog.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\NLog.Extensions.Logging.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.deps.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll.config"; DestDir: "{app}"; Flags: ignoreversion
@@ -117,7 +116,11 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Flags: nowait postinstall skipifsilent runascurrentuser; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
-Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode logon --closeall --startminimized"; Flags: waituntilterminated; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Tasks: autostart
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode logon --closeall --startminimized"; Flags: waituntilterminated; Description: "Performing post-install tasks"; Tasks: autostart
 
 [UninstallRun]
-Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --closeall"; Flags: waituntilterminated; Tasks: autostart
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --closeall"; Flags: waituntilterminated; RunOnceId: "RemoveService"
+
+[UninstallDelete]
+Type: files; Name: "{app}\OpenHardwareMonitor.config"
+Type: files; Name: "{app}\OpenHardwareMonitorLib.sys"

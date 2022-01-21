@@ -47,8 +47,15 @@ namespace OpenHardwareMonitor {
       using (GUI.MainForm form = new GUI.MainForm()) {
         form.FormClosed += delegate(Object sender, FormClosedEventArgs e) {
           Application.Exit();
-        };        
-        Application.Run();
+        };
+        if (!Arguments.CloseAll)
+        {
+            Application.Run();
+        }
+        else
+        {
+            form.ForceClose();
+        }
       }
     }
 

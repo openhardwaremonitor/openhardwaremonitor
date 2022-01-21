@@ -266,7 +266,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               if (autoStartAsService.Value == false)
               {
-                  startupManager.ConfigureAutoStartup(autoStart.Value, false, startMinimized.Value);
+                  startupManager.ConfigureAutoStartup(autoStart.Value, false, startMinimized.Value | Program.Arguments.StartMinimized);
               }
               else if (autoStart.Value)
               {
@@ -288,7 +288,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               if (autoStart.Value == false)
               {
-                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true, startMinimized.Value);
+                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true, startMinimized.Value | Program.Arguments.StartMinimized);
               }
               else if (autoStartAsService.Value)
               {
@@ -802,7 +802,7 @@ namespace OpenHardwareMonitor.GUI {
       }
     }
 
-    private void ForceClose()
+    internal void ForceClose()
     {
         minimizeToTray.Value = false;
         if (!Visible)
