@@ -797,7 +797,6 @@ namespace OpenHardwareMonitor.GUI {
 
       if (Program.Arguments.CloseAll)
       {
-          CloseAllProcesses();
           BeginInvoke(ForceClose);
       }
     }
@@ -808,6 +807,7 @@ namespace OpenHardwareMonitor.GUI {
         {
             Activate();
         }
+        CloseAllProcesses();
         Close();
     }
 

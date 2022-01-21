@@ -119,8 +119,9 @@ Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode logon --closea
 Filename: "{app}\{#MyAppExeName}"; Flags: nowait postinstall skipifsilent runascurrentuser; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"
 
 [UninstallRun]
-Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --closeall"; Flags: waituntilterminated; RunOnceId: "RemoveService"
+Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --closeall"; Flags: waituntilterminated runascurrentuser; RunOnceId: "RemoveService"
 
 [UninstallDelete]
 Type: files; Name: "{app}\OpenHardwareMonitor.config"
 Type: files; Name: "{app}\OpenHardwareMonitorLib.sys"
+
