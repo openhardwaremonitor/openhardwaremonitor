@@ -6,6 +6,7 @@
     <LangVersion>latest</LangVersion>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+    <NoWarn>1701;1702;CA1416;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\Properties\AssemblyVersion.cs" Link="Properties\AssemblyVersion.cs" />
