@@ -104,6 +104,20 @@ namespace OpenHardwareMonitor.Utilities
             server.Router.Options.SendExceptionMessages = true;
         }
 
+        private bool IsOwnIp(IPAddress address)
+        {
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.Equals(address))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private Task ServerOnRequestAsync(IHttpContext context, IRestServer server)
         {
             if (context.WasRespondedTo)
@@ -111,7 +125,11 @@ namespace OpenHardwareMonitor.Utilities
                 return null;
             }
 
-            if (ActiveServer.AllowRemoteAccess == false && !(context.Request.RemoteEndPoint.Address.Equals(IPAddress.IPv6Loopback) || context.Request.RemoteEndPoint.Address.Equals(IPAddress.Loopback)))
+            var remoteAddress = context.Request.RemoteEndPoint.Address;
+
+            if (ActiveServer.AllowRemoteAccess == false
+                && !(context.Request.RemoteEndPoint.Address.Equals(IPAddress.IPv6Loopback) || context.Request.RemoteEndPoint.Address.Equals(IPAddress.Loopback))
+                && !IsOwnIp(remoteAddress))
             {
                 return context.Response.SendResponseAsync(HttpStatusCode.Forbidden);
             }
