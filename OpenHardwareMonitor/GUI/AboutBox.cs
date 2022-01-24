@@ -37,7 +37,7 @@ namespace OpenHardwareMonitor.GUI {
     private void linkLabel_LinkClicked(object sender, 
       LinkLabelLinkClickedEventArgs e) {
       try {
-        Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()));
+        Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()) { UseShellExecute = true });
       } catch (Exception x) {
         this.GetCurrentClassLogger().LogError(x, "Unable to launch browser");
       }
