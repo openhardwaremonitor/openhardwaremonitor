@@ -17,6 +17,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
+using System.IO;
 
 namespace OpenHardwareMonitor.GUI {
   public partial class PortForm : Form {
@@ -67,9 +68,19 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void webServerLinkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-      try {
-        Process.Start(new ProcessStartInfo(e.Link.LinkData.ToString()));
-      } catch { }
+        try
+        {
+            ProcessStartInfo psi = new ProcessStartInfo(e.Link.LinkData.ToString())
+            {
+                UseShellExecute = true,
+            };
+
+            Process.Start(psi);
+        }
+        catch (Exception x) when (x is UnauthorizedAccessException || x is IOException || x is Win32Exception)
+        {
+            MessageBox.Show(this, "Unable to open browser. Please manually copy the link to your browser.", "Error launching URL");
+        }
     }
 
   }

@@ -14,8 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using Aga.Controls.Tree;
@@ -51,6 +53,7 @@ namespace OpenHardwareMonitor.GUI {
     private UserOption minimizeToTray;
     private UserOption minimizeOnClose;
     private UserOption autoStart;
+    private UserOption autoStartAsService;
 
     private UserOption readMainboardSensors;
     private UserOption readCpuSensors;
@@ -226,16 +229,79 @@ namespace OpenHardwareMonitor.GUI {
       minimizeOnClose = new UserOption("minCloseMenuItem", false,
         minCloseMenuItem, settings);
 
-      autoStart = new UserOption(null, startupManager.Startup,
-        startupMenuItem, settings);
-      autoStart.Changed += delegate(object sender, EventArgs e) {
-        try {
-          startupManager.Startup = autoStart.Value;
-        } catch (InvalidOperationException) {
-          MessageBox.Show("Updating the auto-startup option failed.", "Error", 
-            MessageBoxButtons.OK, MessageBoxIcon.Error);
-          autoStart.Value = startupManager.Startup;
-        }
+      autoStart = new UserOption(null, startupManager.IsAutoStartupEnabled && !startupManager.IsStartupAsService,
+        startupMenuItem, settings, () =>
+        {
+            if (Program.Arguments.AutoStartupMode == AutoStartupMode.NoChange)
+            {
+                return null;
+            }
+
+            if (Program.Arguments.AutoStartupMode == AutoStartupMode.Logon)
+            {
+                return true;
+            }
+
+            return false;
+        });
+
+      autoStartAsService = new UserOption(null, startupManager.IsStartupAsService, runAsServiceMenuItem, settings, () =>
+      {
+          if (Program.Arguments.AutoStartupMode == AutoStartupMode.NoChange)
+          {
+              return null;
+          }
+
+          if (Program.Arguments.AutoStartupMode == AutoStartupMode.Bootup)
+          {
+              return true;
+          }
+
+          return false;
+      });
+
+      autoStart.Changed += delegate(object sender, EventArgs e)
+      {
+          try
+          {
+              if (autoStartAsService.Value == false)
+              {
+                  startupManager.ConfigureAutoStartup(autoStart.Value, false);
+              }
+              else if (autoStart.Value)
+              {
+                  // Only either of them can be enabled
+                  autoStart.Value = false;
+              }
+          }
+          catch (InvalidOperationException)
+          {
+              MessageBox.Show("Updating the auto-startup option failed.", "Error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+              autoStart.Value = startupManager.IsAutoStartupEnabled;
+          }
+      };
+
+      autoStartAsService.Changed += (sender, e) =>
+      {
+          try
+          {
+              if (autoStart.Value == false)
+              {
+                  startupManager.ConfigureAutoStartup(autoStartAsService.Value, true);
+              }
+              else if (autoStartAsService.Value)
+              {
+                  autoStartAsService.Value = false;
+              }
+              
+          }
+          catch (Exception x) when (x is InvalidOperationException || x is UnauthorizedAccessException || x is IOException)
+          {
+              MessageBox.Show("Updating the auto-startup option failed: " + x.Message, "Error",
+                  MessageBoxButtons.OK, MessageBoxIcon.Error);
+              autoStart.Value = startupManager.IsAutoStartupEnabled;
+          }
       };
 
       readMainboardSensors = new UserOption("mainboardMenuItem", true, 
@@ -374,7 +440,7 @@ namespace OpenHardwareMonitor.GUI {
 
       startupMenuItem.Visible = startupManager.IsAvailable;
 
-      if (startMinMenuItem.Checked) {
+      if (startMinMenuItem.Checked && !Program.Arguments.StartNormal) {
         if (!minTrayMenuItem.Checked) {
           WindowState = FormWindowState.Minimized;
           Show();
@@ -728,6 +794,45 @@ namespace OpenHardwareMonitor.GUI {
           this.settings.SetValue("splitContainer.SplitterDistance", splitterEvent.SplitX);
         }
       };
+
+      if (Program.Arguments.CloseAll)
+      {
+          BeginInvoke(ForceClose);
+      }
+    }
+
+    internal void ForceClose()
+    {
+        if (!Visible)
+        {
+            Activate();
+        }
+        CloseAllProcesses();
+        Close();
+    }
+
+    private void CloseAllProcesses()
+    {
+        var currentProcess = Process.GetCurrentProcess();
+        int currentPid = currentProcess.Id;
+        var processes = Process.GetProcesses().Where(x => x.ProcessName == currentProcess.ProcessName && x.Id != currentPid);
+        foreach (var process in processes)
+        {
+            try
+            {
+                process.CloseMainWindow();
+                // Wait until main window closure took effect
+                if (!process.WaitForExit(5000))
+                {
+                    process.Kill();
+                    process.WaitForExit(5000);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Not much we can do here (but normally, our process would run as admin, so this shouldn't happen)
+            }
+        }
     }
     
     private void MainForm_FormClosed(object sender, FormClosedEventArgs e) {

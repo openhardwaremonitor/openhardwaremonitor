@@ -14,7 +14,7 @@ namespace OpenHardwareMonitorLib {
     /// The default logger factory for the whole assembly.
     /// If this is null (the default), logging is disabled
     /// </summary>
-    public static ILoggerFactory? LoggerFactory { get; set; } = null;
+    public static ILoggerFactory LoggerFactory { get; set; } = null;
 
     private static ILogger DefaultLogger { get; set; }
 
@@ -37,7 +37,7 @@ namespace OpenHardwareMonitorLib {
     /// <param name="currentClass">The class whose logger shall be retrieved</param>
     /// <returns>A <see cref="ILogger"/> instance</returns>
     public static ILogger GetCurrentClassLogger(this object currentClass) {
-      string? name = currentClass.GetType().FullName;
+      string name = currentClass.GetType().FullName;
 
       // This is true if the method is used from an incomplete (generic) type
       if (name == null) {
