@@ -104,7 +104,6 @@ Source: "OpenHardwareMonitor\bin\Release\OxyPlot.dll"; DestDir: "{app}"; Flags: 
 Source: "OpenHardwareMonitor\bin\Release\OxyPlot.WindowsForms.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.IO.Ports.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.Management.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\net5.0-windows\*"; DestDir: "{app}\net5.0-windows"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "OpenHardwareMonitor\bin\Release\ref\*"; DestDir: "{app}\ref"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "OpenHardwareMonitor\bin\Release\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "OpenHardwareMonitor\bin\Release\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
