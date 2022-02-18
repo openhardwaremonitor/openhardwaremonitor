@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
   <metadata>
     <id>OpenHardwareMonitor</id>
-    <version>0.9.7-alpha11</version>
+    <version>0.10.0-alpha2</version>
     <title>OpenHardwareMonitor</title>
     <authors>Leica Geosystems AG</authors>
     <owners>Michael Möller et al</owners>
@@ -11,7 +11,7 @@
     <projectUrl>https://openhardwaremonitor.org/</projectUrl>
     <description>Unofficial package for OpenHardwareMonitor, a tool to display various performance values.</description>
     <summary>Unofficial package for OpenHardwareMonitor, a tool to display various performance values.</summary>
-    <copyright>Copyright © 2010-2021 Michael Möller at al, See license</copyright>
+    <copyright>Copyright © 2010-2022 Michael Möller at al, See license</copyright>
     <repository type="git" url="https://github.com/hexagon-oss/openhardwaremonitor/" />
   </metadata>
   <files>
