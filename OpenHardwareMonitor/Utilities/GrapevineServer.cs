@@ -16,12 +16,14 @@ namespace OpenHardwareMonitor.Utilities
     public sealed class GrapevineServer : IDisposable, IGrapevineServer
     {
         private readonly int port;
+        private readonly Computer computer;
         private IRestServer server;
         private Node root;
 
-        public GrapevineServer(Node node, int port, bool allowRemoteAccess)
+        public GrapevineServer(Node node, Computer computer, int port, bool allowRemoteAccess)
         {
             this.port = port;
+            this.computer = computer;
             root = node;
             AllowRemoteAccess = allowRemoteAccess;
         }
@@ -153,6 +155,11 @@ namespace OpenHardwareMonitor.Utilities
         public string GetVersion()
         {
             return "OpenHardwareMonitor " + Application.ProductVersion;
+        }
+
+        public string Report(IHttpContext context)
+        {
+            return computer.GetReport();
         }
 
         public string RootNode(IHttpContext context)

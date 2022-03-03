@@ -150,8 +150,41 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           r.Append("  ");
           r.Append(data[i, j].ToString("X8", CultureInfo.InvariantCulture));
         }
+
+        r.Append("    ");
+        for (int j = 0; j < 4; j++)
+        {
+            byte b1 = (byte)data[i, j];
+            byte b2 = (byte)(data[i, j] >> 8);
+            byte b3 = (byte)(data[i, j] >> 16);
+            byte b4 = (byte)(data[i, j] >> 24);
+            byte[] bytes = new byte[] { b1, b2, b3, b4 };
+            r.Append(ConvertBytesToAscii(bytes));
+        }
         r.AppendLine();
       }
+    }
+
+    public static string ConvertBytesToAscii(byte[] bytes)
+    {
+        StringBuilder ret = new StringBuilder();
+        foreach (var b in bytes)
+        {
+            Char c = (Char)b;
+            if (c < '!')
+            {
+                c = '.';
+            }
+
+            if (c >= 0x80)
+            {
+                c = '.';
+            }
+
+            ret.Append(c);
+        }
+
+        return ret.ToString();
     }
 
     public string GetReport() {
