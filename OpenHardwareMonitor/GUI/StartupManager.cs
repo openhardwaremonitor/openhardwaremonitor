@@ -234,6 +234,15 @@ namespace OpenHardwareMonitor.GUI
             catch (IOException)
             {
             }
+
+            try
+            {
+                // Previous versions might have registered under this name
+                root.DeleteTask("OpenHardwareMonitorAutoStart", 0);
+            }
+            catch (IOException)
+            {
+            }
         }
 
         private void CreateRegistryRun()
