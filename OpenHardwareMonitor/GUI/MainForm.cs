@@ -1081,13 +1081,6 @@ namespace OpenHardwareMonitor.GUI {
       unitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
     }
 
-    private void sumbitReportMenuItem_Click(object sender, EventArgs e) 
-    {
-      ReportForm form = new ReportForm();
-      form.Report = computer.GetReport();
-      form.ShowDialog();      
-    }
-
     private void resetMinMaxMenuItem_Click(object sender, EventArgs e) {
       computer.Accept(new SensorVisitor(delegate(ISensor sensor) {
         sensor.ResetMin();

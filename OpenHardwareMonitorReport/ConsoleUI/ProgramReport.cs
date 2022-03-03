@@ -242,7 +242,7 @@ namespace OpenHardwareMonitorReport
                 //currently running with administrative privileges
                 Computer computer = computerHardware.ComputerDiagnostics(options);
 
-                OpenHardwareMonitor.Utilities.GrapevineServer server = new OpenHardwareMonitor.Utilities.GrapevineServer(computerHardware.root, options.Port, true);
+                OpenHardwareMonitor.Utilities.GrapevineServer server = new OpenHardwareMonitor.Utilities.GrapevineServer(computerHardware.root, computer, options.Port, true);
                 if (server.PlatformNotSupported)
                 {
                     Utility.WriteLogMessage("ERROR: Platform not supported", options, true);
