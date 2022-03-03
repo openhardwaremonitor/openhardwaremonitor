@@ -96,7 +96,6 @@ Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.deps.json"; DestDir
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.runtimeconfig.dev.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitorLib.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitorLib.pdb"; DestDir: "{app}"; Flags: ignoreversion
@@ -104,7 +103,7 @@ Source: "OpenHardwareMonitor\bin\Release\OxyPlot.dll"; DestDir: "{app}"; Flags: 
 Source: "OpenHardwareMonitor\bin\Release\OxyPlot.WindowsForms.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.IO.Ports.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.Management.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\ref\*"; DestDir: "{app}\ref"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "OpenHardwareMonitor\bin\Release\ref\*"; DestDir: "{app}\ref"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "OpenHardwareMonitor\bin\Release\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "OpenHardwareMonitor\bin\Release\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
