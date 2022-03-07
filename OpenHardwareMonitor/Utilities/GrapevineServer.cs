@@ -256,7 +256,7 @@ namespace OpenHardwareMonitor.Utilities
             }
             else
             {
-                json.AppendLine("\"Value\": \"N/A\"");
+                json.AppendLine("\"Value\": 0"); // TODO: Pass null, but requires a corresponding change on the client parser
             }
         }
 
