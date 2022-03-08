@@ -84,7 +84,7 @@ namespace OpenHardwareMonitor.GUI {
       this.label2.Name = "label2";
       this.label2.Size = new System.Drawing.Size(273, 13);
       this.label2.TabIndex = 3;
-      this.label2.Text = "Copyright © 2009-2021 Michael Möller and contributors. ";
+      this.label2.Text = "Copyright © 2009-2022 Michael Möller and contributors. ";
       // 
       // label3
       // 
