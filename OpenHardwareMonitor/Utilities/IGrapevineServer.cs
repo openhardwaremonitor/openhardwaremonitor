@@ -15,5 +15,6 @@ namespace OpenHardwareMonitor.Utilities
         string GetNode(IHttpContext context);
         string RootNode(IHttpContext context);
         string GetVersion();
+        string Report(IHttpContext context);
     }
 }

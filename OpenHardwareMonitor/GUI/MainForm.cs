@@ -393,7 +393,7 @@ namespace OpenHardwareMonitor.GUI {
           }
       };
 
-      server = new GrapevineServer(root, HttpServerPort, allowWebServerRemoteAccess.Value);
+      server = new GrapevineServer(root, computer, HttpServerPort, allowWebServerRemoteAccess.Value);
       runWebServer = new UserOption("runWebServerMenuItem", false,
         runWebServerMenuItem, settings, () => Program.Arguments.RunWebServer ? true : null);
       runWebServer.Changed += delegate(object sender, EventArgs e)
@@ -402,7 +402,7 @@ namespace OpenHardwareMonitor.GUI {
           {
               server.Stop();
               server.Dispose();
-              server = new GrapevineServer(root, HttpServerPort, allowWebServerRemoteAccess.Value);
+              server = new GrapevineServer(root, computer, HttpServerPort, allowWebServerRemoteAccess.Value);
               server.Start();
           }
           else
@@ -1079,13 +1079,6 @@ namespace OpenHardwareMonitor.GUI {
       celsiusMenuItem.Checked = false;
       fahrenheitMenuItem.Checked = true;
       unitManager.TemperatureUnit = TemperatureUnit.Fahrenheit;
-    }
-
-    private void sumbitReportMenuItem_Click(object sender, EventArgs e) 
-    {
-      ReportForm form = new ReportForm();
-      form.Report = computer.GetReport();
-      form.ShowDialog();      
     }
 
     private void resetMinMaxMenuItem_Click(object sender, EventArgs e) {

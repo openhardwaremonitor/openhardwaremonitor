@@ -16,12 +16,14 @@ namespace OpenHardwareMonitor.Utilities
     public sealed class GrapevineServer : IDisposable, IGrapevineServer
     {
         private readonly int port;
+        private readonly Computer computer;
         private IRestServer server;
         private Node root;
 
-        public GrapevineServer(Node node, int port, bool allowRemoteAccess)
+        public GrapevineServer(Node node, Computer computer, int port, bool allowRemoteAccess)
         {
             this.port = port;
+            this.computer = computer;
             root = node;
             AllowRemoteAccess = allowRemoteAccess;
         }
@@ -155,6 +157,11 @@ namespace OpenHardwareMonitor.Utilities
             return "OpenHardwareMonitor " + Application.ProductVersion;
         }
 
+        public string Report(IHttpContext context)
+        {
+            return computer.GetReport();
+        }
+
         public string RootNode(IHttpContext context)
         {
             StringBuilder json = new StringBuilder();
@@ -249,7 +256,7 @@ namespace OpenHardwareMonitor.Utilities
             }
             else
             {
-                json.AppendLine("\"Value\": \"N/A\"");
+                json.AppendLine("\"Value\": 0"); // TODO: Pass null, but requires a corresponding change on the client parser
             }
         }
 

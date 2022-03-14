@@ -73,5 +73,13 @@ namespace OpenHardwareMonitor.Utilities
             context.Response.ContentType = "application/json";
             await context.Response.SendResponseAsync(server.RootNode(context));
         }
+
+        [RestRoute("Get", "/api/report")]
+        public async Task Report(IHttpContext context)
+        {
+            context.Response.AddHeader("Cache-Control", "no-cache");
+            context.Response.ContentType = "text/plain";
+            await context.Response.SendResponseAsync(server.Report(context));
+        }
     }
 }

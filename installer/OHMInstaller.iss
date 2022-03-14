@@ -19,11 +19,12 @@
 AppId={{1212D497-FA88-4C96-906E-6AA769F2D704}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-;AppVerName={#MyAppName} {#MyAppVersion}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+AppCopyright=Copyright © 2010-2022 Michael Möller at al, See license
 DefaultDirName={autopf64}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
@@ -35,6 +36,7 @@ SetupIconFile=OpenHardwareMonitor\icon.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma
 SolidCompression=yes
+DirExistsWarning=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -96,7 +98,6 @@ Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.deps.json"; DestDir
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.dll.config"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.runtimeconfig.dev.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitor.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitorLib.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\OpenHardwareMonitorLib.pdb"; DestDir: "{app}"; Flags: ignoreversion
@@ -104,7 +105,7 @@ Source: "OpenHardwareMonitor\bin\Release\OxyPlot.dll"; DestDir: "{app}"; Flags: 
 Source: "OpenHardwareMonitor\bin\Release\OxyPlot.WindowsForms.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.IO.Ports.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "OpenHardwareMonitor\bin\Release\System.Management.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "OpenHardwareMonitor\bin\Release\ref\*"; DestDir: "{app}\ref"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "OpenHardwareMonitor\bin\Release\ref\*"; DestDir: "{app}\ref"; Flags: ignoreversion recursesubdirs createallsubdirs skipifsourcedoesntexist
 Source: "OpenHardwareMonitor\bin\Release\runtimes\*"; DestDir: "{app}\runtimes"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "OpenHardwareMonitor\bin\Release\web\*"; DestDir: "{app}\web"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -124,3 +125,82 @@ Filename: "{app}\{#MyAppExeName}"; Parameters: "--autostartupmode disable --clos
 Type: files; Name: "{app}\OpenHardwareMonitor.config"
 Type: files; Name: "{app}\OpenHardwareMonitorLib.sys"
 
+[InstallDelete]
+// On install/update reset the configuration. May not be exactly desirable, but avoids a number of possible errors
+Type: files; Name: "{app}\OpenHardwareMonitor.config"
+
+[Code]
+/////////////////////////////////////////////////////////////////////
+function GetUninstallString(): String;
+var
+  sUnInstPath: String;
+  sUnInstallString: String;
+begin
+  sUnInstPath := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
+  sUnInstallString := '';
+  if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
+    RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
+  Result := sUnInstallString;
+end;
+
+
+/////////////////////////////////////////////////////////////////////
+function IsUpgrade(): Boolean;
+begin
+    Result := (GetUninstallString() <> '');
+end;
+
+/////////////////////////////////////////////////////////////////////
+// Uninstalls the previous version of our own installation (regardless of whether that one was never or older than the current one)
+function UnInstallOldVersion(): Integer;
+var
+  sUnInstallString: String;
+  iResultCode: Integer;
+begin
+// Return Values:
+// 1 - uninstall string is empty
+// 2 - error executing the UnInstallString
+// 3 - successfully executed the UnInstallString
+
+  // default return value
+  Result := 0;
+
+  // get the uninstall string of the old app
+  sUnInstallString := GetUninstallString();
+  if sUnInstallString <> '' then begin
+    sUnInstallString := RemoveQuotes(sUnInstallString);
+    if Exec(sUnInstallString, '/SILENT /NORESTART /SUPPRESSMSGBOXES','', SW_HIDE, ewWaitUntilTerminated, iResultCode) then
+      Result := 3
+    else
+      Result := 2;
+  end else
+    Result := 1;
+end;
+
+procedure TaskKill(FileName: String);
+var
+  ResultCode: Integer;
+begin
+    Exec('taskkill.exe', '/f /im ' + '"' + FileName + '"', '', SW_HIDE,
+     ewWaitUntilTerminated, ResultCode);
+end;
+
+procedure KillExistingInstances();
+begin
+    TaskKill('OpenHardwareMonitor.exe');
+end;
+
+/////////////////////////////////////////////////////////////////////
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if (CurStep=ssInstall) then
+  begin
+    WizardForm.StatusLabel.Caption := 'Uninstalling old versions...';
+    if (IsUpgrade()) then
+    begin
+      UnInstallOldVersion();
+    end;
+    // If there are still instances running, kill them now
+    KillExistingInstances();
+  end;
+end;

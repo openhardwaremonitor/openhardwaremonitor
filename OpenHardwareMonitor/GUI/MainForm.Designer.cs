@@ -48,7 +48,6 @@ namespace OpenHardwareMonitor.GUI {
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.fileMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveReportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.sumbitReportMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MenuItem2 = new System.Windows.Forms.ToolStripSeparator();
             this.resetMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuItem5 = new System.Windows.Forms.ToolStripMenuItem();
@@ -78,6 +77,7 @@ namespace OpenHardwareMonitor.GUI {
             this.minTrayMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minCloseMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startupMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.runAsServiceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.showGadgetWindowTopmostMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.separatorMenuItem = new System.Windows.Forms.ToolStripSeparator();
             this.temperatureUnitsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -115,7 +115,6 @@ namespace OpenHardwareMonitor.GUI {
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.splitContainer = new OpenHardwareMonitor.GUI.SplitContainerAdv();
             this.treeView = new Aga.Controls.Tree.TreeViewAdv();
-            this.runAsServiceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -213,7 +212,6 @@ namespace OpenHardwareMonitor.GUI {
             // 
             this.fileMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveReportMenuItem,
-            this.sumbitReportMenuItem,
             this.MenuItem2,
             this.resetMenuItem,
             this.menuItem5,
@@ -226,26 +224,19 @@ namespace OpenHardwareMonitor.GUI {
             // saveReportMenuItem
             // 
             this.saveReportMenuItem.Name = "saveReportMenuItem";
-            this.saveReportMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.saveReportMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveReportMenuItem.Text = "Save Report...";
             this.saveReportMenuItem.Click += new System.EventHandler(this.saveReportMenuItem_Click);
-            // 
-            // sumbitReportMenuItem
-            // 
-            this.sumbitReportMenuItem.Name = "sumbitReportMenuItem";
-            this.sumbitReportMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.sumbitReportMenuItem.Text = "Submit Report...";
-            this.sumbitReportMenuItem.Click += new System.EventHandler(this.sumbitReportMenuItem_Click);
             // 
             // MenuItem2
             // 
             this.MenuItem2.Name = "MenuItem2";
-            this.MenuItem2.Size = new System.Drawing.Size(156, 6);
+            this.MenuItem2.Size = new System.Drawing.Size(177, 6);
             // 
             // resetMenuItem
             // 
             this.resetMenuItem.Name = "resetMenuItem";
-            this.resetMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.resetMenuItem.Size = new System.Drawing.Size(180, 22);
             this.resetMenuItem.Text = "Reset";
             this.resetMenuItem.Click += new System.EventHandler(this.resetClick);
             // 
@@ -261,7 +252,7 @@ namespace OpenHardwareMonitor.GUI {
             this.hddMenuItemRemovable,
             this.networkMenuItem});
             this.menuItem5.Name = "menuItem5";
-            this.menuItem5.Size = new System.Drawing.Size(159, 22);
+            this.menuItem5.Size = new System.Drawing.Size(180, 22);
             this.menuItem5.Text = "Hardware";
             // 
             // mainboardMenuItem
@@ -315,12 +306,12 @@ namespace OpenHardwareMonitor.GUI {
             // menuItem6
             // 
             this.menuItem6.Name = "menuItem6";
-            this.menuItem6.Size = new System.Drawing.Size(156, 6);
+            this.menuItem6.Size = new System.Drawing.Size(177, 6);
             // 
             // exitMenuItem
             // 
             this.exitMenuItem.Name = "exitMenuItem";
-            this.exitMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.exitMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitMenuItem.Text = "Exit";
             this.exitMenuItem.Click += new System.EventHandler(this.exitClick);
             // 
@@ -445,6 +436,12 @@ namespace OpenHardwareMonitor.GUI {
             this.startupMenuItem.Name = "startupMenuItem";
             this.startupMenuItem.Size = new System.Drawing.Size(322, 22);
             this.startupMenuItem.Text = "Run On Windows Startup";
+            // 
+            // runAsServiceMenuItem
+            // 
+            this.runAsServiceMenuItem.Name = "runAsServiceMenuItem";
+            this.runAsServiceMenuItem.Size = new System.Drawing.Size(322, 22);
+            this.runAsServiceMenuItem.Text = "Run as Service (no GUI, but starts before logon)";
             // 
             // showGadgetWindowTopmostMenuItem
             // 
@@ -662,7 +659,7 @@ namespace OpenHardwareMonitor.GUI {
             // aboutMenuItem
             // 
             this.aboutMenuItem.Name = "aboutMenuItem";
-            this.aboutMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutMenuItem.Text = "About";
             this.aboutMenuItem.Click += new System.EventHandler(this.aboutMenuItem_Click);
             // 
@@ -688,7 +685,6 @@ namespace OpenHardwareMonitor.GUI {
             // 
             this.splitContainer.Border3DStyle = System.Windows.Forms.Border3DStyle.Raised;
             this.splitContainer.Color = System.Drawing.SystemColors.Control;
-            this.splitContainer.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.Location = new System.Drawing.Point(0, 24);
             this.splitContainer.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -698,10 +694,6 @@ namespace OpenHardwareMonitor.GUI {
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.treeView);
-            // 
-            // splitContainer.Panel2
-            // 
-            this.splitContainer.Panel2.Cursor = System.Windows.Forms.Cursors.Default;
             this.splitContainer.Size = new System.Drawing.Size(488, 615);
             this.splitContainer.SplitterDistance = 450;
             this.splitContainer.SplitterWidth = 6;
@@ -744,12 +736,6 @@ namespace OpenHardwareMonitor.GUI {
             this.treeView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseDown);
             this.treeView.MouseMove += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseMove);
             this.treeView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.treeView_MouseUp);
-            // 
-            // runAsServiceMenuItem
-            // 
-            this.runAsServiceMenuItem.Name = "runAsServiceMenuItem";
-            this.runAsServiceMenuItem.Size = new System.Drawing.Size(322, 22);
-            this.runAsServiceMenuItem.Text = "Run as Service (no GUI, but starts before logon)";
             // 
             // MainForm
             // 
@@ -819,7 +805,6 @@ namespace OpenHardwareMonitor.GUI {
     private System.Windows.Forms.ToolStripSeparator webMenuItemSeparator;
     private System.Windows.Forms.ToolStripMenuItem celsiusMenuItem;
     private System.Windows.Forms.ToolStripMenuItem fahrenheitMenuItem;
-    private System.Windows.Forms.ToolStripMenuItem sumbitReportMenuItem;
     private System.Windows.Forms.ToolStripSeparator MenuItem2;
     private System.Windows.Forms.ToolStripMenuItem resetMinMaxMenuItem;
     private System.Windows.Forms.ToolStripSeparator MenuItem3;
