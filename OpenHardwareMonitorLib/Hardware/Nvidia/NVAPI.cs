@@ -205,6 +205,13 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
   }
 
   [StructLayout(LayoutKind.Sequential, Pack = 8)]
+  internal struct NvGpuMemoryInfo {
+    public uint Version;
+    [MarshalAs(UnmanagedType.ByValArray, SizeConst = NVAPI.MAX_MEMORY_VALUES_PER_GPU)]
+    public uint[] Values;
+  }
+
+  [StructLayout(LayoutKind.Sequential, Pack = 8)]
   internal struct NvDisplayDriverMemoryInfo {
     public uint Version;
     [MarshalAs(UnmanagedType.ByValArray, SizeConst =
@@ -278,6 +285,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       Marshal.SizeOf(typeof(NvDynamicPstatesInfo)) | 0x10000;
     public static readonly uint GPU_COOLER_SETTINGS_VER = (uint)
       Marshal.SizeOf(typeof(NvGPUCoolerSettings)) | 0x20000;
+    public static readonly uint GPU_MEMORY_INFO_VER = (uint)
+      Marshal.SizeOf(typeof(NvGpuMemoryInfo)) | 0x20000;
     public static readonly uint DISPLAY_DRIVER_MEMORY_INFO_VER = (uint)
       Marshal.SizeOf(typeof(NvDisplayDriverMemoryInfo)) | 0x20000;
     public static readonly uint DISPLAY_DRIVER_VERSION_VER = (uint)
@@ -343,6 +352,10 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       ref NvGPUCoolerLevels gpuCoolerLevels);
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate NvStatus NvAPI_GPU_GetMemoryInfoDelegate(
+      NvPhysicalGpuHandle gpuHandle, ref NvGpuMemoryInfo memoryInfo);
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate NvStatus NvAPI_GetDisplayDriverMemoryInfoDelegate(
       NvDisplayHandle displayHandle, ref NvDisplayDriverMemoryInfo memoryInfo);
 
@@ -396,6 +409,8 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       NvAPI_GPU_GetCoolerSettings;
     public static readonly NvAPI_GPU_SetCoolerLevelsDelegate
       NvAPI_GPU_SetCoolerLevels;
+    public static readonly NvAPI_GPU_GetMemoryInfoDelegate
+      NvAPI_GPU_GetMemoryInfo;
     public static readonly NvAPI_GetDisplayDriverMemoryInfoDelegate
       NvAPI_GetDisplayDriverMemoryInfo;
     public static readonly NvAPI_GetDisplayDriverVersionDelegate
@@ -477,6 +492,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         GetDelegate(0x189A1FDF, out NvAPI_GPU_GetDynamicPstatesInfo);
         GetDelegate(0xDA141340, out NvAPI_GPU_GetCoolerSettings);
         GetDelegate(0x891FA0AE, out NvAPI_GPU_SetCoolerLevels);
+        GetDelegate(0x07F9B368, out NvAPI_GPU_GetMemoryInfo);
         GetDelegate(0x774AA982, out NvAPI_GetDisplayDriverMemoryInfo);
         GetDelegate(0xF951A4D1, out NvAPI_GetDisplayDriverVersion);
         GetDelegate(0x01053FA5, out _NvAPI_GetInterfaceVersionString);

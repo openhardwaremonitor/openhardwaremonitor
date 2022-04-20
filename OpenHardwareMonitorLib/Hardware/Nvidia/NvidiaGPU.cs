@@ -258,12 +258,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         }
       }
 
-      NvDisplayDriverMemoryInfo memoryInfo = new NvDisplayDriverMemoryInfo();
-      memoryInfo.Version = NVAPI.DISPLAY_DRIVER_MEMORY_INFO_VER;
+      NvGpuMemoryInfo memoryInfo = new NvGpuMemoryInfo();
+      memoryInfo.Version = NVAPI.GPU_MEMORY_INFO_VER;
       memoryInfo.Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU];
-      if (NVAPI.NvAPI_GetDisplayDriverMemoryInfo != null && displayHandle.HasValue &&
-        NVAPI.NvAPI_GetDisplayDriverMemoryInfo(displayHandle.Value, ref memoryInfo) ==
-        NvStatus.OK) {
+      if (NVAPI.NvAPI_GPU_GetMemoryInfo != null &&
+        NVAPI.NvAPI_GPU_GetMemoryInfo(handle, ref memoryInfo) == NvStatus.OK) {
         uint totalMemory = memoryInfo.Values[0];
         uint freeMemory = memoryInfo.Values[4];
         float usedMemory = Math.Max(totalMemory - freeMemory, 0);
@@ -503,14 +502,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
         r.AppendLine();
       }
 
-      if (NVAPI.NvAPI_GetDisplayDriverMemoryInfo != null && 
-        displayHandle.HasValue) 
+      if (NVAPI.NvAPI_GetDisplayDriverMemoryInfo != null) 
       {
-        NvDisplayDriverMemoryInfo memoryInfo = new NvDisplayDriverMemoryInfo();
-        memoryInfo.Version = NVAPI.DISPLAY_DRIVER_MEMORY_INFO_VER;
+        NvGpuMemoryInfo memoryInfo = new NvGpuMemoryInfo();
+        memoryInfo.Version = NVAPI.GPU_MEMORY_INFO_VER;
         memoryInfo.Values = new uint[NVAPI.MAX_MEMORY_VALUES_PER_GPU];
-        NvStatus status = NVAPI.NvAPI_GetDisplayDriverMemoryInfo(
-          displayHandle.Value, ref memoryInfo);
+        NvStatus status = NVAPI.NvAPI_GPU_GetMemoryInfo(handle, ref memoryInfo);
 
         r.AppendLine("Memory Info");
         r.AppendLine();

@@ -151,7 +151,9 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       r.AppendLine("PCI Vendor ID: 0x" + info.VID.ToString("x04"));
       if (info.VID != info.SSVID)
         r.AppendLine("PCI Subsystem Vendor ID: 0x" + info.VID.ToString("x04"));
-      r.AppendLine("IEEE OUI Identifier: 0x" + info.IEEE[2].ToString("x02") + info.IEEE[1].ToString("x02") + info.IEEE[0].ToString("x02"));
+      if (info.IEEE != null) {
+        r.AppendLine("IEEE OUI Identifier: 0x" + info.IEEE[2].ToString("x02") + info.IEEE[1].ToString("x02") + info.IEEE[0].ToString("x02"));
+      }
       r.AppendLine("Total NVM Capacity: " + info.TotalCapacity);
       r.AppendLine("Unallocated NVM Capacity: " + info.UnallocatedCapacity);
       r.AppendLine("Controller ID: " + info.ControllerId);
