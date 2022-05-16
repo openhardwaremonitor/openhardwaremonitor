@@ -75,9 +75,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     private void ShowContextMenu(Point position) {
-      NativeMethods.TrackPopupMenuEx(contextMenu.Handle, 
-        TPM_RIGHTBUTTON | TPM_VERTICAL, position.X,
-        position.Y, Handle, IntPtr.Zero);
+      contextMenu.Show(position, ToolStripDropDownDirection.BelowRight);
     }
 
     protected virtual CreateParams CreateParams {
