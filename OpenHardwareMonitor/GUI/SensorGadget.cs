@@ -160,8 +160,6 @@ namespace OpenHardwareMonitor.GUI {
       ToolStripMenuItem lockItem = new ToolStripMenuItem("Lock Position and Size");
       contextMenu.Items.Add(lockItem);
       contextMenu.Items.Add(new ToolStripSeparator());
-      ToolStripMenuItem alwaysOnTopItem = new ToolStripMenuItem("Always on Top");
-      contextMenu.Items.Add(alwaysOnTopItem);
       ToolStripMenuItem opacityMenu = new ToolStripMenuItem("Opacity");
       contextMenu.Items.Add(opacityMenu);
       Opacity = (byte)settings.GetValue("sensorGadget.Opacity", 255);      
@@ -185,11 +183,6 @@ namespace OpenHardwareMonitor.GUI {
         Resize();
       };
 
-      alwaysOnTop = new UserOption("sensorGadget.AlwaysOnTop", false, 
-        alwaysOnTopItem, settings);
-      alwaysOnTop.Changed += delegate(object sender, EventArgs e) {
-        this.AlwaysOnTop = alwaysOnTop.Value;
-      };
       lockPositionAndSize = new UserOption("sensorGadget.LockPositionAndSize", 
         false, lockItem, settings);
       lockPositionAndSize.Changed += delegate(object sender, EventArgs e) {
