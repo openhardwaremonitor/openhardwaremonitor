@@ -79,7 +79,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       float[] result = new float[coreCount];
       for (int i = 0; i < coreCount; i++) {
         if (Ring0.RdmsrTx(IA32_TEMPERATURE_TARGET, out eax,
-          out edx, 1UL << cpuid[i][0].Thread)) {
+          out edx, cpuid[i][0].Affinity)) {
           result[i] = (eax >> 16) & 0xFF;
         } else {
           result[i] = 100;
@@ -210,6 +210,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.IceLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
+              case 0xA5:
               case 0xA6: // Intel Core i3, i5, i7 10xxxU (14nm)
                 microarchitecture = Microarchitecture.CometLake;
                 tjMax = GetTjMaxFromMSR();
@@ -419,7 +420,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         uint eax, edx;
         // if reading is valid
         if (Ring0.RdmsrTx(IA32_THERM_STATUS_MSR, out eax, out edx,
-            1UL << cpuid[i][0].Thread) && (eax & 0x80000000) != 0) 
+            cpuid[i][0].Affinity) && (eax & 0x80000000) != 0) 
         {
           // get the dist from tjMax from bits 22:16
           float deltaT = ((eax & 0x007F0000) >> 16);
@@ -435,7 +436,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         uint eax, edx;
         // if reading is valid
         if (Ring0.RdmsrTx(IA32_PACKAGE_THERM_STATUS, out eax, out edx,
-            1UL << cpuid[0][0].Thread) && (eax & 0x80000000) != 0) 
+            cpuid[0][0].Affinity) && (eax & 0x80000000) != 0) 
         {
           // get the dist from tjMax from bits 22:16
           float deltaT = ((eax & 0x007F0000) >> 16);
@@ -452,8 +453,9 @@ namespace OpenHardwareMonitor.Hardware.CPU {
         uint eax, edx;
         for (int i = 0; i < coreClocks.Length; i++) {
           System.Threading.Thread.Sleep(1);
-          if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx,
-            1UL << cpuid[i][0].Thread)) {
+          if (Ring0.RdmsrTx(IA32_PERF_STATUS, out eax, out edx, 
+            cpuid[i][0].Affinity)) 
+          {
             newBusClock =
               TimeStampCounterFrequency / timeStampCounterMultiplier;
             switch (microarchitecture) {

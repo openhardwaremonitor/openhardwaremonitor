@@ -4,7 +4,7 @@
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
-  Copyright (C) 2012 Michael Möller <mmoeller@openhardwaremonitor.org>
+  Copyright (C) 2012-2020 Michael Möller <mmoeller@openhardwaremonitor.org>
 	
 */
 
@@ -13,9 +13,20 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace OpenHardwareMonitor.Hardware {
-  internal static class OperatingSystem {
+  public static class OperatingSystem {
 
-    public static bool Is64BitOperatingSystem() {
+    static OperatingSystem() {
+      int p = (int)Environment.OSVersion.Platform;
+      IsUnix = (p == 4) || (p == 6) || (p == 128);
+
+      Is64BitOperatingSystem = GetIs64BitOperatingSystem();
+    }
+
+    public static bool IsUnix { get; }
+
+    public static bool Is64BitOperatingSystem { get; }
+
+    private static bool GetIs64BitOperatingSystem() {
       if (IntPtr.Size == 8)
         return true;
 

@@ -90,6 +90,59 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     public ADLSingleSensorData[] Sensors;
   }
 
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLODParameterRange {
+    public int Min;
+    public int Max;
+    public int Step;
+  }
+
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLODParameters {
+    public int Size;
+    public int NumberOfPerformanceLevels;
+    public int ActivityReportingSupported;
+    public int DiscretePerformanceLevels;
+    public int Reserved;
+    public ADLODParameterRange EngineClock;
+    public ADLODParameterRange MemoryClock;
+    public ADLODParameterRange Vddc;
+  }
+
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLODNPerformanceStatus {
+    public int CoreClock;
+    public int MemoryClock;
+    public int DCEFClock;
+    public int GFXClock;
+    public int UVDClock;
+    public int VCEClock;
+    public int GPUActivityPercent;
+    public int CurrentCorePerformanceLevel;
+    public int CurrentMemoryPerformanceLevel;
+    public int CurrentDCEFPerformanceLevel;
+    public int CurrentGFXPerformanceLevel;
+    public int UVDPerformanceLevel;
+    public int VCEPerformanceLevel;
+    public int CurrentBusSpeed;
+    public int CurrentBusLanes;
+    public int MaximumBusLanes;
+    public int VDDC;
+    public int VDDCI;
+  }
+
+  [StructLayout(LayoutKind.Sequential)]
+  internal struct ADLVersionsInfo {
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string DriverVersion;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string CatalystVersion;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string CatalystWebLink;
+  }
+
   internal enum ADLODNCurrentPowerType {
     TOTAL_POWER = 0,
     PPT_POWER,
@@ -149,13 +202,110 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     SMART_POWERSHIFT_DGPU = 39
   }
 
+  internal enum ADLStatus : int {
+    /// <summary>
+    /// All OK, but need to wait.
+    /// </summary>  
+    OK_WAIT = 4,
+
+    /// <summary>
+    /// All OK, but need restart.
+    /// </summary>  
+    OK_RESTART = 3,
+
+    /// <summary>
+    /// All OK but need mode change.
+    /// </summary>
+    OK_MODE_CHANGE =  2,
+
+    /// <summary>
+    /// All OK, but with warning.
+    /// </summary>
+    OK_WARNING = 1,
+
+    /// <summary>
+    /// ADL function completed successfully.
+    /// </summary>
+    OK = 0,
+
+    /// <summary>
+    /// Generic Error. Most likely one or more of the Escape calls to the driver 
+    /// failed!
+    /// </summary>
+    ERR = -1,
+
+    /// <summary>
+    /// ADL not initialized.
+    /// </summary>
+    ERR_NOT_INIT = -2,
+
+    /// <summary>
+    /// One of the parameter passed is invalid.
+    /// </summary>
+    ERR_INVALID_PARAM = -3,
+
+    /// <summary>
+    /// One of the parameter size is invalid.
+    /// </summary>
+    ERR_INVALID_PARAM_SIZE =  -4,
+
+    /// <summary>
+    /// Invalid ADL index passed.
+    /// </summary>
+    ERR_INVALID_ADL_IDX = -5,
+
+    /// <summary>
+    /// Invalid controller index passed.
+    /// </summary>
+    ERR_INVALID_CONTROLLER_IDX = -6,
+
+    /// <summary>
+    /// Invalid display index passed.
+    /// </summary>
+    ERR_INVALID_DIPLAY_IDX = -7,
+
+    /// <summary>
+    /// Function not supported by the driver.
+    /// </summary>
+    ERR_NOT_SUPPORTED = -8,
+
+    /// <summary>
+    /// Null Pointer error.
+    /// </summary>
+    ERR_NULL_POINTER = -9,
+
+    /// <summary>
+    /// Call can't be made due to disabled adapter.
+    /// </summary>
+    ERR_DISABLED_ADAPTER = -10,
+
+    /// <summary>
+    /// Invalid Callback.
+    /// </summary>
+    ERR_INVALID_CALLBACK = -11,
+
+    /// <summary>
+    /// Display Resource conflict.
+    /// </summary>
+    ERR_RESOURCE_CONFLICT = -12,
+
+    /// <summary>
+    /// Failed to update some of the values. Can be returned by set request that 
+    /// include multiple values if not all values were successfully committed.
+    /// </summary>
+    ERR_SET_INCOMPLETE = -20,
+
+    /// <summary>
+    /// There's no Linux XDisplay in Linux Console environment. 
+    /// </summary>
+    ERR_NO_XDISPLAY = -21    
+  }
+
   internal class ADL {
     public const int ADL_MAX_PATH = 256;
     public const int ADL_MAX_ADAPTERS = 40;
     public const int ADL_MAX_DISPLAYS = 40;
     public const int ADL_MAX_DEVICENAME = 32;
-    public const int ADL_OK = 0;
-    public const int ADL_ERR = -1;
     public const int ADL_DRIVER_OK = 0;
     public const int ADL_MAX_GLSYNC_PORTS = 8;
     public const int ADL_MAX_GLSYNC_PORT_LEDS = 8;
@@ -173,47 +323,54 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public const int ATI_VENDOR_ID = 0x1002;
 
-    private delegate int ADL_Main_Control_CreateDelegate(
+    private delegate ADLStatus ADL_Main_Control_CreateDelegate(
       ADL_Main_Memory_AllocDelegate callback, int enumConnectedAdapters);
-    private delegate int ADL_Adapter_AdapterInfo_GetDelegate(IntPtr info,
+    private delegate ADLStatus ADL_Adapter_AdapterInfo_GetDelegate(IntPtr info,
       int size);
 
-    public delegate int ADL_Main_Control_DestroyDelegate();
-    public delegate int ADL_Adapter_NumberOfAdapters_GetDelegate(
+    public delegate ADLStatus ADL_Main_Control_DestroyDelegate();
+    public delegate ADLStatus ADL_Adapter_NumberOfAdapters_GetDelegate(
       ref int numAdapters);    
-    public delegate int ADL_Adapter_ID_GetDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Adapter_ID_GetDelegate(int adapterIndex,
       out int adapterID);
-    public delegate int ADL_Display_AdapterID_GetDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Display_AdapterID_GetDelegate(int adapterIndex,
       out int adapterID);      	
     public delegate int ADL_Adapter_Active_GetDelegate(int adapterIndex,
       out int status);
-    public delegate int ADL_Overdrive5_CurrentActivity_GetDelegate(
+    public delegate ADLStatus ADL_Overdrive5_CurrentActivity_GetDelegate(
       int iAdapterIndex, ref ADLPMActivity activity);
-    public delegate int ADL_Overdrive5_Temperature_GetDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Overdrive5_Temperature_GetDelegate(int adapterIndex,
         int thermalControllerIndex, ref ADLTemperature temperature);
-    public delegate int ADL_Overdrive5_FanSpeed_GetDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Overdrive5_FanSpeed_GetDelegate(int adapterIndex,
         int thermalControllerIndex, ref	ADLFanSpeedValue fanSpeedValue);
-    public delegate int ADL_Overdrive5_FanSpeedInfo_GetDelegate(
+    public delegate ADLStatus ADL_Overdrive5_FanSpeedInfo_GetDelegate(
       int adapterIndex, int thermalControllerIndex,
       ref ADLFanSpeedInfo fanSpeedInfo);
-    public delegate int ADL_Overdrive5_FanSpeedToDefault_SetDelegate(
+    public delegate ADLStatus ADL_Overdrive5_FanSpeedToDefault_SetDelegate(
       int adapterIndex, int thermalControllerIndex);
-    public delegate int ADL_Overdrive5_FanSpeed_SetDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Overdrive5_FanSpeed_SetDelegate(int adapterIndex,
       int thermalControllerIndex, ref	ADLFanSpeedValue fanSpeedValue);
-    public delegate int ADL_Overdrive_CapsDelegate(int adapterIndex,
+    public delegate ADLStatus ADL_Overdrive_CapsDelegate(int adapterIndex,
       out int supported, out int enabled, out int version);
-    private delegate int ADL2_Main_Control_CreateDelegate(
+    private delegate ADLStatus ADL2_Main_Control_CreateDelegate(
       ADL_Main_Memory_AllocDelegate callback, int enumConnectedAdapters, 
       out IntPtr context);
-    public delegate int ADL2_Main_Control_DestroyDelegate(IntPtr context);
-    public delegate int ADL2_OverdriveN_Temperature_GetDelegate(IntPtr context,
+    public delegate ADLStatus ADL2_Main_Control_DestroyDelegate(IntPtr context);
+    public delegate ADLStatus ADL2_OverdriveN_Temperature_GetDelegate(IntPtr context,
       int adapterIndex, ADLODNTemperatureType temperatureType,
       out int temperature);                        
-    public delegate int ADL2_Overdrive6_CurrentPower_GetDelegate(IntPtr context,
+    public delegate ADLStatus ADL2_Overdrive6_CurrentPower_GetDelegate(IntPtr context,
       int adapterIndex, ADLODNCurrentPowerType powerType,
       out int currentValue);
-    public delegate int ADL2_New_QueryPMLogData_GetDelegate(IntPtr context,
+    public delegate ADLStatus ADL2_New_QueryPMLogData_GetDelegate(IntPtr context,
       int adapterIndex, out ADLPMLogDataOutput dataOutput);
+    public delegate ADLStatus ADL_Overdrive5_ODParameters_GetDelegate(
+      int adapterIndex, out ADLODParameters parameters);
+    public delegate ADLStatus ADL2_OverdriveN_PerformanceStatus_GetDelegate(
+      IntPtr context, int adapterIndex, 
+      out ADLODNPerformanceStatus performanceStatus);
+    public delegate ADLStatus ADL_Graphics_Versions_GetDelegate(
+      out ADLVersionsInfo versionInfo);
 
     private static ADL_Main_Control_CreateDelegate
       _ADL_Main_Control_Create;
@@ -254,6 +411,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
       ADL2_Overdrive6_CurrentPower_Get;
     public static ADL2_New_QueryPMLogData_GetDelegate
       ADL2_New_QueryPMLogData_Get;
+    public static ADL_Overdrive5_ODParameters_GetDelegate
+      ADL_Overdrive5_ODParameters_Get;
+    public static ADL2_OverdriveN_PerformanceStatus_GetDelegate
+      ADL2_OverdriveN_PerformanceStatus_Get;
+    public static ADL_Graphics_Versions_GetDelegate
+      ADL_Graphics_Versions_Get;
 
     private static string dllName;
 
@@ -268,8 +431,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
     }
 
     private static void CreateDelegates(string name) {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      if (OperatingSystem.IsUnix)
         dllName = name + ".so";
       else
         dllName = name + ".dll";
@@ -312,6 +474,12 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         out ADL2_Overdrive6_CurrentPower_Get);
       GetDelegate("ADL2_New_QueryPMLogData_Get",
         out ADL2_New_QueryPMLogData_Get);
+      GetDelegate("ADL_Overdrive5_ODParameters_Get",
+        out ADL_Overdrive5_ODParameters_Get);
+      GetDelegate("ADL2_OverdriveN_PerformanceStatus_Get",
+        out ADL2_OverdriveN_PerformanceStatus_Get);
+      GetDelegate("ADL_Graphics_Versions_Get",
+        out ADL_Graphics_Versions_Get);
   }
 
     static ADL() {
@@ -320,7 +488,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     private ADL() { }
 
-    public static int ADL_Main_Control_Create(int enumConnectedAdapters) {
+    public static ADLStatus ADL_Main_Control_Create(int enumConnectedAdapters) {
       try {
         try {
           return _ADL_Main_Control_Create(Main_Memory_Alloc,
@@ -331,30 +499,30 @@ namespace OpenHardwareMonitor.Hardware.ATI {
             enumConnectedAdapters);
         }
       } catch {
-        return ADL_ERR;
+        return ADLStatus.ERR;
       }
     }
 
-    public static int ADL2_Main_Control_Create(int enumConnectedAdapters,
+    public static ADLStatus ADL2_Main_Control_Create(int enumConnectedAdapters,
       out IntPtr context) 
     {
       try {
         var result = _ADL2_Main_Control_Create(Main_Memory_Alloc,
           enumConnectedAdapters, out context);
-        if (result != ADL.ADL_OK)
+        if (result != ADLStatus.OK)
           context = IntPtr.Zero;
         return result;
       } catch {
         context = IntPtr.Zero;
-        return ADL_ERR;
+        return ADLStatus.ERR;
       }
      }
 
-    public static int ADL_Adapter_AdapterInfo_Get(ADLAdapterInfo[] info) {
+    public static ADLStatus ADL_Adapter_AdapterInfo_Get(ADLAdapterInfo[] info) {
       int elementSize = Marshal.SizeOf(typeof(ADLAdapterInfo));
       int size = info.Length * elementSize;
       IntPtr ptr = Marshal.AllocHGlobal(size);
-      int result = _ADL_Adapter_AdapterInfo_Get(ptr, size);
+      var status = _ADL_Adapter_AdapterInfo_Get(ptr, size);
       for (int i = 0; i < info.Length; i++)
         info[i] = (ADLAdapterInfo)
           Marshal.PtrToStructure((IntPtr)((long)ptr + i * elementSize),
@@ -377,10 +545,10 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         }
       }
 
-      return result;
+      return status;
     }
 
-    public static int ADL_Adapter_ID_Get(int adapterIndex,
+    public static ADLStatus ADL_Adapter_ID_Get(int adapterIndex,
       out int adapterID) {
       try {
         return _ADL_Adapter_ID_Get(adapterIndex, out adapterID);
@@ -389,7 +557,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
           return _ADL_Display_AdapterID_Get(adapterIndex, out adapterID);
         } catch (EntryPointNotFoundException) {
           adapterID = 1;
-          return ADL_OK;
+          return ADLStatus.OK;
         }
       }
     }

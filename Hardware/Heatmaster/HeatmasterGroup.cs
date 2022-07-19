@@ -66,9 +66,8 @@ namespace OpenHardwareMonitor.Hardware.Heatmaster {
 
     public HeatmasterGroup(ISettings settings) {
       
-      // No implementation for Heatmaster on Unix systems
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128))
+      // No implementation for Heatmaster on Unix systems      
+      if (OperatingSystem.IsUnix)
         return;
 
       string[] portNames = GetRegistryPortNames();      

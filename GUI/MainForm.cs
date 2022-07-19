@@ -112,8 +112,14 @@ namespace OpenHardwareMonitor.GUI {
       nodeTextBoxMax.DrawText += nodeTextBoxText_DrawText;
       nodeTextBoxText.EditorShowing += nodeTextBoxText_EditorShowing;
 
+      this.sensor.Width = DpiHelper.LogicalToDeviceUnits(250);
+      this.value.Width = DpiHelper.LogicalToDeviceUnits(100);
+      this.min.Width = DpiHelper.LogicalToDeviceUnits(100);
+      this.max.Width = DpiHelper.LogicalToDeviceUnits(100);
+
       foreach (TreeColumn column in treeView.Columns) 
-        column.Width = Math.Max(20, Math.Min(400,
+        column.Width = Math.Max(DpiHelper.LogicalToDeviceUnits(20), Math.Min(
+          DpiHelper.LogicalToDeviceUnits(400),
           settings.GetValue("treeView.Columns." + column.Header + ".Width",
           column.Width)));
 
@@ -130,9 +136,9 @@ namespace OpenHardwareMonitor.GUI {
       systemTray.HideShowCommand += hideShowClick;
       systemTray.ExitCommand += exitClick;
 
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) { // Unix
-        treeView.RowHeight = Math.Max(treeView.RowHeight, 18); 
+      if (Hardware.OperatingSystem.IsUnix) { // Unix
+        treeView.RowHeight = Math.Max(treeView.RowHeight,
+          DpiHelper.LogicalToDeviceUnits(18)); 
         splitContainer.BorderStyle = BorderStyle.None;
         splitContainer.Border3DStyle = Border3DStyle.Adjust;
         splitContainer.SplitterWidth = 4;
@@ -143,7 +149,9 @@ namespace OpenHardwareMonitor.GUI {
         minTrayMenuItem.Visible = false;
         startMinMenuItem.Visible = false;
       } else { // Windows
-        treeView.RowHeight = Math.Max(treeView.Font.Height + 1, 18); 
+        treeView.RowHeight = Math.Max(treeView.Font.Height +
+          DpiHelper.LogicalToDeviceUnits(1),
+          DpiHelper.LogicalToDeviceUnits(18)); 
 
         gadget = new SensorGadget(computer, settings, unitManager);
         gadget.HideShowCommand += hideShowClick;
@@ -172,6 +180,8 @@ namespace OpenHardwareMonitor.GUI {
       computer.HardwareRemoved += new HardwareEventHandler(HardwareRemoved);        
 
       computer.Open();
+
+      Microsoft.Win32.SystemEvents.PowerModeChanged += PowerModeChanged;
 
       timer.Enabled = true;
 
@@ -333,6 +343,14 @@ namespace OpenHardwareMonitor.GUI {
         if (runWebServer.Value) 
           server.Quit();
       };
+    }
+
+    private void PowerModeChanged(object sender,
+      Microsoft.Win32.PowerModeChangedEventArgs e) {
+
+      if (e.Mode == Microsoft.Win32.PowerModes.Resume) {
+        computer.Reset();
+      }
     }
 
     private void InitializePlotForm() {
@@ -608,8 +626,10 @@ namespace OpenHardwareMonitor.GUI {
       Rectangle newBounds = new Rectangle {
         X = settings.GetValue("mainForm.Location.X", Location.X),
         Y = settings.GetValue("mainForm.Location.Y", Location.Y),
-        Width = settings.GetValue("mainForm.Width", 470),
-        Height = settings.GetValue("mainForm.Height", 640)
+        Width = settings.GetValue("mainForm.Width",
+          DpiHelper.LogicalToDeviceUnits(470)),
+        Height = settings.GetValue("mainForm.Height",
+          DpiHelper.LogicalToDeviceUnits(640))
       };
 
       Rectangle fullWorkingArea = new Rectangle(int.MaxValue, int.MaxValue,
@@ -881,8 +901,7 @@ namespace OpenHardwareMonitor.GUI {
       // disable the fallback MainIcon during reset, otherwise icon visibility
       // might be lost 
       systemTray.IsMainIconEnabled = false;
-      computer.Close();
-      computer.Open();
+      computer.Reset();
       // restore the MainIcon setting
       systemTray.IsMainIconEnabled = minimizeToTray.Value;
     }

@@ -42,8 +42,7 @@ namespace OpenHardwareMonitor.Hardware {
     }
     
     public SMBIOS() {
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
+      if (OperatingSystem.IsUnix) {
         this.raw = null;
         this.table = null;
         

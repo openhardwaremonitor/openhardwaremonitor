@@ -19,9 +19,15 @@ namespace Aga.Controls.Tree.NodeControls
 		{
 			Image image = GetIcon(node);
 			if (image != null)
-				return image.Size;
+			{
+				int scaledX = node.Tree.GetScaledSize(image.Size.Width, false);
+				int scaledY = node.Tree.GetScaledSize(image.Size.Height);
+				return new Size(scaledX, scaledY); ;
+			}
 			else
+			{
 				return Size.Empty;
+			}
 		}
 
 

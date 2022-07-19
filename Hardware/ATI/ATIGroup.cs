@@ -23,20 +23,37 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
     public ATIGroup(ISettings settings) {
       try {
-        int adlStatus = ADL.ADL_Main_Control_Create(1);
-        int adl2Status = ADL.ADL2_Main_Control_Create(1, out context);
+        var adlStatus = ADL.ADL_Main_Control_Create(1);
+        var adl2Status = ADL.ADL2_Main_Control_Create(1, out context);
 
         report.AppendLine("AMD Display Library");
         report.AppendLine();
         report.Append("ADL Status: ");
-        report.AppendLine(adlStatus == ADL.ADL_OK ? "OK" : 
-          adlStatus.ToString(CultureInfo.InvariantCulture));
+        report.AppendLine(adlStatus.ToString());
         report.Append("ADL2 Status: ");
-        report.AppendLine(adl2Status == ADL.ADL_OK ? "OK" :
-          adl2Status.ToString(CultureInfo.InvariantCulture));
+        report.AppendLine(adl2Status.ToString());
         report.AppendLine();
 
-        if (adlStatus == ADL.ADL_OK) {
+        report.AppendLine("Graphics Versions");
+        report.AppendLine();
+        try {
+          var status = ADL.ADL_Graphics_Versions_Get(out var versionInfo);
+          report.Append(" Status: ");
+          report.AppendLine(status.ToString());
+          report.Append(" DriverVersion: ");
+          report.AppendLine(versionInfo.DriverVersion);
+          report.Append(" CatalystVersion: ");
+          report.AppendLine(versionInfo.CatalystVersion);
+          report.Append(" CatalystWebLink: ");
+          report.AppendLine(versionInfo.CatalystWebLink);
+        } catch (DllNotFoundException) {
+          report.AppendLine(" Status: DLL not found");
+        } catch (Exception e) {
+          report.AppendLine(" Status: " + e.Message);
+        }
+        report.AppendLine();
+
+        if (adlStatus == ADLStatus.OK) {
           int numberOfAdapters = 0;
           ADL.ADL_Adapter_NumberOfAdapters_Get(ref numberOfAdapters);
           
@@ -46,7 +63,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
 
           if (numberOfAdapters > 0) {
             ADLAdapterInfo[] adapterInfo = new ADLAdapterInfo[numberOfAdapters];
-            if (ADL.ADL_Adapter_AdapterInfo_Get(adapterInfo) == ADL.ADL_OK)
+            if (ADL.ADL_Adapter_AdapterInfo_Get(adapterInfo) == ADLStatus.OK)
               for (int i = 0; i < numberOfAdapters; i++) {
                 int isActive;
                 ADL.ADL_Adapter_Active_Get(adapterInfo[i].AdapterIndex,
@@ -92,12 +109,17 @@ namespace OpenHardwareMonitor.Hardware.ATI {
                       found = true;
                       break;
                     }
-                  if (!found)
-                    hardware.Add(new ATIGPU(
-                      adapterInfo[i].AdapterName.Trim(),
+                  if (!found) {
+                    var nameBuilder = new StringBuilder(adapterInfo[i].AdapterName);
+                    nameBuilder.Replace("(TM)", " ");
+                    for (int j = 0; j < 10; j++) nameBuilder.Replace("  ", " ");
+                    var name = nameBuilder.ToString().Trim();
+
+                    hardware.Add(new ATIGPU(name,
                       adapterInfo[i].AdapterIndex,
                       adapterInfo[i].BusNumber,
                       adapterInfo[i].DeviceNumber, context, settings));
+                  }
                 }
 
                 report.AppendLine();

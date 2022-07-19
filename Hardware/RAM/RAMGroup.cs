@@ -18,8 +18,7 @@ namespace OpenHardwareMonitor.Hardware.RAM {
     public RAMGroup(SMBIOS smbios, ISettings settings) {
 
       // No implementation for RAM on Unix systems
-      int p = (int)Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
+      if (OperatingSystem.IsUnix) {
         hardware = new Hardware[0];
         return;
       }

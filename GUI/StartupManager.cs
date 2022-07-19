@@ -39,8 +39,7 @@ namespace OpenHardwareMonitor.GUI {
     }
 
     public StartupManager() {
-      int p = (int)System.Environment.OSVersion.Platform;
-      if ((p == 4) || (p == 128)) {
+      if (Hardware.OperatingSystem.IsUnix) {
         scheduler = null;        
         isAvailable = false;
         return;

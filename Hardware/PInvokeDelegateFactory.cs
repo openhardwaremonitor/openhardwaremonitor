@@ -29,7 +29,8 @@ namespace OpenHardwareMonitor.Hardware {
       new Dictionary<Pair<DllImportAttribute, Type>, Type>();
 
     public static void CreateDelegate<T>(DllImportAttribute dllImportAttribute,
-      out T newDelegate) where T : class 
+      out T newDelegate, DllImportSearchPath dllImportSearchPath =
+      DllImportSearchPath.System32) where T : class 
     {
       Type wrapperType;
       Pair<DllImportAttribute, Type> key =
@@ -37,7 +38,7 @@ namespace OpenHardwareMonitor.Hardware {
       wrapperTypes.TryGetValue(key, out wrapperType);
 
       if (wrapperType == null) {
-        wrapperType = CreateWrapperType(typeof(T), dllImportAttribute);
+        wrapperType = CreateWrapperType(typeof(T), dllImportAttribute, dllImportSearchPath);
         wrapperTypes.Add(key, wrapperType);
       }
 
@@ -45,9 +46,10 @@ namespace OpenHardwareMonitor.Hardware {
         dllImportAttribute.EntryPoint) as T;
     }
 
-
     private static Type CreateWrapperType(Type delegateType,
-      DllImportAttribute dllImportAttribute) {
+      DllImportAttribute dllImportAttribute,
+      DllImportSearchPath dllImportSearchPath)
+    {
 
       TypeBuilder typeBuilder = moduleBuilder.DefineType(
         "PInvokeDelegateFactoryInternalWrapperType" + wrapperTypes.Count);
@@ -68,6 +70,11 @@ namespace OpenHardwareMonitor.Hardware {
         methodInfo.ReturnType, parameterTypes,
         dllImportAttribute.CallingConvention,
         dllImportAttribute.CharSet);
+
+      methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(
+        typeof(DefaultDllImportSearchPathsAttribute).GetConstructor(
+          new Type[] { typeof(DllImportSearchPath) }),
+        new object[] { dllImportSearchPath }));
 
       foreach (ParameterInfo parameterInfo in parameterInfos)
         methodBuilder.DefineParameter(parameterInfo.Position + 1,

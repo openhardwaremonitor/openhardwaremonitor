@@ -66,6 +66,10 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private readonly ushort[] fanRpmBaseRegister;
     private readonly int minFanRPM;
 
+    private readonly ushort[] fanCountRegister;
+    private readonly int maxFanCount;
+    private readonly int minFanCount;
+
     private bool[] restoreDefaultFanControlRequired = new bool[7];
     private byte[] initialFanControlMode = new byte[7];
     private byte[] initialFanPwmCommand = new byte[7];
@@ -303,11 +307,14 @@ namespace OpenHardwareMonitor.Hardware.LPC {
               break;
           }
 
-          fanRpmBaseRegister = new ushort[]
-            { 0x4C0, 0x4C2, 0x4C4, 0x4C6, 0x4C8, 0x4CA, 0x4CE };
+          fanCountRegister = new ushort[]
+            { 0x4B0, 0x4B2, 0x4B4, 0x4B6, 0x4B8, 0x4BA, 0x4CC };
 
-          // min RPM value with 13-bit fan counter
-          minFanRPM = (int)(1.35e6 / 0x1FFF);
+          // max value for 13-bit fan counter
+          maxFanCount = 0x1FFF;
+
+          // min value that could be transfered to 16-bit RPM registers
+          minFanCount = 0x15;
 
           voltages = new float?[15];
           voltageRegisters = new ushort[] 
@@ -514,11 +521,26 @@ namespace OpenHardwareMonitor.Hardware.LPC {
       }
 
       for (int i = 0; i < fans.Length; i++) {
-        byte high = ReadByte(fanRpmBaseRegister[i]);
-        byte low = ReadByte((ushort)(fanRpmBaseRegister[i] + 1));
-        int value = (high << 8) | low;
+        if (fanCountRegister != null) {
+          byte high = ReadByte(fanCountRegister[i]);
+          byte low = ReadByte((ushort)(fanCountRegister[i] + 1));
+          int count = (high << 5) | (low & 0x1F); 
+          if (count < maxFanCount) {            
+            if (count >= minFanCount) {
+              fans[i] = 1.35e6f / count;
+            } else {
+              fans[i] = null;
+            }
+          } else {
+            fans[i] = 0;
+          }
+        } else {
+          byte high = ReadByte(fanRpmBaseRegister[i]);
+          byte low = ReadByte((ushort)(fanRpmBaseRegister[i] + 1));
+          int value = (high << 8) | low;
 
-        fans[i] = value > minFanRPM ? value : 0;
+          fans[i] = value > minFanRPM ? value : 0;
+        }
       }
 
       for (int i = 0; i < controls.Length; i++) {

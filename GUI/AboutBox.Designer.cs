@@ -62,7 +62,7 @@ namespace OpenHardwareMonitor.GUI {
       this.pictureBox1.Location = new System.Drawing.Point(10, 11);
       this.pictureBox1.Name = "pictureBox1";
       this.pictureBox1.Size = new System.Drawing.Size(48, 48);
-      this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+      this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
       this.pictureBox1.TabIndex = 1;
       this.pictureBox1.TabStop = false;
       // 

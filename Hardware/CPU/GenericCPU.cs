@@ -106,13 +106,13 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       }
 
       if (hasTimeStampCounter) {
-        ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
+        var previousAffinity = ThreadAffinity.Set(cpuid[0][0].Affinity);
 
         EstimateTimeStampCounterFrequency(
           out estimatedTimeStampCounterFrequency, 
           out estimatedTimeStampCounterFrequencyError);  
         
-        ThreadAffinity.Set(mask);
+        ThreadAffinity.Set(previousAffinity);
       } else {
         estimatedTimeStampCounterFrequency = 0;
       }
@@ -185,9 +185,11 @@ namespace OpenHardwareMonitor.Hardware.CPU {
     }
 
 
-    private static void AppendMSRData(StringBuilder r, uint msr, int thread) {
+    private static void AppendMSRData(StringBuilder r, uint msr, 
+      GroupAffinity affinity) 
+    {
       uint eax, edx;
-      if (Ring0.RdmsrTx(msr, out eax, out edx, 1UL << thread)) {
+      if (Ring0.RdmsrTx(msr, out eax, out edx, affinity)) {
         r.Append(" ");
         r.Append((msr).ToString("X8", CultureInfo.InvariantCulture));
         r.Append("  ");
@@ -240,7 +242,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           r.AppendLine();
           r.AppendLine(" MSR       EDX       EAX");
           foreach (uint msr in msrArray)
-            AppendMSRData(r, msr, cpuid[i][0].Thread);
+            AppendMSRData(r, msr, cpuid[i][0].Affinity);
           r.AppendLine();
         }
       }
@@ -268,15 +270,15 @@ namespace OpenHardwareMonitor.Hardware.CPU {
       if (hasTimeStampCounter && isInvariantTimeStampCounter) {
 
         // make sure always the same thread is used
-        ulong mask = ThreadAffinity.Set(1UL << cpuid[0][0].Thread);
+        var previousAffinity = ThreadAffinity.Set(cpuid[0][0].Affinity);
 
         // read time before and after getting the TSC to estimate the error
         long firstTime = Stopwatch.GetTimestamp();
         ulong timeStampCount = Opcode.Rdtsc();
         long time = Stopwatch.GetTimestamp();
 
-        // restore the thread affinity mask
-        ThreadAffinity.Set(mask);
+        // restore the previous thread affinity mask
+        ThreadAffinity.Set(previousAffinity);
 
         double delta = ((double)(time - lastTime)) / Stopwatch.Frequency;
         double error = ((double)(time - firstTime)) / Stopwatch.Frequency;

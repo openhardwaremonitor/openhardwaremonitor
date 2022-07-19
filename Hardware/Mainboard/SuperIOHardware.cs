@@ -814,6 +814,11 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
               f.Add(new Fan("System 2 Fan", 2));
               f.Add(new Fan("PCH Fan", 3));
               f.Add(new Fan("CPU OPT Fan", 4));
+              c.Add(new Ctrl("CPU Fan", 0));
+              c.Add(new Ctrl("System 1 Fan", 1));
+              c.Add(new Ctrl("System 2 Fan", 2));
+              c.Add(new Ctrl("PCH Fan", 3));
+              c.Add(new Ctrl("CPU OPT Fan", 4));
               break;
             case Model.Z390_M_GAMING: // IT8688E
             case Model.Z390_AORUS_ULTRA:
