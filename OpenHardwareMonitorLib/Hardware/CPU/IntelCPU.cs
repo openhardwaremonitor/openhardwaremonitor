@@ -227,6 +227,7 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 tjMax = GetTjMaxFromMSR();
                 break;
               case 0x97: //Intel Core 12th
+              case 0x9A: //Intel Core 12th (Mobile)      
                 microarchitecture = Microarchitecture.AlderLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
