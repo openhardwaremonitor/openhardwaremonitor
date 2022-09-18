@@ -235,7 +235,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
                 microarchitecture = Microarchitecture.RocketLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
-              case 0x97:
+              case 0x97: //Intel Alder Lake Desktop
+              case 0x9A: //Intel Alder Lake Mobile
                 microarchitecture = Microarchitecture.AlderLake;
                 tjMax = GetTjMaxFromMSR();
                 break;
