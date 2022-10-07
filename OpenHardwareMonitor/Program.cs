@@ -31,14 +31,17 @@ namespace OpenHardwareMonitor
         public static void Main(string[] args)
         {
             if (!AllRequiredFilesAvailable())
-                Environment.Exit(0);
+                return;
 
             if (CheckIfProcessExists())
-                Environment.Exit(0);
+                return;
 
             InstallAndConfigureNlog();
 
-            ParseCommandLine(args);
+            if (!ParseCommandLine(args))
+            {
+                return;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -85,7 +88,7 @@ namespace OpenHardwareMonitor
             return processExists;
         }
 
-        private static void ParseCommandLine(string[] args)
+        private static bool ParseCommandLine(string[] args)
         {
             StringBuilder helpText = new StringBuilder();
             TextWriter helpWriter = new StringWriter(helpText);
@@ -109,8 +112,11 @@ namespace OpenHardwareMonitor
             {
                 helpWriter.WriteLine("Unknown options are silently ignored");
                 MessageBox.Show(helpWriter.ToString(), "Command line options", MessageBoxButtons.OK);
+
+                return false;
             }
 
+            return true;
         }
 
         private static bool IsFileAvailable(string fileName)
