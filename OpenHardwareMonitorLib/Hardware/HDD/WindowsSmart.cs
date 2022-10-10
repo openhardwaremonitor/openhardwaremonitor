@@ -11,9 +11,13 @@
 */
 
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Hardware.HDD {
 
@@ -218,11 +222,15 @@ namespace OpenHardwareMonitor.Hardware.HDD {
 
     private readonly SafeHandle handle;
     private int driveNumber;
+    private ILogger _logger;
+    private int _performanceStartupRetries;
 
     public WindowsSmart(int driveNumber) {
       this.driveNumber = driveNumber;
       handle = NativeMethods.CreateFile(@"\\.\PhysicalDrive" + driveNumber, FileAccess.ReadWrite,
        FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, FileAttributes.Normal, IntPtr.Zero);
+      _logger = this.GetCurrentClassLogger();
+      _performanceStartupRetries = 0;
     }
 
     public bool IsValid {
@@ -276,17 +284,50 @@ namespace OpenHardwareMonitor.Hardware.HDD {
       return (isValid) ? result.Attributes : new DriveAttributeValue[0];
     }
 
-    public DrivePerformanceValues ReadThroughputValues() {
-      if (handle.IsClosed)
-        throw new ObjectDisposedException("WindowsATASmart");
-      DISK_PERFORMANCE dpf = new DISK_PERFORMANCE();
-      int size = Marshal.SizeOf<DISK_PERFORMANCE>();
-      int sizeUsed = 0;
-      if (NativeMethods.DeviceIoControl(handle, DriveCommand.DiskPerformance, IntPtr.Zero, 0, ref dpf, size, out sizeUsed, IntPtr.Zero) && sizeUsed >= size) {
-        return new DrivePerformanceValues(dpf);
-      }
+    public DrivePerformanceValues ReadThroughputValues()
+    {
+        if (handle.IsClosed)
+            throw new ObjectDisposedException("WindowsATASmart");
 
-      return null;
+        DISK_PERFORMANCE dpf = new DISK_PERFORMANCE();
+        int size = Marshal.SizeOf<DISK_PERFORMANCE>();
+        int sizeUsed = 0;
+        if (NativeMethods.DeviceIoControl(handle, DriveCommand.DiskPerformance, IntPtr.Zero, 0, ref dpf, size,
+                out sizeUsed, IntPtr.Zero) && sizeUsed >= size)
+        {
+            return new DrivePerformanceValues(dpf);
+        }
+
+        if (_performanceStartupRetries++ < 5)
+        {
+            int errorCode = Marshal.GetLastWin32Error();
+            _logger.LogError(
+                $"Unable to obtain Disk Performance values for drive {driveNumber}: GetLastError returns {errorCode}");
+
+            // If the above call failed, try whether we just need to enable the performance counters (disabled by default on recent versions of Windows Server)
+            try
+            {
+                var proc = Process.Start("diskperf.exe", "-Y");
+                if (proc != null)
+                {
+                    proc.WaitForExit(5000);
+                }
+            }
+            catch (Exception ex) when (ex is FileNotFoundException || ex is Win32Exception ||
+                                       ex is InvalidOperationException)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+
+            // Try again.
+            if (NativeMethods.DeviceIoControl(handle, DriveCommand.DiskPerformance, IntPtr.Zero, 0, ref dpf, size,
+                    out sizeUsed, IntPtr.Zero) && sizeUsed >= size)
+            {
+                return new DrivePerformanceValues(dpf);
+            }
+        }
+
+        return null;
     }
 
     public DriveThresholdValue[] ReadSmartThresholds() 
