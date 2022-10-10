@@ -24,6 +24,7 @@ using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using OpenHardwareMonitor.Hardware;
 using OpenHardwareMonitor.Utilities;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.GUI
 {
@@ -75,7 +76,7 @@ namespace OpenHardwareMonitor.GUI
 
         private UserOption logSensors;
         private UserRadioGroup loggingInterval;
-        private Logger logger;
+        private Logger m_valueLogger;
         private readonly SecondInstanceService secondInstanceService = new SecondInstanceService();
 
         private bool selectionDragging = false;
@@ -174,7 +175,7 @@ namespace OpenHardwareMonitor.GUI
 
             }
 
-            logger = new Logger(computer);
+            m_valueLogger = new Logger(computer);
 
             plotColorPalette = new Color[13];
             plotColorPalette[0] = Color.Blue;
@@ -284,8 +285,8 @@ namespace OpenHardwareMonitor.GUI
                     }
                     else if (autoStart.Value)
                     {
-                  // Only either of them can be enabled
-                  autoStart.Value = false;
+                        // Only either of them can be enabled
+                        autoStart.Value = false;
                     }
                 }
                 catch (InvalidOperationException)
@@ -446,19 +447,19 @@ namespace OpenHardwareMonitor.GUI
             {
                 switch (loggingInterval.Value)
                 {
-                    case 0: logger.LoggingInterval = new TimeSpan(0, 0, 1); break;
-                    case 1: logger.LoggingInterval = new TimeSpan(0, 0, 2); break;
-                    case 2: logger.LoggingInterval = new TimeSpan(0, 0, 5); break;
-                    case 3: logger.LoggingInterval = new TimeSpan(0, 0, 10); break;
-                    case 4: logger.LoggingInterval = new TimeSpan(0, 0, 30); break;
-                    case 5: logger.LoggingInterval = new TimeSpan(0, 1, 0); break;
-                    case 6: logger.LoggingInterval = new TimeSpan(0, 2, 0); break;
-                    case 7: logger.LoggingInterval = new TimeSpan(0, 5, 0); break;
-                    case 8: logger.LoggingInterval = new TimeSpan(0, 10, 0); break;
-                    case 9: logger.LoggingInterval = new TimeSpan(0, 30, 0); break;
-                    case 10: logger.LoggingInterval = new TimeSpan(1, 0, 0); break;
-                    case 11: logger.LoggingInterval = new TimeSpan(2, 0, 0); break;
-                    case 12: logger.LoggingInterval = new TimeSpan(6, 0, 0); break;
+                    case 0: m_valueLogger.LoggingInterval = new TimeSpan(0, 0, 1); break;
+                    case 1: m_valueLogger.LoggingInterval = new TimeSpan(0, 0, 2); break;
+                    case 2: m_valueLogger.LoggingInterval = new TimeSpan(0, 0, 5); break;
+                    case 3: m_valueLogger.LoggingInterval = new TimeSpan(0, 0, 10); break;
+                    case 4: m_valueLogger.LoggingInterval = new TimeSpan(0, 0, 30); break;
+                    case 5: m_valueLogger.LoggingInterval = new TimeSpan(0, 1, 0); break;
+                    case 6: m_valueLogger.LoggingInterval = new TimeSpan(0, 2, 0); break;
+                    case 7: m_valueLogger.LoggingInterval = new TimeSpan(0, 5, 0); break;
+                    case 8: m_valueLogger.LoggingInterval = new TimeSpan(0, 10, 0); break;
+                    case 9: m_valueLogger.LoggingInterval = new TimeSpan(0, 30, 0); break;
+                    case 10: m_valueLogger.LoggingInterval = new TimeSpan(1, 0, 0); break;
+                    case 11: m_valueLogger.LoggingInterval = new TimeSpan(2, 0, 0); break;
+                    case 12: m_valueLogger.LoggingInterval = new TimeSpan(6, 0, 0); break;
                 }
             };
 
@@ -504,6 +505,7 @@ namespace OpenHardwareMonitor.GUI
                 {
                     case SecondInstanceService.SecondInstanceRequest.MaximizeWindow:
                         {
+                            Logging.LogInfo($"Received MaximizeWindow request. Visible = {Visible}");
                             if (Visible == false)
                             {
                                 SysTrayHideShow();
@@ -806,7 +808,7 @@ namespace OpenHardwareMonitor.GUI
 
 
             if (logSensors != null && logSensors.Value && delayCount >= 4)
-                logger.Log();
+                m_valueLogger.Log();
 
             if (delayCount < 4)
                 delayCount++;
