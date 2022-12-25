@@ -48,7 +48,6 @@ namespace OpenHardwareMonitor.GUI {
 
     private PersistentSettings settings;
     private UserOption hardwareNames;
-    private UserOption alwaysOnTop;
     private UserOption lockPositionAndSize;
 
     private Font largeFont;
