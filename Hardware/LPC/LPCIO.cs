@@ -390,6 +390,15 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     private const byte IT87XX_GPIO_LDN = 0x07;
     private const byte IT87_CHIP_VERSION_REGISTER = 0x22;
 
+    private bool DetectChromeEC() {      
+      LPCPort port = new LPCPort(0x802, 0x804);
+      if (port.ReadWord(ChromiumEC.EC_MEMMAP_ID) == 0x4345 /* "EC"*/) {
+        superIOs.Add(new ChromiumEC(port));
+        return true;
+      }
+      return false;
+    }
+
     private bool DetectIT87(LPCPort port) {
 
       // IT87XX can enter only on port 0x2E and 0x4E
@@ -517,6 +526,8 @@ namespace OpenHardwareMonitor.Hardware.LPC {
 
         if (DetectSMSC(port)) continue;
       }
+
+      DetectChromeEC();
     }
 
     public LPCIO() {
