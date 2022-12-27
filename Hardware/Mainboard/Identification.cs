@@ -74,6 +74,8 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case "Foxconn":
         case "FOXCONN":
           return Manufacturer.Foxconn;
+        case "Framework":
+          return Manufacturer.Framework;
         case "FUJITSU":
         case "FUJITSU SIEMENS":
         case "FUJITSU-SV":

@@ -8,6 +8,8 @@
 	
 */
 
+using System;
+
 namespace OpenHardwareMonitor.Hardware.LPC {
 
   internal class LPCPort {
@@ -47,6 +49,29 @@ namespace OpenHardwareMonitor.Hardware.LPC {
     public ushort ReadWord(byte register) {
       return (ushort)((ReadByte(register) << 8) |
         ReadByte((byte)(register + 1)));
+    }
+
+    public ushort ReadWord(ushort register) {
+      Ring0.WriteIoPort(registerPort, register);
+      return Ring0.ReadIoPortWord(valuePort);
+    }
+
+    private const byte CHROMIUM_EC_LONG_ACCESS_AUTOINCREMENT = 0x03;
+    public byte[] ReadChromiumEC(ushort register, int count) {
+      if (register % 4 != 0 || count % 4 != 0) {
+        throw new ArgumentException("Unaligned Read");
+      }
+      byte[] buf = new byte[count];
+      Ring0.WriteIoPort(registerPort, (ushort)(register | CHROMIUM_EC_LONG_ACCESS_AUTOINCREMENT));
+      for (int i = 0; i < count; i+=4) {
+        ushort val = Ring0.ReadIoPortWord(valuePort);
+        buf[i] = (byte)(val >> 8);
+        buf[i + 1] = (byte)(val & 0xFF);
+        val = Ring0.ReadIoPortWord((uint)(valuePort + 2));
+        buf[i + 2] = (byte)(val >> 8);
+        buf[i + 3] = (byte)(val & 0xFF);
+      }
+      return buf;
     }
 
     public void Select(byte logicalDeviceNumber) {

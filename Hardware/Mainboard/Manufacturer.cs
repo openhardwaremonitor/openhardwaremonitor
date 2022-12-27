@@ -28,6 +28,7 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
     EVGA,
     FIC,
     Foxconn,
+    Framework,
     Fujitsu,
     Gateway,
     Gigabyte,

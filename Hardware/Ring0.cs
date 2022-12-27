@@ -37,7 +37,11 @@ namespace OpenHardwareMonitor.Hardware {
         IOControlCode.Access.Any),
       IOCTL_OLS_READ_IO_PORT_BYTE = new IOControlCode(OLS_TYPE, 0x833,
         IOControlCode.Access.Read),
+      IOCTL_OLS_READ_IO_PORT_WORD = new IOControlCode(OLS_TYPE, 0x834,
+        IOControlCode.Access.Read),
       IOCTL_OLS_WRITE_IO_PORT_BYTE = new IOControlCode(OLS_TYPE, 0x836, 
+        IOControlCode.Access.Write),
+      IOCTL_OLS_WRITE_IO_PORT_WORD = new IOControlCode(OLS_TYPE, 0x837,
         IOControlCode.Access.Write),
       IOCTL_OLS_READ_PCI_CONFIG = new IOControlCode(OLS_TYPE, 0x851, 
         IOControlCode.Access.Read),
@@ -350,8 +354,18 @@ namespace OpenHardwareMonitor.Hardware {
       return (byte)(value & 0xFF);
     }
 
+    public static ushort ReadIoPortWord(uint port) {
+      if (driver == null)
+        return 0;
+
+      uint value = 0;
+      driver.DeviceIOControl(IOCTL_OLS_READ_IO_PORT_WORD, port, ref value);
+
+      return (ushort)(value & 0xFFFF);
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    private struct WriteIoPortInput {
+    private struct WriteIoPortByteInput {
       public uint PortNumber;
       public byte Value;
     }
@@ -360,11 +374,28 @@ namespace OpenHardwareMonitor.Hardware {
       if (driver == null)
         return;
 
-      WriteIoPortInput input = new WriteIoPortInput();
+      WriteIoPortByteInput input = new WriteIoPortByteInput();
       input.PortNumber = port;
       input.Value = value;
 
       driver.DeviceIOControl(IOCTL_OLS_WRITE_IO_PORT_BYTE, input);
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    private struct WriteIoPortWordInput {
+      public uint PortNumber;
+      public ushort Value;
+    }
+
+    public static void WriteIoPort(uint port, ushort value) {
+      if (driver == null)
+        return;
+
+      WriteIoPortWordInput input = new WriteIoPortWordInput();
+      input.PortNumber = port;
+      input.Value = value;
+
+      driver.DeviceIOControl(IOCTL_OLS_WRITE_IO_PORT_WORD, input);
     }
 
     public const uint InvalidPciAddress = 0xFFFFFFFF;

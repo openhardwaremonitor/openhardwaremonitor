@@ -284,6 +284,19 @@ namespace OpenHardwareMonitor.Hardware.Mainboard {
         case Chip.NCT6798D:
           GetNuvotonConfigurationD(superIO, manufacturer, model, v, t, f, c);
           break;
+        case Chip.ChromiumEC:
+          if (manufacturer == Manufacturer.Framework) {
+            v.Add(new Voltage("Battery", 0));
+            f.Add(new Fan("CPU Fan", 0));
+            t.Add(new Temperature("F75303_Local", 0));
+            t.Add(new Temperature("F75303_CPU", 1));
+            t.Add(new Temperature("F75303_DDR", 2));
+            t.Add(new Temperature("Battery", 3));
+            t.Add(new Temperature("PECI", 4));
+            t.Add(new Temperature("F75397_VCCGT", 5));
+            break;
+          }
+          goto default;
         default:
           GetDefaultConfiguration(superIO, v, t, f, c);
           break;
