@@ -1,0 +1,1 @@
+To load the tree from XML load the file Example.xml shiped with this project.

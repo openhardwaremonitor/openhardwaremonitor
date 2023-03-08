@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C197EFF6-AD4E-4E44-8601-D101E0736144}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SampleApp</RootNamespace>
+    <AssemblyName>SampleApp</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvancedExample.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AdvancedExample.Designer.cs">
+      <DependentUpon>AdvancedExample.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BackgroundExpand.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BackgroundExpand.Designer.cs">
+      <DependentUpon>BackgroundExpand.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ColumnHandling.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ColumnHandling.Designer.cs">
+      <DependentUpon>ColumnHandling.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataTableExample\DataRowNode.cs" />
+    <Compile Include="DataTableExample\DataTableTreeExample.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DataTableExample\DataTableTreeExample.designer.cs">
+      <DependentUpon>DataTableTreeExample.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataTableExample\DataTableTreeModel.cs" />
+    <Compile Include="FolderItemSorter.cs" />
+    <Compile Include="FolderItems.cs" />
+    <Compile Include="FolderBrowser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FolderBrowser.Designer.cs">
+      <DependentUpon>FolderBrowser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FolderBrowserModel.cs" />
+    <Compile Include="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm.Designer.cs">
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MyNode.cs" />
+    <Compile Include="PerformanceTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="PerformanceTest.Designer.cs">
+      <DependentUpon>PerformanceTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AdvancedExample.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>AdvancedExample.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BackgroundExpand.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>BackgroundExpand.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FolderBrowser.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FolderBrowser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ColumnHandling.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ColumnHandling.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PerformanceTest.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>PerformanceTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SimpleExample.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>SimpleExample.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="SimpleExample.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SimpleExample.Designer.cs">
+      <DependentUpon>SimpleExample.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SlowModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aga.Controls\Aga.Controls.csproj">
+      <Project>{E73BB233-D88B-44A7-A98F-D71EE158381D}</Project>
+      <Name>Aga.Controls</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataTableExample\DataTableTreeExample.resx">
+      <DependentUpon>DataTableTreeExample.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\loading_icon" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

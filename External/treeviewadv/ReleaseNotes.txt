@@ -1,0 +1,95 @@
+1.7.0
++ EditableNodeControl imroved
++ NodeCombobox improved
++ Autosize columns
++ ListModel
++ Bugfixes and minor changes
+
+1.6.2:
++ HorizontalScrollPosition added
++ Fixed: Rendering issues with ExpandingIcon column with UseColumns
+
+1.6.1: 
++ Fixed: DragAutoScroll() is not working when FPS low. 
++ Tutorial project in VB and a short documentation added (Thanks to Richard Pope).
+
+
+1.6:
++ Asynchronous nodes expanding feature added
++ Tooltips added to the column headers
++ Bug in CheckBoxNodeControl using in VirtualMode fixed
++ Bug in HScrolllBar fixed
+
+
+1.5:
++ Column resizing behaviour improved
++ GridLineStyle property introduced
++ Additional navigation keys support added (+,-,*)
++ ExpandAll, CollapseAll methods added to TreeNodeAdv class
++ Incremental search works like in standard TreeView now. Warning: no Search property anymore!
++ ClearSelection method optimized
++ Performance during Expand/Collapse/FullUpdate improved
++ UseCompatibleTextRendering property added to BaseTextControl class. 
+
+
+1.4.4:
++ Bug during drag&drop of nodes in SimpleExample fixed.
+
+
+1.4.3:
++ Perfromance bug fixed: The complexity of CreateRowMap method is now O(n), instead of O(n^2)
+
+
+1.4.2:
++ Two new events added: IsVisibleValueNeeded and IsEditEnabledValueNeeded. Now it's possible to control 
+  the visibility and the editability of each particular node.
++ Loosing changes in EditableControl when leave TreeView bug fixed.
++ Node.Tag property added.
+
+
+1.4.1:
++ Some times TreeViewAdv crashes when used in different threads on multi-processors machine. Fixed.
++ Bug with selecting row when FullRowSelect is true fixed. (thanks Sean)
+
+
+1.4:
++ Columns are now reorderable. New event ColumnReordered and new property AllowColumnReorder were introduced.
+	Warning: NodeControl.Column property is no longer exist! Use NodeControl.ParentColumn.
++ Font property added to DrawEventArgs class
++ Minor improvements in column headers drawing
+
+
+1.3:
+Many thanks to Virgil Dupras for his ideas and comments. 
+Some of them were implemented in this release:
++ Column headers are now clickable and will generate OnColumnClicked event,
+  SortOrder property is added to TreeColumn class, if set a small mark will 
+  be drawn in the column header. SortedTreeModel is introduced for a default
+  sorting implementation, it can be used as a decorator for ITreeModel
+  (see FolderBrowser f.e.)
++ KeepNodesExpanded property becomes obsolete and is always true now. 
+  A new algorithm of keeping nodes expanded during refresh is used.
++ DrawText event is added to BaseTextControl(you can dynamically change a 
+  text color f.e.)
++ Fields binding posibility is added to BindableControl
+
+
+1.2.2:
++ Fixed: CheckBox in the scrolled position does not work
++ Fixed: Cursor property does not work
+
+
+1.2:
++ AutoRowHeight: Automatically resize row height base on it content
++ Incremental Search: Navigate to a node by typing first chars from it's label
++ NodeNumericUpDown control
+
+
+1.1:
++ Autoscroll during drag&drop
++ Display dragging nodes
++ Performance counter
+
+
+1.0:
+First release.
