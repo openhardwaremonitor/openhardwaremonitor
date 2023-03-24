@@ -444,7 +444,6 @@ namespace Aga.Controls.Tree
 
 		}
 
-		[SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
 		public void GetObjectData(SerializationInfo info, StreamingContext context)
 		{
 			info.AddValue("IsExpanded", IsExpanded);

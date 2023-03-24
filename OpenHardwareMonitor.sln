@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29806.167
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.32804.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitorLib", "OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj", "{B0397530-545A-471D-BB74-027AE456DF1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHardwareMonitorLib", "OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj", "{B0397530-545A-471D-BB74-027AE456DF1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitor", "OpenHardwareMonitor\OpenHardwareMonitor.csproj", "{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHardwareMonitor", "OpenHardwareMonitor\OpenHardwareMonitor.csproj", "{F5E0C1F7-9E9B-46F2-AC88-8C9C1C923880}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B0397530-545A-471D-BB74-027AE456DF1A} = {B0397530-545A-471D-BB74-027AE456DF1A}
 	EndProjectSection
@@ -15,7 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenHardwareMonitorReport", "OpenHardwareMonitorReport\OpenHardwareMonitorReport.csproj", "{C0FE1C8B-3D85-4FA9-9343-547AD5DFAFFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenHardwareMonitorReport", "OpenHardwareMonitorReport\OpenHardwareMonitorReport.csproj", "{C0FE1C8B-3D85-4FA9-9343-547AD5DFAFFF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aga.Controls", "External\treeviewadv\Aga.Controls\Aga.Controls.csproj", "{E18261A4-D3F0-4778-B768-97DEA0F2F917}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aga.Controls.UnitTests", "External\treeviewadv\UnitTests\Aga.Controls.UnitTests.csproj", "{F74BBDC5-A90C-438B-A6C2-347B49398FDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +53,22 @@ Global
 		{C0FE1C8B-3D85-4FA9-9343-547AD5DFAFFF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C0FE1C8B-3D85-4FA9-9343-547AD5DFAFFF}.Release|x86.ActiveCfg = Release|x86
 		{C0FE1C8B-3D85-4FA9-9343-547AD5DFAFFF}.Release|x86.Build.0 = Release|x86
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Debug|x86.Build.0 = Debug|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Release|x86.ActiveCfg = Release|Any CPU
+		{E18261A4-D3F0-4778-B768-97DEA0F2F917}.Release|x86.Build.0 = Release|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Debug|x86.Build.0 = Debug|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Release|x86.ActiveCfg = Release|Any CPU
+		{F74BBDC5-A90C-438B-A6C2-347B49398FDB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

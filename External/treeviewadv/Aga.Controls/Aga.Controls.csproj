@@ -11,5 +11,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <CodeAnalysisRuleSet>Migrated rules for Aga.Controls.ruleset</CodeAnalysisRuleSet>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <UseWindowsForms>true</UseWindowsForms>
+      <AllowUnsafeCode>true</AllowUnsafeCode>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
 </Project>

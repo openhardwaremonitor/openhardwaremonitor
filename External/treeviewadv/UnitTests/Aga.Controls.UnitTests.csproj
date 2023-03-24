@@ -11,5 +11,9 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aga.Controls\Aga.Controls.csproj" />
+  </ItemGroup>
 </Project>
