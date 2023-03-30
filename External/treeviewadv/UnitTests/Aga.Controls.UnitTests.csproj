@@ -14,6 +14,10 @@
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Aga.Controls\Aga.Controls.csproj" />
   </ItemGroup>
 </Project>

@@ -1,20 +1,20 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Drawing;
 using System.Windows.Forms;
+using NUnit.Framework;
 
 namespace Aga.Controls.UnitTests
 {
-	[TestClass]
+	[TestFixture]
 	public class PerformanceTest
 	{
 		public PerformanceTest()
 		{
 		}
 
-		[TestMethod]
+		[Test]
 		public void TestMethod()
 		{
 			Bitmap b = new Bitmap(500, 50);

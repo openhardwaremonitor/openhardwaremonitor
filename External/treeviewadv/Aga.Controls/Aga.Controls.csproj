@@ -14,6 +14,7 @@
       <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
       <UseWindowsForms>true</UseWindowsForms>
       <AllowUnsafeCode>true</AllowUnsafeCode>
+      <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />

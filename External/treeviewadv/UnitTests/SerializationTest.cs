@@ -1,19 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Aga.Controls.Tree;
 using System.Reflection;
 using System.Globalization;
+using NUnit.Framework;
 
 namespace Aga.Controls.UnitTests
 {
-	[TestClass]
+	[TestFixture]
 	public class SerializationTest
 	{
-		[TestMethod]
+		[Test]
 		public void TestTreeNodeAdv()
 		{
 			PropertyInfo prop =	typeof(TreeNodeAdv).GetProperty("Nodes", BindingFlags.NonPublic | BindingFlags.Instance);
