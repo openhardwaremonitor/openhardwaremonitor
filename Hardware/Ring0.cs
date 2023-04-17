@@ -139,7 +139,7 @@ namespace OpenHardwareMonitor.Hardware {
       // clear the current report
       report.Length = 0;
      
-      driver = new KernelDriver("WinRing0_1_2_0");
+      driver = new KernelDriver("WinRing0_2_0_0");
       driver.Open();
 
       if (!driver.IsOpen) {
