@@ -196,19 +196,15 @@ namespace OpenHardwareMonitor.Hardware {
       string isaMutexName = "Global\\Access_ISABUS.HTP.Method";
       try {
         isaBusMutex = new Mutex(false, isaMutexName);
-      } catch (UnauthorizedAccessException) {
-        try {
-          MutexWorkaround.TryOpenExisting(isaMutexName, MutexRights.Synchronize, out isaBusMutex);
-        } catch { }
+      } catch (UnauthorizedAccessException)
+      {
       }
 
       string pciMutexName = "Global\\Access_PCI";
       try {
         pciBusMutex = new Mutex(false, pciMutexName);
-      } catch (UnauthorizedAccessException) {
-        try {
-          MutexWorkaround.TryOpenExisting(isaMutexName, MutexRights.Synchronize, out pciBusMutex);
-        } catch { }
+      } catch (UnauthorizedAccessException)
+      {
       }
     }
 

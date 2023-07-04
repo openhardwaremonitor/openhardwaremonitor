@@ -77,7 +77,7 @@ namespace OpenHardwareMonitor.GUI
         private UserOption logSensors;
         private UserRadioGroup loggingInterval;
         private Logger m_valueLogger;
-        private readonly SecondInstanceService secondInstanceService = new SecondInstanceService();
+        private SecondInstanceService secondInstanceService;
 
         private bool selectionDragging = false;
 
@@ -493,8 +493,12 @@ namespace OpenHardwareMonitor.GUI
             };
 
             treeView.ExpandAll();
-            secondInstanceService.Run();
-            secondInstanceService.OnSecondInstanceRequest += HandleSecondInstanceRequest;
+            if (!Program.Arguments.CloseAll) // Won't work, because the other instance already owns the server side end of the pipe
+            {
+                secondInstanceService = new SecondInstanceService();
+                secondInstanceService.Run();
+                secondInstanceService.OnSecondInstanceRequest += HandleSecondInstanceRequest;
+            }
         }
 
         private void HandleSecondInstanceRequest(SecondInstanceService.SecondInstanceRequest requestType)
@@ -1302,8 +1306,12 @@ namespace OpenHardwareMonitor.GUI
 
         protected override void OnClosed(EventArgs e)
         {
-            secondInstanceService.OnSecondInstanceRequest -= HandleSecondInstanceRequest;
-            secondInstanceService.Dispose();
+            if (secondInstanceService != null)
+            {
+                secondInstanceService.OnSecondInstanceRequest -= HandleSecondInstanceRequest;
+                secondInstanceService.Dispose();
+            }
+
             base.OnClosed(e);
         }
     }
