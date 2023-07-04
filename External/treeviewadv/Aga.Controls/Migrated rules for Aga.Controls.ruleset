@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RuleSet Name="Migrated rules for Aga.Controls.ruleset" Description="Dieser Regelsatz wurde aus der CodeAnalysisRules-Eigenschaft für die Debug (Any CPU)-Konfiguration in Projekt &quot;C:\Users\Fetze\Desktop\treeviewadv_1.7.0.0\treeviewadv\Aga.Controls\Aga.Controls.csproj&quot; erstellt." ToolsVersion="10.0">
+  <IncludeAll Action="Warning" />
+  <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
+    <Rule Id="CA1020" Action="None" />
+    <Rule Id="CA1060" Action="None" />
+    <Rule Id="CA1062" Action="None" />
+    <Rule Id="CA1300" Action="None" />
+    <Rule Id="CA1301" Action="None" />
+    <Rule Id="CA1302" Action="None" />
+    <Rule Id="CA1303" Action="None" />
+    <Rule Id="CA1304" Action="None" />
+    <Rule Id="CA1305" Action="None" />
+    <Rule Id="CA1306" Action="None" />
+    <Rule Id="CA1501" Action="None" />
+    <Rule Id="CA1601" Action="None" />
+    <Rule Id="CA1815" Action="None" />
+    <Rule Id="CA1819" Action="None" />
+    <Rule Id="CA2208" Action="None" />
+  </Rules>
+</RuleSet>

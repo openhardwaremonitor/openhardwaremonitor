@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aga.Controls</RootNamespace>
+    <AssemblyName>Aga.Controls</AssemblyName>
+    <PublishUrl>publish\</PublishUrl>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <CodeAnalysisRuleSet>Migrated rules for Aga.Controls.ruleset</CodeAnalysisRuleSet>
+      <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+      <UseWindowsForms>true</UseWindowsForms>
+      <AllowUnsafeCode>true</AllowUnsafeCode>
+      <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
+</Project>

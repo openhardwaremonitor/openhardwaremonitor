@@ -85,7 +85,6 @@
     <Compile Include="..\Properties\AssemblyVersion.cs" Link="Properties\AssemblyVersion.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AdamsLair.TreeViewAdv" Version="1.7.7" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Grapevine" Version="5.0.0-rc.10" />
     <PackageReference Include="NLog" Version="4.7.15" />
@@ -93,6 +92,7 @@
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\External\treeviewadv\Aga.Controls\Aga.Controls.csproj" />
     <ProjectReference Include="..\OpenHardwareMonitorLib\OpenHardwareMonitorLib.csproj" />
   </ItemGroup>
   <ItemGroup>
