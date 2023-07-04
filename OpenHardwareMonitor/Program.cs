@@ -33,15 +33,19 @@ namespace OpenHardwareMonitor
             if (!AllRequiredFilesAvailable())
                 return;
 
-            if (CheckIfProcessExists())
-                return;
-
             InstallAndConfigureNlog();
 
             if (!ParseCommandLine(args))
             {
                 return;
             }
+
+            // If closeall is specified, we need to continue, so we can later kill the other instance
+            if (Arguments.CloseAll == false && CheckIfProcessExists())
+            {
+                return;
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 

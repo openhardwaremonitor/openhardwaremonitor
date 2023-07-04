@@ -17,6 +17,13 @@ namespace OpenHardwareMonitor.Utilities
 
         public event Action<SecondInstanceRequest> OnSecondInstanceRequest;
 
+        public SecondInstanceService()
+        {
+            m_cancellationToken = null;
+            m_secondInstanceTask = null;
+            m_serverPipe = null;
+        }
+
         public void Run()
         {
             m_cancellationToken = new CancellationTokenSource();
