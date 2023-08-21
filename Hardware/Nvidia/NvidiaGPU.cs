@@ -182,8 +182,12 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
     public override void Update() {
       NvGPUThermalSettings settings = GetThermalSettings();
-      foreach (Sensor sensor in temperatures)
-        sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
+      foreach (Sensor sensor in temperatures) {
+        NvSensor nvSensor = settings.Sensor[sensor.Index];
+        if (nvSensor.Controller == NvThermalController.NONE)
+          continue;
+        sensor.Value = nvSensor.CurrentTemp;
+      }
 
       bool tachReadingOk = false;
       if (NVAPI.NvAPI_GPU_GetTachReading != null && 
