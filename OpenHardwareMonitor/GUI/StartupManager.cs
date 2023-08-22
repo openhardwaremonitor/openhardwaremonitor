@@ -15,8 +15,10 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Principal;
 using System.Windows.Forms;
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 using OpenHardwareMonitor.TaskScheduler;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.GUI
 {
@@ -27,7 +29,7 @@ namespace OpenHardwareMonitor.GUI
         private bool startup;
         private bool isAvailable;
         private bool startupAsService;
-
+        private ILogger _logger;
         private const string REGISTRY_RUN =
             @"Software\Microsoft\Windows\CurrentVersion\Run";
 
@@ -47,6 +49,7 @@ namespace OpenHardwareMonitor.GUI
 
         public StartupManager()
         {
+            _logger = this.GetCurrentClassLogger();
             startupAsService = false;
             if (Hardware.OperatingSystem.IsUnix)
             {
@@ -223,16 +226,18 @@ namespace OpenHardwareMonitor.GUI
                 ITaskFolder folder = root.GetFolder("Open Hardware Monitor");
                 folder.DeleteTask("Startup", 0);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                _logger.LogError(ex, ex.Message);
             }
 
             try
             {
                 root.DeleteFolder("Open Hardware Monitor", 0);
             }
-            catch (IOException)
+            catch (Exception ex) when (ex is IOException || ex is System.Runtime.InteropServices.COMException)
             {
+                _logger.LogError(ex, ex.Message);
             }
 
             try
@@ -240,8 +245,9 @@ namespace OpenHardwareMonitor.GUI
                 // Previous versions might have registered under this name
                 root.DeleteTask("OpenHardwareMonitorAutoStart", 0);
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                _logger.LogError(ex, ex.Message);
             }
         }
 
