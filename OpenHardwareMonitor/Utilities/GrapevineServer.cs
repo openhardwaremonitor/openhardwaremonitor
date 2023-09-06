@@ -8,8 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Grapevine;
+using Microsoft.Extensions.Logging;
 using OpenHardwareMonitor.GUI;
 using OpenHardwareMonitor.Hardware;
+using OpenHardwareMonitorLib;
 
 namespace OpenHardwareMonitor.Utilities
 {
@@ -19,6 +21,7 @@ namespace OpenHardwareMonitor.Utilities
         private readonly Computer computer;
         private IRestServer server;
         private Node root;
+        private ILogger _logger;
 
         public GrapevineServer(Node node, Computer computer, int port, bool allowRemoteAccess)
         {
@@ -26,6 +29,7 @@ namespace OpenHardwareMonitor.Utilities
             this.computer = computer;
             root = node;
             AllowRemoteAccess = allowRemoteAccess;
+            _logger = this.GetCurrentClassLogger();
         }
 
         public int ListenerPort => port;
@@ -50,8 +54,9 @@ namespace OpenHardwareMonitor.Utilities
                 server.Start();
                 return server.IsListening;
             }
-            catch (Exception)
+            catch (Exception x)
             {
+                _logger.LogError(x, $"Unable to start web server: {x.Message}");
                 return false;
             }
         }

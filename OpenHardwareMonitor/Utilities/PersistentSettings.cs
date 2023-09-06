@@ -82,7 +82,6 @@ namespace OpenHardwareMonitor
 
         public void Save(string fileName)
         {
-
             XmlDocument doc = new XmlDocument();
             doc.AppendChild(doc.CreateXmlDeclaration("1.0", "utf-8", null));
             XmlElement configuration = doc.CreateElement("configuration");
@@ -122,17 +121,10 @@ namespace OpenHardwareMonitor
                 catch { }
             }
 
-            using (var stream = new FileStream(fileName,
-              FileMode.Create, FileAccess.Write))
+            using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
             {
                 stream.Write(file, 0, file.Length);
             }
-
-            try
-            {
-                File.Delete(backupFileName);
-            }
-            catch { }
         }
 
         public bool Contains(string name)

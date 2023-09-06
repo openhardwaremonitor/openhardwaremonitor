@@ -431,7 +431,9 @@ namespace OpenHardwareMonitor.GUI
                     server.Start();
                 }
                 else
+                {
                     server.Stop();
+                }
             };
 
             logSensors = new UserOption("logSensorsMenuItem", false, logSensorsMenuItem,

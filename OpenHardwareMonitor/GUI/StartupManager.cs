@@ -228,7 +228,7 @@ namespace OpenHardwareMonitor.GUI
             }
             catch (IOException ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Error deleting scheduled task: " + ex.Message);
             }
 
             try
@@ -237,7 +237,7 @@ namespace OpenHardwareMonitor.GUI
             }
             catch (Exception ex) when (ex is IOException || ex is System.Runtime.InteropServices.COMException)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Error deleting scheduled task folder: " + ex.Message);
             }
 
             try
@@ -247,7 +247,7 @@ namespace OpenHardwareMonitor.GUI
             }
             catch (IOException ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "Error deleting old startup entry: " + ex.Message);
             }
         }
 
