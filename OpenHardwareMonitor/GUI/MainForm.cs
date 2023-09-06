@@ -944,6 +944,7 @@ namespace OpenHardwareMonitor.GUI
                     {
                         process.Kill();
                         process.WaitForExit(5000);
+                        System.Threading.Thread.Sleep(1000); // Make sure OS has closed all handles
                     }
                 }
                 catch (UnauthorizedAccessException)
